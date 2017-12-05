@@ -13,6 +13,8 @@ The modules are **currently Mac only**. Windows and Linux version will follow sh
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered under the GNU license.
+![Topograph](./TopographImg.png)
+
 
 
 ### Installation
