@@ -4,11 +4,11 @@
 
 ### Version
 
-0.1
+0.5.1
 
 ### Compatibility
 
-The modules are **currently Mac only**. Windows and Linux version will follow shortly. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more information.
+The modules are **currently Mac and Windows only**. Linux version will follow shortly. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more information.
 
 ### Modules
 
@@ -19,9 +19,10 @@ The modules are **currently Mac only**. Windows and Linux version will follow sh
 
 ### Installation
 
-Download and extract the .zip file from this git repository, then place the extracted folder in:
+Download and extract the .zip file from this git repository under releases, then place the extracted folder in:
 
 	Mac - ~/Documents/Rack/plugins
+	Windows /My Documents/Rack/plugins
 
 ## Usage
 
