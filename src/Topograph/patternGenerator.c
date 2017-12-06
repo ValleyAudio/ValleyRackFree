@@ -6,6 +6,9 @@
 // Author: Dale Johnson (valley.audio.soft@gmail.com)
 // Date: 4/12/2017
 //
+// Modifications to the drum map reader code provided by Henri David
+// https://github.com/hdavid/Grids/
+//
 // Copyright 2011 Olivier Gillet.
 //
 // Author: Olivier Gillet (ol.gillet@gmail.com)
