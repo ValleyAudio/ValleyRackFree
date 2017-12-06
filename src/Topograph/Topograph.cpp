@@ -81,6 +81,13 @@ struct Topograph : Module {
     long seqStep = 0;
 
     float tempoParam = 40.0;
+    float mapX = 0.0;
+    float mapY = 0.0;
+    float chaos = 0.0;
+    float BDFill = 0.0;
+    float SNFill = 0.0;
+    float HHFill = 0.0;
+
     t_drumSettings drumSettings;
     uint8_t state = 0;
 
@@ -122,7 +129,7 @@ struct Topograph : Module {
         SNAccTrig = Oneshot(0.001, engineGetSampleRate());
         HHAccTrig = Oneshot(0.001, engineGetSampleRate());
     }
-    float chaos = 0.0;
+
     void step() override;
     void onSampleRateChange() override;
     void updateUI();
@@ -164,12 +171,25 @@ void Topograph::step() {
             advStep = false;
         }
 
-        drumSettings.mapX = (uint8_t)(params[MAPX_PARAM].value * 127.0);
-        drumSettings.mapY = (uint8_t)(params[MAPY_PARAM].value * 127.0);
-        drumSettings.density[0] = (uint8_t)(params[BD_DENS_PARAM].value * 255.0);
-        drumSettings.density[1] = (uint8_t)(params[SN_DENS_PARAM].value * 255.0);
-        drumSettings.density[2] = (uint8_t)(params[HH_DENS_PARAM].value * 255.0);
-        chaos = (uint8_t)(params[CHAOS_PARAM].value * 127.0);
+        mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.0);
+        mapX = clampf(mapX, 0.0, 1.0);
+        mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.0);
+        mapY = clampf(mapY, 0.0, 1.0);
+        BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.0);
+        BDFill = clampf(BDFill, 0.0, 1.0);
+        SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.0);
+        SNFill = clampf(SNFill, 0.0, 1.0);
+        HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.0);
+        HHFill = clampf(HHFill, 0.0, 1.0);
+        chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
+        chaos = clampf(chaos, 0.0, 1.0);
+
+        drumSettings.mapX = (uint8_t)(mapX * 127.0);
+        drumSettings.mapY = (uint8_t)(mapY * 127.0);
+        drumSettings.density[0] = (uint8_t)(BDFill * 255.0);
+        drumSettings.density[1] = (uint8_t)(SNFill * 255.0);
+        drumSettings.density[2] = (uint8_t)(HHFill * 255.0);
+        chaos = (uint8_t)(chaos * 127.0);
     }
 
     if(advStep) {
