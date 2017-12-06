@@ -25,7 +25,7 @@
 #include "patternGenerator.h"
 
 uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y) {
-    uint8_t i = (int)floor(x * 3.0 / 127.0);
+    /*uint8_t i = (int)floor(x * 3.0 / 127.0);
     uint8_t j = (int)floor(y * 3.0 / 127.0);
     const uint8_t* a_map = drum_map[i][j];
     const uint8_t* b_map = drum_map[i + 1][j];
@@ -39,7 +39,21 @@ uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y) {
     uint8_t maxValue = 127;
     uint8_t r = (( a * x + b * (maxValue - x) ) * y +
                  (c * x + d * (maxValue - x)) * ( maxValue - y )) / maxValue / maxValue;
-    return r;
+    return r;*/
+
+     uint8_t i = x >> 6;
+     uint8_t j = y >> 6;
+
+     const uint8_t* a_map = drum_map[i][j];
+     const uint8_t* b_map = drum_map[i + 1][j];
+     const uint8_t* c_map = drum_map[i][j + 1];
+     const uint8_t* d_map = drum_map[i + 1][j + 1];
+     uint8_t offset = (instrument * kStepsPerPattern) + step;
+     uint8_t a = *(a_map + offset);
+     uint8_t b = *(b_map + offset);
+     uint8_t c = *(c_map + offset);
+     uint8_t d = *(d_map + offset);
+     return U8Mix(U8Mix(a, b, x << 2), U8Mix(c, d, x << 2), y << 2);
 }
 
 uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness) {

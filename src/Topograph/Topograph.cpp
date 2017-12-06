@@ -184,8 +184,8 @@ void Topograph::step() {
         chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
         chaos = clampf(chaos, 0.0, 1.0);
 
-        drumSettings.mapX = (uint8_t)(mapX * 127.0);
-        drumSettings.mapY = (uint8_t)(mapY * 127.0);
+        drumSettings.mapX = (uint8_t)(mapX * 255.0);
+        drumSettings.mapY = (uint8_t)(mapY * 255.0);
         drumSettings.density[0] = (uint8_t)(BDFill * 255.0);
         drumSettings.density[1] = (uint8_t)(SNFill * 255.0);
         drumSettings.density[2] = (uint8_t)(HHFill * 255.0);
