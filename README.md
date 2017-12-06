@@ -12,7 +12,7 @@ The modules are **currently Mac and Windows only**. Linux version will follow sh
 
 ### Modules
 
-* Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered under the GPL-3.0 license.
+* Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
 ![Topograph](./TopographImg.png)
 
 
@@ -54,4 +54,4 @@ Watch this space!
 
 Topograph is covered by GPL-3.0
 
-Topograph's dependencies "LED" and "Metronome" are covered by BSD-3-Clause
+Topograph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
