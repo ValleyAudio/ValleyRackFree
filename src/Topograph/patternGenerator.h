@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
 #include <math.h>
 
@@ -406,8 +407,10 @@ typedef struct _drumSettings {
     uint8_t perturbation[3];
 }t_drumSettings;
 
-uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y);
-uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness);
+uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y,
+                    bool henriMode);
+uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness,
+                 bool henriMode, bool mask16thNotes);
 
 uint8_t U8Mix(uint8_t a, uint8_t b, uint8_t balance);
 

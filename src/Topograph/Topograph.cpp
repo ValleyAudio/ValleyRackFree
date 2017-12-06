@@ -80,6 +80,7 @@ struct Topograph : Module {
     bool advStep = false;
     long seqStep = 0;
 
+    bool henriMode = false;
     float tempoParam = 40.0;
     float mapX = 0.0;
     float mapY = 0.0;
@@ -193,7 +194,7 @@ void Topograph::step() {
     }
 
     if(advStep) {
-        state = getDrums(seqStep, &drumSettings, chaos);
+        state = getDrums(seqStep, &drumSettings, chaos, 1, 0);
 
         // Trigger Out
         if((state & 1) == 1) {
