@@ -12,7 +12,7 @@ The modules are **currently Mac and Windows only**. Linux version will follow sh
 
 ### Modules
 
-* Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered under the GNU license.
+* Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered under the GPL-3.0 license.
 ![Topograph](./TopographImg.png)
 
 
@@ -34,9 +34,11 @@ This module is a rhythm sequencer module. Yet, unlike the usual x0x style drum m
 
 The drum map is explored using the Map X and Y knobs. Finally, the Tempo knob controls the speed of the sequencer.
 
+To control the sequencer from an external clock, turn the Tempo knob fully counter-clockwise and patch a clock source to the clock input. The clock input does not upscale a low frequnecy clock so you must supply a 32pqnn (pulses per quarter note) clock into it to get the correct tempo.
+
 All controls have a CV input to control them. These are the silver jacks.
 
-Currently the module does not have Euclidean mode and does not respond to external clocks.
+Currently the module does not have Euclidean mode.
 
 ## Todo
 * Topograph
