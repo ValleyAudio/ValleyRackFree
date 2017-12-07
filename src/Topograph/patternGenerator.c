@@ -106,3 +106,29 @@ uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness,
 uint8_t U8Mix(uint8_t a, uint8_t b, uint8_t balance) {
     return (a * (255 - balance) + b * balance) / 255;
 }
+
+void evaluateEuclidean(t_drumState* drumState, t_drumSettings* settings) {
+    if (drumState->step & 1) {
+        return;
+    }
+    uint8_t instrument_mask = 1;
+    uint8_t reset_bits = 0;
+    for (uint8_t i = 0; i < kNumParts; ++i)  {
+        uint8_t length = (drumState->euclideanLength[i] >> 3) + 1;
+        uint8_t density = settings->density[i] >> 3;
+        uint32_t address = (length - 1) * (uint8_t)32 + density;
+        while(drumState->euclideanStep[i] >= length) {
+            drumState->euclideanStep[i] -= length;
+        }
+        uint32_t step_mask = 1L << (uint32_t)(drumState->euclideanStep[i]);
+        uint32_t pattern_bits = *(lut_res_euclidean + address);
+        if (pattern_bits & step_mask) {
+          drumState->triggerState |= instrument_mask;
+        }
+        if (drumState->euclideanStep[i] == 0) {
+          reset_bits |= instrument_mask;
+        }
+        instrument_mask <<= 1;
+    }
+    drumState->triggerState |= reset_bits << 3;
+}

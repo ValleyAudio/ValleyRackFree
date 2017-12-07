@@ -605,12 +605,21 @@ typedef struct _drumSettings {
     uint8_t perturbation[3];
 }t_drumSettings;
 
+typedef struct _drumState {
+    uint8_t step;
+    uint8_t triggerState;
+    uint8_t euclideanLength[3];
+    uint8_t euclideanStep[3];
+}t_drumState;
+
 uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y,
                     bool henriMode);
 uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness,
                  bool henriMode, bool mask16thNotes);
 
 uint8_t U8Mix(uint8_t a, uint8_t b, uint8_t balance);
+
+void evaluateEuclidean(t_drumState* drumState, t_drumSettings* settings);
 
 #ifdef __cplusplus
 }
