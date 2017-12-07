@@ -113,6 +113,12 @@ struct Topograph : Module {
     };
     SequencerMode sequencerMode = HENRI;
 
+    enum TriggerOutputMode {
+        PULSE,
+        GATE
+    };
+    TriggerOutputMode triggerOutputMode = PULSE;
+
     enum AccOutputMode {
         INDIVIDUAL_ACCENTS,
         ACC_CLK_RST
@@ -436,17 +442,6 @@ TopographWidget::TopographWidget() {
 /////////////////////////////////////////// Context Menu ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct TopographAccOutputModeItem : MenuItem {
-    Topograph* topograph;
-    Topograph::AccOutputMode accOutputMode;
-    void onAction(EventAction &e) override {
-        topograph->accOutputMode = accOutputMode;
-    }
-    void step() override {
-        rightText = (topograph->accOutputMode == accOutputMode) ? "✔" : "";
-    }
-};
-
 struct TopographSequencerModeItem : MenuItem {
     Topograph* topograph;
     Topograph::SequencerMode sequencerMode;
@@ -455,6 +450,28 @@ struct TopographSequencerModeItem : MenuItem {
     }
     void step() override {
         rightText = (topograph->sequencerMode == sequencerMode) ? "✔" : "";
+    }
+};
+
+struct TopographTriggerOutputModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::TriggerOutputMode triggerOutputMode;
+    void onAction(EventAction &e) override {
+        topograph->triggerOutputMode = triggerOutputMode;
+    }
+    void step() override {
+        rightText = (topograph->triggerOutputMode == triggerOutputMode) ? "✔" : "";
+    }
+    };
+
+struct TopographAccOutputModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::AccOutputMode accOutputMode;
+    void onAction(EventAction &e) override {
+        topograph->accOutputMode = accOutputMode;
+    }
+    void step() override {
+        rightText = (topograph->accOutputMode == accOutputMode) ? "✔" : "";
     }
 };
 
@@ -485,25 +502,6 @@ Menu* TopographWidget::createContextMenu() {
     Topograph *topograph = dynamic_cast<Topograph*>(module);
     assert(topograph);
 
-    // Acc Output Modes
-    MenuLabel *accModeSpacerLabel = new MenuLabel();
-    menu->addChild(accModeSpacerLabel);
-    MenuLabel *accOutputModeLabel = new MenuLabel();
-    accOutputModeLabel->text = "Accent Output Mode";
-    menu->addChild(accOutputModeLabel);
-
-    TopographAccOutputModeItem *individualAccItem = new TopographAccOutputModeItem();
-    individualAccItem->text = "Individual accents";
-    individualAccItem->topograph = topograph;
-    individualAccItem->accOutputMode = Topograph::INDIVIDUAL_ACCENTS;
-    menu->addChild(individualAccItem);
-
-    TopographAccOutputModeItem *accClkRstItem = new TopographAccOutputModeItem();
-    accClkRstItem->text = "Accent / Clock / Reset";
-    accClkRstItem->topograph = topograph;
-    accClkRstItem->accOutputMode = Topograph::ACC_CLK_RST;
-    menu->addChild(accClkRstItem);
-
     // Sequencer Modes
     MenuLabel *sequencerModeSpacerLabel = new MenuLabel();
     menu->addChild(sequencerModeSpacerLabel);
@@ -528,6 +526,44 @@ Menu* TopographWidget::createContextMenu() {
     euclideanSeqModeItem->topograph = topograph;
     euclideanSeqModeItem->sequencerMode = Topograph::EUCLIDEAN;
     menu->addChild(euclideanSeqModeItem);
+
+    // Trigger Output Modes
+    MenuLabel *triggerOutputModeSpacerLabel = new MenuLabel();
+    menu->addChild(triggerOutputModeSpacerLabel);
+    MenuLabel *triggerOutputModeLabel = new MenuLabel();
+    triggerOutputModeLabel->text = "Trigger Output Mode";
+    menu->addChild(triggerOutputModeLabel);
+
+    TopographTriggerOutputModeItem *triggerPulseItem = new TopographTriggerOutputModeItem();
+    triggerPulseItem->text = "1ms Pulse";
+    triggerPulseItem->topograph = topograph;
+    triggerPulseItem->triggerOutputMode = Topograph::PULSE;
+    menu->addChild(triggerPulseItem);
+
+    TopographTriggerOutputModeItem *triggerGateItem = new TopographTriggerOutputModeItem();
+    triggerGateItem->text = "Gate";
+    triggerGateItem->topograph = topograph;
+    triggerGateItem->triggerOutputMode = Topograph::GATE;
+    menu->addChild(triggerGateItem);
+
+    // Acc Output Modes
+    MenuLabel *accModeSpacerLabel = new MenuLabel();
+    menu->addChild(accModeSpacerLabel);
+    MenuLabel *accOutputModeLabel = new MenuLabel();
+    accOutputModeLabel->text = "Accent Output Mode";
+    menu->addChild(accOutputModeLabel);
+
+    TopographAccOutputModeItem *individualAccItem = new TopographAccOutputModeItem();
+    individualAccItem->text = "Individual accents";
+    individualAccItem->topograph = topograph;
+    individualAccItem->accOutputMode = Topograph::INDIVIDUAL_ACCENTS;
+    menu->addChild(individualAccItem);
+
+    TopographAccOutputModeItem *accClkRstItem = new TopographAccOutputModeItem();
+    accClkRstItem->text = "Accent / Clock / Reset";
+    accClkRstItem->topograph = topograph;
+    accClkRstItem->accOutputMode = Topograph::ACC_CLK_RST;
+    menu->addChild(accClkRstItem);
 
     // Chaos Knob Mode
     MenuLabel *chaosKnobModeSpacerLabel = new MenuLabel();
