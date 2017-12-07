@@ -42,7 +42,8 @@ Currently the module does not have Euclidean mode.
 
 ## Todo
 * Topograph
-	* Implement Euclidean mode and ACC alt modes (can be right-click menu items)
+	* Implement Euclidean mode and ACC alt modes (can be right-click menu items).
+    * Abstract the Grids code into more C++ style code, and try to emulate the behaviour of the module further.
 
 ## Future
 
