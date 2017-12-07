@@ -366,6 +366,12 @@ void Topograph::onSampleRateChange() {
     SNLed.setSampleRate(engineGetSampleRate());
     HHLed.setSampleRate(engineGetSampleRate());
     resetLed.setSampleRate(engineGetSampleRate());
+    BDTrig = Oneshot(0.001, engineGetSampleRate());
+    SNTrig = Oneshot(0.001, engineGetSampleRate());
+    HHTrig = Oneshot(0.001, engineGetSampleRate());
+    BDAccTrig = Oneshot(0.001, engineGetSampleRate());
+    SNAccTrig = Oneshot(0.001, engineGetSampleRate());
+    HHAccTrig = Oneshot(0.001, engineGetSampleRate());
 }
 
 TopographWidget::TopographWidget() {
