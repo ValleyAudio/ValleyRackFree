@@ -71,7 +71,7 @@ uint8_t getDrums(uint8_t step, t_drumSettings* settings, uint8_t randomness,
         for (uint8_t i = 0; i < kNumParts; ++i) {
             uint8_t r = randomness >> 2;
             uint8_t rand2 = (uint8_t)(abs(rand()) % 256);
-            settings->perturbation[i] = (rand2 * r) >> 8;
+            settings->perturbation[i] = (rand2 * r) >> 7;
         }
     }
     uint8_t state = 0;
