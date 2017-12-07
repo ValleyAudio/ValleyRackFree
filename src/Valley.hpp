@@ -11,4 +11,5 @@ extern Plugin *plugin;
 
 struct TopographWidget : ModuleWidget {
 	TopographWidget();
+    Menu* createContextMenu() override;
 };

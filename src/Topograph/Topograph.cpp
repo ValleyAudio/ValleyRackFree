@@ -80,7 +80,6 @@ struct Topograph : Module {
     bool advStep = false;
     long seqStep = 0;
 
-    bool henriMode = false;
     float tempoParam = 40.0;
     float mapX = 0.0;
     float mapY = 0.0;
@@ -106,6 +105,32 @@ struct Topograph : Module {
     Oneshot BDAccTrig;
     Oneshot SNAccTrig;
     Oneshot HHAccTrig;
+
+    enum SequencerMode {
+        HENRI,
+        OLIVIER,
+        EUCLIDEAN
+    };
+    SequencerMode sequencerMode = HENRI;
+
+    enum AccOutputMode {
+        INDIVIDUAL_ACCENTS,
+        ACC_CLK_RST
+    };
+    AccOutputMode accOutputMode = INDIVIDUAL_ACCENTS;
+
+    enum ExtClockResolution {
+        EXTCLOCK_RES_4_PPQN,
+        EXTCLOCK_RES_8_PPQN,
+        EXTCLOCK_RES_24_PPQN,
+    };
+    ExtClockResolution extClockResolution = EXTCLOCK_RES_24_PPQN;
+
+    enum ChaosKnobMode {
+        CHAOS,
+        SWING
+    };
+    ChaosKnobMode chaosKnobMode = CHAOS;
 
 	Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS){
         metro = Metronome(120, engineGetSampleRate(), 32.0);
@@ -194,7 +219,16 @@ void Topograph::step() {
     }
 
     if(advStep) {
-        state = getDrums(seqStep, &drumSettings, chaos, 1, 0);
+        switch(sequencerMode) {
+            case HENRI:
+                state = getDrums(seqStep, &drumSettings, chaos, 1, 0);
+                break;
+            case OLIVIER:
+                state = getDrums(seqStep, &drumSettings, chaos, 0, 0);
+                break;
+            default:
+                state = getDrums(seqStep, &drumSettings, chaos, 0, 0);
+        }
 
         // Trigger Out
         if((state & 1) == 1) {
@@ -396,4 +430,123 @@ TopographWidget::TopographWidget() {
     addChild(createLight<SmallLight<RedLight>>(Vec(138.824, 218), module, Topograph::BD_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(174.824, 218), module, Topograph::SN_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(210.824, 218), module, Topograph::HH_LIGHT));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// Context Menu ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct TopographAccOutputModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::AccOutputMode accOutputMode;
+    void onAction(EventAction &e) override {
+        topograph->accOutputMode = accOutputMode;
+    }
+    void step() override {
+        rightText = (topograph->accOutputMode == accOutputMode) ? "✔" : "";
+    }
+};
+
+struct TopographSequencerModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::SequencerMode sequencerMode;
+    void onAction(EventAction &e) override {
+        topograph->sequencerMode = sequencerMode;
+    }
+    void step() override {
+        rightText = (topograph->sequencerMode == sequencerMode) ? "✔" : "";
+    }
+};
+
+struct TopographClockResolutionItem : MenuItem {
+    Topograph* topograph;
+    Topograph::ExtClockResolution extClockResolution;
+    void onAction(EventAction &e) override {
+        topograph->extClockResolution = extClockResolution;
+    }
+    void step() override {
+        rightText = (topograph->extClockResolution == extClockResolution) ? "✔" : "";
+    }
+};
+
+struct TopographChaosKnobModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::ChaosKnobMode chaosKnobMode;
+    void onAction(EventAction &e) override {
+        topograph->chaosKnobMode = chaosKnobMode;
+    }
+    void step() override {
+        rightText = (topograph->chaosKnobMode == chaosKnobMode) ? "✔" : "";
+    }
+};
+
+Menu* TopographWidget::createContextMenu() {
+    Menu* menu = ModuleWidget::createContextMenu();
+    Topograph *topograph = dynamic_cast<Topograph*>(module);
+    assert(topograph);
+
+    // Acc Output Modes
+    MenuLabel *accModeSpacerLabel = new MenuLabel();
+    menu->addChild(accModeSpacerLabel);
+    MenuLabel *accOutputModeLabel = new MenuLabel();
+    accOutputModeLabel->text = "Accent Output Mode";
+    menu->addChild(accOutputModeLabel);
+
+    TopographAccOutputModeItem *individualAccItem = new TopographAccOutputModeItem();
+    individualAccItem->text = "Individual accents";
+    individualAccItem->topograph = topograph;
+    individualAccItem->accOutputMode = Topograph::INDIVIDUAL_ACCENTS;
+    menu->addChild(individualAccItem);
+
+    TopographAccOutputModeItem *accClkRstItem = new TopographAccOutputModeItem();
+    accClkRstItem->text = "Accent / Clock / Reset";
+    accClkRstItem->topograph = topograph;
+    accClkRstItem->accOutputMode = Topograph::ACC_CLK_RST;
+    menu->addChild(accClkRstItem);
+
+    // Sequencer Modes
+    MenuLabel *sequencerModeSpacerLabel = new MenuLabel();
+    menu->addChild(sequencerModeSpacerLabel);
+    MenuLabel *sequencerModeLabel = new MenuLabel();
+    sequencerModeLabel->text = "Sequencer Mode";
+    menu->addChild(sequencerModeLabel);
+
+    TopographSequencerModeItem *henriSeqModeItem = new TopographSequencerModeItem();
+    henriSeqModeItem->text = "Henri";
+    henriSeqModeItem->topograph = topograph;
+    henriSeqModeItem->sequencerMode = Topograph::HENRI;
+    menu->addChild(henriSeqModeItem);
+
+    TopographSequencerModeItem *olivierSeqModeItem = new TopographSequencerModeItem();
+    olivierSeqModeItem->text = "Olivier";
+    olivierSeqModeItem->topograph = topograph;
+    olivierSeqModeItem->sequencerMode = Topograph::OLIVIER;
+    menu->addChild(olivierSeqModeItem);
+
+    TopographSequencerModeItem *euclideanSeqModeItem = new TopographSequencerModeItem();
+    euclideanSeqModeItem->text = "Euclidean";
+    euclideanSeqModeItem->topograph = topograph;
+    euclideanSeqModeItem->sequencerMode = Topograph::EUCLIDEAN;
+    menu->addChild(euclideanSeqModeItem);
+
+    // Chaos Knob Mode
+    MenuLabel *chaosKnobModeSpacerLabel = new MenuLabel();
+    menu->addChild(chaosKnobModeSpacerLabel);
+    MenuLabel *chaosKnobModeLabel = new MenuLabel();
+    chaosKnobModeLabel->text = "Chaos Knob Modes";
+    menu->addChild(chaosKnobModeLabel);
+
+    TopographChaosKnobModeItem *chaosKnobModeItem = new TopographChaosKnobModeItem();
+    chaosKnobModeItem->text = "Chaos";
+    chaosKnobModeItem->topograph = topograph;
+    chaosKnobModeItem->chaosKnobMode = Topograph::CHAOS;
+    menu->addChild(chaosKnobModeItem);
+
+    TopographChaosKnobModeItem *swingKnobModeItem = new TopographChaosKnobModeItem();
+    swingKnobModeItem->text = "Swing";
+    swingKnobModeItem->topograph = topograph;
+    swingKnobModeItem->chaosKnobMode = Topograph::SWING;
+    menu->addChild(swingKnobModeItem);
+
+    return menu;
 }
