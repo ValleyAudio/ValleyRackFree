@@ -20,13 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// TODO : Add ACC output options
-
 #include "../Valley.hpp"
 #include "dsp/digital.hpp"
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
-#include "patternGenerator.h"
+#include "TopographPatternGenerator.hpp"
 
 struct Topograph : Module {
     enum ParamIds {
@@ -61,6 +59,7 @@ struct Topograph : Module {
         HH_ACC_OUTPUT,
         NUM_OUTPUTS
     };
+
     enum LightIds {
         RUNNING_LIGHT,
         RESET_LIGHT,
@@ -70,11 +69,14 @@ struct Topograph : Module {
         NUM_LIGHTS
     };
 
+    Metronome metro;
+    PatternGenerator grids;
+    uint8_t numTicks;
     SchmittTrigger clockTrig;
     SchmittTrigger resetTrig;
     SchmittTrigger resetButtonTrig;
     SchmittTrigger runButtonTrig;
-    Metronome metro;
+    bool initExtReset = true;
     bool running = false;
     bool extClock = false;
     bool advStep = false;
@@ -88,10 +90,11 @@ struct Topograph : Module {
     float SNFill = 0.0;
     float HHFill = 0.0;
 
-    t_drumSettings drumSettings;
     uint8_t state = 0;
 
     // LED Triggers
+    Oneshot drumLED[3];
+    const LightIds drumLEDIds[3] = {BD_LIGHT, SN_LIGHT, HH_LIGHT};
     Oneshot BDLed;
     Oneshot SNLed;
     Oneshot HHLed;
@@ -99,12 +102,10 @@ struct Topograph : Module {
     Oneshot runningLed;
 
     // Drum Triggers
-    Oneshot BDTrig;
-    Oneshot SNTrig;
-    Oneshot HHTrig;
-    Oneshot BDAccTrig;
-    Oneshot SNAccTrig;
-    Oneshot HHAccTrig;
+    Oneshot drumTriggers[6];
+    bool gateState[6];
+    const OutputIds outIDs[6] = {BD_OUTPUT, SN_OUTPUT, HH_OUTPUT,
+                                 BD_ACC_OUTPUT, SN_ACC_OUTPUT, HH_ACC_OUTPUT};
 
     enum SequencerMode {
         HENRI,
@@ -138,29 +139,80 @@ struct Topograph : Module {
     };
     ChaosKnobMode chaosKnobMode = CHAOS;
 
-	Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS){
-        metro = Metronome(120, engineGetSampleRate(), 32.0);
-        drumSettings.mapX = 0;
-        drumSettings.mapY = 0;
-        drumSettings.density[0] = 64;
-        drumSettings.density[1] = 64;
-        drumSettings.density[2] = 64;
-        drumSettings.perturbation[0] = 0;
-        drumSettings.perturbation[1] = 0;
-        drumSettings.perturbation[2] = 0;
-
+    Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+        metro = Metronome(120, engineGetSampleRate(), 24.0);
+        numTicks = ticks_granularity[2];
         srand(time(NULL));
         BDLed = Oneshot(0.1, engineGetSampleRate());
         SNLed = Oneshot(0.1, engineGetSampleRate());
         HHLed = Oneshot(0.1, engineGetSampleRate());
         resetLed = Oneshot(0.1, engineGetSampleRate());
-        BDTrig = Oneshot(0.001, engineGetSampleRate());
-        SNTrig = Oneshot(0.001, engineGetSampleRate());
-        HHTrig = Oneshot(0.001, engineGetSampleRate());
-        BDAccTrig = Oneshot(0.001, engineGetSampleRate());
-        SNAccTrig = Oneshot(0.001, engineGetSampleRate());
-        HHAccTrig = Oneshot(0.001, engineGetSampleRate());
+        clockTrig.setThresholds(0.25, 0.75);
+        resetTrig.setThresholds(0.25, 0.75);
+        for(int i = 0; i < 6; ++i) {
+            drumTriggers[i] = Oneshot(0.001, engineGetSampleRate());
+            gateState[i] = false;
+        }
+        for(int i = 0; i < 3; ++i) {
+            drumLED[i] = Oneshot(0.1, engineGetSampleRate());
+        }
     }
+
+    json_t *toJson() override {
+		json_t *rootJ = json_object();
+		json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
+		json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
+		json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
+        json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
+        json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
+		return rootJ;
+	}
+
+	void fromJson(json_t *rootJ) override {
+		json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
+		if (sequencerModeJ) {
+			sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
+            switch(sequencerMode) {
+                case HENRI:
+                    grids.setPatternMode(PATTERN_HENRI);
+                    break;
+                case OLIVIER:
+                    grids.setPatternMode(PATTERN_OLIVIER);
+                    break;
+                case EUCLIDEAN:
+                    grids.setPatternMode(PATTERN_EUCLIDEAN);
+                    break;
+            }
+		}
+
+        json_t *triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
+		if (triggerOutputModeJ) {
+			triggerOutputMode = (Topograph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
+		}
+
+        json_t *accOutputModeJ = json_object_get(rootJ, "accOutputMode");
+		if (accOutputModeJ) {
+			accOutputMode = (Topograph::AccOutputMode) json_integer_value(accOutputModeJ);
+            switch(accOutputMode) {
+                case INDIVIDUAL_ACCENTS:
+                    grids.setAccentAltMode(false);
+                    break;
+                case ACC_CLK_RST:
+                    grids.setAccentAltMode(true);
+            }
+		}
+
+        json_t *extClockResolutionJ = json_object_get(rootJ, "extClockResolution");
+		if (extClockResolutionJ) {
+			extClockResolution = (Topograph::ExtClockResolution) json_integer_value(extClockResolutionJ);
+            grids.reset();
+		}
+
+        json_t *chaosKnobModeJ = json_object_get(rootJ, "chaosKnobMode");
+		if (chaosKnobModeJ) {
+			chaosKnobMode = (Topograph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
+		}
+	}
 
     void step() override;
     void onSampleRateChange() override;
@@ -170,22 +222,31 @@ struct Topograph : Module {
 
 void Topograph::step() {
     if (runButtonTrig.process(params[RUN_BUTTON_PARAM].value)) {
-		running = !running;
+        running = !running;
         lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
-	}
+    }
     if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].value) ||
-       resetTrig.process(inputs[RESET_INPUT].value)) {
+        resetTrig.process(inputs[RESET_INPUT].value)) {
+        grids.reset();
         metro.reset();
         resetLed.trigger();
         seqStep = 0;
     }
 
+    // Clock and tempo
     tempoParam = params[TEMPO_PARAM].value;
     metro.setTempo(rescalef(tempoParam, 0.01, 1.0, 40.0, 240.0));
     if(tempoParam < 0.01) {
+        if(initExtReset) {
+            grids.reset();
+            initExtReset = false;
+        }
+        numTicks = ticks_granularity[extClockResolution];
         extClock = true;
     }
     else {
+        initExtReset = true;
+        numTicks = ticks_granularity[2];
         extClock = false;
         metro.process();
     }
@@ -216,54 +277,29 @@ void Topograph::step() {
         chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
         chaos = clampf(chaos, 0.0, 1.0);
 
-        drumSettings.mapX = (uint8_t)(mapX * 255.0);
-        drumSettings.mapY = (uint8_t)(mapY * 255.0);
-        drumSettings.density[0] = (uint8_t)(BDFill * 255.0);
-        drumSettings.density[1] = (uint8_t)(SNFill * 255.0);
-        drumSettings.density[2] = (uint8_t)(HHFill * 255.0);
-        chaos = (uint8_t)(chaos * 127.0);
+        grids.setMapX((uint8_t)(mapX * 255.0));
+        grids.setMapY((uint8_t)(mapY * 255.0));
+        grids.setBDDensity((uint8_t)(BDFill * 255.0));
+        grids.setSDDensity((uint8_t)(SNFill * 255.0));
+        grids.setHHDensity((uint8_t)(HHFill * 255.0));
+        grids.setRandomness((uint8_t)(chaos * 255.0));
+
+        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
+        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
+        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
     }
 
     if(advStep) {
-        switch(sequencerMode) {
-            case HENRI:
-                state = getDrums(seqStep, &drumSettings, chaos, 1, 0);
-                break;
-            case OLIVIER:
-                state = getDrums(seqStep, &drumSettings, chaos, 0, 0);
-                break;
-            default:
-                state = getDrums(seqStep, &drumSettings, chaos, 0, 0);
+        grids.tick(numTicks);
+        for(int i = 0; i < 6; ++i) {
+            if(grids.getDrumState(i)) {
+                drumTriggers[i].trigger();
+                gateState[i] = true;
+                if(i < 3) {
+                    drumLED[i].trigger();
+                }
+            }
         }
-
-        // Trigger Out
-        if((state & 1) == 1) {
-            BDTrig.trigger();
-            BDLed.trigger();
-        }
-
-        if((state & 2) == 2) {
-            SNTrig.trigger();
-            SNLed.trigger();
-        }
-
-        if((state & 4) == 4) {
-            HHLed.trigger();
-            HHTrig.trigger();
-        }
-
-        // Accent Out
-        if((state & 8) == 8) {
-            BDAccTrig.trigger();
-        }
-        if((state & 16) == 16) {
-            SNAccTrig.trigger();
-        }
-
-        if((state & 32) == 32) {
-            HHAccTrig.trigger();
-        }
-
         seqStep++;
         if(seqStep >= 32) {
             seqStep = 0;
@@ -275,31 +311,18 @@ void Topograph::step() {
 }
 
 void Topograph::updateUI() {
-    BDLed.process();
-    SNLed.process();
-    HHLed.process();
+
     resetLed.process();
-
-    if(BDLed.getState() == 1) {
-        lights[BD_LIGHT].value = 1.0;
-    }
-    else {
-        lights[BD_LIGHT].value = 0.0;
-    }
-
-    if(SNLed.getState() == 1) {
-        lights[SN_LIGHT].value = 1.0;
-    }
-    else {
-        lights[SN_LIGHT].value = 0.0;
+    for(int i = 0; i < 3; ++i) {
+        drumLED[i].process();
+        if(drumLED[i].getState() == 1) {
+            lights[drumLEDIds[i]].value = 1.0;
+        }
+        else {
+            lights[drumLEDIds[i]].value = 0.0;
+        }
     }
 
-    if(HHLed.getState() == 1) {
-        lights[HH_LIGHT].value = 1.0;
-    }
-    else {
-        lights[HH_LIGHT].value = 0.0;
-    }
 
     if(resetLed.getState() == 1) {
         lights[RESET_LIGHT].value = 1.0;
@@ -310,68 +333,39 @@ void Topograph::updateUI() {
 }
 
 void Topograph::updateOutputs() {
-    BDTrig.process();
-    SNTrig.process();
-    HHTrig.process();
-    BDAccTrig.process();
-    SNAccTrig.process();
-    HHAccTrig.process();
-
-    if(BDTrig.getState()) {
-        outputs[BD_OUTPUT].value = 10;
+    if(triggerOutputMode == PULSE) {
+        for(int i = 0; i < 6; ++i) {
+            drumTriggers[i].process();
+            if(drumTriggers[i].getState()) {
+                outputs[outIDs[i]].value = 10;
+            }
+            else {
+                outputs[outIDs[i]].value = 0;
+            }
+        }
     }
     else {
-        outputs[BD_OUTPUT].value = 0;
-    }
-
-    if(SNTrig.getState()) {
-        outputs[SN_OUTPUT].value = 10;
-    }
-    else {
-        outputs[SN_OUTPUT].value = 0;
-    }
-
-    if(HHTrig.getState()) {
-        outputs[HH_OUTPUT].value = 10;
-    }
-    else {
-        outputs[HH_OUTPUT].value = 0;
-    }
-
-    if(BDAccTrig.getState()) {
-        outputs[BD_ACC_OUTPUT].value = 10;
-    }
-    else {
-        outputs[BD_ACC_OUTPUT].value = 0;
-    }
-
-    if(SNAccTrig.getState()) {
-        outputs[SN_ACC_OUTPUT].value = 10;
-    }
-    else {
-        outputs[SN_ACC_OUTPUT].value = 0;
-    }
-
-    if(HHAccTrig.getState()) {
-        outputs[HH_ACC_OUTPUT].value = 10;
-    }
-    else {
-        outputs[HH_ACC_OUTPUT].value = 0;
+        for(int i = 0; i < 6; ++i) {
+            if(metro.getElapsedTickTime() < 0.5 && gateState[i]) {
+                outputs[outIDs[i]].value = 10;
+            }
+            else {
+                outputs[outIDs[i]].value = 0;
+                gateState[i] = false;
+            }
+        }
     }
 }
 
 void Topograph::onSampleRateChange() {
     metro.setSampleRate(engineGetSampleRate());
-    BDLed.setSampleRate(engineGetSampleRate());
-    SNLed.setSampleRate(engineGetSampleRate());
-    HHLed.setSampleRate(engineGetSampleRate());
+    for(int i = 0; i < 3; ++i) {
+        drumLED[i].setSampleRate(engineGetSampleRate());
+    }
     resetLed.setSampleRate(engineGetSampleRate());
-    BDTrig = Oneshot(0.001, engineGetSampleRate());
-    SNTrig = Oneshot(0.001, engineGetSampleRate());
-    HHTrig = Oneshot(0.001, engineGetSampleRate());
-    BDAccTrig = Oneshot(0.001, engineGetSampleRate());
-    SNAccTrig = Oneshot(0.001, engineGetSampleRate());
-    HHAccTrig = Oneshot(0.001, engineGetSampleRate());
+    for(int i = 0; i < 6; ++i) {
+        drumTriggers[i].setSampleRate(engineGetSampleRate());
+    }
 }
 
 TopographWidget::TopographWidget() {
@@ -386,7 +380,7 @@ TopographWidget::TopographWidget() {
         addChild(panel);
     }
 
-    // Custom Knobs
+    // Custom control graphics
     struct Rogan1PSBrightRed : Rogan {
         Rogan1PSBrightRed() {
             setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
@@ -405,14 +399,20 @@ TopographWidget::TopographWidget() {
     	}
     };
 
+    struct LightLEDButton : SVGSwitch, MomentarySwitch {
+	LightLEDButton() {
+		addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
+	};
+};
+
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addParam(createParam<LEDButton>(Vec(60, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(Vec(60, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
     addChild(createLight<MediumLight<RedLight>>(Vec(64.4, 119), module, Topograph::RESET_LIGHT));
-    addParam(createParam<LEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
     addChild(createLight<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
 
     addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.4));
@@ -453,6 +453,17 @@ struct TopographSequencerModeItem : MenuItem {
     Topograph::SequencerMode sequencerMode;
     void onAction(EventAction &e) override {
         topograph->sequencerMode = sequencerMode;
+        switch(sequencerMode) {
+            case Topograph::HENRI:
+                topograph->grids.setPatternMode(PATTERN_HENRI);
+                break;
+            case Topograph::OLIVIER:
+                topograph->grids.setPatternMode(PATTERN_OLIVIER);
+                break;
+            case Topograph::EUCLIDEAN:
+                topograph->grids.setPatternMode(PATTERN_EUCLIDEAN);
+                break;
+        }
     }
     void step() override {
         rightText = (topograph->sequencerMode == sequencerMode) ? "✔" : "";
@@ -468,13 +479,20 @@ struct TopographTriggerOutputModeItem : MenuItem {
     void step() override {
         rightText = (topograph->triggerOutputMode == triggerOutputMode) ? "✔" : "";
     }
-    };
+};
 
 struct TopographAccOutputModeItem : MenuItem {
     Topograph* topograph;
     Topograph::AccOutputMode accOutputMode;
     void onAction(EventAction &e) override {
         topograph->accOutputMode = accOutputMode;
+        switch(accOutputMode) {
+            case Topograph::INDIVIDUAL_ACCENTS:
+                topograph->grids.setAccentAltMode(false);
+                break;
+            case Topograph::ACC_CLK_RST:
+                topograph->grids.setAccentAltMode(true);
+        }
     }
     void step() override {
         rightText = (topograph->accOutputMode == accOutputMode) ? "✔" : "";
@@ -486,6 +504,7 @@ struct TopographClockResolutionItem : MenuItem {
     Topograph::ExtClockResolution extClockResolution;
     void onAction(EventAction &e) override {
         topograph->extClockResolution = extClockResolution;
+        topograph->grids.reset();
     }
     void step() override {
         rightText = (topograph->extClockResolution == extClockResolution) ? "✔" : "";
@@ -571,11 +590,36 @@ Menu* TopographWidget::createContextMenu() {
     accClkRstItem->accOutputMode = Topograph::ACC_CLK_RST;
     menu->addChild(accClkRstItem);
 
+    // External clock resolution
+    MenuLabel *extClockResSpacerLabel = new MenuLabel();
+    menu->addChild(extClockResSpacerLabel);
+    MenuLabel *extClockResLabel = new MenuLabel();
+    extClockResLabel->text = "Ext. Clock Resolution";
+    menu->addChild(extClockResLabel);
+
+    TopographClockResolutionItem *fourPPQNItem = new TopographClockResolutionItem();
+    fourPPQNItem->text = "4 PPQN";
+    fourPPQNItem->topograph = topograph;
+    fourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_4_PPQN;
+    menu->addChild(fourPPQNItem);
+
+    TopographClockResolutionItem *eightPPQNItem = new TopographClockResolutionItem();
+    eightPPQNItem->text = "8 PPQN";
+    eightPPQNItem->topograph = topograph;
+    eightPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_8_PPQN;
+    menu->addChild(eightPPQNItem);
+
+    TopographClockResolutionItem *twentyFourPPQNItem = new TopographClockResolutionItem();
+    twentyFourPPQNItem->text = "24 PPQN";
+    twentyFourPPQNItem->topograph = topograph;
+    twentyFourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_24_PPQN;
+    menu->addChild(twentyFourPPQNItem);
+
     // Chaos Knob Mode
-    MenuLabel *chaosKnobModeSpacerLabel = new MenuLabel();
+    /*MenuLabel *chaosKnobModeSpacerLabel = new MenuLabel();
     menu->addChild(chaosKnobModeSpacerLabel);
     MenuLabel *chaosKnobModeLabel = new MenuLabel();
-    chaosKnobModeLabel->text = "Chaos Knob Modes";
+    chaosKnobModeLabel->text = "Chaos Knob Mode";
     menu->addChild(chaosKnobModeLabel);
 
     TopographChaosKnobModeItem *chaosKnobModeItem = new TopographChaosKnobModeItem();
@@ -588,7 +632,7 @@ Menu* TopographWidget::createContextMenu() {
     swingKnobModeItem->text = "Swing";
     swingKnobModeItem->topograph = topograph;
     swingKnobModeItem->chaosKnobMode = Topograph::SWING;
-    menu->addChild(swingKnobModeItem);
+    menu->addChild(swingKnobModeItem);*/
 
     return menu;
 }
