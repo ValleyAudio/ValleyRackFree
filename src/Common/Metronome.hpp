@@ -35,20 +35,24 @@
 
 #ifndef VALLEY_METRONOME_HPP
 #define VALLEY_METRONOME_HPP
+#include <cmath>
 
 class Metronome {
 public:
     Metronome();
     Metronome(float initTempo, float sampleRate);
     Metronome(float initTempo, float sampleRate, float division);
+    Metronome(float initTempo, float sampleRate, float division, float phase);
     void process();
     void reset();
 
     void setSampleRate(float sampleRate);
     void setTempo(float tempo);
     void setDivision(float division);
+    void setPhase(float phase);
 
     bool hasTicked() const;
+    float getElapsedTickTime() const;
 private:
     float _sampleRate;
     float _tempo;
@@ -56,7 +60,11 @@ private:
     float _beatInterval;
     float _tickIncrement;
     float _elapsedTickTime;
+    float _phasedElapsedTickTime;
+    float _prevPhasedElapsedTickTime;
+    float _phase;
     bool _ticked;
+    bool _previouslyTicked;
 
     void calcTickIncrement();
 };
