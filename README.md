@@ -4,11 +4,18 @@
 
 ### Version
 
-0.5.1
+0.5.2
+
+    • New features! Check the right click menu:
+        - 3 drum modes (including Euclidean).
+        - Accent output alt mode
+        - 3 external clock resolutions
+        - 1ms and 50% duty cycle gate mode for all trigger outputs
+        - Improved ext clock sensitivity.
 
 ### Compatibility
 
-The modules are **currently Mac and Windows only**. Linux version will follow shortly. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more information.
+The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
 ### Modules
 
@@ -16,13 +23,13 @@ The modules are **currently Mac and Windows only**. Linux version will follow sh
 ![Topograph](./TopographImg.png)
 
 
-
 ### Installation
 
 Download and extract the .zip file from this git repository under releases, then place the extracted folder in:
 
-	Mac - ~/Documents/Rack/plugins
-	Windows /My Documents/Rack/plugins
+    * Mac - ~/Documents/Rack/plugins
+    * Windows - /My Documents/Rack/plugins
+    * Linux - ~/.Rack/plugins
 
 ## Usage
 
@@ -34,16 +41,13 @@ This module is a rhythm sequencer module. Yet, unlike the usual x0x style drum m
 
 The drum map is explored using the Map X and Y knobs. Finally, the Tempo knob controls the speed of the sequencer.
 
-To control the sequencer from an external clock, turn the Tempo knob fully counter-clockwise and patch a clock source to the clock input. The clock input does not upscale a low frequency clock so you must supply a 32ppqn (pulses per quarter note) clock into it to get the correct tempo.
+To control the sequencer from an external clock, turn the Tempo knob fully counter-clockwise and patch a clock source to the clock input. The clock input does not upscale a low frequency clock so you must select the appropriate PPQN (pulses per quarter note) resolution for your clock to get the correct tempo. 4 and 8 PPQN modes can distort certain patterns.
 
 All controls have a CV input to control them. These are the silver jacks.
 
-Currently the module does not have Euclidean mode.
-
 ## Todo
 * Topograph
-	* Implement Euclidean mode and ACC alt modes (can be right-click menu items).
-    * Abstract the Grids code into more C++ style code, and try to emulate the behaviour of the module further.
+    * Add swing.
 
 ## Future
 
