@@ -40,8 +40,6 @@
 class Metronome {
 public:
     Metronome();
-    Metronome(float initTempo, float sampleRate);
-    Metronome(float initTempo, float sampleRate, float division);
     Metronome(float initTempo, float sampleRate, float division, float phase);
     void process();
     void reset();

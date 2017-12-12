@@ -44,24 +44,6 @@ Metronome::Metronome() {
     calcTickIncrement();
 }
 
-Metronome::Metronome(float initTempo, float sampleRate) {
-    _sampleRate = sampleRate;
-    _tempo = initTempo;
-    _division = 4.0;
-    _elapsedTickTime = 1.0;
-    _ticked = false;
-    calcTickIncrement();
-}
-
-Metronome::Metronome(float initTempo, float sampleRate, float division) {
-    _sampleRate = sampleRate;
-    _tempo = initTempo;
-    _division = division;
-    _elapsedTickTime = 0.0;
-    _ticked = false;
-    calcTickIncrement();
-}
-
 Metronome::Metronome(float initTempo, float sampleRate, float division, float phase) {
     _sampleRate = sampleRate;
     _tempo = initTempo;

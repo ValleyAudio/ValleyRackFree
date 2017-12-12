@@ -140,7 +140,7 @@ struct Topograph : Module {
     ChaosKnobMode chaosKnobMode = CHAOS;
 
     Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-        metro = Metronome(120, engineGetSampleRate(), 24.0);
+        metro = Metronome(120, engineGetSampleRate(), 24.0, 0.0);
         numTicks = ticks_granularity[2];
         srand(time(NULL));
         BDLed = Oneshot(0.1, engineGetSampleRate());
