@@ -1,4 +1,9 @@
 //
+// Topograph
+// A port of "Mutable Instruments Grids" for VCV Rack
+// Author: Dale Johnson (valley.audio.soft@gmail.com)
+// Date: 4/12/2017
+//
 // Copyright 2011 Olivier Gillet.
 //
 // Author: Olivier Gillet (ol.gillet@gmail.com)
