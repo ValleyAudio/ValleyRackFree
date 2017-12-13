@@ -81,7 +81,7 @@ struct PatternGeneratorOptions {
             euclidean_length[i] = 255;
             density[i] = 0;
         }
-        patternMode = PATTERN_OLIVIER;
+        patternMode = PATTERN_HENRI;
         swing = false;
         accAlt = false;
     }
