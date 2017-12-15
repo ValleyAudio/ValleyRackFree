@@ -33,3 +33,6 @@
 
 # Binaries
 **/*.zip
+
+# Folders
+**/dist
