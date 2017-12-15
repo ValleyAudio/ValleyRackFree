@@ -139,6 +139,8 @@ struct Topograph : Module {
     };
     ChaosKnobMode chaosKnobMode = CHAOS;
 
+    int panelStyle;
+
     Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
         metro = Metronome(120, engineGetSampleRate(), 24.0, 0.0);
         numTicks = ticks_granularity[2];
@@ -156,6 +158,7 @@ struct Topograph : Module {
         for(int i = 0; i < 3; ++i) {
             drumLED[i] = Oneshot(0.1, engineGetSampleRate());
         }
+        panelStyle = 0;
     }
 
     json_t *toJson() override {
@@ -165,6 +168,7 @@ struct Topograph : Module {
 		json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
         json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
+        json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
 		return rootJ;
 	}
 
@@ -212,6 +216,11 @@ struct Topograph : Module {
 		if (chaosKnobModeJ) {
 			chaosKnobMode = (Topograph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
 		}
+
+        json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
+        if (panelStyleJ) {
+            panelStyle = (int)json_integer_value(panelStyleJ);
+        }
 	}
 
     void step() override;
@@ -368,15 +377,78 @@ void Topograph::onSampleRateChange() {
     }
 }
 
+struct DynamicPanel : FramebufferWidget {
+    int* mode;
+    int oldMode;
+    std::vector<std::shared_ptr<SVG>> panels;
+    SVGWidget* panel;
+
+    DynamicPanel() {
+        oldMode = -1;
+        panel = new SVGWidget();
+        addChild(panel);
+        addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
+        addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+    }
+
+    void addPanel(std::shared_ptr<SVG> svg) {
+        panels.push_back(svg);
+        if(!panel->svg) {
+            panel->setSVG(svg);
+            box.size = panel->box.size.div(RACK_GRID_SIZE).round().mult(RACK_GRID_SIZE);
+        }
+    }
+
+    void step() override {
+        if(mode && *mode != oldMode) {
+            panel->setSVG(panels[*mode]);
+            oldMode = *mode;
+            dirty = true;
+        }
+    }
+};
+
+struct MapXText : FramebufferWidget {
+    int* mode;
+    int oldMode;
+    std::vector<std::shared_ptr<SVG>> frames;
+    SVGWidget* txt;
+
+    MapXText() {
+        oldMode = -1;
+        txt = new SVGWidget();
+        addChild(txt);
+        addFrame(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
+        addFrame(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
+    }
+
+    void addFrame(std::shared_ptr<SVG> svg) {
+        frames.push_back(svg);
+    	// If this is our first frame, automatically set SVG and size
+    	if (!txt->svg) {
+    		txt->setSVG(svg);
+    		box.size = txt->box.size;
+    	}
+    }
+
+    void step() override {
+        if(mode && *mode != oldMode) {
+            txt->setSVG(frames[*mode]);
+            oldMode = *mode;
+            dirty = true;
+        }
+    }
+};
+
 TopographWidget::TopographWidget() {
     Topograph *module = new Topograph();
     setModule(module);
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
     {
-        SVGPanel *panel = new SVGPanel();
+        DynamicPanel *panel = new DynamicPanel();
         panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
+        panel->mode = &module->panelStyle;
         addChild(panel);
     }
 
@@ -388,22 +460,22 @@ TopographWidget::TopographWidget() {
     };
 
     struct Rogan1PSOrange : Rogan {
-    	Rogan1PSOrange() {
-    		setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
-    	}
+        Rogan1PSOrange() {
+            setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
+        }
     };
 
     struct Rogan1PSYellow : Rogan {
-    	Rogan1PSYellow() {
-    		setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
-    	}
+        Rogan1PSYellow() {
+            setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
+        }
     };
 
     struct LightLEDButton : SVGSwitch, MomentarySwitch {
-	LightLEDButton() {
-		addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
-	};
-};
+        LightLEDButton() {
+            addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
+        }
+    };
 
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -442,11 +514,29 @@ TopographWidget::TopographWidget() {
     addChild(createLight<SmallLight<RedLight>>(Vec(138.824, 218), module, Topograph::BD_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(174.824, 218), module, Topograph::SN_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(210.824, 218), module, Topograph::HH_LIGHT));
+
+    /*{
+        MapXText* texty = new MapXText();
+        texty->box.pos = Vec(201.5, 48.5);
+        texty->mode = &module->knobby;
+        //addChild(texty);
+    }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// Context Menu ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct TopographPanelStyleItem : MenuItem {
+    Topograph* topograph;
+    int panelStyle;
+    void onAction(EventAction &e) override {
+        topograph->panelStyle = panelStyle;
+    }
+    void step() override {
+        rightText = (topograph->panelStyle == panelStyle) ? "✔" : "";
+    }
+};
 
 struct TopographSequencerModeItem : MenuItem {
     Topograph* topograph;
@@ -526,6 +616,25 @@ Menu* TopographWidget::createContextMenu() {
     Menu* menu = ModuleWidget::createContextMenu();
     Topograph *topograph = dynamic_cast<Topograph*>(module);
     assert(topograph);
+
+    // Panel style
+    MenuLabel *panelStyleSpacerLabel = new MenuLabel();
+    menu->addChild(panelStyleSpacerLabel);
+    MenuLabel *panelStyleLabel = new MenuLabel();
+    panelStyleLabel->text = "Panel style";
+    menu->addChild(panelStyleLabel);
+
+    TopographPanelStyleItem *darkPanelStyleItem = new TopographPanelStyleItem();
+    darkPanelStyleItem->text = "Dark";
+    darkPanelStyleItem->topograph = topograph;
+    darkPanelStyleItem->panelStyle = 0;
+    menu->addChild(darkPanelStyleItem);
+
+    TopographPanelStyleItem *lightPanelStyleItem = new TopographPanelStyleItem();
+    lightPanelStyleItem->text = "Light";
+    lightPanelStyleItem->topograph = topograph;
+    lightPanelStyleItem->panelStyle = 1;
+    menu->addChild(lightPanelStyleItem);
 
     // Sequencer Modes
     MenuLabel *sequencerModeSpacerLabel = new MenuLabel();
