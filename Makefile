@@ -1,7 +1,7 @@
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=
-CFLAGS += -O3
+CFLAGS += -O3 -std=c99
 CXXFLAGS += -O3
 
 # Careful about linking to libraries, since you can't assume much about the user's environment and library search path.
