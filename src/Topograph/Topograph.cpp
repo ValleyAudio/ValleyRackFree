@@ -502,9 +502,9 @@ TopographWidget::TopographWidget() {
     addOutput(createOutput<PJ3410Port>(Vec(162.7, 306.736), module, Topograph::SN_ACC_OUTPUT));
     addOutput(createOutput<PJ3410Port>(Vec(198.7, 306.736), module, Topograph::HH_ACC_OUTPUT));
 
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.8, 218), module, Topograph::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.8, 218), module, Topograph::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.8, 218), module, Topograph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
