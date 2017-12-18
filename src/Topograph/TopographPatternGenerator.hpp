@@ -115,6 +115,7 @@ public:
     uint8_t getAllStates() const;
     uint8_t getDrumState(uint8_t channel) const;
     PatternGeneratorMode getPatternMode() const;
+    uint8_t getBeat() const;
 private:
     PatternGeneratorOptions _settings;
     uint8_t _pulse;
