@@ -1,5 +1,5 @@
 SLUG = ValleyRackFree
-VERSION = 0.5.21
+VERSION = 0.5.3
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=
