@@ -1,4 +1,4 @@
-
+SLUG = ValleyRackFree
 VERSION = 0.5.21
 
 # FLAGS will be passed to both the C and C++ compiler
@@ -18,7 +18,6 @@ include ../../plugin.mk
 
 
 # Convenience target for including files in the distributable release
-DIST_NAME = ValleyRackFree
 .PHONY: dist
 dist: all
 ifndef VERSION
@@ -28,4 +27,4 @@ endif
 	cp LICENSE* dist/$(DIST_NAME)/
 	cp $(TARGET) dist/$(DIST_NAME)/
 	cp -R res dist/$(DIST_NAME)/
-	cd dist && zip -5 -r $(DIST_NAME)-$(VERSION)-$(ARCH).zip $(DIST_NAME)
+	cd dist && zip -5 -r $(SLUG)-$(VERSION)-$(ARCH).zip $(SLUG)
