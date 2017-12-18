@@ -49,6 +49,7 @@ struct Topograph : Module {
         BD_FILL_CV,
         SN_FILL_CV,
         HH_FILL_CV,
+        SWING_CV,
         NUM_INPUTS
     };
     enum OutputIds {
@@ -252,7 +253,7 @@ void Topograph::step() {
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
     tempo = rescalef(tempoParam, 0.01, 1.0, 40.0, 240.0);
-    swing = params[SWING_PARAM].value;
+    swing = clampf(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.0, 0.0, 0.9);
     swingHighTempo = tempo / (1 - swing);
     swingLowTempo = tempo / (1 + swing);
     if(elapsedTicks < 6) {
@@ -428,38 +429,6 @@ struct DynamicPanel : FramebufferWidget {
     }
 };
 
-struct MapXText : FramebufferWidget {
-    int* mode;
-    int oldMode;
-    std::vector<std::shared_ptr<SVG>> frames;
-    SVGWidget* txt;
-
-    MapXText() {
-        oldMode = -1;
-        txt = new SVGWidget();
-        addChild(txt);
-        addFrame(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
-        addFrame(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
-    }
-
-    void addFrame(std::shared_ptr<SVG> svg) {
-        frames.push_back(svg);
-    	// If this is our first frame, automatically set SVG and size
-    	if (!txt->svg) {
-    		txt->setSVG(svg);
-    		box.size = txt->box.size;
-    	}
-    }
-
-    void step() override {
-        if(mode && *mode != oldMode) {
-            txt->setSVG(frames[*mode]);
-            oldMode = *mode;
-            dirty = true;
-        }
-    }
-};
-
 TopographWidget::TopographWidget() {
     Topograph *module = new Topograph();
     setModule(module);
@@ -514,7 +483,7 @@ TopographWidget::TopographWidget() {
     addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 1.0));
+    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
 
     addInput(createInput<PJ301MPort>(Vec(15.5, 48.5), module, Topograph::CLOCK_INPUT));
     addInput(createInput<PJ301MPort>(Vec(15.5, 111.5), module, Topograph::RESET_INPUT));
@@ -524,6 +493,7 @@ TopographWidget::TopographWidget() {
     addInput(createInput<PJ301MPort>(Vec(129.5, 234.5), module, Topograph::BD_FILL_CV));
     addInput(createInput<PJ301MPort>(Vec(165.5, 234.5), module, Topograph::SN_FILL_CV));
     addInput(createInput<PJ301MPort>(Vec(201.5, 234.5), module, Topograph::HH_FILL_CV));
+    addInput(createInput<PJ301MPort>(Vec(165.5, 48.5), module, Topograph::SWING_CV));
 
     addOutput(createOutput<PJ3410Port>(Vec(126.7, 270.736), module, Topograph::BD_OUTPUT));
     addOutput(createOutput<PJ3410Port>(Vec(162.7, 270.736), module, Topograph::SN_OUTPUT));
@@ -532,16 +502,9 @@ TopographWidget::TopographWidget() {
     addOutput(createOutput<PJ3410Port>(Vec(162.7, 306.736), module, Topograph::SN_ACC_OUTPUT));
     addOutput(createOutput<PJ3410Port>(Vec(198.7, 306.736), module, Topograph::HH_ACC_OUTPUT));
 
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.824, 218), module, Topograph::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.824, 218), module, Topograph::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.824, 218), module, Topograph::HH_LIGHT));
-
-    /*{
-        MapXText* texty = new MapXText();
-        texty->box.pos = Vec(201.5, 48.5);
-        texty->mode = &module->knobby;
-        //addChild(texty);
-    }*/
+    addChild(createLight<SmallLight<RedLight>>(Vec(138.8, 218), module, Topograph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(174.8, 218), module, Topograph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(210.8, 218), module, Topograph::HH_LIGHT));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -619,17 +582,6 @@ struct TopographClockResolutionItem : MenuItem {
     }
     void step() override {
         rightText = (topograph->extClockResolution == extClockResolution) ? "✔" : "";
-    }
-};
-
-struct TopographChaosKnobModeItem : MenuItem {
-    Topograph* topograph;
-    Topograph::ChaosKnobMode chaosKnobMode;
-    void onAction(EventAction &e) override {
-        topograph->chaosKnobMode = chaosKnobMode;
-    }
-    void step() override {
-        rightText = (topograph->chaosKnobMode == chaosKnobMode) ? "✔" : "";
     }
 };
 
@@ -744,25 +696,6 @@ Menu* TopographWidget::createContextMenu() {
     twentyFourPPQNItem->topograph = topograph;
     twentyFourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_24_PPQN;
     menu->addChild(twentyFourPPQNItem);
-
-    // Chaos Knob Mode
-    /*MenuLabel *chaosKnobModeSpacerLabel = new MenuLabel();
-    menu->addChild(chaosKnobModeSpacerLabel);
-    MenuLabel *chaosKnobModeLabel = new MenuLabel();
-    chaosKnobModeLabel->text = "Chaos Knob Mode";
-    menu->addChild(chaosKnobModeLabel);
-
-    TopographChaosKnobModeItem *chaosKnobModeItem = new TopographChaosKnobModeItem();
-    chaosKnobModeItem->text = "Chaos";
-    chaosKnobModeItem->topograph = topograph;
-    chaosKnobModeItem->chaosKnobMode = Topograph::CHAOS;
-    menu->addChild(chaosKnobModeItem);
-
-    TopographChaosKnobModeItem *swingKnobModeItem = new TopographChaosKnobModeItem();
-    swingKnobModeItem->text = "Swing";
-    swingKnobModeItem->topograph = topograph;
-    swingKnobModeItem->chaosKnobMode = Topograph::SWING;
-    menu->addChild(swingKnobModeItem);*/
 
     return menu;
 }
