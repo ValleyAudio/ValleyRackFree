@@ -2,6 +2,13 @@
 
 ## Changes
 
+### 0.5.3
+
+#### Topograph
+    • [New] Swing!
+    • [New] Alternate, light panel graphic. Accessible from the right click menu.
+    • [Update] Graphical tweaks.
+
 ### 0.5.2
 
 #### Topograph
@@ -10,7 +17,7 @@
     • [New] Gate modes. Toggle between 1ms pulses and 50% duty cycle gate mode on the trigger outputs.
     • [New] Accent out alt modes. Can toggle between independent accents or [Accent / Clock / Reset] modes.
     • [Update] Brighter button graphics.
-    • [Update] Ext clock input trigger sensitivity improved. User complained that some modules could not 
+    • [Update] Ext clock input trigger sensitivity improved. User complained that some modules could not
     trigger it with certain gate signals.
 
 ### 0.5.1
@@ -19,4 +26,4 @@
 ## Todo
 
 #### Topograph
-    • Add swing
+    • Dynamic text.
