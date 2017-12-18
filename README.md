@@ -4,14 +4,11 @@
 
 ### Version
 
-0.5.2
+0.5.3
 
-    • New features! Check the right click menu:
-        - 3 drum modes (including Euclidean).
-        - Accent output alt mode
-        - 3 external clock resolutions
-        - 1ms and 50% duty cycle gate mode for all trigger outputs
-        - Improved ext clock sensitivity.
+    • New features in Topograph! Check the right click menu:
+        - Swing. Go from very subtle shuffle to a hard, jacking groove. CV controllable.
+        - Switch between Dark and Light panels. This setting is saved into your patch.
 
 ### Compatibility
 
@@ -49,7 +46,7 @@ All controls have a CV input to control them. These are the silver jacks.
 
 ## Todo
 * Topograph
-    * Add swing.
+    * Dynamic text
 
 ## Future
 
