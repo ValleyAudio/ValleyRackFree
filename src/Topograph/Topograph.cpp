@@ -37,6 +37,7 @@ struct Topograph : Module {
         BD_DENS_PARAM,
         SN_DENS_PARAM,
         HH_DENS_PARAM,
+        SWING_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -81,8 +82,13 @@ struct Topograph : Module {
     bool extClock = false;
     bool advStep = false;
     long seqStep = 0;
+    float swing = 0.5;
+    float swingHighTempo = 0.0;
+    float swingLowTempo = 0.0;
+    long elapsedTicks = 0;
 
-    float tempoParam = 40.0;
+    float tempoParam = 0.0;
+    float tempo = 120.0;
     float mapX = 0.0;
     float mapY = 0.0;
     float chaos = 0.0;
@@ -162,20 +168,20 @@ struct Topograph : Module {
     }
 
     json_t *toJson() override {
-		json_t *rootJ = json_object();
-		json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
-		json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
-		json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
+        json_t *rootJ = json_object();
+        json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
+        json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
+        json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
         json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
         json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
-		return rootJ;
-	}
+        return rootJ;
+    }
 
-	void fromJson(json_t *rootJ) override {
-		json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
-		if (sequencerModeJ) {
-			sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
+    void fromJson(json_t *rootJ) override {
+        json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
+        if (sequencerModeJ) {
+            sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
             switch(sequencerMode) {
                 case HENRI:
                     grids.setPatternMode(PATTERN_HENRI);
@@ -240,11 +246,23 @@ void Topograph::step() {
         metro.reset();
         resetLed.trigger();
         seqStep = 0;
+        elapsedTicks = 0;
     }
 
-    // Clock and tempo
+    // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
-    metro.setTempo(rescalef(tempoParam, 0.01, 1.0, 40.0, 240.0));
+    tempo = rescalef(tempoParam, 0.01, 1.0, 40.0, 240.0);
+    swing = params[SWING_PARAM].value;
+    swingHighTempo = tempo / (1 - swing);
+    swingLowTempo = tempo / (1 + swing);
+    if(elapsedTicks < 6) {
+        metro.setTempo(swingLowTempo);
+    }
+    else {
+        metro.setTempo(swingHighTempo);
+    }
+
+    // External clock select
     if(tempoParam < 0.01) {
         if(initExtReset) {
             grids.reset();
@@ -268,6 +286,8 @@ void Topograph::step() {
         }
         else if(metro.hasTicked()){
             advStep = true;
+            elapsedTicks++;
+            elapsedTicks %= 12;
         }
         else {
             advStep = false;
@@ -494,6 +514,7 @@ TopographWidget::TopographWidget() {
     addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 1.0));
 
     addInput(createInput<PJ301MPort>(Vec(15.5, 48.5), module, Topograph::CLOCK_INPUT));
     addInput(createInput<PJ301MPort>(Vec(15.5, 111.5), module, Topograph::RESET_INPUT));
