@@ -398,6 +398,17 @@ void Topograph::onSampleRateChange() {
     }
 }
 
+struct PanelBorder : TransparentWidget {
+	void draw(NVGcontext *vg) override {
+		NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
+		nvgBeginPath(vg);
+		nvgRect(vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
+		nvgStrokeColor(vg, borderColor);
+		nvgStrokeWidth(vg, 1.0);
+		nvgStroke(vg);
+	}
+};
+
 struct DynamicPanel : FramebufferWidget {
     int* mode;
     int oldMode;
@@ -410,6 +421,9 @@ struct DynamicPanel : FramebufferWidget {
         addChild(panel);
         addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
         addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+        PanelBorder *pb = new PanelBorder();
+        pb->box.size = box.size;
+        addChild(pb);
     }
 
     void addPanel(std::shared_ptr<SVG> svg) {
@@ -421,6 +435,10 @@ struct DynamicPanel : FramebufferWidget {
     }
 
     void step() override {
+        if (nearf(gPixelRatio, 1.0)) {
+            // Small details draw poorly at low DPI, so oversample when drawing to the framebuffer
+            oversample = 2.0;
+        }
         if(mode && *mode != oldMode) {
             panel->setSVG(panels[*mode]);
             oldMode = *mode;
