@@ -14,17 +14,15 @@ LDFLAGS +=
 SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c)
 
 # Must include the VCV plugin Makefile framework
-include ../../plugin.mk
-
+RACK_DIR ?= ../..
 
 # Convenience target for including files in the distributable release
-.PHONY: dist
-dist: all
+#.PHONY: dist
+#dist: all
+
+
 ifndef VERSION
 	$(error VERSION must be defined when making distributables)
 endif
-	mkdir -p dist/$(SLUG)
-	cp LICENSE* dist/$(SLUG)/
-	cp $(TARGET) dist/$(SLUG)/
-	cp -R res dist/$(SLUG)/
-	cd dist && zip -5 -r $(SLUG)-$(VERSION)-$(ARCH).zip $(SLUG)
+	DISTRIBUTABLES += $(wildcard LICENSE*) res
+	include $(RACK_DIR)/plugin.mk
