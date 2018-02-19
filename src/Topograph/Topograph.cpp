@@ -25,6 +25,7 @@
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
 #include "TopographPatternGenerator.hpp"
+#include "DynamicBase.hpp"
 
 struct Topograph : Module {
     enum ParamIds {
@@ -50,6 +51,7 @@ struct Topograph : Module {
         SN_FILL_CV,
         HH_FILL_CV,
         SWING_CV,
+        RUN_INPUT,
         NUM_INPUTS
     };
     enum OutputIds {
@@ -78,8 +80,9 @@ struct Topograph : Module {
     SchmittTrigger resetTrig;
     SchmittTrigger resetButtonTrig;
     SchmittTrigger runButtonTrig;
+    SchmittTrigger runInputTrig;
     bool initExtReset = true;
-    bool running = false;
+    int running = 0;
     bool extClock = false;
     bool advStep = false;
     long seqStep = 0;
@@ -146,7 +149,18 @@ struct Topograph : Module {
     };
     ChaosKnobMode chaosKnobMode = CHAOS;
 
+    enum RunMode {
+        TOGGLE,
+        MOMENTARY
+    };
+    RunMode runMode = TOGGLE;
+
     int panelStyle;
+    std::string clockBPM;
+    std::string mapXText = "Map X";
+    std::string mapYText = "Map Y";
+    std::string chaosText = "Chaos";
+    int textVisible = 1;
 
     Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
         metro = Metronome(120, engineGetSampleRate(), 24.0, 0.0);
@@ -156,8 +170,9 @@ struct Topograph : Module {
         SNLed = Oneshot(0.1, engineGetSampleRate());
         HHLed = Oneshot(0.1, engineGetSampleRate());
         resetLed = Oneshot(0.1, engineGetSampleRate());
-        clockTrig.setThresholds(0.25, 0.75);
-        resetTrig.setThresholds(0.25, 0.75);
+        //clockTrig.setThresholds(0.25, 0.75);
+        //resetTrig.setThresholds(0.25, 0.75);
+        //runInputTrig.setThresholds(0.25, 0.75);
         for(int i = 0; i < 6; ++i) {
             drumTriggers[i] = Oneshot(0.001, engineGetSampleRate());
             gateState[i] = false;
@@ -175,6 +190,7 @@ struct Topograph : Module {
         json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
         json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
+        json_object_set_new(rootJ, "runMode", json_integer(runMode));
         json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
         return rootJ;
     }
@@ -224,6 +240,11 @@ struct Topograph : Module {
 			chaosKnobMode = (Topograph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
 		}
 
+        json_t *runModeJ = json_object_get(rootJ, "runMode");
+		if (runModeJ) {
+			runMode = (Topograph::RunMode) json_integer_value(runModeJ);
+		}
+
         json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
         if (panelStyleJ) {
             panelStyle = (int)json_integer_value(panelStyleJ);
@@ -237,10 +258,23 @@ struct Topograph : Module {
 };
 
 void Topograph::step() {
-    if (runButtonTrig.process(params[RUN_BUTTON_PARAM].value)) {
-        running = !running;
-        lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
+    if(runMode == TOGGLE) {
+        if (runButtonTrig.process(params[RUN_BUTTON_PARAM].value) ||
+            runInputTrig.process(inputs[RUN_INPUT].value)) {
+            if(runMode == TOGGLE){
+                running = !running;
+                lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
+            }
+        }
     }
+    else {
+        running = params[RUN_BUTTON_PARAM].value + inputs[RUN_INPUT].value;
+        lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
+        if(running == 0) {
+            metro.reset();
+        }
+    }
+
     if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].value) ||
         resetTrig.process(inputs[RESET_INPUT].value)) {
         grids.reset();
@@ -252,7 +286,10 @@ void Topograph::step() {
 
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
-    tempo = rescalef(tempoParam, 0.01, 1.0, 40.0, 240.0);
+    tempo = rescalef(tempoParam, 0.01f, 1.f, 40.f, 240.f);
+    char clockBPMChar[16];
+    sprintf(clockBPMChar, "%.1f", tempo);
+    clockBPM = clockBPMChar;
     swing = clampf(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.0, 0.0, 0.9);
     swingHighTempo = tempo / (1 - swing);
     swingLowTempo = tempo / (1 + swing);
@@ -265,6 +302,7 @@ void Topograph::step() {
 
     // External clock select
     if(tempoParam < 0.01) {
+        clockBPM = "Ext.";
         if(initExtReset) {
             grids.reset();
             initExtReset = false;
@@ -277,6 +315,29 @@ void Topograph::step() {
         numTicks = ticks_granularity[2];
         extClock = false;
         metro.process();
+    }
+
+    mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.0);
+    mapX = clampf(mapX, 0.0, 1.0);
+    mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.0);
+    mapY = clampf(mapY, 0.0, 1.0);
+    BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.0);
+    BDFill = clampf(BDFill, 0.0, 1.0);
+    SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.0);
+    SNFill = clampf(SNFill, 0.0, 1.0);
+    HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.0);
+    HHFill = clampf(HHFill, 0.0, 1.0);
+    chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
+    chaos = clampf(chaos, 0.0, 1.0);
+    if(grids.getPatternMode() == PATTERN_EUCLIDEAN) {
+        mapXText = "1 Len: " + std::to_string(((uint8_t)(mapX * 255.0) >> 3) + 1);
+        mapYText = "2 Len: " + std::to_string(((uint8_t)(mapY * 255.0) >> 3) + 1);
+        chaosText = "3 Len: " + std::to_string(((uint8_t)(chaos * 255.0) >> 3) + 1);
+    }
+    else {
+        mapXText = "Map X";
+        mapYText = "Map Y";
+        chaosText = "Chaos";
     }
 
     if(running) {
@@ -293,19 +354,6 @@ void Topograph::step() {
         else {
             advStep = false;
         }
-
-        mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.0);
-        mapX = clampf(mapX, 0.0, 1.0);
-        mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.0);
-        mapY = clampf(mapY, 0.0, 1.0);
-        BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.0);
-        BDFill = clampf(BDFill, 0.0, 1.0);
-        SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.0);
-        SNFill = clampf(SNFill, 0.0, 1.0);
-        HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.0);
-        HHFill = clampf(HHFill, 0.0, 1.0);
-        chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
-        chaos = clampf(chaos, 0.0, 1.0);
 
         grids.setMapX((uint8_t)(mapX * 255.0));
         grids.setMapY((uint8_t)(mapY * 255.0));
@@ -435,10 +483,6 @@ struct DynamicPanel : FramebufferWidget {
     }
 
     void step() override {
-        if (nearf(gPixelRatio, 1.0)) {
-            // Small details draw poorly at low DPI, so oversample when drawing to the framebuffer
-            oversample = 2.0;
-        }
         if(mode && *mode != oldMode) {
             panel->setSVG(panels[*mode]);
             oldMode = *mode;
@@ -446,6 +490,88 @@ struct DynamicPanel : FramebufferWidget {
         }
     }
 };
+
+struct DynamicText : TransparentWidget {
+    std::string oldText;
+    std::string* pText;
+    std::shared_ptr<Font> font;
+    int size;
+    NVGcolor drawColour;
+    int* visibility;
+    DynamicViewMode viewMode;
+
+    enum Colour {
+        COLOUR_WHITE,
+        COLOUR_BLACK
+    };
+    int* colourHandle;
+
+    DynamicText() {
+        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+        size = 16;
+        visibility = nullptr;
+        pText = nullptr;
+        viewMode = ACTIVE_HIGH;
+    }
+
+    void draw(NVGcontext* vg) {
+        nvgFontSize(vg, size);
+        nvgFontFaceId(vg, font->handle);
+        nvgTextLetterSpacing(vg, 0.f);
+        Vec textPos = Vec(0.f, 0.f);
+        if(colourHandle != nullptr) {
+            switch(*colourHandle) {
+                case COLOUR_BLACK : drawColour = nvgRGB(0x00,0x00,0x00); break;
+                case COLOUR_WHITE : drawColour = nvgRGB(0xFF,0xFF,0xFF); break;
+                default : drawColour = nvgRGB(0x00,0x00,0x00);
+            }
+        }
+        else {
+            drawColour = nvgRGB(0x00,0x00,0x00);
+        }
+
+        nvgFillColor(vg, drawColour);
+        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+        if(pText != nullptr) {
+            nvgText(vg, textPos.x, textPos.y, pText->c_str(), NULL);
+        }
+    }
+
+    void step() {
+        if(visibility != nullptr) {
+            if(*visibility) {
+                visible = true;
+            }
+            else {
+                visible = false;
+            }
+            if(viewMode == ACTIVE_LOW) {
+                visible = !visible;
+            }
+        }
+        else {
+            visible = true;
+        }
+    }
+};
+
+DynamicText* createDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
+                               int* visibilityHandle, DynamicViewMode viewMode) {
+    DynamicText* dynText = new DynamicText();
+    dynText->size = size;
+    dynText->colourHandle = colourHandle;
+    dynText->pText = pText;
+    dynText->box.pos = pos;
+    dynText->box.size = Vec(82,14);
+    dynText->visibility = visibilityHandle;
+    dynText->viewMode = viewMode;
+    return dynText;
+}
+
+/*struct TopographWidget : ModuleWidget {
+	TopographWidget();
+    Menu* createContextMenu() override;
+};*/
 
 TopographWidget::TopographWidget() {
     Topograph *module = new Topograph();
@@ -489,12 +615,17 @@ TopographWidget::TopographWidget() {
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addParam(createParam<LightLEDButton>(Vec(60, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<RedLight>>(Vec(64.4, 119), module, Topograph::RESET_LIGHT));
+    addChild(createDynamicText(Vec(67, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH));
+    addChild(createDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH));
+    addChild(createDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH));
+    addChild(createDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH));
+
+    addParam(createParam<LightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<RedLight>>(Vec(49.4, 119), module, Topograph::RESET_LIGHT));
     addParam(createParam<LightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
     addChild(createLight<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
 
-    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.4));
+    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
@@ -512,6 +643,7 @@ TopographWidget::TopographWidget() {
     addInput(createInput<PJ301MPort>(Vec(165.5, 234.5), module, Topograph::SN_FILL_CV));
     addInput(createInput<PJ301MPort>(Vec(201.5, 234.5), module, Topograph::HH_FILL_CV));
     addInput(createInput<PJ301MPort>(Vec(165.5, 48.5), module, Topograph::SWING_CV));
+    addInput(createInput<PJ301MPort>(Vec(73, 111.5), module, Topograph::RUN_INPUT));
 
     addOutput(createOutput<PJ3410Port>(Vec(126.7, 270.736), module, Topograph::BD_OUTPUT));
     addOutput(createOutput<PJ3410Port>(Vec(162.7, 270.736), module, Topograph::SN_OUTPUT));
@@ -600,6 +732,17 @@ struct TopographClockResolutionItem : MenuItem {
     }
     void step() override {
         rightText = (topograph->extClockResolution == extClockResolution) ? "✔" : "";
+    }
+};
+
+struct TopographRunModeItem : MenuItem {
+    Topograph* topograph;
+    Topograph::RunMode runMode;
+    void onAction(EventAction &e) override {
+        topograph->runMode = runMode;
+    }
+    void step() override {
+        rightText = (topograph->runMode == runMode) ? "✔" : "";
     }
 };
 
@@ -715,5 +858,27 @@ Menu* TopographWidget::createContextMenu() {
     twentyFourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_24_PPQN;
     menu->addChild(twentyFourPPQNItem);
 
+    // Run Modes
+    MenuLabel *runModeSpacerLabel = new MenuLabel();
+    menu->addChild(runModeSpacerLabel);
+    MenuLabel *runModeLabel = new MenuLabel();
+    runModeLabel->text = "Run Mode";
+    menu->addChild(runModeLabel);
+
+    TopographRunModeItem *runModeToggleItem = new TopographRunModeItem();
+    runModeToggleItem->text = "Toggle";
+    runModeToggleItem->topograph = topograph;
+    runModeToggleItem->runMode = Topograph::RunMode::TOGGLE;
+    menu->addChild(runModeToggleItem);
+
+    TopographRunModeItem *runModeMomentItem = new TopographRunModeItem();
+    runModeMomentItem->text = "Momentary";
+    runModeMomentItem->topograph = topograph;
+    runModeMomentItem->runMode = Topograph::RunMode::MOMENTARY;
+    menu->addChild(runModeMomentItem);
+
     return menu;
 }
+
+//p->addModel(createModel<TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG));
+//Model *modelTopograph = Model::create<Topograph, TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG);
