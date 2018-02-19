@@ -9,7 +9,7 @@ void init(rack::Plugin *p) {
 #ifdef VERSION
 	p->version = TOSTRING(VERSION);
 #else
-    p->version = "0.5.3";
+    p->version = "0.5.4";
 #endif
 
 	p->website = "https://github.com/ValleyAudio/ValleyRackFree";
