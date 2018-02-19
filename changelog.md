@@ -2,6 +2,13 @@
 
 ## Changes
 
+### 0.5.4
+
+#### Topograph
+    • [New] CV trigger for Run
+    • [New] Run can either be Toggled (default) or Momentary.
+    • [New] Dynamic text that displays BPM and lengths for each channel in Euclidean mode.
+
 ### 0.5.3
 
 #### Topograph
@@ -26,4 +33,6 @@
 ## Todo
 
 #### Topograph
-    • Dynamic text.
+    • Fix text flicker
+#### Trixie
+    • Finalise the design and prepare for release
