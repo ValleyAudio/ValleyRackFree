@@ -20,7 +20,6 @@ RACK_DIR ?= ../..
 #.PHONY: dist
 #dist: all
 
-
 ifndef VERSION
 	$(error VERSION must be defined when making distributables)
 endif
