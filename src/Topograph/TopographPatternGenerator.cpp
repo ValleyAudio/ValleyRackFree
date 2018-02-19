@@ -130,6 +130,10 @@ uint8_t PatternGenerator::getBeat() const {
     return _beat;
 }
 
+uint8_t PatternGenerator::getEuclideanLength(uint8_t channel) {
+    return _settings.euclidean_length[channel];
+}
+
 uint8_t PatternGenerator::readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y) {
     uint8_t r = 0;
     if(_settings.patternMode == PATTERN_HENRI) {
