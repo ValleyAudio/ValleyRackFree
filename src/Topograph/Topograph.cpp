@@ -457,13 +457,13 @@ struct PanelBorder : TransparentWidget {
 	}
 };
 
-struct DynamicPanel : FramebufferWidget {
+struct TopographDynamicPanel : FramebufferWidget {
     int* mode;
     int oldMode;
     std::vector<std::shared_ptr<SVG>> panels;
     SVGWidget* panel;
 
-    DynamicPanel() {
+    TopographDynamicPanel() {
         oldMode = -1;
         panel = new SVGWidget();
         addChild(panel);
@@ -491,7 +491,7 @@ struct DynamicPanel : FramebufferWidget {
     }
 };
 
-struct DynamicText : TransparentWidget {
+struct TopographDynamicText : TransparentWidget {
     std::string oldText;
     std::string* pText;
     std::shared_ptr<Font> font;
@@ -506,7 +506,7 @@ struct DynamicText : TransparentWidget {
     };
     int* colourHandle;
 
-    DynamicText() {
+    TopographDynamicText() {
         font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
@@ -555,9 +555,9 @@ struct DynamicText : TransparentWidget {
     }
 };
 
-DynamicText* createDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
+TopographDynamicText* createTopographDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
                                int* visibilityHandle, DynamicViewMode viewMode) {
-    DynamicText* dynText = new DynamicText();
+    TopographDynamicText* dynText = new TopographDynamicText();
     dynText->size = size;
     dynText->colourHandle = colourHandle;
     dynText->pText = pText;
@@ -573,56 +573,54 @@ DynamicText* createDynamicText(const Vec& pos, int size, int* colourHandle, std:
     Menu* createContextMenu() override;
 };*/
 
+// Custom control graphics
+struct Rogan1PSBrightRed : Rogan {
+    Rogan1PSBrightRed() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
+    }
+};
+
+struct Rogan1PSOrange : Rogan {
+    Rogan1PSOrange() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
+    }
+};
+
+struct Rogan1PSYellow : Rogan {
+    Rogan1PSYellow() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
+    }
+};
+
+struct TopographLightLEDButton : SVGSwitch, MomentarySwitch {
+    TopographLightLEDButton() {
+        addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
+    }
+};
+
 TopographWidget::TopographWidget() {
     Topograph *module = new Topograph();
     setModule(module);
     box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
     {
-        DynamicPanel *panel = new DynamicPanel();
+        TopographDynamicPanel *panel = new TopographDynamicPanel();
         panel->box.size = box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-
-    // Custom control graphics
-    struct Rogan1PSBrightRed : Rogan {
-        Rogan1PSBrightRed() {
-            setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
-        }
-    };
-
-    struct Rogan1PSOrange : Rogan {
-        Rogan1PSOrange() {
-            setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
-        }
-    };
-
-    struct Rogan1PSYellow : Rogan {
-        Rogan1PSYellow() {
-            setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
-        }
-    };
-
-    struct LightLEDButton : SVGSwitch, MomentarySwitch {
-        LightLEDButton() {
-            addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
-        }
-    };
-
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addChild(createDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH));
-    addChild(createDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH));
-    addChild(createDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH));
-    addChild(createDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH));
+    addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH));
+    addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH));
+    addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH));
+    addChild(createTopographDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH));
 
-    addParam(createParam<LightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<TopographLightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
     addChild(createLight<MediumLight<RedLight>>(Vec(49.4, 119), module, Topograph::RESET_LIGHT));
-    addParam(createParam<LightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<TopographLightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
     addChild(createLight<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
 
     addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
