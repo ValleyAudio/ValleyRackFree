@@ -2,6 +2,10 @@
 
 ## Changes
 
+### 0.5.5
+
+Say hello to Dexter ;)
+
 ### 0.5.4
 
 #### Topograph
