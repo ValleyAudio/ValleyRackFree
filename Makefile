@@ -1,5 +1,5 @@
 SLUG = Valley\ Free
-VERSION = 0.5.4
+VERSION = 0.5.5
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=
@@ -23,5 +23,5 @@ RACK_DIR ?= ../..
 ifndef VERSION
 	$(error VERSION must be defined when making distributables)
 endif
-	DISTRIBUTABLES += $(wildcard LICENSE*) res
+	DISTRIBUTABLES += $(wildcard LICENSE* *.pdf README*) res
 	include $(RACK_DIR)/plugin.mk

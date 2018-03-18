@@ -4,14 +4,9 @@
 
 ### Version
 
-0.5.4
+0.5.5
 
-    • New features in Topograph!
-        - "Run" can now be CV controlled.
-        - "Run" can either be in Toggle (default) or Momentary. Changed in the "Right-click" menu.
-          In momentary as long as the button is held / CV gate is high, the sequencer will run.
-        - New dynamic text that will display the BPM (will show Ext if the knob is turned full CCW),
-          and what each channel's pattern length is in Euclidean mode.
+    • Say hello to Dexter
 
 ### Compatibility
 
@@ -22,7 +17,7 @@ You must have v0.5.1 to run these modules.
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
-![Topograph](./TopographImg.png)
+![Valley](./ValleyImg.png)
 
 
 ### Installation
@@ -49,20 +44,26 @@ In Euclidean mode, the Map X, Y and Chaos controls set the sequence length for e
 
 All controls have a CV input to control them. These are the silver jacks.
 
+### Dexter
+
+In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information.
+
 ## Todo
 * Topograph
     * Fix text flicker
-* Trixie
-    * It's coming, be patient ;)
+* Dexter
+    * General code cleaning
 
 ## Future
 
-I really want to focus on modules that are deep and versatile rather than "bread and butter stuff". The FM wavetable oscillator "Trixie" is in it's final development stage and will be out very soon (PhD work, it owns you haha).
+I really want to focus on modules that are deep and versatile rather than "bread and butter stuff.
 
-I've only just begun to get really into the Rack API. I can see a lot of promise for this project thanks to positive community spirit. I hope to produce more modules based on some of my existing work which mainly focuses on reverb and other effects.
+I hope to produce more modules based on some of my existing research work.
 
 ## License
 
 Topograph is covered by GPL-3.0
 
 Topograph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
+
+Dexter is covered by BSD-3-Clause
