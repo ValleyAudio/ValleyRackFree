@@ -9,10 +9,11 @@ void init(rack::Plugin *p) {
 #ifdef VERSION
 	p->version = TOSTRING(VERSION);
 #else
-    p->version = "0.5.4";
+    p->version = "0.5.5";
 #endif
 
 	p->website = "https://github.com/ValleyAudio/ValleyRackFree";
 	p->manual = "https://github.com/ValleyAudio/ValleyRackFree/blob/master/README.md";
     p->addModel(createModel<TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG));
+    p->addModel(createModel<DexterWidget>("Valley", "Dexter", "Dexter", OSCILLATOR_TAG));
 }
