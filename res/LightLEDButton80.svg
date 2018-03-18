@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="14.252"
+   height="14.252"
+   viewBox="0 0 3.7708415 3.7708415"
+   version="1.1"
+   id="svg7595"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="LightLEDButton_80.svg">
+  <defs
+     id="defs7589">
+    <clipPath
+       id="clip444">
+      <path
+         d="m 1201.582,338.19922 h 18 v 18 h -18 z m 0,0"
+         id="path24586"
+         inkscape:connector-curvature="0" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="-15.23645"
+     inkscape:cy="0.82092183"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1156"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     units="px" />
+  <metadata
+     id="metadata7592">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-46.755712,-68.824694)">
+    <g
+       transform="matrix(0.26458333,0,0,0.26458333,-271.16296,-21.64884)"
+       clip-path="url(#clip444)"
+       id="g31387"
+       style="clip-rule:nonzero">
+      <path
+         style="fill:#565656;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1"
+         d="m 1202.012,346.63634 c -1.3422,3.69588 0.5659,7.78763 4.2585,9.133 3.6987,1.34226 7.7871,-0.56289 9.1324,-4.25877 1.3453,-3.69897 -0.5598,-7.78454 -4.2585,-9.13299 -3.6956,-1.34228 -7.781,0.55979 -9.1324,4.25876"
+         id="path31385"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

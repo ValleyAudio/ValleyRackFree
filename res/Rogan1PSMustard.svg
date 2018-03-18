@@ -14,7 +14,7 @@
    viewBox="0 0 13.999491 13.999487"
    version="1.1"
    id="svg15246"
-   sodipodi:docname="Rogan1PSOrange.svg"
+   sodipodi:docname="Rogan1PSMustard.svg"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06">
   <defs
      id="defs15240">
@@ -387,7 +387,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="-18.709476"
+     inkscape:cx="13.25481"
      inkscape:cy="37.948683"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -410,7 +410,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -428,7 +428,7 @@
        inkscape:connector-curvature="0"
        id="path7691"
        d="m 57.439346,94.226115 c 0,2.181437 -1.769392,3.950836 -3.950829,3.950836 -2.182812,0 -3.952204,-1.769399 -3.952204,-3.950836 0,-2.182812 1.769392,-3.950832 3.952204,-3.950832 2.181437,0 3.950829,1.76802 3.950829,3.950832"
-       style="fill:#ff8b00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+       style="fill:#be974a;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
     <path
        inkscape:connector-curvature="0"
        id="path7693"
@@ -438,6 +438,6 @@
        inkscape:connector-curvature="0"
        id="path7695"
        d="m 54.125176,87.258067 c -0.20948,-0.0193 -0.421676,-0.03168 -0.638034,-0.03168 -0.260456,0 -0.51816,0.01654 -0.773077,0.0441 v 3.168111 h 1.411111 z m 0,0"
-       style="fill:#ff8b00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+       style="fill:#be974a;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
   </g>
 </svg>
