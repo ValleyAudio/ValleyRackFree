@@ -9,15 +9,15 @@
   "donation": "https://www.paypal.me/valleyvcv",
   "downloads": {
     "win": {
-      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.4/Valley.Free-0.5.4-win.zip",
+      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.5/Valley.Free-0.5.5-win.zip",
       "sha256": "d68e9954542521a476b7266eb2e6810857f3dc266fd3842ee18d5a90925741a8"
     },
     "lin": {
-      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.4/Valley.Free-0.5.4-lin.zip",
+      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.5/Valley.Free-0.5.5-lin.zip",
       "sha256": "30f71b9d875d40ccf59a2b0b26e191e75b8f8b5c3561e6953a726573710f7993"
     },
     "mac": {
-      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.4/Valley.Free-0.5.4-mac.zip",
+      "download": "https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.5/Valley.Free-0.5.5-mac.zip",
       "sha256": "fca95309575e50e60be66e267a90c559e3686c3fc2b13560c78cc6244cc8c24a"
     }
   }
