@@ -483,7 +483,11 @@ void Dexter::reset() {
 json_t *Dexter::toJson() {
     json_t *rootJ = json_object();
 
-    json_object_set_new(rootJ, "op1syncEnable", json_integer(opSync[0]));
+    json_object_set_new(rootJ, "op1syncEnable", json_integer(opButtonSync[0]));
+    json_object_set_new(rootJ, "op1weakSyncEnable", json_integer(opButtonWeakSync[0]));
+    json_object_set_new(rootJ, "op1PostShape", json_integer(opButtonPostShape[0]));
+    json_object_set_new(rootJ, "op1PreFade", json_integer(opButtonPreFade[0]));
+    json_object_set_new(rootJ, "op1LFO", json_integer(opButtonLFO[0]));
     json_object_set_new(rootJ, "op1syncMode", json_integer(opMenuSyncMode[0]));
     json_object_set_new(rootJ, "op1shapeMode", json_integer(opMenuShapeMode[0]));
     json_object_set_new(rootJ, "op1Mod1Dest", json_integer(opMod1Assign[0]));
@@ -491,7 +495,11 @@ json_t *Dexter::toJson() {
     json_object_set_new(rootJ, "op1Mod3Dest", json_integer(opMod3Assign[0]));
     json_object_set_new(rootJ, "op1Mod4Dest", json_integer(opMod4Assign[0]));
 
-    json_object_set_new(rootJ, "op2syncEnable", json_integer(opSync[1]));
+    json_object_set_new(rootJ, "op2syncEnable", json_integer(opButtonSync[1]));
+    json_object_set_new(rootJ, "op2weakSyncEnable", json_integer(opButtonWeakSync[1]));
+    json_object_set_new(rootJ, "op2PostShape", json_integer(opButtonPostShape[1]));
+    json_object_set_new(rootJ, "op2PreFade", json_integer(opButtonPreFade[1]));
+    json_object_set_new(rootJ, "op2LFO", json_integer(opButtonLFO[1]));
     json_object_set_new(rootJ, "op2syncMode", json_integer(opMenuSyncMode[1]));
     json_object_set_new(rootJ, "op2shapeMode", json_integer(opMenuShapeMode[1]));
     json_object_set_new(rootJ, "op2Mod1Dest", json_integer(opMod1Assign[1]));
@@ -499,7 +507,11 @@ json_t *Dexter::toJson() {
     json_object_set_new(rootJ, "op2Mod3Dest", json_integer(opMod3Assign[1]));
     json_object_set_new(rootJ, "op2Mod4Dest", json_integer(opMod4Assign[1]));
 
-    json_object_set_new(rootJ, "op3syncEnable", json_integer(opSync[2]));
+    json_object_set_new(rootJ, "op3syncEnable", json_integer(opButtonSync[2]));
+    json_object_set_new(rootJ, "op3weakSyncEnable", json_integer(opButtonWeakSync[2]));
+    json_object_set_new(rootJ, "op3PostShape", json_integer(opButtonPostShape[2]));
+    json_object_set_new(rootJ, "op3PreFade", json_integer(opButtonPreFade[2]));
+    json_object_set_new(rootJ, "op3LFO", json_integer(opButtonLFO[2]));
     json_object_set_new(rootJ, "op3syncMode", json_integer(opMenuSyncMode[2]));
     json_object_set_new(rootJ, "op3shapeMode", json_integer(opMenuShapeMode[2]));
     json_object_set_new(rootJ, "op3Mod1Dest", json_integer(opMod1Assign[2]));
@@ -507,7 +519,11 @@ json_t *Dexter::toJson() {
     json_object_set_new(rootJ, "op3Mod3Dest", json_integer(opMod3Assign[2]));
     json_object_set_new(rootJ, "op3Mod4Dest", json_integer(opMod4Assign[2]));
 
-    json_object_set_new(rootJ, "op4syncEnable", json_integer(opSync[3]));
+    json_object_set_new(rootJ, "op4syncEnable", json_integer(opButtonSync[3]));
+    json_object_set_new(rootJ, "op4weakSyncEnable", json_integer(opButtonWeakSync[3]));
+    json_object_set_new(rootJ, "op4PostShape", json_integer(opButtonPostShape[3]));
+    json_object_set_new(rootJ, "op4PreFade", json_integer(opButtonPreFade[3]));
+    json_object_set_new(rootJ, "op4LFO", json_integer(opButtonLFO[3]));
     json_object_set_new(rootJ, "op4syncMode", json_integer(opMenuSyncMode[3]));
     json_object_set_new(rootJ, "op4shapeMode", json_integer(opMenuShapeMode[3]));
     json_object_set_new(rootJ, "op4Mod1Dest", json_integer(opMod1Assign[3]));
@@ -517,12 +533,17 @@ json_t *Dexter::toJson() {
 
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "opSyncSource", json_integer((int)opSyncSource));
+    json_object_set_new(rootJ, "masterLFO", json_integer(masterLFO));
 
     return rootJ;
 }
 
 void Dexter::fromJson(json_t *rootJ) {
     json_t *j_opSyncEnable = json_object_get(rootJ, "op1syncEnable");
+    json_t *j_opWeakSync = json_object_get(rootJ, "op1weakSyncEnable");
+    json_t *j_opPostShape = json_object_get(rootJ, "op1PostShape");
+    json_t *j_opPreFade = json_object_get(rootJ, "op1PreFade");
+    json_t *j_opLFO = json_object_get(rootJ, "op1LFO");
     json_t *j_opSyncMode = json_object_get(rootJ, "op1syncMode");
     json_t *j_opShapeMode = json_object_get(rootJ, "op1shapeMode");
     json_t *j_opMod1Assign = json_object_get(rootJ, "op1Mod1Dest");
@@ -530,7 +551,11 @@ void Dexter::fromJson(json_t *rootJ) {
     json_t *j_opMod3Assign = json_object_get(rootJ, "op3Mod1Dest");
     json_t *j_opMod4Assign = json_object_get(rootJ, "op4Mod1Dest");
 
-    opSync[0] = json_integer_value(j_opSyncEnable);
+    opButtonSync[0] = json_integer_value(j_opSyncEnable);
+    opButtonWeakSync[0] = json_integer_value(j_opWeakSync);
+    opButtonPostShape[0] = json_integer_value(j_opPostShape);
+    opButtonPreFade[0] = json_integer_value(j_opPreFade);
+    opButtonLFO[0] = json_integer_value(j_opLFO);
     opMenuSyncMode[0] = json_integer_value(j_opSyncMode);
     opMenuShapeMode[0] = json_integer_value(j_opShapeMode);
     opMod1Assign[0] = json_integer_value(j_opMod1Assign);
@@ -539,13 +564,21 @@ void Dexter::fromJson(json_t *rootJ) {
     opMod4Assign[0] = json_integer_value(j_opMod4Assign);
 
     j_opSyncEnable = json_object_get(rootJ, "op2syncEnable");
+    j_opWeakSync = json_object_get(rootJ, "op2weakSyncEnable");
+    j_opPostShape = json_object_get(rootJ, "op2PostShape");
+    j_opPreFade = json_object_get(rootJ, "op2PreFade");
+    j_opLFO = json_object_get(rootJ, "op2LFO");
     j_opSyncMode = json_object_get(rootJ, "op2syncMode");
     j_opShapeMode = json_object_get(rootJ, "op2shapeMode");
     j_opMod1Assign = json_object_get(rootJ, "op2Mod1Dest");
     j_opMod2Assign = json_object_get(rootJ, "op2Mod2Dest");
     j_opMod3Assign = json_object_get(rootJ, "op2Mod3Dest");
     j_opMod4Assign = json_object_get(rootJ, "op2Mod4Dest");
-    opSync[1] = json_integer_value(j_opSyncEnable);
+    opButtonSync[1] = json_integer_value(j_opSyncEnable);
+    opButtonWeakSync[1] = json_integer_value(j_opWeakSync);
+    opButtonPostShape[1] = json_integer_value(j_opPostShape);
+    opButtonPreFade[1] = json_integer_value(j_opPreFade);
+    opButtonLFO[1] = json_integer_value(j_opLFO);
     opMenuSyncMode[1] = json_integer_value(j_opSyncMode);
     opMenuShapeMode[1] = json_integer_value(j_opShapeMode);
     opMod1Assign[1] = json_integer_value(j_opMod1Assign);
@@ -554,13 +587,21 @@ void Dexter::fromJson(json_t *rootJ) {
     opMod4Assign[1] = json_integer_value(j_opMod4Assign);
 
     j_opSyncEnable = json_object_get(rootJ, "op3syncEnable");
+    j_opWeakSync = json_object_get(rootJ, "op3weakSyncEnable");
+    j_opPostShape = json_object_get(rootJ, "op3PostShape");
+    j_opPreFade = json_object_get(rootJ, "op3PreFade");
+    j_opLFO = json_object_get(rootJ, "op3LFO");
     j_opSyncMode = json_object_get(rootJ, "op3syncMode");
     j_opShapeMode = json_object_get(rootJ, "op3shapeMode");
     j_opMod1Assign = json_object_get(rootJ, "op3Mod1Dest");
     j_opMod2Assign = json_object_get(rootJ, "op3Mod2Dest");
     j_opMod3Assign = json_object_get(rootJ, "op3Mod3Dest");
     j_opMod4Assign = json_object_get(rootJ, "op3Mod4Dest");
-    opSync[2] = json_integer_value(j_opSyncEnable);
+    opButtonSync[2] = json_integer_value(j_opSyncEnable);
+    opButtonWeakSync[2] = json_integer_value(j_opWeakSync);
+    opButtonPostShape[2] = json_integer_value(j_opPostShape);
+    opButtonPreFade[2] = json_integer_value(j_opPreFade);
+    opButtonLFO[2] = json_integer_value(j_opLFO);
     opMenuSyncMode[2] = json_integer_value(j_opSyncMode);
     opMenuShapeMode[2] = json_integer_value(j_opShapeMode);
     opMod1Assign[2] = json_integer_value(j_opMod1Assign);
@@ -569,13 +610,21 @@ void Dexter::fromJson(json_t *rootJ) {
     opMod4Assign[2] = json_integer_value(j_opMod4Assign);
 
     j_opSyncEnable = json_object_get(rootJ, "op4syncEnable");
+    j_opWeakSync = json_object_get(rootJ, "op4weakSyncEnable");
+    j_opPostShape = json_object_get(rootJ, "op4PostShape");
+    j_opPreFade = json_object_get(rootJ, "op4PreFade");
+    j_opLFO = json_object_get(rootJ, "op4LFO");
     j_opSyncMode = json_object_get(rootJ, "op4syncMode");
     j_opShapeMode = json_object_get(rootJ, "op4shapeMode");
     j_opMod1Assign = json_object_get(rootJ, "op4Mod1Dest");
     j_opMod2Assign = json_object_get(rootJ, "op4Mod2Dest");
     j_opMod3Assign = json_object_get(rootJ, "op4Mod3Dest");
     j_opMod4Assign = json_object_get(rootJ, "op4Mod4Dest");
-    opSync[3] = json_integer_value(j_opSyncEnable);
+    opButtonSync[3] = json_integer_value(j_opSyncEnable);
+    opButtonWeakSync[3] = json_integer_value(j_opWeakSync);
+    opButtonPostShape[3] = json_integer_value(j_opPostShape);
+    opButtonPreFade[3] = json_integer_value(j_opPreFade);
+    opButtonLFO[3] = json_integer_value(j_opLFO);
     opMenuSyncMode[3] = json_integer_value(j_opSyncMode);
     opMenuShapeMode[3] = json_integer_value(j_opShapeMode);
     opMod1Assign[3] = json_integer_value(j_opMod1Assign);
@@ -588,6 +637,9 @@ void Dexter::fromJson(json_t *rootJ) {
 
     json_t *j_opSyncToParent = json_object_get(rootJ, "opSyncSource");
     opSyncSource = (FourVoiceOPCore::OpSyncSource)json_integer_value(j_opSyncToParent);
+
+    json_t *j_masterLFO = json_object_get(rootJ, "masterLFO");
+    masterLFO = json_integer_value(j_masterLFO);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
