@@ -285,6 +285,9 @@ void Dexter::step() {
         multiple = opMultipleKnob[op] + (int)modMatrix[op].getDestinationValue(RATIO_DEST);
 
         pOpFreqs[0] = freqLUT.getFrequency((opPitch[op]) + bPitch) * multiples[clampi(multiple, 0, 26)];
+        if(pOpFreqs[0] >= 22049.f) {
+            pOpFreqs[0] = 22049.f;
+        }
         __lowChordMask = __lowChordMaskTable[chordNotes.size() - 1];
         __highChordMask = __highChordMaskTable[chordNotes.size() - 1];
         __lowLeftGain = __lowLeftGainTable[chordNotes.size() - 1];
@@ -293,7 +296,10 @@ void Dexter::step() {
         __highRightGain = __highRightGainTable[chordNotes.size() - 1];
 
         for(unsigned long i = 0; i < chordNotes.size(); ++i) {
-            pOpFreqs[i + 1] = freqLUT.getFrequency((opPitch[op]) + aPitch + chordNotes[i]) * multiples[clampi(multiple, 0, 25)];
+            pOpFreqs[i + 1] = freqLUT.getFrequency((opPitch[op]) + aPitch + chordNotes[i]) * multiples[clampi(multiple, 0, 26)];
+            if(pOpFreqs[i + 1] >= 22049.f) {
+                pOpFreqs[i + 1] = 22049.f;
+            }
             if(opButtonLFO[op] > 0.f || masterLFO > 0.f) {
                 pOpFreqs[i + 1] /= 100.f;
             }
