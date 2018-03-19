@@ -17,6 +17,8 @@ You must have v0.5.1 to run these modules.
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
+* Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and syncronisation options, as well multiple outputs from 2 separate voices and each operator.
+
 ![Valley](./ValleyImg.png)
 
 
@@ -46,7 +48,7 @@ All controls have a CV input to control them. These are the silver jacks.
 
 ### Dexter
 
-In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information.
+In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.5/DexterQuickStart.pdf)
 
 ## Todo
 * Topograph
