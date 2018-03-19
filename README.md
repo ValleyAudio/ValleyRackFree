@@ -4,9 +4,10 @@
 
 ### Version
 
-0.5.5
+0.5.6
 
     • Say hello to Dexter
+    • Dexter is now tuned to C not A. Please adjust Dexter to be in tune with your current patches.
 
 ### Compatibility
 

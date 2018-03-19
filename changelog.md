@@ -2,6 +2,9 @@
 
 ## Changes
 
+### 0.5.6
+    • [Fixed] Dexter is now tuned to C not A. Please adjust Dexter to be in tune with your current patches.
+
 ### 0.5.5
 
 Say hello to Dexter ;)
