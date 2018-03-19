@@ -15,7 +15,7 @@
 #define FONT_FILE
 
 float vOct2Freq(float vOct) {
-    return 440.0 * powf(2.0, vOct);
+    return 261.6255f * powf(2.0, vOct);
 }
 
 int modulo(int a, int b) {

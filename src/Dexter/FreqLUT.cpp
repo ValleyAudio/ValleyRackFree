@@ -28,6 +28,6 @@ void FreqLUT::makeLUT() {
 
     _lut.clear();
     for(float i = startPitch; i <= endPitch; i += 1.f) {
-        _lut.push_back(440.f * powf(2.f, i / _resolution));
+        _lut.push_back(261.6255f * powf(2.f, i / _resolution));
     }
 }
