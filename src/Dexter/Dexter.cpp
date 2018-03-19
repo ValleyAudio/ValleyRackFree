@@ -293,7 +293,7 @@ void Dexter::step() {
         __highRightGain = __highRightGainTable[chordNotes.size() - 1];
 
         for(unsigned long i = 0; i < chordNotes.size(); ++i) {
-            pOpFreqs[i + 1] = freqLUT.getFrequency((opPitch[op]) + aPitch + chordNotes[i]) * multiples[clampi(multiple, 0, 27)];
+            pOpFreqs[i + 1] = freqLUT.getFrequency((opPitch[op]) + aPitch + chordNotes[i]) * multiples[clampi(multiple, 0, 26)];
             if(opButtonLFO[op] > 0.f || masterLFO > 0.f) {
                 pOpFreqs[i + 1] /= 100.f;
             }
