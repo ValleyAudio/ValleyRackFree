@@ -5,7 +5,7 @@ FreqLUT::FreqLUT() {
     _pitch = 0;
     _pos = 0;
     _inputLow = -5.f;
-    _inputHigh = 5.f;
+    _inputHigh = 6.f;
     makeLUT();
 }
 

@@ -278,8 +278,8 @@ void Dexter::step() {
 
         opPitch[op] = params[opParams[op][OP_COARSE_PARAM]].value;
         opPitch[op] += params[opParams[op][OP_FINE_PARAM]].value;
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].value * 0.1f * params[opCVAtten[op][OP_PITCH_CV_1]].value;
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].value * 0.1f * params[opCVAtten[op][OP_PITCH_CV_2]].value;
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].value * params[opCVAtten[op][OP_PITCH_CV_1]].value;
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].value * params[opCVAtten[op][OP_PITCH_CV_2]].value;
         opPitch[op] += modMatrix[op].getDestinationValue(PITCH_DEST);
         opMultipleKnob[op] = (int)params[opParams[op][OP_MULT_PARAM]].value;
         multiple = opMultipleKnob[op] + (int)modMatrix[op].getDestinationValue(RATIO_DEST);
