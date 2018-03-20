@@ -4,6 +4,10 @@
 
 ### Version
 
+0.5.7
+
+**THIS UPDATE WILL BREAK OLD PATCHES. Open 'Please READ ME first.pdf' for a guide on how fix your old patches**
+
 0.5.6
 
     • Say hello to Dexter

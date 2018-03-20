@@ -5,11 +5,11 @@ Plugin *plugin;
 
 void init(rack::Plugin *p) {
 	plugin = p;
-	p->slug = "Valley Free";
+	p->slug = "Valley";
 #ifdef VERSION
 	p->version = TOSTRING(VERSION);
 #else
-    p->version = "0.5.6";
+    p->version = "0.5.7";
 #endif
 
 	p->website = "https://github.com/ValleyAudio/ValleyRackFree";

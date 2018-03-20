@@ -2,6 +2,11 @@
 
 ## Changes
 
+### 0.5.7
+
+	• [Major Update] Warning, this update will break old patches. 
+	Open "Please READ ME first.pdf" for a guide on how to fix your old patches.
+
 ### 0.5.6
     • [Fixed] Dexter is now tuned to C not A. Please adjust Dexter to be in tune with your current patches.
 
