@@ -232,7 +232,7 @@ void Dexter::step() {
 
     brightness = params[BRIGHTNESS_PARAM].value;
     brightness += inputs[BRIGHTNESS_INPUT].value * 0.1f * params[BRIGHT_DEPTH_PARAM].value;
-    brightness = clampf(brightness, 0.f, 1.f);
+    brightness = clampf(brightness, -1.f, 1.f);
     allShape = params[SHAPE_PARAM].value + inputs[SHAPE_INPUT].value * 0.1f * params[SHAPE_DEPTH_PARAM].value;
 
     octaveAKnob = (int)params[OCTAVE_PARAM].value;
