@@ -5,15 +5,10 @@ Plugin *plugin;
 
 void init(rack::Plugin *p) {
 	plugin = p;
-	p->slug = "Valley";
-#ifdef VERSION
+	p->slug = TOSTRING(SLUG);
 	p->version = TOSTRING(VERSION);
-#else
-    p->version = "0.5.7";
-#endif
-
 	p->website = "https://github.com/ValleyAudio/ValleyRackFree";
 	p->manual = "https://github.com/ValleyAudio/ValleyRackFree/blob/master/README.md";
-    p->addModel(createModel<TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG));
-    p->addModel(createModel<DexterWidget>("Valley", "Dexter", "Dexter", OSCILLATOR_TAG));
+    p->addModel(modelTopograph);
+    p->addModel(modelDexter);
 }

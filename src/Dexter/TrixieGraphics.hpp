@@ -3,7 +3,7 @@
 #include "DynamicKnob.hpp"
 using namespace std;
 
-struct DexterDynamicSVGSwitch : virtual Switch, FramebufferWidget {
+struct DexterDynamicSVGSwitch : virtual ParamWidget, FramebufferWidget {
 	std::vector<std::shared_ptr<SVG>> frames;
 	/** Not owned */
 	SVGWidget *sw;
@@ -45,12 +45,12 @@ struct DexterDynamicSVGSwitch : virtual Switch, FramebufferWidget {
     }
 
 	void onChange(EventChange &e) override {
-        assert(frames.size() > 0);
-    	float valueScaled = rescalef(value, minValue, maxValue, 0, frames.size() - 1);
-    	int index = clampi((int) roundf(valueScaled), 0, frames.size() - 1);
+    	assert(frames.size() > 0);
+    	float valueScaled = rescale(value, minValue, maxValue, 0, frames.size() - 1);
+    	int index = clamp((int) roundf(valueScaled), 0, frames.size() - 1);
     	sw->setSVG(frames[index]);
     	dirty = true;
-    	Switch::onChange(e);
+    	ParamWidget::onChange(e);
     }
 };
 
@@ -97,7 +97,7 @@ struct DynamicModuleLightWidget : MultiLightWidget {
 
     	for (size_t i = 0; i < baseColors.size(); i++) {
     		float value = module->lights[firstLightId + i].getBrightness();
-    		value = clampf(value, 0.0, 1.0);
+    		value = clamp(value, 0.0, 1.0);
     		values[i] = value;
     	}
     	setValues(values);
@@ -118,55 +118,44 @@ DynamicModuleLightWidget *createDynamicLight(Vec pos, Module *module, int firstL
 
 struct RoganMedGreen : Rogan {
     RoganMedGreen() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSGreen.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSGreenMed.svg")));
     }
 };
 
 struct RoganSmallGreen : Rogan {
     RoganSmallGreen() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSGreen.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSGreenSmall.svg")));
     }
 };
 
 struct RoganMedBlue : Rogan {
     RoganMedBlue() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSBlue.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueMed.svg")));
     }
 };
 
 struct RoganMedBlueSnap : Rogan {
     RoganMedBlueSnap() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSBlue.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueMed.svg")));
         snap = true;
     }
 };
 
 struct RoganSmallBlue : Rogan {
     RoganSmallBlue() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSBlue.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueSmall.svg")));
     }
-};
+}; // 37.42
 
 struct RoganMedRed : Rogan {
     RoganMedRed() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSRed.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSRedMed.svg")));
     }
 };
 
 struct RoganSmallRed : Rogan {
     RoganSmallRed() {
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSRed.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSRedSmall.svg")));
     }
 };
 
@@ -179,16 +168,13 @@ struct Rogan1PSPurple : Rogan {
 
 struct RoganMedPurple : Rogan {
     RoganMedPurple() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurple.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurpleMed.svg")));
     }
 };
 
 struct RoganSmallPurple : Rogan {
     RoganSmallPurple() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurple.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurpleSmall.svg")));
     }
 };
 
@@ -200,8 +186,7 @@ struct Rogan1PSMustard : Rogan {
 
 struct RoganSmallMustard : Rogan {
     RoganSmallMustard() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSMustard.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSMustardSmall.svg")));
     }
 };
 
@@ -213,16 +198,13 @@ struct Rogan1PSOrange : Rogan {
 
 struct RoganMedOrange : Rogan {
     RoganMedOrange() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrangeMed.svg")));
     }
 };
 
 struct RoganSmallOrange : Rogan {
     RoganSmallOrange() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
-        box.size = Vec(19.8, 19.8);
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrangeSmall.svg")));
     }
 };
 
@@ -260,9 +242,7 @@ struct DynRoganMedRed : DynamicKnob {
     DynRoganMedRed() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSRed.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSRedMed.svg")));
     }
 };
 
@@ -270,9 +250,15 @@ struct DynRoganMedBlue : DynamicKnob {
     DynRoganMedBlue() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSBlue.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueMed.svg")));
+    }
+};
+
+struct DynRoganMedSmallBlue : DynamicKnob {
+    DynRoganMedSmallBlue() {
+        minAngle = -0.83*M_PI;
+        maxAngle = 0.83*M_PI;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueMedSmall.svg")));
     }
 };
 
@@ -280,9 +266,7 @@ struct DynRoganMedGreen : DynamicKnob {
     DynRoganMedGreen() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
-        setSVG(SVG::load(assetGlobal("res/ComponentLibrary/Rogan1PSGreen.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSGreenMed.svg")));
     }
 };
 
@@ -290,9 +274,7 @@ struct DynRoganMedPurple : DynamicKnob {
     DynRoganMedPurple() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurple.svg")));
-        box.size.x *= 0.8;
-        box.size.y *= 0.8;
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSPurpleMed.svg")));
     }
 };
 
@@ -307,6 +289,8 @@ struct PJ301MDarkPort : SVGPort {
 		background->svg = SVG::load(assetPlugin(plugin, "res/PJ301MDark.svg"));
 		background->wrap();
 		box.size = background->box.size;
+        shadow->box.size = background->box.size;
+    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);
 	}
 };
 

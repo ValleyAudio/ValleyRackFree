@@ -13,6 +13,7 @@ struct DynamicKnob : virtual Knob, FramebufferWidget {
 	/** Not owned */
 	TransformWidget *tw;
 	SVGWidget *sw;
+    CircularShadow *shadow;
     int* _visibility;
     DynamicViewMode _viewMode;
 

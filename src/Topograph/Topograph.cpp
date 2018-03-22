@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Valley.hpp"
+#include "../ValleyWidgets.hpp"
 #include "dsp/digital.hpp"
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
@@ -286,11 +287,11 @@ void Topograph::step() {
 
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
-    tempo = rescalef(tempoParam, 0.01f, 1.f, 40.f, 240.f);
+    tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
     char clockBPMChar[16];
     sprintf(clockBPMChar, "%.1f", tempo);
     clockBPM = clockBPMChar;
-    swing = clampf(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.0, 0.0, 0.9);
+    swing = clamp(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.f, 0.f, 0.9f);
     swingHighTempo = tempo / (1 - swing);
     swingLowTempo = tempo / (1 + swing);
     if(elapsedTicks < 6) {
@@ -317,18 +318,18 @@ void Topograph::step() {
         metro.process();
     }
 
-    mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.0);
-    mapX = clampf(mapX, 0.0, 1.0);
-    mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.0);
-    mapY = clampf(mapY, 0.0, 1.0);
-    BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.0);
-    BDFill = clampf(BDFill, 0.0, 1.0);
-    SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.0);
-    SNFill = clampf(SNFill, 0.0, 1.0);
-    HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.0);
-    HHFill = clampf(HHFill, 0.0, 1.0);
-    chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.0);
-    chaos = clampf(chaos, 0.0, 1.0);
+    mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
+    mapX = clamp(mapX, 0.f, 1.f);
+    mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
+    mapY = clamp(mapY, 0.f, 1.f);
+    BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.f);
+    BDFill = clamp(BDFill, 0.f, 1.f);
+    SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.f);
+    SNFill = clamp(SNFill, 0.f, 1.f);
+    HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.f);
+    HHFill = clamp(HHFill, 0.f, 1.f);
+    chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
+    chaos = clamp(chaos, 0.f, 1.f);
     if(grids.getPatternMode() == PATTERN_EUCLIDEAN) {
         mapXText = "1 Len: " + std::to_string(((uint8_t)(mapX * 255.0) >> 3) + 1);
         mapYText = "2 Len: " + std::to_string(((uint8_t)(mapY * 255.0) >> 3) + 1);
@@ -446,6 +447,8 @@ void Topograph::onSampleRateChange() {
     }
 }
 
+// The widget
+
 struct PanelBorder : TransparentWidget {
 	void draw(NVGcontext *vg) override {
 		NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
@@ -464,11 +467,13 @@ struct TopographDynamicPanel : FramebufferWidget {
     SVGWidget* panel;
 
     TopographDynamicPanel() {
+        mode = nullptr;
         oldMode = -1;
         panel = new SVGWidget();
-        addChild(panel);
         addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
         addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+        addChild(panel);
+
         PanelBorder *pb = new PanelBorder();
         pb->box.size = box.size;
         addChild(pb);
@@ -478,14 +483,13 @@ struct TopographDynamicPanel : FramebufferWidget {
         panels.push_back(svg);
         if(!panel->svg) {
             panel->setSVG(svg);
-            box.size = panel->box.size.div(RACK_GRID_SIZE).round().mult(RACK_GRID_SIZE);
+            box.size = panel->box.size;
         }
     }
 
     void step() override {
-        if(mode && *mode != oldMode) {
+        if(mode != nullptr) {
             panel->setSVG(panels[*mode]);
-            oldMode = *mode;
             dirty = true;
         }
     }
@@ -568,12 +572,6 @@ TopographDynamicText* createTopographDynamicText(const Vec& pos, int size, int* 
     return dynText;
 }
 
-/*struct TopographWidget : ModuleWidget {
-	TopographWidget();
-    Menu* createContextMenu() override;
-};*/
-
-// Custom control graphics
 struct Rogan1PSBrightRed : Rogan {
     Rogan1PSBrightRed() {
         setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
@@ -592,291 +590,227 @@ struct Rogan1PSYellow : Rogan {
     }
 };
 
-struct TopographLightLEDButton : SVGSwitch, MomentarySwitch {
-    TopographLightLEDButton() {
+struct LightLEDButton : SVGSwitch, MomentarySwitch {
+    LightLEDButton() {
         addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
     }
 };
 
-TopographWidget::TopographWidget() {
-    Topograph *module = new Topograph();
-    setModule(module);
-    box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// Context Menu ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct TopographWidget : ModuleWidget {
+    TopographWidget(Topograph *topograph);
+    void appendContextMenu(Menu* menu) override;
+};
+
+TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     {
-        TopographDynamicPanel *panel = new TopographDynamicPanel();
-        panel->box.size = box.size;
+        /*DynamicPanelWidget* panel = new DynamicPanelWidget;
+        panel->mode = &module->panelStyle;
+        addChild(panel);
+        box.size = panel->box.size;*/
+        DynamicPanelWidget *panel = new DynamicPanelWidget();
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+        box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-    addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(createScrew<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(createScrew<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH));
     addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH));
     addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH));
     addChild(createTopographDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH));
 
-    addParam(createParam<TopographLightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<RedLight>>(Vec(49.4, 119), module, Topograph::RESET_LIGHT));
-    addParam(createParam<TopographLightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
+    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
+    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(15.5, 48.5), Port::INPUT, module, Topograph::CLOCK_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(15.5, 111.5), Port::INPUT, module, Topograph::RESET_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(15.5, 174.5), Port::INPUT, module, Topograph::MAPX_CV));
+    addInput(Port::create<PJ301MPort>(Vec(15.5, 234.5), Port::INPUT, module, Topograph::MAPY_CV));
+    addInput(Port::create<PJ301MPort>(Vec(15.5, 294.5), Port::INPUT, module, Topograph::CHAOS_CV));
+    addInput(Port::create<PJ301MPort>(Vec(129.5, 234.5), Port::INPUT, module, Topograph::BD_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(165.5, 234.5), Port::INPUT, module, Topograph::SN_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(201.5, 234.5), Port::INPUT, module, Topograph::HH_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(165.5, 48.5), Port::INPUT, module, Topograph::SWING_CV));
+    addInput(Port::create<PJ301MPort>(Vec(73, 111.5), Port::INPUT, module, Topograph::RUN_INPUT));
 
-    addInput(createInput<PJ301MPort>(Vec(15.5, 48.5), module, Topograph::CLOCK_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(15.5, 111.5), module, Topograph::RESET_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(15.5, 174.5), module, Topograph::MAPX_CV));
-    addInput(createInput<PJ301MPort>(Vec(15.5, 234.5), module, Topograph::MAPY_CV));
-    addInput(createInput<PJ301MPort>(Vec(15.5, 294.5), module, Topograph::CHAOS_CV));
-    addInput(createInput<PJ301MPort>(Vec(129.5, 234.5), module, Topograph::BD_FILL_CV));
-    addInput(createInput<PJ301MPort>(Vec(165.5, 234.5), module, Topograph::SN_FILL_CV));
-    addInput(createInput<PJ301MPort>(Vec(201.5, 234.5), module, Topograph::HH_FILL_CV));
-    addInput(createInput<PJ301MPort>(Vec(165.5, 48.5), module, Topograph::SWING_CV));
-    addInput(createInput<PJ301MPort>(Vec(73, 111.5), module, Topograph::RUN_INPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(126.7, 270.736), Port::OUTPUT, module, Topograph::BD_OUTPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(162.7, 270.736), Port::OUTPUT, module, Topograph::SN_OUTPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(198.7, 270.736), Port::OUTPUT, module, Topograph::HH_OUTPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(126.7, 306.736), Port::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(162.7, 306.736), Port::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
+    addOutput(Port::create<PJ3410Port>(Vec(198.7, 306.736), Port::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
 
-    addOutput(createOutput<PJ3410Port>(Vec(126.7, 270.736), module, Topograph::BD_OUTPUT));
-    addOutput(createOutput<PJ3410Port>(Vec(162.7, 270.736), module, Topograph::SN_OUTPUT));
-    addOutput(createOutput<PJ3410Port>(Vec(198.7, 270.736), module, Topograph::HH_OUTPUT));
-    addOutput(createOutput<PJ3410Port>(Vec(126.7, 306.736), module, Topograph::BD_ACC_OUTPUT));
-    addOutput(createOutput<PJ3410Port>(Vec(162.7, 306.736), module, Topograph::SN_ACC_OUTPUT));
-    addOutput(createOutput<PJ3410Port>(Vec(198.7, 306.736), module, Topograph::HH_ACC_OUTPUT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(49.4, 119), module, Topograph::RESET_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////// Context Menu ///////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct TopographPanelStyleItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     int panelStyle;
     void onAction(EventAction &e) override {
-        topograph->panelStyle = panelStyle;
+        module->panelStyle = panelStyle;
     }
     void step() override {
-        rightText = (topograph->panelStyle == panelStyle) ? "✔" : "";
+        rightText = (module->panelStyle == panelStyle) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
 struct TopographSequencerModeItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     Topograph::SequencerMode sequencerMode;
     void onAction(EventAction &e) override {
-        topograph->sequencerMode = sequencerMode;
+        module->sequencerMode = sequencerMode;
         switch(sequencerMode) {
             case Topograph::HENRI:
-                topograph->grids.setPatternMode(PATTERN_HENRI);
+                module->grids.setPatternMode(PATTERN_HENRI);
                 break;
             case Topograph::OLIVIER:
-                topograph->grids.setPatternMode(PATTERN_OLIVIER);
+                module->grids.setPatternMode(PATTERN_OLIVIER);
                 break;
             case Topograph::EUCLIDEAN:
-                topograph->grids.setPatternMode(PATTERN_EUCLIDEAN);
+                module->grids.setPatternMode(PATTERN_EUCLIDEAN);
                 break;
         }
     }
     void step() override {
-        rightText = (topograph->sequencerMode == sequencerMode) ? "✔" : "";
+        rightText = (module->sequencerMode == sequencerMode) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
 struct TopographTriggerOutputModeItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     Topograph::TriggerOutputMode triggerOutputMode;
     void onAction(EventAction &e) override {
-        topograph->triggerOutputMode = triggerOutputMode;
+        module->triggerOutputMode = triggerOutputMode;
     }
     void step() override {
-        rightText = (topograph->triggerOutputMode == triggerOutputMode) ? "✔" : "";
+        rightText = (module->triggerOutputMode == triggerOutputMode) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
 struct TopographAccOutputModeItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     Topograph::AccOutputMode accOutputMode;
     void onAction(EventAction &e) override {
-        topograph->accOutputMode = accOutputMode;
+        module->accOutputMode = accOutputMode;
         switch(accOutputMode) {
             case Topograph::INDIVIDUAL_ACCENTS:
-                topograph->grids.setAccentAltMode(false);
+                module->grids.setAccentAltMode(false);
                 break;
             case Topograph::ACC_CLK_RST:
-                topograph->grids.setAccentAltMode(true);
+                module->grids.setAccentAltMode(true);
         }
     }
     void step() override {
-        rightText = (topograph->accOutputMode == accOutputMode) ? "✔" : "";
+        rightText = (module->accOutputMode == accOutputMode) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
 struct TopographClockResolutionItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     Topograph::ExtClockResolution extClockResolution;
     void onAction(EventAction &e) override {
-        topograph->extClockResolution = extClockResolution;
-        topograph->grids.reset();
+        module->extClockResolution = extClockResolution;
+        module->grids.reset();
     }
     void step() override {
-        rightText = (topograph->extClockResolution == extClockResolution) ? "✔" : "";
+        rightText = (module->extClockResolution == extClockResolution) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
 struct TopographRunModeItem : MenuItem {
-    Topograph* topograph;
+    Topograph* module;
     Topograph::RunMode runMode;
     void onAction(EventAction &e) override {
-        topograph->runMode = runMode;
+        module->runMode = runMode;
     }
     void step() override {
-        rightText = (topograph->runMode == runMode) ? "✔" : "";
+        rightText = (module->runMode == runMode) ? "✔" : "";
+        MenuItem::step();
     }
 };
 
-Menu* TopographWidget::createContextMenu() {
-    Menu* menu = ModuleWidget::createContextMenu();
-    Topograph *topograph = dynamic_cast<Topograph*>(module);
-    assert(topograph);
+void TopographWidget::appendContextMenu(Menu *menu) {
+    Topograph *module = dynamic_cast<Topograph*>(this->module);
+    assert(module);
 
     // Panel style
-    MenuLabel *panelStyleSpacerLabel = new MenuLabel();
-    menu->addChild(panelStyleSpacerLabel);
-    MenuLabel *panelStyleLabel = new MenuLabel();
-    panelStyleLabel->text = "Panel style";
-    menu->addChild(panelStyleLabel);
-
-    TopographPanelStyleItem *darkPanelStyleItem = new TopographPanelStyleItem();
-    darkPanelStyleItem->text = "Dark";
-    darkPanelStyleItem->topograph = topograph;
-    darkPanelStyleItem->panelStyle = 0;
-    menu->addChild(darkPanelStyleItem);
-
-    TopographPanelStyleItem *lightPanelStyleItem = new TopographPanelStyleItem();
-    lightPanelStyleItem->text = "Light";
-    lightPanelStyleItem->topograph = topograph;
-    lightPanelStyleItem->panelStyle = 1;
-    menu->addChild(lightPanelStyleItem);
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
+    menu->addChild(construct<TopographPanelStyleItem>(&MenuItem::text, "Dark", &TopographPanelStyleItem::module,
+                                                      module, &TopographPanelStyleItem::panelStyle, 0));
+    menu->addChild(construct<TopographPanelStyleItem>(&MenuItem::text, "Light", &TopographPanelStyleItem::module,
+                                                      module, &TopographPanelStyleItem::panelStyle, 1));
 
     // Sequencer Modes
-    MenuLabel *sequencerModeSpacerLabel = new MenuLabel();
-    menu->addChild(sequencerModeSpacerLabel);
-    MenuLabel *sequencerModeLabel = new MenuLabel();
-    sequencerModeLabel->text = "Sequencer Mode";
-    menu->addChild(sequencerModeLabel);
-
-    TopographSequencerModeItem *henriSeqModeItem = new TopographSequencerModeItem();
-    henriSeqModeItem->text = "Henri";
-    henriSeqModeItem->topograph = topograph;
-    henriSeqModeItem->sequencerMode = Topograph::HENRI;
-    menu->addChild(henriSeqModeItem);
-
-    TopographSequencerModeItem *olivierSeqModeItem = new TopographSequencerModeItem();
-    olivierSeqModeItem->text = "Olivier";
-    olivierSeqModeItem->topograph = topograph;
-    olivierSeqModeItem->sequencerMode = Topograph::OLIVIER;
-    menu->addChild(olivierSeqModeItem);
-
-    TopographSequencerModeItem *euclideanSeqModeItem = new TopographSequencerModeItem();
-    euclideanSeqModeItem->text = "Euclidean";
-    euclideanSeqModeItem->topograph = topograph;
-    euclideanSeqModeItem->sequencerMode = Topograph::EUCLIDEAN;
-    menu->addChild(euclideanSeqModeItem);
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Sequencer Mode"));
+    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Henri", &TopographSequencerModeItem::module,
+                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::HENRI));
+    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Olivier", &TopographSequencerModeItem::module,
+                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::OLIVIER));
+    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Euclidean", &TopographSequencerModeItem::module,
+                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::EUCLIDEAN));
 
     // Trigger Output Modes
-    MenuLabel *triggerOutputModeSpacerLabel = new MenuLabel();
-    menu->addChild(triggerOutputModeSpacerLabel);
-    MenuLabel *triggerOutputModeLabel = new MenuLabel();
-    triggerOutputModeLabel->text = "Trigger Output Mode";
-    menu->addChild(triggerOutputModeLabel);
-
-    TopographTriggerOutputModeItem *triggerPulseItem = new TopographTriggerOutputModeItem();
-    triggerPulseItem->text = "1ms Pulse";
-    triggerPulseItem->topograph = topograph;
-    triggerPulseItem->triggerOutputMode = Topograph::PULSE;
-    menu->addChild(triggerPulseItem);
-
-    TopographTriggerOutputModeItem *triggerGateItem = new TopographTriggerOutputModeItem();
-    triggerGateItem->text = "Gate";
-    triggerGateItem->topograph = topograph;
-    triggerGateItem->triggerOutputMode = Topograph::GATE;
-    menu->addChild(triggerGateItem);
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Trigger Output Mode"));
+    menu->addChild(construct<TopographTriggerOutputModeItem>(&MenuItem::text, "1ms Pulse", &TopographTriggerOutputModeItem::module,
+                                                             module, &TopographTriggerOutputModeItem::triggerOutputMode, Topograph::PULSE));
+    menu->addChild(construct<TopographTriggerOutputModeItem>(&MenuItem::text, "Gate", &TopographTriggerOutputModeItem::module,
+                                                             module, &TopographTriggerOutputModeItem::triggerOutputMode, Topograph::GATE));
 
     // Acc Output Modes
-    MenuLabel *accModeSpacerLabel = new MenuLabel();
-    menu->addChild(accModeSpacerLabel);
-    MenuLabel *accOutputModeLabel = new MenuLabel();
-    accOutputModeLabel->text = "Accent Output Mode";
-    menu->addChild(accOutputModeLabel);
-
-    TopographAccOutputModeItem *individualAccItem = new TopographAccOutputModeItem();
-    individualAccItem->text = "Individual accents";
-    individualAccItem->topograph = topograph;
-    individualAccItem->accOutputMode = Topograph::INDIVIDUAL_ACCENTS;
-    menu->addChild(individualAccItem);
-
-    TopographAccOutputModeItem *accClkRstItem = new TopographAccOutputModeItem();
-    accClkRstItem->text = "Accent / Clock / Reset";
-    accClkRstItem->topograph = topograph;
-    accClkRstItem->accOutputMode = Topograph::ACC_CLK_RST;
-    menu->addChild(accClkRstItem);
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Accent Output Mode"));
+    menu->addChild(construct<TopographAccOutputModeItem>(&MenuItem::text, "Individual accents", &TopographAccOutputModeItem::module,
+                                                         module, &TopographAccOutputModeItem::accOutputMode, Topograph::INDIVIDUAL_ACCENTS));
+    menu->addChild(construct<TopographAccOutputModeItem>(&MenuItem::text, "Accent / Clock / Reset", &TopographAccOutputModeItem::module,
+                                                         module, &TopographAccOutputModeItem::accOutputMode, Topograph::ACC_CLK_RST));
 
     // External clock resolution
-    MenuLabel *extClockResSpacerLabel = new MenuLabel();
-    menu->addChild(extClockResSpacerLabel);
-    MenuLabel *extClockResLabel = new MenuLabel();
-    extClockResLabel->text = "Ext. Clock Resolution";
-    menu->addChild(extClockResLabel);
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Ext. Clock Resolution"));
+    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "4 PPQN", &TopographClockResolutionItem::module,
+                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_4_PPQN));
+    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "8 PPQN", &TopographClockResolutionItem::module,
+                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_8_PPQN));
+    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "24 PPQN", &TopographClockResolutionItem::module,
+                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_24_PPQN));
 
-    TopographClockResolutionItem *fourPPQNItem = new TopographClockResolutionItem();
-    fourPPQNItem->text = "4 PPQN";
-    fourPPQNItem->topograph = topograph;
-    fourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_4_PPQN;
-    menu->addChild(fourPPQNItem);
-
-    TopographClockResolutionItem *eightPPQNItem = new TopographClockResolutionItem();
-    eightPPQNItem->text = "8 PPQN";
-    eightPPQNItem->topograph = topograph;
-    eightPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_8_PPQN;
-    menu->addChild(eightPPQNItem);
-
-    TopographClockResolutionItem *twentyFourPPQNItem = new TopographClockResolutionItem();
-    twentyFourPPQNItem->text = "24 PPQN";
-    twentyFourPPQNItem->topograph = topograph;
-    twentyFourPPQNItem->extClockResolution = Topograph::EXTCLOCK_RES_24_PPQN;
-    menu->addChild(twentyFourPPQNItem);
-
-    // Run Modes
-    MenuLabel *runModeSpacerLabel = new MenuLabel();
-    menu->addChild(runModeSpacerLabel);
-    MenuLabel *runModeLabel = new MenuLabel();
-    runModeLabel->text = "Run Mode";
-    menu->addChild(runModeLabel);
-
-    TopographRunModeItem *runModeToggleItem = new TopographRunModeItem();
-    runModeToggleItem->text = "Toggle";
-    runModeToggleItem->topograph = topograph;
-    runModeToggleItem->runMode = Topograph::RunMode::TOGGLE;
-    menu->addChild(runModeToggleItem);
-
-    TopographRunModeItem *runModeMomentItem = new TopographRunModeItem();
-    runModeMomentItem->text = "Momentary";
-    runModeMomentItem->topograph = topograph;
-    runModeMomentItem->runMode = Topograph::RunMode::MOMENTARY;
-    menu->addChild(runModeMomentItem);
-
-    return menu;
+    // Acc Output Modes
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Run Mode"));
+    menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Toggle", &TopographRunModeItem::module,
+                                                   module, &TopographRunModeItem::runMode, Topograph::RunMode::TOGGLE));
+    menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Momentary", &TopographRunModeItem::module,
+                                                   module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
 }
 
-//p->addModel(createModel<TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG));
-//Model *modelTopograph = Model::create<Topograph, TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG);
+Model *modelTopograph = Model::create<Topograph, TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG);

@@ -62,7 +62,6 @@ private:
     float _prevPhasedElapsedTickTime;
     float _phase;
     bool _ticked;
-    bool _previouslyTicked;
 
     void calcTickIncrement();
 };

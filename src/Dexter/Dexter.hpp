@@ -6,13 +6,12 @@
 #include "Osc4Core_SIMD.hpp"
 #include "Chords.hpp"
 #include "TrixieGraphics.hpp"
+#include "../ValleyWidgets.hpp"
 #include "RoutingMatrix.hpp"
 #include "dsp/digital.hpp"
 #include <algorithm>
 #define NUM_OP_WAVES 1
 #define NUM_WAVE_TABLES 1
-
-#define FONT_FILE
 
 float vOct2Freq(float vOct) {
     return 261.6255f * powf(2.0, vOct);
@@ -66,8 +65,10 @@ const Vec ShapeDepthKnobPos(163.15, 258.509); // 163.15
 
 const Vec MasterLFOButtonPos(138.125, 166);
 const Vec ResetPhaseButtonPos(138.125, 184.462);
+const Vec FullInversionButtonPos(53.71, 127);
 const Vec MasterLFOButtonLEDPos(140.45, 168.35);
 const Vec ResetPhaseButtonLEDPos(140.45, 186.742);
+const Vec FullInversionButtonLEDPos(56.035, 129.28);
 
 const Vec ChordCVJack(3.5, 280.735);
 const Vec InvertCVJack(29.75, 280.735);
@@ -171,6 +172,8 @@ struct Dexter : Module {
         OP_4_PITCH_CV1_PARAM, OP_4_WAVE_CV1_PARAM, OP_4_SHAPE_CV1_PARAM, OP_4_LEVEL_CV1_PARAM,
         OP_4_PITCH_CV2_PARAM, OP_4_WAVE_CV2_PARAM, OP_4_SHAPE_CV2_PARAM, OP_4_LEVEL_CV2_PARAM,
 
+        FULL_INVERSION_BUTTON,
+
         NUM_PARAMS
     };
 
@@ -258,6 +261,7 @@ struct Dexter : Module {
         OP_3_WAVE_MENU_LIGHT, OP_3_MODA_MENU_LIGHT, OP_3_MODB_MENU_LIGHT, OP_3_MISC_MENU_LIGHT, OP_3_PRE_LIGHT,
         OP_4_SETTINGS_LIGHT, OP_4_POST_SHAPE_LIGHT, OP_4_LFO_LIGHT, OP_4_WEAK_LIGHT, OP_4_SYNC_LIGHT,
         OP_4_WAVE_MENU_LIGHT, OP_4_MODA_MENU_LIGHT, OP_4_MODB_MENU_LIGHT, OP_4_MISC_MENU_LIGHT, OP_4_PRE_LIGHT,
+        FULL_INVERSION_LIGHT,
         NUM_LIGHTS
     };
 
@@ -382,6 +386,9 @@ struct Dexter : Module {
     float chordParam;
     float chordDetune;
     float chordDetuneParam;
+    int buttonFullInversion = 0;
+    int fullInversion = 0;
+    SchmittTrigger fullInversionButtonTrig;
     int chordKnob;
     int invDepth;
     int invDepthParam;
@@ -393,6 +400,7 @@ struct Dexter : Module {
     float _outputLevels[7] = {1.f, 0.5f, 0.333333f, 0.25f, 0.2f, 0.166666f, 0.143f};
     std::string syncRoutingText[2] = {"Parent", "Neighbour"};
     unsigned long syncRouting = 0;
+    unsigned long indivBOutputs = 0;
 
     int octaveAKnob = 0;
     int octaveBKnob = 0;
@@ -468,187 +476,7 @@ int round_int( double r ) {
     return (r > 0.0) ? (r + 0.5) : (r - 0.5);
 }
 
-struct DynamicText : TransparentWidget {
-    std::shared_ptr<std::string> text;
-    std::shared_ptr<Font> font;
-    int size;
-    int* visibility;
-    DynamicViewMode viewMode;
-
-    enum ColorMode {
-        COLOR_MODE_WHITE = 0,
-        COLOR_MODE_BLACK
-    };
-    int* colorHandle;
-    NVGcolor textColor;
-
-
-    DynamicText() {
-        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
-        size = 16;
-        visibility = nullptr;
-        colorHandle = nullptr;
-        viewMode = ACTIVE_HIGH;
-    }
-
-    virtual void draw(NVGcontext* vg) override {
-        nvgFontSize(vg, size);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, 0.f);
-        Vec textPos = Vec(0.f, 0.f);
-        if(colorHandle != nullptr) {
-            switch((ColorMode)*colorHandle) {
-                case COLOR_MODE_WHITE: textColor = nvgRGB(0xFF,0xFF,0xFF); break;
-                case COLOR_MODE_BLACK: textColor = nvgRGB(0x14,0x14, 0x14); break;
-                default: textColor = nvgRGB(0xFF,0xFF,0xFF);
-            }
-        }
-        else {
-            textColor = nvgRGB(0xFF,0xFF,0xFF);
-        }
-
-        nvgFillColor(vg, textColor);
-        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        nvgText(vg, textPos.x, textPos.y, text->c_str(), NULL);
-    }
-
-    void step() override {
-        if(visibility != nullptr) {
-            if(*visibility) {
-                visible = true;
-            }
-            else {
-                visible = false;
-            }
-            if(viewMode == ACTIVE_LOW) {
-                visible = !visible;
-            }
-        }
-    }
-};
-
-DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
-                               int* visibilityHandle, DynamicViewMode viewMode) {
-    DynamicText* dynText = new DynamicText();
-    dynText->size = size;
-    dynText->text = make_shared<std::string>(text);
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    return dynText;
-}
-
-DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
-                               int* visibilityHandle, int* colorHandle, DynamicViewMode viewMode) {
-    DynamicText* dynText = new DynamicText();
-    dynText->size = size;
-    dynText->text = make_shared<std::string>(text);
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    dynText->colorHandle = colorHandle;
-    return dynText;
-}
-
-DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::string> text,
-                               int* visibilityHandle, DynamicViewMode viewMode) {
-    DynamicText* dynText = new DynamicText();
-    dynText->size = size;
-    dynText->text = text;
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    return dynText;
-}
-
-DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::string> text,
-                               int* visibilityHandle, int* colorHandle, DynamicViewMode viewMode) {
-    DynamicText* dynText = new DynamicText();
-    dynText->size = size;
-    dynText->text = text;
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    dynText->colorHandle = colorHandle;
-    return dynText;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct DynamicFrameText : DynamicText {
-    int* itemHandle;
-    std::vector<std::string> textItem;
-
-    DynamicFrameText() {
-        itemHandle = nullptr;
-    }
-
-    void addItem(const std::string& item) {
-        textItem.push_back(item);
-    }
-
-    void draw(NVGcontext* vg) override {
-        int item = -1;
-        if(itemHandle != nullptr) {
-            item = *itemHandle;
-        }
-        if((int)textItem.size() && item >= 0 && item < (int)textItem.size()) {
-            nvgFontSize(vg, size);
-            nvgFontFaceId(vg, font->handle);
-            nvgTextLetterSpacing(vg, 0.f);
-            Vec textPos = Vec(0.f, 0.f);
-
-            if(colorHandle != nullptr) {
-                switch((ColorMode)*colorHandle) {
-                    case COLOR_MODE_WHITE: textColor = nvgRGB(0xFF,0xFF,0xFF); break;
-                    case COLOR_MODE_BLACK: textColor = nvgRGB(0x14,0x14, 0x14); break;
-                    default: textColor = nvgRGB(0xFF,0xFF,0xFF);
-                }
-            }
-            else {
-                textColor = nvgRGB(0xFF,0xFF,0xFF);
-            }
-
-            nvgFillColor(vg, textColor);
-            nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-            nvgText(vg, textPos.x, textPos.y, textItem[item].c_str(), NULL);
-        }
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct DynamicItem : MenuItem {
-    unsigned long _itemNumber;
-    unsigned long* _choice;
-    DynamicItem(unsigned long itemNumber);
-    void onAction(EventAction &e) override;
-};
-
-struct DynamicChoice : ChoiceButton {
-    unsigned long* _choice;
-    std::vector<std::string> _items;
-    std::shared_ptr<std::string> _text;
-    std::shared_ptr<Font> _font;
-    int* _visibility;
-    int _textSize;
-    DynamicViewMode _viewMode;
-    DynamicChoice();
-    void step() override;
-    void onAction(EventAction &e) override;
-    void draw(NVGcontext* vg) override;
-};
-
-DynamicChoice* createDynamicChoice(const Vec& pos,
-                                   float width,
-                                   const std::vector<std::string>& items,
-                                   unsigned long* choiceHandle,
-                                   int* visibilityHandle,
-                                   DynamicViewMode viewMode);
 
 struct AlgoGraphic : FramebufferWidget {
     std::vector<std::shared_ptr<SVG>> frames;
@@ -686,9 +514,9 @@ struct AlgoGraphic : FramebufferWidget {
     }
 
     void step() override {
-        if (nearf(gPixelRatio, 1.f)) {
+        //if (nearf(gPixelRatio, 1.f)) {
             oversample = 2.f;
-        }
+        //}
         if(style != nullptr) {
             if(*style == 0) {
                 styleOffset = 0;
@@ -698,7 +526,7 @@ struct AlgoGraphic : FramebufferWidget {
             }
         }
         if(value != nullptr) {
-            int index = clampi(*value + styleOffset, 0, frames.size() - 1);
+            int index = clamp(*value + styleOffset, 0, frames.size() - 1);
             sw->setSVG(frames[index]);
             dirty = true;
         }
@@ -706,53 +534,9 @@ struct AlgoGraphic : FramebufferWidget {
     }
 };
 
-struct PanelBorder : TransparentWidget {
-	void draw(NVGcontext *vg) override {
-		NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
-		nvgBeginPath(vg);
-		nvgRect(vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
-		nvgStrokeColor(vg, borderColor);
-		nvgStrokeWidth(vg, 1.0);
-		nvgStroke(vg);
-	}
-};
-
-struct DynamicPanel : FramebufferWidget {
-    int* mode;
-    int oldMode;
-    std::vector<std::shared_ptr<SVG>> panels;
-    SVGWidget* panel;
-
-    DynamicPanel() {
-        mode = nullptr;
-        oldMode = -1;
-        panel = new SVGWidget();
-        addChild(panel);
-        addPanel(SVG::load(assetPlugin(plugin, "res/DexterPanelDark.svg")));
-        addPanel(SVG::load(assetPlugin(plugin, "res/DexterPanelLight.svg")));
-        PanelBorder *pb = new PanelBorder();
-        pb->box.size = box.size;
-        addChild(pb);
-    }
-
-    void addPanel(std::shared_ptr<SVG> svg) {
-        panels.push_back(svg);
-        if(!panel->svg) {
-            panel->setSVG(svg);
-            box.size = panel->box.size.div(RACK_GRID_SIZE).round().mult(RACK_GRID_SIZE);
-        }
-    }
-
-    void step() override {
-        if (nearf(gPixelRatio, 1.f)) {
-            oversample = 2.f;
-        }
-        if(mode != nullptr && *mode != oldMode) {
-            panel->setSVG(panels[*mode]);
-            oldMode = *mode;
-            dirty = true;
-        }
-    }
+struct DexterWidget : ModuleWidget {
+    DexterWidget(Dexter *module);
+    void appendContextMenu(Menu *menu);
 };
 
 #endif

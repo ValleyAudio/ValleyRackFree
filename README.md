@@ -1,28 +1,23 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 0.5.1
+3rd party plugins for VCV Rack version 0.6.0dev
 
 ### Version
 
-0.5.7
+0.6.0
 
-**THIS UPDATE WILL BREAK OLD PATCHES. Open 'Please READ ME first.pdf' for a guide on how fix your old patches**
-
-0.5.6
-
-    • Say hello to Dexter
-    • Dexter is now tuned to C not A. Please adjust Dexter to be in tune with your current patches.
+    • Updated for 0.6.0
 
 ### Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have v0.5.1 to run these modules.
+You must have v0.6.0dev to run these modules.
 
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
-* Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and syncronisation options, as well multiple outputs from 2 separate voices and each operator.
+* Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
 
 ![Valley](./ValleyImg.png)
 
@@ -59,7 +54,11 @@ In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide
 * Topograph
     * Fix text flicker
 * Dexter
+<<<<<<< HEAD
     * General code cleaning
+=======
+    * It's coming, be patient ;)
+>>>>>>> v0.6
 
 ## Future
 
