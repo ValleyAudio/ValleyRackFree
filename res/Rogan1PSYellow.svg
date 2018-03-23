@@ -14,7 +14,7 @@
    viewBox="0 0 13.999491 13.999491"
    version="1.1"
    id="svg15246"
-   sodipodi:docname="Rogan1PSRename.svg"
+   sodipodi:docname="Rogan1PSYellow.svg"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06">
   <defs
      id="defs15240">
@@ -387,13 +387,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6"
-     inkscape:cx="2.6919333"
-     inkscape:cy="23.675099"
+     inkscape:cx="3.5413588"
+     inkscape:cy="7.113815"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1274"
-     inkscape:window-height="1156"
+     inkscape:window-height="1006"
      inkscape:window-x="142"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -410,7 +410,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

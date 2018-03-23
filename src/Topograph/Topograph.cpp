@@ -582,10 +582,6 @@ struct TopographWidget : ModuleWidget {
 
 TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     {
-        /*DynamicPanelWidget* panel = new DynamicPanelWidget;
-        panel->mode = &module->panelStyle;
-        addChild(panel);
-        box.size = panel->box.size;*/
         DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
         panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
@@ -597,7 +593,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    
+
     addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
     addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
     addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
