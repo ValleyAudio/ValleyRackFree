@@ -21,12 +21,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Valley.hpp"
-#include "../ValleyWidgets.hpp"
+#include "../ValleyComponents.hpp"
 #include "dsp/digital.hpp"
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
 #include "TopographPatternGenerator.hpp"
-#include "DynamicBase.hpp"
 
 struct Topograph : Module {
     enum ParamIds {
@@ -515,7 +514,7 @@ struct TopographDynamicText : TransparentWidget {
         size = 16;
         visibility = nullptr;
         pText = nullptr;
-        viewMode = ACTIVE_HIGH;
+        viewMode = ACTIVE_HIGH_VIEW;
     }
 
     void draw(NVGcontext* vg) {
@@ -549,7 +548,7 @@ struct TopographDynamicText : TransparentWidget {
             else {
                 visible = false;
             }
-            if(viewMode == ACTIVE_LOW) {
+            if(viewMode == ACTIVE_LOW_VIEW) {
                 visible = !visible;
             }
         }
@@ -571,30 +570,6 @@ TopographDynamicText* createTopographDynamicText(const Vec& pos, int size, int* 
     dynText->viewMode = viewMode;
     return dynText;
 }
-
-struct Rogan1PSBrightRed : Rogan {
-    Rogan1PSBrightRed() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRed.svg")));
-    }
-};
-
-struct Rogan1PSOrange : Rogan {
-    Rogan1PSOrange() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSOrange.svg")));
-    }
-};
-
-struct Rogan1PSYellow : Rogan {
-    Rogan1PSYellow() {
-        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
-    }
-};
-
-struct LightLEDButton : SVGSwitch, MomentarySwitch {
-    LightLEDButton() {
-        addFrame(SVG::load(assetPlugin(plugin, "res/LightLEDButton.svg")));
-    }
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// Context Menu ///////////////////////////////////////////
@@ -622,11 +597,11 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-    addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH));
-    addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH));
-    addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH));
-    addChild(createTopographDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH));
+    
+    addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createTopographDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
     addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
@@ -659,10 +634,10 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(45, 114.5), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(49.4, 119), module, Topograph::RESET_LIGHT));
-    addParam(ParamWidget::create<LightLEDButton>(Vec(102, 114.5), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(106.4, 119), module, Topograph::RUNNING_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(57.4, 119), module, Topograph::RESET_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(114.4, 119), module, Topograph::RUNNING_LIGHT));
 }
 
 struct TopographPanelStyleItem : MenuItem {

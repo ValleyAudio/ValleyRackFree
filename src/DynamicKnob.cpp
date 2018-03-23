@@ -1,4 +1,4 @@
-#include "DynamicKnob.hpp"
+#include "ValleyWidgets.hpp"
 
 DynamicKnob::DynamicKnob() {
     shadow = new CircularShadow();
@@ -10,7 +10,7 @@ DynamicKnob::DynamicKnob() {
 	sw = new SVGWidget();
 	tw->addChild(sw);
     _visibility = nullptr;
-    _viewMode = ACTIVE_HIGH;
+    _viewMode = ACTIVE_HIGH_VIEW;
 }
 
 void DynamicKnob::setSVG(std::shared_ptr<SVG> svg) {
@@ -31,7 +31,7 @@ void DynamicKnob::step() {
         else {
             visible = false;
         }
-        if(_viewMode == ACTIVE_LOW) {
+        if(_viewMode == ACTIVE_LOW_VIEW) {
             visible = !visible;
         }
     }

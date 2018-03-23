@@ -2,11 +2,10 @@
 #define VALLEY_DEXTER_HPP
 
 #include "../Valley.hpp"
+#include "../ValleyComponents.hpp"
 #include "FreqLUT.hpp"
 #include "Osc4Core_SIMD.hpp"
 #include "Chords.hpp"
-#include "TrixieGraphics.hpp"
-#include "../ValleyWidgets.hpp"
 #include "RoutingMatrix.hpp"
 #include "dsp/digital.hpp"
 #include <algorithm>

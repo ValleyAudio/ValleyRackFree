@@ -695,37 +695,37 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     }
 
     addParam(createDynamicKnob<DynRoganMedBlue>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM, nullptr,
-                                                ACTIVE_LOW, 0.0, 6.0, 3.0, SNAP_MOTION));
+                                                ACTIVE_LOW_VIEW, 0.0, 6.0, 3.0, SNAP_MOTION));
     addParam(createDynamicKnob<DynRoganMedBlue>(CoarseKnobPos, module, Dexter::COARSE_PARAM, nullptr,
-                                                ACTIVE_LOW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
     addParam(createDynamicKnob<DynRoganMedBlue>(FineKnobPos, module, Dexter::FINE_PARAM, nullptr,
-                                                ACTIVE_LOW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
+                                                ACTIVE_LOW_VIEW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
 
     {
         DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(ChordKnobPos, module, Dexter::CHORD_PARAM, nullptr,
-                                                  ACTIVE_LOW, 0.0, NUM_CHORDS - 1, 0.0, SNAP_MOTION);
+                                                  ACTIVE_LOW_VIEW, 0.0, NUM_CHORDS - 1, 0.0, SNAP_MOTION);
         addParam(dynParam);
     }
 
     {
         DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(InvertKnobPos, module, Dexter::INVERT_PARAM, nullptr,
-                                                  ACTIVE_LOW, 0, 20, 10, SNAP_MOTION);
+                                                  ACTIVE_LOW_VIEW, 0, 20, 10, SNAP_MOTION);
         addParam(dynParam);
     }
     //addParam(ParamWidget::create<RoganMedBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, 0.0, 1.0, 0.0));
 
     {
         DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, nullptr,
-                                                  ACTIVE_LOW, 0.0, 1.0, 0.0, SMOOTH_MOTION);
+                                                  ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION);
         addParam(dynParam);
     }
 
     addParam(createDynamicKnob<DynRoganMedBlue>(Octave2KnobPos, module, Dexter::B_OCTAVE_PARAM, nullptr,
-                                                ACTIVE_LOW, 0.0, 6.0, 3.0, SNAP_MOTION));
+                                                ACTIVE_LOW_VIEW, 0.0, 6.0, 3.0, SNAP_MOTION));
     addParam(createDynamicKnob<DynRoganMedBlue>(Coarse2KnobPos, module, Dexter::B_COARSE_PARAM, nullptr,
-                                                ACTIVE_LOW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
     addParam(createDynamicKnob<DynRoganMedBlue>(Fine2KnobPos, module, Dexter::B_FINE_PARAM, nullptr,
-                                                ACTIVE_LOW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
+                                                ACTIVE_LOW_VIEW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
 
     addParam(ParamWidget::create<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM, 0, 22, 0.0));
     addParam(ParamWidget::create<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0));
@@ -740,9 +740,9 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     addParam(ParamWidget::create<RoganSmallGreen>(BrightDepthKnobPos, module, Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0));
     addParam(ParamWidget::create<RoganSmallRed>(ShapeDepthKnobPos, module, Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0));
 
-    addParam(ParamWidget::create<DexterLightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<DexterLightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<DexterLightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<LightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<LightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<LightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0));
 
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(MasterLFOButtonLEDPos, module, Dexter::MASTER_LFO_LIGHT));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(ResetPhaseButtonLEDPos, module, Dexter::RESET_PHASE_LIGHT));
@@ -826,7 +826,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
 
         addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module,
                                                     module->opParams[op][Dexter::OP_MULT_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW, 0, 26, 3, SNAP_MOTION));
+                                                    ACTIVE_LOW_VIEW, 0, 26, 3, SNAP_MOTION));
         {
             DynamicFrameText* multText = new DynamicFrameText;
             multText->size = 14;
@@ -843,39 +843,39 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         }
         addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module,
                                                     module->opParams[op][Dexter::OP_COARSE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                    ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
         addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module,
                                                     module->opParams[op][Dexter::OP_FINE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW, -0.25, 0.25, 0.0, SMOOTH_MOTION));
+                                                    ACTIVE_LOW_VIEW, -0.25, 0.25, 0.0, SMOOTH_MOTION));
         addParam(createDynamicKnob<DynRoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module,
                                                     module->opParams[op][Dexter::OP_WAVE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                    ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
         addParam(createDynamicKnob<DynRoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module,
                                                     module->opParams[op][Dexter::OP_SHAPE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                    ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
         if(op == 0) {
             addParam(createDynamicKnob<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
                                                         module->opParams[op][Dexter::OP_LEVEL_PARAM], &module->opSettingsMenu[op],
-                                                        ACTIVE_LOW, 0.0, 1.0, 1.0, SMOOTH_MOTION));
+                                                        ACTIVE_LOW_VIEW, 0.0, 1.0, 1.0, SMOOTH_MOTION));
         }
         else {
             addParam(createDynamicKnob<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
                                                         module->opParams[op][Dexter::OP_LEVEL_PARAM], &module->opSettingsMenu[op],
-                                                        ACTIVE_LOW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
+                                                        ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
         }
 
         // Buttons
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module,
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module,
                                              module->opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY),
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY),
                                              module, module->opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module,
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module,
                                              module->opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module,
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module,
                                              module->opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module,
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module,
                                              module->opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<DexterLightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module,
+        addParam(ParamWidget::create<LightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module,
                                              module->opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0));
         addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpPreButtonPosX + offset + ledOffset,
                                                  OpPreButtonPosY + ledOffset), module, module->opLights[op][Dexter::OP_PRE_LIGHT]));
@@ -890,33 +890,33 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset,
                                                  OpSyncButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_SYNC]));
 
-        addParam(createDexterDynamicSVGSwitch<DexterLightLEDButton>(Vec(OpWaveButtonX + offset, 110.375),
+        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpWaveButtonX + offset, 110.375),
                                                         module, module->opParams[op][Dexter::OP_WAVE_MENU_PARAM],
                                                         0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH));
-        addParam(createDexterDynamicSVGSwitch<DexterLightLEDButton>(Vec(OpModAButtonX + offset, 110.375),
+                                                        ACTIVE_HIGH_VIEW));
+        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpModAButtonX + offset, 110.375),
                                                         module, module->opParams[op][Dexter::OP_MODA_MENU_PARAM],
                                                         0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH));
-        addParam(createDexterDynamicSVGSwitch<DexterLightLEDButton>(Vec(OpModBButtonX + offset, 110.375),
+                                                        ACTIVE_HIGH_VIEW));
+        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpModBButtonX + offset, 110.375),
                                                         module, module->opParams[op][Dexter::OP_MODB_MENU_PARAM],
                                                         0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH));
+                                                        ACTIVE_HIGH_VIEW));
 
         addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpWaveButtonX + offset + ledOffset,
                                                     110.375 + ledOffset), module, module->opLights[op][Dexter::OP_WAVE_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH));
+                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
         addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModAButtonX + offset + ledOffset,
                                                     110.375 + ledOffset), module, module->opLights[op][Dexter::OP_MODA_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH));
+                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
         addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModBButtonX + offset + ledOffset,
                                                     110.375 + ledOffset), module, module->opLights[op][Dexter::OP_MODB_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH));
+                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
 
         for(auto i = 0; i < 6; ++i){
             DynamicText* dynText = new DynamicText();
             dynText->size = 14;
-            dynText->text = make_shared<std::string>(OpMainText[i]);
+            dynText->text = std::make_shared<std::string>(OpMainText[i]);
             dynText->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
             dynText->box.size = Vec(82,14);
             dynText->visibility = &module->opSettingsMenu[op];
@@ -938,7 +938,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         // Wavetable Menu
         addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpTableKnobRootX + offset, OpRow1Y), module,
                                                     module->opParams[op][Dexter::OP_BANK_PARAM], &module->opWaveMenuVis[op],
-                                                    ACTIVE_HIGH, 0.0, (float)(NUM_WAVEBANKS - 1.f), 0.0, SNAP_MOTION));
+                                                    ACTIVE_HIGH_VIEW, 0.0, (float)(NUM_WAVEBANKS - 1.f), 0.0, SNAP_MOTION));
 
         std::vector<std::string> syncItems(syncModes, syncModes + kNumSyncModes);
         addChild(createDynamicChoice(Vec(238.819 + offset, 55.25), 67.806, syncItems, &module->opMenuSyncMode[op],

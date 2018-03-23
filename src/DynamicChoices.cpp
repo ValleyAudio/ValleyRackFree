@@ -92,7 +92,7 @@ DynamicChoice* createDynamicChoice(const Vec& pos,
                                    const std::vector<std::string>& items,
                                    unsigned long* choiceHandle,
                                    int* visibilityHandle,
-                                   DynamicViewMode2 viewMode) {
+                                   DynamicViewMode viewMode) {
     DynamicChoice* choice = new DynamicChoice;
     choice->_choice = choiceHandle;
     choice->box.pos = pos;

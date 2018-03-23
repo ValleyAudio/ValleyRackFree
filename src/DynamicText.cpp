@@ -44,7 +44,7 @@ void DynamicText::step() {
 }
 
 DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
-                               int* visibilityHandle, DynamicViewMode2 viewMode) {
+                               int* visibilityHandle, DynamicViewMode viewMode) {
     DynamicText* dynText = new DynamicText();
     dynText->size = size;
     dynText->text = std::make_shared<std::string>(text);
@@ -56,7 +56,7 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
 }
 
 DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
-                               int* visibilityHandle, int* colorHandle, DynamicViewMode2 viewMode) {
+                               int* visibilityHandle, int* colorHandle, DynamicViewMode viewMode) {
     DynamicText* dynText = new DynamicText();
     dynText->size = size;
     dynText->text = std::make_shared<std::string>(text);
@@ -69,7 +69,7 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
 }
 
 DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::string> text,
-                               int* visibilityHandle, DynamicViewMode2 viewMode) {
+                               int* visibilityHandle, DynamicViewMode viewMode) {
     DynamicText* dynText = new DynamicText();
     dynText->size = size;
     dynText->text = text;
@@ -81,7 +81,7 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::st
 }
 
 DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::string> text,
-                               int* visibilityHandle, int* colorHandle, DynamicViewMode2 viewMode) {
+                               int* visibilityHandle, int* colorHandle, DynamicViewMode viewMode) {
     DynamicText* dynText = new DynamicText();
     dynText->size = size;
     dynText->text = text;
