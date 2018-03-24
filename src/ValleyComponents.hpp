@@ -9,9 +9,33 @@ struct Rogan1PSBrightRed : Rogan {
     }
 };
 
+struct RoganSmallBrightRed : Rogan {
+    RoganSmallBrightRed() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBrightRedSmall.svg")));
+    }
+};
+
 struct Rogan1PSYellow : Rogan {
     Rogan1PSYellow() {
         setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellow.svg")));
+    }
+};
+
+struct RoganSmallYellow : Rogan {
+    RoganSmallYellow() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSYellowSmall.svg")));
+    }
+};
+
+struct RoganMedWhite : Rogan {
+    RoganMedWhite() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSWhiteMed.svg")));
+    }
+};
+
+struct RoganSmallWhite : Rogan {
+    RoganSmallWhite() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSWhiteSmall.svg")));
     }
 };
 
