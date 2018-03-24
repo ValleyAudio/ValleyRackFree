@@ -459,41 +459,6 @@ struct PanelBorder : TransparentWidget {
 	}
 };
 
-struct TopographDynamicPanel : FramebufferWidget {
-    int* mode;
-    int oldMode;
-    std::vector<std::shared_ptr<SVG>> panels;
-    SVGWidget* panel;
-
-    TopographDynamicPanel() {
-        mode = nullptr;
-        oldMode = -1;
-        panel = new SVGWidget();
-        addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
-        addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
-        addChild(panel);
-
-        PanelBorder *pb = new PanelBorder();
-        pb->box.size = box.size;
-        addChild(pb);
-    }
-
-    void addPanel(std::shared_ptr<SVG> svg) {
-        panels.push_back(svg);
-        if(!panel->svg) {
-            panel->setSVG(svg);
-            box.size = panel->box.size;
-        }
-    }
-
-    void step() override {
-        if(mode != nullptr) {
-            panel->setSVG(panels[*mode]);
-            dirty = true;
-        }
-    }
-};
-
 struct TopographDynamicText : TransparentWidget {
     std::string oldText;
     std::string* pText;
