@@ -10,4 +10,5 @@ extern Plugin *plugin;
 ////////////////////
 
 extern Model *modelTopograph;
+extern Model *modelUGraph;
 extern Model *modelDexter;
