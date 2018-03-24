@@ -35,7 +35,7 @@
 	.st6{font-size:18px;}
 	.st7{font-size:12px;}
 </style><path
-     style="fill:#1d1d1d"
+     style="fill:#282828;fill-opacity:1"
      d="M -177,230.89999 H 63 v 380 h -240 z"
      id="rect817" /><sodipodi:namedview
      inkscape:snap-bbox-edge-midpoints="true"
@@ -58,7 +58,7 @@
      id="base"
      units="px"
      pagecolor="#ffffff"
-     inkscape:cx="47.447776"
+     inkscape:cx="16.884847"
      inkscape:cy="253.07367"
      showguides="false"
      inkscape:snap-global="true"><inkscape:grid
