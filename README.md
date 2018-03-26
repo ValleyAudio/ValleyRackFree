@@ -55,13 +55,10 @@ In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide
 ## Todo
 * Topograph
     * Fix text flicker
-* Dexter
-    * General code cleaning
-    * It's coming, be patient ;)
 
 ## Future
 
-I really want to focus on modules that are deep and versatile rather than "bread and butter stuff.
+I really want to focus on modules that are deep and versatile rather than "bread and butter stuff".
 
 I hope to produce more modules based on some of my existing research work.
 
