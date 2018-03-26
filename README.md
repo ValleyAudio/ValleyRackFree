@@ -1,6 +1,6 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 0.6.0dev
+3rd party plugins for VCV Rack version 0.6.0
 
 ### Version
 
