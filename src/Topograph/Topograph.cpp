@@ -422,6 +422,17 @@ void Topograph::updateOutputs() {
             }
         }
     }
+    else if(extClock && triggerOutputMode == GATE) {
+        for(int i = 0; i < 6; ++i) {
+            if(inputs[CLOCK_INPUT].value > 0 && gateState[i]) {
+                gateState[i] = false;
+                outputs[outIDs[i]].value = 10;
+            }
+            if(inputs[CLOCK_INPUT].value <= 0) {
+                outputs[outIDs[i]].value = 0;
+            }
+        }
+    }
     else {
         for(int i = 0; i < 6; ++i) {
             if(metro.getElapsedTickTime() < 0.5 && gateState[i]) {
