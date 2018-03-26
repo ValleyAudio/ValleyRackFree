@@ -7,6 +7,7 @@
 0.6.0
 
     • Updated for 0.6.0
+    • New µGraph module, a micro version of Topograph
 
 ### Compatibility
 
@@ -17,6 +18,7 @@ You must have v0.6.0dev to run these modules.
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
+* µGraph - Same as Topograph except more compact. It does, however, default to the Olivier pattern modes rather than Henri.
 * Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
 
 ![Valley](./ValleyImg.png)
@@ -32,7 +34,7 @@ Download and extract the .zip file from this git repository under releases, then
 
 ## Usage
 
-### Topograph
+### Topograph & µGraph
 
 The behaviour of this module is nearly identical to the hardware version of "Grids", and therefore it is worth familiarising yourself with it by visiting the Mutable Instruments' [website](https://mutable-instruments.net/modules/grids/).
 
@@ -48,17 +50,14 @@ All controls have a CV input to control them. These are the silver jacks.
 
 ### Dexter
 
-In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.5.5/DexterQuickStart.pdf)
+In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/releases/download/0.6.0/DexterQuickStart.pdf)
 
 ## Todo
 * Topograph
     * Fix text flicker
 * Dexter
-<<<<<<< HEAD
     * General code cleaning
-=======
     * It's coming, be patient ;)
->>>>>>> v0.6
 
 ## Future
 
@@ -68,8 +67,8 @@ I hope to produce more modules based on some of my existing research work.
 
 ## License
 
-Topograph is covered by GPL-3.0
+Topograph & µGraph are covered by GPL-3.0
 
-Topograph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
+Topograph's and µGraph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
 
 Dexter is covered by BSD-3-Clause
