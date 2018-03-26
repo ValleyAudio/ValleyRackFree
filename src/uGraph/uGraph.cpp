@@ -122,7 +122,10 @@ struct UGraph : Module {
         OLIVIER,
         EUCLIDEAN
     };
-    SequencerMode sequencerMode = HENRI;
+    SequencerMode sequencerMode = OLIVIER;
+    unsigned long sequencerModeChoice = 0;
+    unsigned long prevClockResChoice = 0;
+    unsigned long clockResChoice = 0;
 
     enum TriggerOutputMode {
         PULSE,
@@ -170,9 +173,6 @@ struct UGraph : Module {
         SNLed = Oneshot(0.1, engineGetSampleRate());
         HHLed = Oneshot(0.1, engineGetSampleRate());
         resetLed = Oneshot(0.1, engineGetSampleRate());
-        //clockTrig.setThresholds(0.25, 0.75);
-        //resetTrig.setThresholds(0.25, 0.75);
-        //runInputTrig.setThresholds(0.25, 0.75);
         for(int i = 0; i < 6; ++i) {
             drumTriggers[i] = Oneshot(0.001, engineGetSampleRate());
             gateState[i] = false;
@@ -185,10 +185,10 @@ struct UGraph : Module {
 
     json_t *toJson() override {
         json_t *rootJ = json_object();
-        json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
+        json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerModeChoice));
         json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
         json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
-        json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
+        json_object_set_new(rootJ, "extClockResolution", json_integer(clockResChoice));
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
         json_object_set_new(rootJ, "runMode", json_integer(runMode));
         json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
@@ -198,18 +198,7 @@ struct UGraph : Module {
     void fromJson(json_t *rootJ) override {
         json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
         if (sequencerModeJ) {
-            sequencerMode = (UGraph::SequencerMode) json_integer_value(sequencerModeJ);
-            switch(sequencerMode) {
-                case HENRI:
-                    grids.setPatternMode(PATTERN_HENRI);
-                    break;
-                case OLIVIER:
-                    grids.setPatternMode(PATTERN_OLIVIER);
-                    break;
-                case EUCLIDEAN:
-                    grids.setPatternMode(PATTERN_EUCLIDEAN);
-                    break;
-            }
+            sequencerModeChoice = json_integer_value(sequencerModeJ);
 		}
 
         json_t *triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
@@ -231,7 +220,7 @@ struct UGraph : Module {
 
         json_t *extClockResolutionJ = json_object_get(rootJ, "extClockResolution");
 		if (extClockResolutionJ) {
-			extClockResolution = (UGraph::ExtClockResolution) json_integer_value(extClockResolutionJ);
+			clockResChoice = json_integer_value(extClockResolutionJ);
             grids.reset();
 		}
 
@@ -284,6 +273,12 @@ void UGraph::step() {
         elapsedTicks = 0;
     }
 
+    switch(sequencerModeChoice) {
+        case 0: grids.setPatternMode(PATTERN_OLIVIER); break;
+        case 1: grids.setPatternMode(PATTERN_HENRI); break;
+        case 2: grids.setPatternMode(PATTERN_EUCLIDEAN); break;
+    }
+
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
     tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
@@ -300,6 +295,11 @@ void UGraph::step() {
         metro.setTempo(swingHighTempo);
     }
 
+    if(clockResChoice != prevClockResChoice) {
+        prevClockResChoice = clockResChoice;
+        grids.reset();
+    }
+
     // External clock select
     if(tempoParam < 0.01) {
         clockBPM = "Ext.";
@@ -307,7 +307,7 @@ void UGraph::step() {
             grids.reset();
             initExtReset = false;
         }
-        numTicks = ticks_granularity[extClockResolution];
+        numTicks = ticks_granularity[clockResChoice];
         extClock = true;
     }
     else {
@@ -399,8 +399,6 @@ void UGraph::updateUI() {
             lights[drumLEDIds[i]].value = 0.0;
         }
     }
-
-
     if(resetLed.getState() == 1) {
         lights[RESET_LIGHT].value = 1.0;
     }
@@ -417,6 +415,17 @@ void UGraph::updateOutputs() {
                 outputs[outIDs[i]].value = 10;
             }
             else {
+                outputs[outIDs[i]].value = 0;
+            }
+        }
+    }
+    else if(extClock && triggerOutputMode == GATE) {
+        for(int i = 0; i < 6; ++i) {
+            if(inputs[CLOCK_INPUT].value > 0 && gateState[i]) {
+                gateState[i] = false;
+                outputs[outIDs[i]].value = 10;
+            }
+            if(inputs[CLOCK_INPUT].value <= 0) {
                 outputs[outIDs[i]].value = 0;
             }
         }
@@ -540,6 +549,8 @@ UGraphDynamicText* createUGraphDynamicText(const Vec& pos, int size, int* colour
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct UGraphWidget : ModuleWidget {
+    const std::string seqModeItemText[3] = {"Olivier", "Henri", "Euclid"};
+    const std::string clockResText[3] = {"4 PPQN", "8 PPQN", "24 PPQN"};
     UGraphWidget(UGraph *module);
     void appendContextMenu(Menu* menu) override;
 };
@@ -548,7 +559,7 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(plugin, "res/UGraphPanel.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/UGraphPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
@@ -558,46 +569,52 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addChild(createUGraphDynamicText(Vec(54, 66.75), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(53, 147), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(89, 147), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(125, 147), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createUGraphDynamicText(Vec(53, 66.75), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createUGraphDynamicText(Vec(53, 163), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createUGraphDynamicText(Vec(89, 163), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createUGraphDynamicText(Vec(125, 163), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));
 
     addParam(ParamWidget::create<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(43.5, 125), module, UGraph::MAPX_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(79.5, 125), module, UGraph::MAPY_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(115.5, 125), module, UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallBrightRed>(Vec(43.5, 195.65), module, UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<RoganSmallOrange>(Vec(79.5, 195.65), module, UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<RoganSmallYellow>(Vec(115.5, 195.65), module, UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<RoganSmallBrightRed>(Vec(43.5, 217.65), module, UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoganSmallOrange>(Vec(79.5, 217.65), module, UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoganSmallYellow>(Vec(115.5, 217.65), module, UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(ParamWidget::create<RoganMedWhite>(Vec(108.5, 30.15), module, UGraph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(Port::create<PJ301MPort>(Vec(5, 35.5), Port::INPUT, module, UGraph::CLOCK_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(23.0, 83.5), Port::INPUT, module, UGraph::RESET_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(41, 162), Port::INPUT, module, UGraph::MAPX_CV));
-    addInput(Port::create<PJ301MPort>(Vec(77, 162), Port::INPUT, module, UGraph::MAPY_CV));
-    addInput(Port::create<PJ301MPort>(Vec(113, 162), Port::INPUT, module, UGraph::CHAOS_CV));
-    addInput(Port::create<PJ301MPort>(Vec(40.5, 241.5), Port::INPUT, module, UGraph::BD_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(76.5, 241.5), Port::INPUT, module, UGraph::SN_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(112.5, 241.5), Port::INPUT, module, UGraph::HH_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(6.5, 35.5), Port::INPUT, module, UGraph::CLOCK_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(6.5, 214), Port::INPUT, module, UGraph::RESET_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(41, 186), Port::INPUT, module, UGraph::MAPX_CV));
+    addInput(Port::create<PJ301MPort>(Vec(77, 186), Port::INPUT, module, UGraph::MAPY_CV));
+    addInput(Port::create<PJ301MPort>(Vec(113, 186), Port::INPUT, module, UGraph::CHAOS_CV));
+    addInput(Port::create<PJ301MPort>(Vec(41, 261.5), Port::INPUT, module, UGraph::BD_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(77, 261.5), Port::INPUT, module, UGraph::SN_FILL_CV));
+    addInput(Port::create<PJ301MPort>(Vec(113, 261.5), Port::INPUT, module, UGraph::HH_FILL_CV));
     addInput(Port::create<PJ301MPort>(Vec(77, 35.5), Port::INPUT, module, UGraph::SWING_CV));
-    addInput(Port::create<PJ301MPort>(Vec(95, 83.5), Port::INPUT, module, UGraph::RUN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(6.5, 133.35), Port::INPUT, module, UGraph::RUN_INPUT));
 
-    addOutput(Port::create<PJ3410Port>(Vec(38.2, 277.736), Port::OUTPUT, module, UGraph::BD_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(74.2, 277.736), Port::OUTPUT, module, UGraph::SN_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(110.2, 277.736), Port::OUTPUT, module, UGraph::HH_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(38.2, 313.736), Port::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(74.2, 313.736), Port::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(110.2, 313.736), Port::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(41, 299.736), Port::OUTPUT, module, UGraph::BD_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(77, 299.736), Port::OUTPUT, module, UGraph::SN_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(113, 299.736), Port::OUTPUT, module, UGraph::HH_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(41, 327.736), Port::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(77, 327.736), Port::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkPort>(Vec(113, 327.736), Port::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
 
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(49.6, 225), module, UGraph::BD_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(85.6, 225), module, UGraph::SN_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(121.6, 225), module, UGraph::HH_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(50.1, 247), module, UGraph::BD_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(86.1, 247), module, UGraph::SN_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(122.1, 247), module, UGraph::HH_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(58, 88), module, UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(60.4, 90.5), module, UGraph::RESET_LIGHT));
-    addParam(ParamWidget::create<LightLEDButton>(Vec(130, 88), module, UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(132.4, 90.5), module, UGraph::RUNNING_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(12.1, 189.6), module, UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(14.5, 192), module, UGraph::RESET_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
+
+    std::vector<std::string> seqModeItems(seqModeItemText, seqModeItemText + 3);
+    addChild(createDynamicChoice(Vec(90, 88), 55.f, seqModeItems, &module->sequencerModeChoice, nullptr, ACTIVE_LOW_VIEW));
+    std::vector<std::string> clockResItems(clockResText, clockResText + 3);
+    addChild(createDynamicChoice(Vec(90, 111), 55.f, clockResItems, &module->clockResChoice, nullptr, ACTIVE_LOW_VIEW));
+
 }
 
 struct UGraphPanelStyleItem : MenuItem {
@@ -608,29 +625,6 @@ struct UGraphPanelStyleItem : MenuItem {
     }
     void step() override {
         rightText = (module->panelStyle == panelStyle) ? "✔" : "";
-        MenuItem::step();
-    }
-};
-
-struct UGraphSequencerModeItem : MenuItem {
-    UGraph* module;
-    UGraph::SequencerMode sequencerMode;
-    void onAction(EventAction &e) override {
-        module->sequencerMode = sequencerMode;
-        switch(sequencerMode) {
-            case UGraph::HENRI:
-                module->grids.setPatternMode(PATTERN_HENRI);
-                break;
-            case UGraph::OLIVIER:
-                module->grids.setPatternMode(PATTERN_OLIVIER);
-                break;
-            case UGraph::EUCLIDEAN:
-                module->grids.setPatternMode(PATTERN_EUCLIDEAN);
-                break;
-        }
-    }
-    void step() override {
-        rightText = (module->sequencerMode == sequencerMode) ? "✔" : "";
         MenuItem::step();
     }
 };
@@ -666,19 +660,6 @@ struct UGraphAccOutputModeItem : MenuItem {
     }
 };
 
-struct UGraphClockResolutionItem : MenuItem {
-    UGraph* module;
-    UGraph::ExtClockResolution extClockResolution;
-    void onAction(EventAction &e) override {
-        module->extClockResolution = extClockResolution;
-        module->grids.reset();
-    }
-    void step() override {
-        rightText = (module->extClockResolution == extClockResolution) ? "✔" : "";
-        MenuItem::step();
-    }
-};
-
 struct UGraphRunModeItem : MenuItem {
     UGraph* module;
     UGraph::RunMode runMode;
@@ -703,16 +684,6 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<UGraphPanelStyleItem>(&MenuItem::text, "Light", &UGraphPanelStyleItem::module,
                                                       module, &UGraphPanelStyleItem::panelStyle, 1));
 
-    // Sequencer Modes
-    menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Sequencer Mode"));
-    menu->addChild(construct<UGraphSequencerModeItem>(&MenuItem::text, "Henri", &UGraphSequencerModeItem::module,
-                                                         module, &UGraphSequencerModeItem::sequencerMode, UGraph::HENRI));
-    menu->addChild(construct<UGraphSequencerModeItem>(&MenuItem::text, "Olivier", &UGraphSequencerModeItem::module,
-                                                         module, &UGraphSequencerModeItem::sequencerMode, UGraph::OLIVIER));
-    menu->addChild(construct<UGraphSequencerModeItem>(&MenuItem::text, "Euclidean", &UGraphSequencerModeItem::module,
-                                                         module, &UGraphSequencerModeItem::sequencerMode, UGraph::EUCLIDEAN));
-
     // Trigger Output Modes
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Trigger Output Mode"));
@@ -729,17 +700,7 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<UGraphAccOutputModeItem>(&MenuItem::text, "Accent / Clock / Reset", &UGraphAccOutputModeItem::module,
                                                          module, &UGraphAccOutputModeItem::accOutputMode, UGraph::ACC_CLK_RST));
 
-    // External clock resolution
-    menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Ext. Clock Resolution"));
-    menu->addChild(construct<UGraphClockResolutionItem>(&MenuItem::text, "4 PPQN", &UGraphClockResolutionItem::module,
-                                                           module, &UGraphClockResolutionItem::extClockResolution, UGraph::EXTCLOCK_RES_4_PPQN));
-    menu->addChild(construct<UGraphClockResolutionItem>(&MenuItem::text, "8 PPQN", &UGraphClockResolutionItem::module,
-                                                           module, &UGraphClockResolutionItem::extClockResolution, UGraph::EXTCLOCK_RES_8_PPQN));
-    menu->addChild(construct<UGraphClockResolutionItem>(&MenuItem::text, "24 PPQN", &UGraphClockResolutionItem::module,
-                                                           module, &UGraphClockResolutionItem::extClockResolution, UGraph::EXTCLOCK_RES_24_PPQN));
-
-    // Acc Output Modes
+    // Run Mode
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Run Mode"));
     menu->addChild(construct<UGraphRunModeItem>(&MenuItem::text, "Toggle", &UGraphRunModeItem::module,
