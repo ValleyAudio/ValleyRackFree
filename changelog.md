@@ -2,9 +2,21 @@
 
 ## Changes
 
+### 0.6.0
+
+#### [New Module] µGraph
+    • µGraph is a micro version of Topograph.
+
+#### Topograph
+    • [Update] Fixed hanging gate issue when using external clock in gate mode.
+
+#### Dexter
+    • [New] Full inversion mode for chords that span more than 1 octave. Notes can now be optionally
+    inverted above the highest note rather than exactly 1 octave.
+
 ### 0.5.7
 
-	• [Major Update] Warning, this update will break old patches. 
+	• [Major Update] Warning, this update will break old patches.
 	Open "Please READ ME first.pdf" for a guide on how to fix your old patches.
 
 ### 0.5.6
