@@ -2,6 +2,7 @@
 #define DSJ_VALLEY_WIDGETS_HPP
 
 #include "Valley.hpp"
+#include "window.hpp"
 
 // Dynamic Panel
 

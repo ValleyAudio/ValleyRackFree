@@ -28,7 +28,9 @@ void DynamicPanelWidget::addPanel(std::shared_ptr<SVG> svg) {
 }
 
 void DynamicPanelWidget::step() {
-    oversample = 2.f;
+    if (isNear(gPixelRatio, 1.0)) {
+        oversample = 2.f;
+    }
     if(mode != nullptr && *mode != oldMode) {
         visiblePanel->setSVG(panels[*mode]);
         oldMode = *mode;
