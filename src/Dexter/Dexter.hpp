@@ -195,7 +195,6 @@ struct Dexter : Module {
         OP_4_PITCH_CV2_PARAM, OP_4_WAVE_CV2_PARAM, OP_4_SHAPE_CV2_PARAM, OP_4_LEVEL_CV2_PARAM,
 
         FULL_INVERSION_BUTTON,
-
         NUM_PARAMS
     };
 
@@ -558,7 +557,7 @@ struct AlgoGraphic : FramebufferWidget {
 
 struct DexterWidget : ModuleWidget {
     DexterWidget(Dexter *module);
-    void appendContextMenu(Menu *menu);
+    void appendContextMenu(Menu *menu) override;
 };
 
 #endif

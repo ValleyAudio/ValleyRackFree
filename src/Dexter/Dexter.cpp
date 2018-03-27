@@ -1009,6 +1009,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         addInput(Port::create<PJ301MPort>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][9]));
         addInput(Port::create<PJ301MPort>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][10]));
         addInput(Port::create<PJ301MPort>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][11]));
+
     }
 }
 
