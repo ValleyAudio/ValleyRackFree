@@ -272,7 +272,7 @@ void Shaper::mirror(const __m128& a, const __m128& f) {
 }
 
 void Shaper::reflect(const __m128& a, const __m128& f) {
-    __output = _mm_switch_ps(a, _mm_sub_ps(__ones, a), _mm_cmpgt_ps(a, f));
+    __output = _mm_switch_ps(a, _mm_sub_ps(__ones, a), _mm_cmplt_ps(a, f));
 }
 
 void Shaper::pulse(const __m128& a, const __m128& f) {
