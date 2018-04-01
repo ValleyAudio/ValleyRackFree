@@ -4,10 +4,9 @@
 
 ### Version
 
-0.6.0
+0.6.1
 
-    • Updated for 0.6.0
-    • New µGraph module, a micro version of Topograph
+    • Running state for Topograph and µGraph now saved.
 
 ### Compatibility
 

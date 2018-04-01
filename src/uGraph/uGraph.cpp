@@ -192,6 +192,7 @@ struct UGraph : Module {
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
         json_object_set_new(rootJ, "runMode", json_integer(runMode));
         json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
+        json_object_set_new(rootJ, "running", json_integer(running));
         return rootJ;
     }
 
@@ -238,6 +239,11 @@ struct UGraph : Module {
         if (panelStyleJ) {
             panelStyle = (int)json_integer_value(panelStyleJ);
         }
+
+        json_t *runningJ = json_object_get(rootJ, "running");
+        if (runningJ) {
+            running = (int)json_integer_value(runningJ);
+        }
 	}
 
     void step() override;
@@ -252,17 +258,16 @@ void UGraph::step() {
             runInputTrig.process(inputs[RUN_INPUT].value)) {
             if(runMode == TOGGLE){
                 running = !running;
-                lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
             }
         }
     }
     else {
         running = params[RUN_BUTTON_PARAM].value + inputs[RUN_INPUT].value;
-        lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
         if(running == 0) {
             metro.reset();
         }
     }
+    lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
 
     if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].value) ||
         resetTrig.process(inputs[RESET_INPUT].value)) {
