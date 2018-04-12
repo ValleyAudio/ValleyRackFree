@@ -2,7 +2,12 @@
 
 ## Changes
 
-### 0.6.0
+### 0.6.3
+
+    • [Fixed] Dexter sample rate bug. If Dexter is inserted at a sample rate other than
+    44.1K, the tuning would be incorrect until the sample rate was changed.
+
+### 0.6.2
 
 #### [New Module] µGraph
     • µGraph is a micro version of Topograph.
@@ -15,9 +20,8 @@
     inverted above the highest note rather than exactly 1 octave.
 
 ### 0.5.7
-
-	• [Major Update] Warning, this update will break old patches.
-	Open "Please READ ME first.pdf" for a guide on how to fix your old patches.
+    • [Major Update] Warning, this update will break old patches.
+    Open "Please READ ME first.pdf" for a guide on how to fix your old patches.
 
 ### 0.5.6
     • [Fixed] Dexter is now tuned to C not A. Please adjust Dexter to be in tune with your current patches.

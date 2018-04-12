@@ -481,6 +481,7 @@ struct Dexter : Module {
     SchmittTrigger opModBMenuBtnTrig[kNumOperators];
     SchmittTrigger opMiscMenuBtnTrig[kNumOperators];
 
+    float sampleRate = 44100.f;
     int panelStyle = 0;
 
     Dexter();

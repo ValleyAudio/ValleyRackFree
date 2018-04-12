@@ -4,15 +4,16 @@
 
 ### Version
 
-0.6.2
+0.6.3
 
-    • Running state for Topograph and µGraph now saved.
+    • Fixed Dexter sample rate bug. If Dexter is inserted at a sample rate other than
+    44.1K, the tuning would be incorrect until the sample rate was changed.
 
 ### Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have v0.6.0dev to run these modules.
+You must have v0.6.0 to run these modules.
 
 ### Modules
 
@@ -21,7 +22,6 @@ You must have v0.6.0dev to run these modules.
 * Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
 
 ![Valley](./ValleyImg.png)
-
 
 ### Installation
 

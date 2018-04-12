@@ -130,6 +130,9 @@ Dexter::Dexter() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     __zeros = _mm_set1_ps(0.f);
     __leftOut = __zeros;
     __rightOut = __zeros;
+
+    coreA.setSampleRate(engineGetSampleRate());
+    coreB.setSampleRate(engineGetSampleRate());
 }
 
 Dexter::~Dexter() {
