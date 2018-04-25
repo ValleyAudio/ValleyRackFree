@@ -49,7 +49,7 @@ All controls have a CV input to control them. These are the silver jacks.
 
 ### Dexter
 
-In brief, Dexter is an FM wavetable oscillator. See the Dexter Quick Start guide pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/files/1858083/DexterQuickStart.pdf)
+In brief, Dexter is an FM wavetable oscillator. See the Dexter Manual pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/files/1887925/DexterManual.pdf)
 
 ## Todo
 * Topograph
