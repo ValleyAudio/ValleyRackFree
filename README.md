@@ -24,8 +24,7 @@ You must have v0.6.0 to run these modules.
 ![Valley](./ValleyImg.png)
 
 ### Installation
-
-Download and extract the .zip file from this git repository under releases, then place the extracted folder in:
+The latest release will be always available from the official Rack [Plugin Manager](https://vcvrack.com/plugins.html). However if you prefer, you can download and extract the .zip file from this git repository under releases, then place the extracted folder in:
 
     * Mac - ~/Documents/Rack/plugins
     * Windows - /My Documents/Rack/plugins
