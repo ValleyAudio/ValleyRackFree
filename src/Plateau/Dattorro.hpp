@@ -1,0 +1,105 @@
+#pragma once
+#include "AllpassFilter.hpp"
+#include "OnePoleFilters.hpp"
+#include "LFO.hpp"
+#include <iostream>
+
+class Dattorro {
+public:
+    Dattorro();
+    void process(double leftInput, double rightInput);
+    void clear();
+    void setTimeScale(double timeScale);
+    void setModShape(double shape);
+    void setSampleRate(double sampleRate);
+    void freeze();
+    void unFreeze();
+
+    double rightOut = 0.0;
+    double leftOut = 0.0;
+    double inputLowCut = 0.0;
+    double inputHighCut = 10000.0;
+    double reverbHighCut = 10000.0;
+    double reverbLowCut = 0.0;
+    double modDepth = 1.0;
+    double inputDiffusion1 = 0.75;
+    double inputDiffusion2 = 0.625;
+    double plateDiffusion1 = 0.7;
+    double plateDiffusion2 = 0.5;
+    double decay = 0.9999;
+    double modSpeed = 1.0;
+private:
+    double _timeScale = 1.0;
+    const long _kInApf1Time = 141;
+    const long _kInApf2Time = 107;
+    const long _kInApf3Time = 379;
+    const long _kInApf4Time = 277;
+
+    const long _kLeftApf1Time = 672;
+    const long _kLeftDelay1Time = 4453;
+    const long _kLeftApf2Time = 1800;
+    const long _kLeftDelay2Time = 3720;
+
+    const long _kRightApf1Time = 908;
+    const long _kRightDelay1Time = 4217;
+    const long _kRightApf2Time = 2656;
+    const long _kRightDelay2Time = 3163;
+
+    double _leftApf1Time = 0.0;
+    double _leftApf2Time = 0.0;
+    double _rightApf1Time = 0.0;
+    double _rightApf2Time = 0.0;
+
+    const double _kLfoExcursion = 16.0;
+    double _lfoDepth = 0.0;
+    double _lfo1Freq = 0.10;
+    double _lfo2Freq = 0.150;
+    double _lfo3Freq = 0.120;
+    double _lfo4Freq = 0.180;
+
+    const double _dattorroSampleRate = 29761.0;
+    double _sampleRate = 44100.0;
+    double _dattorroScaleFactor = _sampleRate / _dattorroSampleRate;
+    double _decay = 0.00;
+    double _leftSum = 0.0;
+    double _rightSum = 0.0;
+    bool _freeze = false;
+    OnePoleHPFilter _leftInputDCBlock;
+    OnePoleHPFilter _rightInputDCBlock;
+    OnePoleLPFilter _inputLpf;
+    OnePoleHPFilter _inputHpf;
+
+    InterpDelay _preDelay;
+
+    MultiTapInterpDelay<float, 8> _earlyRefs;
+    double _earlyRefSum = 0.0;
+
+    AllpassFilter _inApf1;
+    AllpassFilter _inApf2;
+    AllpassFilter _inApf3;
+    AllpassFilter _inApf4;
+
+    AllpassFilter _leftApf1;
+    InterpDelay _leftDelay1;
+    OnePoleLPFilter _leftFilter;
+    OnePoleHPFilter _leftHpf;
+    AllpassFilter _leftApf2;
+    InterpDelay _leftDelay2;
+
+    AllpassFilter _rightApf1;
+    InterpDelay _rightDelay1;
+    OnePoleLPFilter _rightFilter;
+    OnePoleHPFilter _rightHpf;
+    AllpassFilter _rightApf2;
+    InterpDelay _rightDelay2;
+
+    OnePoleHPFilter _leftOutDCBlock;
+    OnePoleHPFilter _rightOutDCBlock;
+
+    TriSawLFO _lfo1;
+    TriSawLFO _lfo2;
+    TriSawLFO _lfo3;
+    TriSawLFO _lfo4;
+
+    double dattorroScale(double delayTime);
+};
