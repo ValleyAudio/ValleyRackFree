@@ -15,7 +15,7 @@
    version="1.1"
    id="svg7595"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06"
-   sodipodi:docname="LightLEDButton_80.svg">
+   sodipodi:docname="LightLEDButton80.svg">
   <defs
      id="defs7589">
     <clipPath
@@ -33,9 +33,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="-15.23645"
-     inkscape:cy="0.82092183"
+     inkscape:zoom="45.254834"
+     inkscape:cx="0.78334214"
+     inkscape:cy="6.9605752"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -66,16 +66,9 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-46.755712,-68.824694)">
-    <g
-       transform="matrix(0.26458333,0,0,0.26458333,-271.16296,-21.64884)"
-       clip-path="url(#clip444)"
-       id="g31387"
-       style="clip-rule:nonzero">
-      <path
-         style="fill:#565656;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1"
-         d="m 1202.012,346.63634 c -1.3422,3.69588 0.5659,7.78763 4.2585,9.133 3.6987,1.34226 7.7871,-0.56289 9.1324,-4.25877 1.3453,-3.69897 -0.5598,-7.78454 -4.2585,-9.13299 -3.6956,-1.34228 -7.781,0.55979 -9.1324,4.25876"
-         id="path31385"
-         inkscape:connector-curvature="0" />
-    </g>
+    <path
+       style="fill:#3c3c3c;fill-opacity:1;stroke:#000000;stroke-width:0.2;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       d="m 50.426553,70.710114 a 1.7854208,1.7854208 0 0 1 -1.785421,1.78542 1.7854208,1.7854208 0 0 1 -1.78542,-1.78542 1.7854208,1.7854208 0 0 1 1.78542,-1.785421 1.7854208,1.7854208 0 0 1 1.785421,1.785421 z"
+       id="path2706" />
   </g>
 </svg>
