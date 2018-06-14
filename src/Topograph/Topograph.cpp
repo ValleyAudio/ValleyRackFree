@@ -92,10 +92,10 @@ struct Topograph : Module {
     long elapsedTicks = 0;
 
     float tempoParam = 0.0;
-    float tempo = 120.0;
-    float mapX = 0.0;
-    float mapY = 0.0;
-    float chaos = 0.0;
+    std::shared_ptr<float> tempo = std::make_shared<float>(120.0);
+    std::shared_ptr<float> mapX = std::make_shared<float>(0.0);
+    std::shared_ptr<float> mapY = std::make_shared<float>(0.0);
+    std::shared_ptr<float> chaos = std::make_shared<float>(0.0);
     float BDFill = 0.0;
     float SNFill = 0.0;
     float HHFill = 0.0;
@@ -123,6 +123,7 @@ struct Topograph : Module {
         EUCLIDEAN
     };
     SequencerMode sequencerMode = HENRI;
+    int inEuclideanMode = 0;
 
     enum TriggerOutputMode {
         PULSE,
@@ -156,10 +157,6 @@ struct Topograph : Module {
     RunMode runMode = TOGGLE;
 
     int panelStyle;
-    std::string clockBPM;
-    std::string mapXText = "Map X";
-    std::string mapYText = "Map Y";
-    std::string chaosText = "Chaos";
     int textVisible = 1;
 
     Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
@@ -200,6 +197,7 @@ struct Topograph : Module {
         json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
         if (sequencerModeJ) {
             sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
+            inEuclideanMode = 0;
             switch(sequencerMode) {
                 case HENRI:
                     grids.setPatternMode(PATTERN_HENRI);
@@ -209,6 +207,7 @@ struct Topograph : Module {
                     break;
                 case EUCLIDEAN:
                     grids.setPatternMode(PATTERN_EUCLIDEAN);
+                    inEuclideanMode = 1;
                     break;
             }
 		}
@@ -291,13 +290,10 @@ void Topograph::step() {
 
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
-    tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
-    char clockBPMChar[16];
-    sprintf(clockBPMChar, "%.1f", tempo);
-    clockBPM = clockBPMChar;
+    *tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
     swing = clamp(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.f, 0.f, 0.9f);
-    swingHighTempo = tempo / (1 - swing);
-    swingLowTempo = tempo / (1 + swing);
+    swingHighTempo = *tempo / (1 - swing);
+    swingLowTempo = *tempo / (1 + swing);
     if(elapsedTicks < 6) {
         metro.setTempo(swingLowTempo);
     }
@@ -307,7 +303,6 @@ void Topograph::step() {
 
     // External clock select
     if(tempoParam < 0.01) {
-        clockBPM = "Ext.";
         if(initExtReset) {
             grids.reset();
             initExtReset = false;
@@ -322,28 +317,18 @@ void Topograph::step() {
         metro.process();
     }
 
-    mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
-    mapX = clamp(mapX, 0.f, 1.f);
-    mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
-    mapY = clamp(mapY, 0.f, 1.f);
+    *mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
+    *mapX = clamp(*mapX, 0.f, 1.f);
+    *mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
+    *mapY = clamp(*mapY, 0.f, 1.f);
     BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.f);
     BDFill = clamp(BDFill, 0.f, 1.f);
     SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.f);
     SNFill = clamp(SNFill, 0.f, 1.f);
     HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.f);
     HHFill = clamp(HHFill, 0.f, 1.f);
-    chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
-    chaos = clamp(chaos, 0.f, 1.f);
-    if(grids.getPatternMode() == PATTERN_EUCLIDEAN) {
-        mapXText = "1 Len: " + std::to_string(((uint8_t)(mapX * 255.0) >> 3) + 1);
-        mapYText = "2 Len: " + std::to_string(((uint8_t)(mapY * 255.0) >> 3) + 1);
-        chaosText = "3 Len: " + std::to_string(((uint8_t)(chaos * 255.0) >> 3) + 1);
-    }
-    else {
-        mapXText = "Map X";
-        mapYText = "Map Y";
-        chaosText = "Chaos";
-    }
+    *chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
+    *chaos = clamp(*chaos, 0.f, 1.f);
 
     if(running) {
         if(extClock) {
@@ -360,16 +345,16 @@ void Topograph::step() {
             advStep = false;
         }
 
-        grids.setMapX((uint8_t)(mapX * 255.0));
-        grids.setMapY((uint8_t)(mapY * 255.0));
+        grids.setMapX((uint8_t)(*mapX * 255.0));
+        grids.setMapY((uint8_t)(*mapY * 255.0));
         grids.setBDDensity((uint8_t)(BDFill * 255.0));
         grids.setSDDensity((uint8_t)(SNFill * 255.0));
         grids.setHHDensity((uint8_t)(HHFill * 255.0));
-        grids.setRandomness((uint8_t)(chaos * 255.0));
+        grids.setRandomness((uint8_t)(*chaos * 255.0));
 
-        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
-        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
-        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
+        grids.setEuclideanLength(0, (uint8_t)(*mapX * 255.0));
+        grids.setEuclideanLength(1, (uint8_t)(*mapY * 255.0));
+        grids.setEuclideanLength(2, (uint8_t)(*chaos * 255.0));
     }
 
     if(advStep) {
@@ -575,10 +560,79 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addChild(createTopographDynamicText(Vec(69, 83), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createTopographDynamicText(Vec(27.1,208.5), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createTopographDynamicText(Vec(27.1,268.5), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createTopographDynamicText(Vec(27.1,329), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));
+    auto floatToTempoText = [](float a){
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(1) << a;
+        if(a >= 40.0) {
+            return stream.str();
+        }
+        std::string out = "Ext.";
+        return out;
+    };
+    auto floatToEuclideanText = [](float a){
+        return std::to_string(((uint8_t)(a * 255.0) >> 3) + 1);
+    };
+
+    // Tempo text
+    {
+        std::shared_ptr<float> i = module->tempo;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToTempoText);
+        vText->box.pos = Vec(69, 83);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Map X Text
+    {
+        addChild(createDynamicText(Vec(27.1,208.5), 14, "Map X", &module->inEuclideanMode,
+                                 &module->panelStyle, ACTIVE_LOW_VIEW));
+        addChild(createDynamicText(Vec(22.1,208.5), 14, "Len:", &module->inEuclideanMode,
+                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
+        std::shared_ptr<float> i = module->mapX;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(42.1,208.5);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Map Y Text
+    {
+        addChild(createDynamicText(Vec(27.1,268.5), 14, "Map Y", &module->inEuclideanMode,
+                                   &module->panelStyle, ACTIVE_LOW_VIEW));
+        addChild(createDynamicText(Vec(22.1,268.5), 14, "Len:", &module->inEuclideanMode,
+                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
+
+        std::shared_ptr<float> i = module->mapY;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(42.1,268.5);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Chaos Text
+    {
+        addChild(createDynamicText(Vec(27.1,329), 14, "Chaos", &module->inEuclideanMode,
+                                 &module->panelStyle, ACTIVE_LOW_VIEW));
+        addChild(createDynamicText(Vec(22.1,329), 14, "Len:", &module->inEuclideanMode,
+                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
+
+        std::shared_ptr<float> i = module->chaos;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(42.1,329);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
 
     addParam(ParamWidget::create<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
     addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
@@ -589,23 +643,23 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addParam(ParamWidget::create<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(ParamWidget::create<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(Port::create<PJ301MPort>(Vec(15.5, 48.5), Port::INPUT, module, Topograph::CLOCK_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(15.5, 111.5), Port::INPUT, module, Topograph::RESET_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(15.5, 174.5), Port::INPUT, module, Topograph::MAPX_CV));
-    addInput(Port::create<PJ301MPort>(Vec(15.5, 234.5), Port::INPUT, module, Topograph::MAPY_CV));
-    addInput(Port::create<PJ301MPort>(Vec(15.5, 294.5), Port::INPUT, module, Topograph::CHAOS_CV));
-    addInput(Port::create<PJ301MPort>(Vec(129.5, 234.5), Port::INPUT, module, Topograph::BD_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(165.5, 234.5), Port::INPUT, module, Topograph::SN_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(201.5, 234.5), Port::INPUT, module, Topograph::HH_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(165.5, 48.5), Port::INPUT, module, Topograph::SWING_CV));
-    addInput(Port::create<PJ301MPort>(Vec(73, 111.5), Port::INPUT, module, Topograph::RUN_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 50.0), Port::INPUT, module, Topograph::CLOCK_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 113.0), Port::INPUT, module, Topograph::RESET_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 176.0), Port::INPUT, module, Topograph::MAPX_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 236.0), Port::INPUT, module, Topograph::MAPY_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 296.0), Port::INPUT, module, Topograph::CHAOS_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(131.0, 236.0), Port::INPUT, module, Topograph::BD_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(167.0, 236.0), Port::INPUT, module, Topograph::SN_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(203.0, 236.0), Port::INPUT, module, Topograph::HH_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(167.0, 50.0), Port::INPUT, module, Topograph::SWING_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(74.5, 113.0), Port::INPUT, module, Topograph::RUN_INPUT));
 
-    addOutput(Port::create<PJ3410Port>(Vec(126.7, 270.736), Port::OUTPUT, module, Topograph::BD_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(162.7, 270.736), Port::OUTPUT, module, Topograph::SN_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(198.7, 270.736), Port::OUTPUT, module, Topograph::HH_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(126.7, 306.736), Port::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(162.7, 306.736), Port::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
-    addOutput(Port::create<PJ3410Port>(Vec(198.7, 306.736), Port::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(131.2, 272.536), Port::OUTPUT, module, Topograph::BD_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(167.2, 272.536), Port::OUTPUT, module, Topograph::SN_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(203.2, 272.536), Port::OUTPUT, module, Topograph::HH_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(131.2, 308.536), Port::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(167.2, 308.536), Port::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(203.2, 308.536), Port::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
 
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
@@ -634,6 +688,7 @@ struct TopographSequencerModeItem : MenuItem {
     Topograph::SequencerMode sequencerMode;
     void onAction(EventAction &e) override {
         module->sequencerMode = sequencerMode;
+        module->inEuclideanMode = 0;
         switch(sequencerMode) {
             case Topograph::HENRI:
                 module->grids.setPatternMode(PATTERN_HENRI);
@@ -643,6 +698,7 @@ struct TopographSequencerModeItem : MenuItem {
                 break;
             case Topograph::EUCLIDEAN:
                 module->grids.setPatternMode(PATTERN_EUCLIDEAN);
+                module->inEuclideanMode = 1;
                 break;
         }
     }

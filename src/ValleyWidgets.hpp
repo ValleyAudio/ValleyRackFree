@@ -3,6 +3,7 @@
 
 #include "Valley.hpp"
 #include "window.hpp"
+#include <functional>
 
 // Dynamic Panel
 
@@ -170,6 +171,72 @@ struct DynamicFrameText : DynamicText {
     DynamicFrameText();
     void addItem(const std::string& item);
     void draw(NVGcontext* vg) override;
+};
+
+template<class T>
+class DynamicValueText : public TransformWidget {
+public:
+    std::shared_ptr<Font> font;
+    int size;
+    int* visibility;
+    DynamicViewMode viewMode;
+
+    enum ColorMode {
+        COLOR_MODE_WHITE = 0,
+        COLOR_MODE_BLACK
+    };
+    int* colorHandle;
+    NVGcolor textColor;
+
+    DynamicValueText(std::shared_ptr<T> value, std::function<std::string(T)> valueToText)  {
+        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+        size = 16;
+        visibility = nullptr;
+        colorHandle = nullptr;
+        viewMode = ACTIVE_HIGH_VIEW;
+        _value = value;
+        _valueToText = valueToText;
+    }
+
+    void draw(NVGcontext* vg) override {
+        nvgFontSize(vg, size);
+        nvgFontFaceId(vg, font->handle);
+        nvgTextLetterSpacing(vg, 0.f);
+        Vec textPos = Vec(0.f, 0.f);
+        if(colorHandle != nullptr) {
+            switch((ColorMode)*colorHandle) {
+                case COLOR_MODE_WHITE: textColor = nvgRGB(0xFF,0xFF,0xFF); break;
+                case COLOR_MODE_BLACK: textColor = nvgRGB(0x14,0x14, 0x14); break;
+                default: textColor = nvgRGB(0xFF,0xFF,0xFF);
+            }
+        }
+        else {
+            textColor = nvgRGB(0xFF,0xFF,0xFF);
+        }
+
+        nvgFillColor(vg, textColor);
+        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+        nvgText(vg, textPos.x, textPos.y, _text.c_str(), NULL);
+    }
+
+    void step() override {
+        _text = _valueToText(*_value);
+        if(visibility != nullptr) {
+            if(*visibility) {
+                visible = true;
+            }
+            else {
+                visible = false;
+            }
+            if(viewMode == ACTIVE_LOW_VIEW) {
+                visible = !visible;
+            }
+        }
+    }
+private:
+    std::shared_ptr<T> _value;
+    std::function<std::string(T)> _valueToText;
+    std::string _text;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

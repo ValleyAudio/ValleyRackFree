@@ -751,23 +751,23 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(ResetPhaseButtonLEDPos, module, Dexter::RESET_PHASE_LIGHT));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(FullInversionButtonLEDPos, module, Dexter::FULL_INVERSION_LIGHT));
 
-    addOutput(Port::create<PJ301MDarkPort>(AOutLeftJack, Port::OUTPUT, module, Dexter::A_LEFT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(AOutRightJack, Port::OUTPUT, module, Dexter::A_RIGHT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Op1OutJack, Port::OUTPUT, module, Dexter::OP_1_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Op2OutJack, Port::OUTPUT, module, Dexter::OP_2_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Op3OutJack, Port::OUTPUT, module, Dexter::OP_3_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Op4OutJack, Port::OUTPUT, module, Dexter::OP_4_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(BOutJack, Port::OUTPUT, module, Dexter::B_OUTPUT));
-    addInput(Port::create<PJ301MPort>(VOct1CVJack, Port::INPUT, module, Dexter::A_VOCT_INPUT));
-    addInput(Port::create<PJ301MPort>(VOct2CVJack, Port::INPUT, module, Dexter::B_VOCT_INPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(AOutLeftJack, Port::OUTPUT, module, Dexter::A_LEFT_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(AOutRightJack, Port::OUTPUT, module, Dexter::A_RIGHT_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Op1OutJack, Port::OUTPUT, module, Dexter::OP_1_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Op2OutJack, Port::OUTPUT, module, Dexter::OP_2_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Op3OutJack, Port::OUTPUT, module, Dexter::OP_3_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Op4OutJack, Port::OUTPUT, module, Dexter::OP_4_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(BOutJack, Port::OUTPUT, module, Dexter::B_OUTPUT));
+    addInput(Port::create<PJ301MDarkSmall>(VOct1CVJack, Port::INPUT, module, Dexter::A_VOCT_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(VOct2CVJack, Port::INPUT, module, Dexter::B_VOCT_INPUT));
 
-    addInput(Port::create<PJ301MPort>(ChordCVJack, Port::INPUT, module, Dexter::CHORD_INPUT));
-    addInput(Port::create<PJ301MPort>(InvertCVJack, Port::INPUT, module, Dexter::INVERT_INPUT));
-    addInput(Port::create<PJ301MPort>(DetuneCVJack, Port::INPUT, module, Dexter::DETUNE_INPUT));
-    addInput(Port::create<PJ301MPort>(AlgorithmCVJack, Port::INPUT, module, Dexter::ALGO_INPUT));
-    addInput(Port::create<PJ301MPort>(FeedbackCVJack, Port::INPUT, module, Dexter::FEEDBACK_INPUT));
-    addInput(Port::create<PJ301MPort>(BrightCVJack, Port::INPUT, module, Dexter::BRIGHTNESS_INPUT));
-    addInput(Port::create<PJ301MPort>(ShapeCVJack, Port::INPUT, module, Dexter::SHAPE_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(ChordCVJack, Port::INPUT, module, Dexter::CHORD_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(InvertCVJack, Port::INPUT, module, Dexter::INVERT_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(DetuneCVJack, Port::INPUT, module, Dexter::DETUNE_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(AlgorithmCVJack, Port::INPUT, module, Dexter::ALGO_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(FeedbackCVJack, Port::INPUT, module, Dexter::FEEDBACK_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(BrightCVJack, Port::INPUT, module, Dexter::BRIGHTNESS_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(ShapeCVJack, Port::INPUT, module, Dexter::SHAPE_INPUT));
     {
         DynamicFrameText* chordText = new DynamicFrameText;
         chordText->size = 12;
@@ -997,21 +997,21 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         addParam(ParamWidget::create<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][10], -1.0, 1.0, 0.0));
         addParam(ParamWidget::create<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][11], -1.0, 1.0, 0.0));
 
-        //addInput(createInput<PJ301MPort>(Vec(OpSyncJackRootX + offset, OpSyncJackRootY), module, module->opSyncInputs[op]);
-        addInput(Port::create<PJ301MPort>(Vec(OpCV1JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][0]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV2JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][1]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV3JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][2]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV4JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][3]));
+        //addInput(createInput<PJ301MDarkSmall>(Vec(OpSyncJackRootX + offset, OpSyncJackRootY), module, module->opSyncInputs[op]);
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][0]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][1]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][2]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][3]));
 
-        addInput(Port::create<PJ301MPort>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][4]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][5]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][6]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][7]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][4]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][5]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][6]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][7]));
 
-        addInput(Port::create<PJ301MPort>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][8]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][9]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][10]));
-        addInput(Port::create<PJ301MPort>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][11]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][8]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][9]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][10]));
+        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][11]));
 
     }
 }

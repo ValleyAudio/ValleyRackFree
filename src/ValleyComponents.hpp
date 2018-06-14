@@ -68,7 +68,7 @@ struct RoganSmallBlue : Rogan {
     RoganSmallBlue() {
         setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSBlueSmall.svg")));
     }
-}; // 37.42
+};
 
 struct RoganMedRed : Rogan {
     RoganMedRed() {
@@ -81,7 +81,6 @@ struct RoganSmallRed : Rogan {
         setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSRedSmall.svg")));
     }
 };
-
 
 struct Rogan1PSPurple : Rogan {
     Rogan1PSPurple() {
@@ -210,6 +209,26 @@ struct RedDynamicLight : DynamicModuleLightWidget {
 struct PJ301MDarkPort : SVGPort {
 	PJ301MDarkPort() {
 		background->svg = SVG::load(assetPlugin(plugin, "res/PJ301MDark.svg"));
+		background->wrap();
+		box.size = background->box.size;
+        shadow->box.size = background->box.size;
+    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);
+	}
+};
+
+struct PJ301MDarkSmall : SVGPort {
+	PJ301MDarkSmall() {
+		background->svg = SVG::load(assetPlugin(plugin, "res/PJ301MDarkSmall.svg"));
+		background->wrap();
+		box.size = background->box.size;
+        shadow->box.size = background->box.size;
+    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);
+	}
+};
+
+struct PJ301MDarkSmallOut : SVGPort {
+	PJ301MDarkSmallOut() {
+		background->svg = SVG::load(assetPlugin(plugin, "res/PJ301MDarkSmallOut.svg"));
 		background->wrap();
 		box.size = background->box.size;
         shadow->box.size = background->box.size;

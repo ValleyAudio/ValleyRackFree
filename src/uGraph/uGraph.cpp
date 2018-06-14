@@ -92,10 +92,10 @@ struct UGraph : Module {
     long elapsedTicks = 0;
 
     float tempoParam = 0.0;
-    float tempo = 120.0;
-    float mapX = 0.0;
-    float mapY = 0.0;
-    float chaos = 0.0;
+    std::shared_ptr<float> tempo = std::make_shared<float>(120.0);
+    std::shared_ptr<float> mapX = std::make_shared<float>(0.0);
+    std::shared_ptr<float> mapY = std::make_shared<float>(0.0);
+    std::shared_ptr<float> chaos = std::make_shared<float>(0.0);
     float BDFill = 0.0;
     float SNFill = 0.0;
     float HHFill = 0.0;
@@ -123,6 +123,8 @@ struct UGraph : Module {
         EUCLIDEAN
     };
     SequencerMode sequencerMode = OLIVIER;
+    int inEuclideanMode = 0;
+
     unsigned long sequencerModeChoice = 0;
     unsigned long prevClockResChoice = 0;
     unsigned long clockResChoice = 0;
@@ -145,6 +147,7 @@ struct UGraph : Module {
         EXTCLOCK_RES_24_PPQN,
     };
     ExtClockResolution extClockResolution = EXTCLOCK_RES_24_PPQN;
+
 
     enum ChaosKnobMode {
         CHAOS,
@@ -278,21 +281,29 @@ void UGraph::step() {
         elapsedTicks = 0;
     }
 
+
     switch(sequencerModeChoice) {
-        case 0: grids.setPatternMode(PATTERN_OLIVIER); break;
-        case 1: grids.setPatternMode(PATTERN_HENRI); break;
-        case 2: grids.setPatternMode(PATTERN_EUCLIDEAN); break;
+        case 0:
+            grids.setPatternMode(PATTERN_OLIVIER);
+            inEuclideanMode = 0;
+            break;
+        case 1:
+            grids.setPatternMode(PATTERN_HENRI);
+            inEuclideanMode = 0;
+            break;
+        case 2:
+            grids.setPatternMode(PATTERN_EUCLIDEAN);
+            inEuclideanMode = 1;
+            break;
     }
 
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].value;
-    tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
-    char clockBPMChar[16];
-    sprintf(clockBPMChar, "%.1f", tempo);
-    clockBPM = clockBPMChar;
+    *tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
+
     swing = clamp(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.f, 0.f, 0.9f);
-    swingHighTempo = tempo / (1 - swing);
-    swingLowTempo = tempo / (1 + swing);
+    swingHighTempo = *tempo / (1 - swing);
+    swingLowTempo = *tempo / (1 + swing);
     if(elapsedTicks < 6) {
         metro.setTempo(swingLowTempo);
     }
@@ -322,28 +333,18 @@ void UGraph::step() {
         metro.process();
     }
 
-    mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
-    mapX = clamp(mapX, 0.f, 1.f);
-    mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
-    mapY = clamp(mapY, 0.f, 1.f);
+    *mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
+    *mapX = clamp(*mapX, 0.f, 1.f);
+    *mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
+    *mapY = clamp(*mapY, 0.f, 1.f);
     BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.f);
     BDFill = clamp(BDFill, 0.f, 1.f);
     SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.f);
     SNFill = clamp(SNFill, 0.f, 1.f);
     HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.f);
     HHFill = clamp(HHFill, 0.f, 1.f);
-    chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
-    chaos = clamp(chaos, 0.f, 1.f);
-    if(grids.getPatternMode() == PATTERN_EUCLIDEAN) {
-        mapXText = std::to_string(((uint8_t)(mapX * 255.0) >> 3) + 1);
-        mapYText = std::to_string(((uint8_t)(mapY * 255.0) >> 3) + 1);
-        chaosText = std::to_string(((uint8_t)(chaos * 255.0) >> 3) + 1);
-    }
-    else {
-        mapXText = "Map X";
-        mapYText = "Map Y";
-        chaosText = "Chaos";
-    }
+    *chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
+    *chaos = clamp(*chaos, 0.f, 1.f);
 
     if(running) {
         if(extClock) {
@@ -360,16 +361,16 @@ void UGraph::step() {
             advStep = false;
         }
 
-        grids.setMapX((uint8_t)(mapX * 255.0));
-        grids.setMapY((uint8_t)(mapY * 255.0));
+        grids.setMapX((uint8_t)(*mapX * 255.0));
+        grids.setMapY((uint8_t)(*mapY * 255.0));
         grids.setBDDensity((uint8_t)(BDFill * 255.0));
         grids.setSDDensity((uint8_t)(SNFill * 255.0));
         grids.setHHDensity((uint8_t)(HHFill * 255.0));
-        grids.setRandomness((uint8_t)(chaos * 255.0));
+        grids.setRandomness((uint8_t)(*chaos * 255.0));
 
-        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
-        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
-        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
+        grids.setEuclideanLength(0, (uint8_t)(*mapX * 255.0));
+        grids.setEuclideanLength(1, (uint8_t)(*mapY * 255.0));
+        grids.setEuclideanLength(2, (uint8_t)(*chaos * 255.0));
     }
 
     if(advStep) {
@@ -574,10 +575,79 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addChild(createUGraphDynamicText(Vec(53, 66.75), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
+    /*addChild(createUGraphDynamicText(Vec(53, 66.75), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
     addChild(createUGraphDynamicText(Vec(53, 163), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
     addChild(createUGraphDynamicText(Vec(89, 163), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(125, 163), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));
+    addChild(createUGraphDynamicText(Vec(125, 163), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));*/
+
+    auto intToText = [](int a) {return std::to_string(a);};
+    auto floatToTempoText = [](float a){
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(1) << a;
+        if(a >= 40.0) {
+            return stream.str();
+        }
+        std::string out = "Ext.";
+        return out;
+    };
+    auto floatToEuclideanText = [](float a){
+        return std::to_string(((uint8_t)(a * 255.0) >> 3) + 1);
+    };
+
+    // Tempo text
+    {
+        std::shared_ptr<float> i = module->tempo;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToTempoText);
+        vText->box.pos = Vec(53, 66.75);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Map X Text
+    {
+        addChild(createDynamicText(Vec(53, 163), 14, "Map X", &module->inEuclideanMode,
+                                 &module->panelStyle, ACTIVE_LOW_VIEW));
+        std::shared_ptr<float> i = module->mapX;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(53, 163);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Map Y Text
+    {
+        addChild(createDynamicText(Vec(89, 163), 14, "Map Y", &module->inEuclideanMode,
+                                   &module->panelStyle, ACTIVE_LOW_VIEW));
+
+        std::shared_ptr<float> i = module->mapY;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(89, 163);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
+
+    // Chaos Text
+    {
+        addChild(createDynamicText(Vec(125, 163), 14, "Chaos", &module->inEuclideanMode,
+                                 &module->panelStyle, ACTIVE_LOW_VIEW));
+
+        std::shared_ptr<float> i = module->chaos;
+        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
+        vText->box.pos = Vec(125, 163);
+        vText->size = 14;
+        vText->viewMode = ACTIVE_HIGH_VIEW;
+        vText->visibility = &module->inEuclideanMode;
+        vText->colorHandle = &module->panelStyle;
+        addChild(vText);
+    }
 
     addParam(ParamWidget::create<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406));
     addParam(ParamWidget::create<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM, 0.0, 1.0, 0.0));
@@ -588,23 +658,23 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     addParam(ParamWidget::create<RoganSmallYellow>(Vec(115.5, 217.65), module, UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(ParamWidget::create<RoganMedWhite>(Vec(108.5, 30.15), module, UGraph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(Port::create<PJ301MPort>(Vec(6.5, 35.5), Port::INPUT, module, UGraph::CLOCK_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(6.5, 214), Port::INPUT, module, UGraph::RESET_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(41, 186), Port::INPUT, module, UGraph::MAPX_CV));
-    addInput(Port::create<PJ301MPort>(Vec(77, 186), Port::INPUT, module, UGraph::MAPY_CV));
-    addInput(Port::create<PJ301MPort>(Vec(113, 186), Port::INPUT, module, UGraph::CHAOS_CV));
-    addInput(Port::create<PJ301MPort>(Vec(41, 261.5), Port::INPUT, module, UGraph::BD_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(77, 261.5), Port::INPUT, module, UGraph::SN_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(113, 261.5), Port::INPUT, module, UGraph::HH_FILL_CV));
-    addInput(Port::create<PJ301MPort>(Vec(77, 35.5), Port::INPUT, module, UGraph::SWING_CV));
-    addInput(Port::create<PJ301MPort>(Vec(6.5, 133.35), Port::INPUT, module, UGraph::RUN_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 35.5), Port::INPUT, module, UGraph::CLOCK_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 214), Port::INPUT, module, UGraph::RESET_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(42.5, 186), Port::INPUT, module, UGraph::MAPX_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 186), Port::INPUT, module, UGraph::MAPY_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(114.5, 186), Port::INPUT, module, UGraph::CHAOS_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(42.5, 261.5), Port::INPUT, module, UGraph::BD_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 261.5), Port::INPUT, module, UGraph::SN_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(114.5, 261.5), Port::INPUT, module, UGraph::HH_FILL_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 35.5), Port::INPUT, module, UGraph::SWING_CV));
+    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 133.35), Port::INPUT, module, UGraph::RUN_INPUT));
 
-    addOutput(Port::create<PJ301MDarkPort>(Vec(41, 299.736), Port::OUTPUT, module, UGraph::BD_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Vec(77, 299.736), Port::OUTPUT, module, UGraph::SN_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Vec(113, 299.736), Port::OUTPUT, module, UGraph::HH_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Vec(41, 327.736), Port::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Vec(77, 327.736), Port::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkPort>(Vec(113, 327.736), Port::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(42.5, 299.736), Port::OUTPUT, module, UGraph::BD_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(78.5, 299.736), Port::OUTPUT, module, UGraph::SN_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(114.5, 299.736), Port::OUTPUT, module, UGraph::HH_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(42.5, 327.736), Port::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(78.5, 327.736), Port::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(114.5, 327.736), Port::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
 
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(50.1, 247), module, UGraph::BD_LIGHT));
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(86.1, 247), module, UGraph::SN_LIGHT));

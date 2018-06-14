@@ -92,24 +92,24 @@ const Vec MasterLFOButtonLEDPos(140.45, 168.35);
 const Vec ResetPhaseButtonLEDPos(140.45, 186.742);
 const Vec FullInversionButtonLEDPos(56.035, 129.28);
 
-const Vec ChordCVJack(3.5, 280.735);
-const Vec InvertCVJack(29.75, 280.735);
-const Vec DetuneCVJack(56, 280.735);
-const Vec AlgorithmCVJack(82.25, 280.735);
-const Vec FeedbackCVJack(108.5, 280.735);
-const Vec BrightCVJack(134.75, 280.735);
-const Vec ShapeCVJack(161, 280.735);
+const Vec ChordCVJack(5.0, 280.735);
+const Vec InvertCVJack(31.25, 280.735);
+const Vec DetuneCVJack(57.5, 280.735);
+const Vec AlgorithmCVJack(83.75, 280.735);
+const Vec FeedbackCVJack(110.0, 280.735);
+const Vec BrightCVJack(136.25, 280.735);
+const Vec ShapeCVJack(162.5, 280.735);
 
-const Vec AOutLeftJack(3.5, 318.451);
-const Vec AOutRightJack(29.75, 318.451);
-const Vec Op1OutJack(56, 318.451);
-const Vec Op2OutJack(82.25, 318.451);
-const Vec Op3OutJack(108.5, 318.451);
-const Vec Op4OutJack(134.75, 318.451);
-const Vec BOutJack(161, 318.451);
+const Vec AOutLeftJack(5.0, 319.951);
+const Vec AOutRightJack(31.25, 319.951);
+const Vec Op1OutJack(57.5, 319.951);
+const Vec Op2OutJack(83.75, 319.951);
+const Vec Op3OutJack(110.0, 319.951);
+const Vec Op4OutJack(136.25, 319.951);
+const Vec BOutJack(162.5, 319.951);
 
-const Vec VOct1CVJack(134.75, 209.019);
-const Vec VOct2CVJack(161, 209.019);
+const Vec VOct1CVJack(136.25, 210.519);
+const Vec VOct2CVJack(162.5, 210.519);
 
 const float OpMultKnobRootX = 192.922;          const float OpRow1Y = 44.12;
 const float OpTableKnobRootX = 194.922;
@@ -142,12 +142,12 @@ const float OpIsolateButtonRootX = 220.912;     const float OpIsolateButtonRootY
 const float OpLFOButtonRootX = 267.561;         const float OpLFOButtonRootY = 146.998;
 const float OpSyncButtonRootX = 267.561;        const float OpSyncButtonRootY = 165.748;
 
-const float OpSyncJackRootX = 193.738;          const float OpSyncJackRootY = 146.25;
-const float OpCV1JackRootX = 193.738;           const float OpModJackRowY = 207.501;
-const float OpCV2JackRootX = 223.688;
-const float OpCV3JackRootX = 253.75;
-const float OpCV4JackRootX = 283.75;            const float OpCV1JackRootY = 269.75;
-                                                const float OpCV2JackRootY = 318.5;
+const float OpSyncJackRootX = 195.238;          const float OpSyncJackRootY = 147.75;
+const float OpCV1JackRootX = 195.238;           const float OpModJackRowY = 209.001;
+const float OpCV2JackRootX = 225.188;
+const float OpCV3JackRootX = 255.25;
+const float OpCV4JackRootX = 285.25;            const float OpCV1JackRootY = 271.25;
+                                                const float OpCV2JackRootY = 320.0;
 
 const std::string OpMainText[] = {"Mul:", "Coarse", "Fine", "Wave", "Shape", "Level"};
 const float OpMainTextX[] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
