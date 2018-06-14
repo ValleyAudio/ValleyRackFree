@@ -5,26 +5,97 @@
 #define MAX_DELAY_TAP_GROUPS 512
 #define MAX_DELAY_LENGTH 65536
 
+template<class T>
 class InterpDelay
 {
 public:
-    InterpDelay();
-    InterpDelay(long maxLength, long initDelay);
-    double process();
-    void clear();
-    void setMaxDelaySamples(long maxDelaySamples);
-    double input;
-    double delayTime;
-    double output;
+    InterpDelay() {
+        input = 0.0;
+        output = 0.0;
+        delayTime = 0.0;
+        _length = 2;
+        _buffer.assign(_length, 0.0);
+        _readPos = 1.0;
+        _phasedPos = 0.0;
+        _lowerReadPos = 0;
+        _upperReadPos = 0;
+        _writePos = 0;
+    }
+
+    InterpDelay(long maxLength, long initDelay) {
+        input = 0;
+        output = 0;
+        delayTime = initDelay;
+        _length = maxLength;
+        _buffer.assign(_length, 0);
+        _readPos = maxLength - 1;
+        _phasedPos = 0;
+        _lowerReadPos = 0;
+        _upperReadPos = 0;
+        _writePos = 0;
+    }
+
+    T process() {
+        _time = delayTime;
+        if(_time < 0.0) {
+            _time = 0.0;
+        }
+        else if(_time >= _length) {
+            _time = _length - 1;
+        }
+        _buffer[_writePos] = input;
+        _phasedPos = (T)_writePos - _time;
+        if(_phasedPos < 0.0) {
+            _phasedPos += (T)_length;
+        }
+        _lowerReadPos = (long)_phasedPos;
+        _upperReadPos = _lowerReadPos + 1;
+        if(_upperReadPos >= _length) {
+            _upperReadPos -= _length;
+        }
+        _ratio = _phasedPos - _lowerReadPos;
+
+        output = _buffer[_lowerReadPos] * (1.0 - _ratio) + _buffer[_upperReadPos] *_ratio;
+
+        _writePos++;
+        if(_writePos >= _length) {
+            _writePos -= _length;
+        }
+
+        return output;
+    }
+
+    T tap(long i) const {
+        i = _writePos - i;
+        if(i < 0) {
+            i += _length;
+        }
+        return _buffer[i];
+    }
+
+    void clear() {
+        _buffer.assign(_length, 0);
+        input = 0;
+        output = 0;
+    }
+
+    void setMaxDelaySamples(long maxDelaySamples) {
+        _length = maxDelaySamples;
+        _buffer.assign(_length, 0);
+    }
+
+    T input;
+    T delayTime;
+    T output;
 private:
-    std::vector<double> _buffer;
+    std::vector<T> _buffer;
     long _length;
-    double _time;
-    double _readPos;
-    double _phasedPos;
+    T _time;
+    T _readPos;
+    T _phasedPos;
     long _upperReadPos;
     long _lowerReadPos;
-    double _ratio;
+    T _ratio;
     long _writePos;
 };
 

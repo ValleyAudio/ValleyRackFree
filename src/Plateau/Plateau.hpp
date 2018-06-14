@@ -157,7 +157,7 @@ struct Plateau : Module {
     const float wetMin = 0.f;
     const float wetMax = 1.f;
     const float sizeMin = 0.01f;
-    const float sizeMax = 3.f;
+    const float sizeMax = 2.5f;
     const float diffMin = 0.f;
     const float diffMax = 1.f;
     const float decayMin = 0.1f;

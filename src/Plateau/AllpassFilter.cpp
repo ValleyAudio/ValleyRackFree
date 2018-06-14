@@ -5,15 +5,15 @@ AllpassFilter::AllpassFilter() {
     gain = 0.f;
 }
 
-AllpassFilter::AllpassFilter(long maxDelay, long initDelay, float gain) {
+AllpassFilter::AllpassFilter(long maxDelay, long initDelay, double gain) {
     clear();
-    delay = InterpDelay(maxDelay, initDelay);
+    delay = InterpDelay<double>(maxDelay, initDelay);
     this->gain = gain;
 }
 
-float AllpassFilter::process() {
+double AllpassFilter::process() {
     _inSum = input + delay.output * gain;
-    output = delay.output + _inSum * -gain;
+    output = delay.output + _inSum * gain * -1.f;
     delay.input = _inSum;
     delay.process();
     return output;

@@ -4,15 +4,15 @@
 class AllpassFilter {
 public:
     AllpassFilter();
-    AllpassFilter(long maxDelay, long initDelay, float gain);
-    float process();
+    AllpassFilter(long maxDelay, long initDelay, double gain);
+    double process();
     void clear();
 
-    float input;
-    float gain;
-    float output;
-    InterpDelay delay;
+    double input;
+    double gain;
+    double output;
+    InterpDelay<double> delay;
 private:
-    float _inSum;
-    float _outSum;
+    double _inSum;
+    double _outSum;
 };

@@ -52,7 +52,7 @@ void Plateau::step() {
     diffusion = inputs[DIFFUSION_CV_INPUT].value * params[DIFFUSION_CV_PARAM].value;
     diffusion += params[DIFFUSION_PARAM].value;
     diffusion = clamp(diffusion, 0.f, 10.f);
-    reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, 0.7f);
+    reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, -0.7f);
     reverb.plateDiffusion2 = rescale(diffusion, 0.f, 10.f, 0.f, 0.5f);
 
     decay = rescale(inputs[DECAY_CV_INPUT].value * params[DECAY_CV_PARAM].value, 0.f, 10.f, 0.1f, 0.999f);
@@ -155,8 +155,8 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addInput(Port::create<PJ301MDarkSmall>(module->holdCVPos, Port::INPUT, module, Plateau::HOLD_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->clearCVPos, Port::INPUT, module, Plateau::CLEAR_CV_INPUT));
 
-    addOutput(Port::create<PJ301MDarkSmall>(module->leftOutputPos, Port::OUTPUT, module, Plateau::LEFT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmall>(module->rightOutputPos, Port::OUTPUT, module, Plateau::RIGHT_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(module->leftOutputPos, Port::OUTPUT, module, Plateau::LEFT_OUTPUT));
+    addOutput(Port::create<PJ301MDarkSmallOut>(module->rightOutputPos, Port::OUTPUT, module, Plateau::RIGHT_OUTPUT));
 
     // Make knobs
     addParam(ParamWidget::create<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f));
@@ -165,7 +165,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f));
     addParam(ParamWidget::create<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f));
 
-    addParam(ParamWidget::create<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.33f));
+    addParam(ParamWidget::create<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f));
     addParam(ParamWidget::create<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f));
     addParam(ParamWidget::create<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.5f));
     addParam(ParamWidget::create<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f));

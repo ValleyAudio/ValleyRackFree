@@ -12,4 +12,5 @@ void init(rack::Plugin *p) {
     p->addModel(modelTopograph);
     p->addModel(modelUGraph);
     p->addModel(modelDexter);
+    p->addModel(modelPlateau);
 }

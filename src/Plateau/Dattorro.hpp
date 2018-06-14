@@ -45,6 +45,11 @@ private:
     const long _kRightApf2Time = 2656;
     const long _kRightDelay2Time = 3163;
 
+    const long _kLeftTaps[7] = {266, 2974, 1913, 1996, 1990, 187, 1066};
+    const long _kRightTaps[7] = {266, 2974, 1913, 1996, 1990, 187, 1066};
+    long _scaledLeftTaps[7] = {0,0,0,0,0,0,0};
+    long _scaledRightTaps[7] = {0,0,0,0,0,0,0};
+
     double _leftApf1Time = 0.0;
     double _leftApf2Time = 0.0;
     double _rightApf1Time = 0.0;
@@ -69,7 +74,7 @@ private:
     OnePoleLPFilter _inputLpf;
     OnePoleHPFilter _inputHpf;
 
-    InterpDelay _preDelay;
+    InterpDelay<double> _preDelay;
 
     MultiTapInterpDelay<float, 8> _earlyRefs;
     double _earlyRefSum = 0.0;
@@ -80,18 +85,18 @@ private:
     AllpassFilter _inApf4;
 
     AllpassFilter _leftApf1;
-    InterpDelay _leftDelay1;
+    InterpDelay<double> _leftDelay1;
     OnePoleLPFilter _leftFilter;
     OnePoleHPFilter _leftHpf;
     AllpassFilter _leftApf2;
-    InterpDelay _leftDelay2;
+    InterpDelay<double> _leftDelay2;
 
     AllpassFilter _rightApf1;
-    InterpDelay _rightDelay1;
+    InterpDelay<double> _rightDelay1;
     OnePoleLPFilter _rightFilter;
     OnePoleHPFilter _rightHpf;
     AllpassFilter _rightApf2;
-    InterpDelay _rightDelay2;
+    InterpDelay<double> _rightDelay2;
 
     OnePoleHPFilter _leftOutDCBlock;
     OnePoleHPFilter _rightOutDCBlock;
