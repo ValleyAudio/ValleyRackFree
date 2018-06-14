@@ -26,6 +26,8 @@
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
 #include "TopographPatternGenerator.hpp"
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
 
 struct Topograph : Module {
     enum ParamIds {

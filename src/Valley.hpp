@@ -1,8 +1,8 @@
 #include "rack.hpp"
-#include <iomanip> // setprecision
-#include <sstream> // stringstream
 using namespace rack;
 
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
 
 extern Plugin *plugin;
 
