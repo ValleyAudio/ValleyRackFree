@@ -560,6 +560,7 @@ json_t *Dexter::toJson() {
     json_object_set_new(rootJ, "opSyncSource", json_integer((int)opSyncSource));
     json_object_set_new(rootJ, "masterLFO", json_integer(masterLFO));
     json_object_set_new(rootJ, "fullInversion", json_integer(buttonFullInversion));
+    json_object_set_new(rootJ, "indivOutputSource", json_integer(indivBOutputs));
 
     return rootJ;
 }
@@ -669,6 +670,9 @@ void Dexter::fromJson(json_t *rootJ) {
 
     json_t *j_fullInversion = json_object_get(rootJ, "fullInversion");
     buttonFullInversion = json_integer_value(j_fullInversion);
+
+    json_t *j_indivOutputSource = json_object_get(rootJ, "indivOutputSource");
+    indivBOutputs = json_integer_value(j_indivOutputSource);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
