@@ -4,6 +4,7 @@
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
 #include "Dattorro.hpp"
+#include <vector>
 
 struct Plateau : Module {
 
@@ -27,7 +28,7 @@ struct Plateau : Module {
         MOD_SHAPE_CV_INPUT,
         MOD_DEPTH_CV_INPUT,
 
-        HOLD_CV_INPUT,
+        FREEZE_CV_INPUT,
         CLEAR_CV_INPUT,
 
         NUM_INPUTS
@@ -82,6 +83,7 @@ struct Plateau : Module {
     enum LightIds {
         FREEZE_LIGHT,
         CLEAR_LIGHT,
+        FREEZE_TOGGLE_LIGHT,
         NUM_LIGHTS
     };
 
@@ -168,34 +170,48 @@ struct Plateau : Module {
     const float reverbHIghDampMax = 10.f;
     const float modSpeedMin = 0.f;
     const float modSpeedMax = 1.f;
-    const float modDepthMin = 1.f;
+    const float modDepthMin = 0.f;
     const float modDepthMax = 16.f;
     const float modShapeMin = 0.001f;
     const float modShapeMax = 0.999f;
 
-    float size = 1.f;
+    float wet;
+    float dry;
+    float size;
     float diffusion;
-    float decay = 0.f;
-    float inputDampLow = 0.f;
-    float inputDampHigh = 10.f;
-    float reverbDampLow = 0.f;
-    float reverbDampHigh = 10.f;
-    float modSpeed = 0.1f;
-    float modShape = 0.5f;
-    float modDepth = 0.0f;
-    bool freezeButtonState = false;
-    int freeze = 0;
-    bool frozen = false;
-    bool clearButtonState = false;
-    int clear = 0;
-    bool cleared = false;
+    float decay;
+    float inputDampLow;
+    float inputDampHigh;
+    float reverbDampLow;
+    float reverbDampHigh;
+    float modSpeed;
+    float modShape;
+    float modDepth;
+
+    bool freezeButtonState;
+    bool freezeToggle;
+    bool freezeToggleButtonState;
+    bool freeze;
+    bool frozen;
+
+    int clear;
+    bool cleared;
+
     Dattorro reverb;
 
     int panelStyle = 0;
 };
 
+struct PlateauPanelStyleItem : MenuItem {
+    Plateau* module;
+    int panelStyle;
+    void onAction(EventAction &e) override;
+    void step() override;
+};
+
 struct PlateauWidget : ModuleWidget {
     PlateauWidget(Plateau *module);
+    void appendContextMenu(Menu *menu);
 };
 
 #endif

@@ -2,33 +2,64 @@
 
 Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     reverb.setSampleRate(engineGetSampleRate());
+    size = 1.f;
+    diffusion;
+    decay = 0.f;
+    inputDampLow = 0.f;
+    inputDampHigh = 10.f;
+    reverbDampLow = 0.f;
+    reverbDampHigh = 10.f;
+    modSpeed = 0.1f;
+    modShape = 0.5f;
+    modDepth = 0.0f;
+
+    freezeButtonState = false;
+    freezeToggle = false;
+    freezeToggleButtonState = false;
+    freeze = false;
+    frozen = false;
+
+    clear = 0;
+    cleared = false;
 }
 
 void Plateau::step() {
-    // Freeze
-    if(inputs[HOLD_CV_INPUT].value > 0.5f || params[FREEZE_PARAM].value > 0.5f) {
-        freeze = 1;
+    //Freeze
+    if(params[FREEZE_TOGGLE_PARAM].value > 0.5f && !freezeToggleButtonState) {
+        freezeToggleButtonState = true;
+        freezeToggle = !freezeToggle;
     }
-    else if(inputs[HOLD_CV_INPUT].value < 0.5f && params[FREEZE_PARAM].value < 0.5f) {
-        freeze = 0;
+    else if(params[FREEZE_TOGGLE_PARAM].value < 0.5f && freezeToggleButtonState) {
+        freezeToggleButtonState = false;
+    }
+    lights[FREEZE_TOGGLE_LIGHT].value = freezeToggle ? 10.f : 0.f;
+
+    if((params[FREEZE_PARAM].value > 0.5f || inputs[FREEZE_CV_INPUT].value > 0.5f)
+    && !freezeButtonState) {
+        freeze = freezeToggle ? !freeze : true;
+        freezeButtonState = true;
+    }
+    if(params[FREEZE_PARAM].value <= 0.5f && inputs[FREEZE_CV_INPUT].value <= 0.5f
+    && freezeButtonState) {
+        freeze = freezeToggle ? freeze : false;
+        freezeButtonState = false;
     }
 
     if(freeze && !frozen) {
         frozen = true;
         reverb.freeze();
-        lights[FREEZE_LIGHT].value = 10.f;
     }
     else if(!freeze && frozen){
         frozen = false;
         reverb.unFreeze();
-        lights[FREEZE_LIGHT].value = 0.f;
     }
+    lights[FREEZE_LIGHT].value = freeze ? 10.f : 0.f;
 
     // Clear
-    if(inputs[CLEAR_CV_INPUT].value > 0.5f || params[CLEAR_PARAM].value > 0.5f) {
+    if(params[CLEAR_PARAM].value > 0.5f || inputs[CLEAR_CV_INPUT].value > 0.5f) {
         clear = 1;
     }
-    else if(inputs[CLEAR_CV_INPUT].value < 0.5f && params[CLEAR_PARAM].value < 0.5f) {
+    else if(params[CLEAR_PARAM].value < 0.5f && inputs[CLEAR_CV_INPUT].value < 0.5f) {
         clear = 0;
     }
 
@@ -42,6 +73,9 @@ void Plateau::step() {
         lights[CLEAR_LIGHT].value = 0.f;
     }
 
+    // CV
+    reverb.setPreDelay(params[PRE_DELAY_PARAM].value);
+
     size = inputs[SIZE_CV_INPUT].value * params[SIZE_CV_PARAM].value * 0.1f;
     size += params[SIZE_PARAM].value;
     size *= size;
@@ -52,7 +86,7 @@ void Plateau::step() {
     diffusion = inputs[DIFFUSION_CV_INPUT].value * params[DIFFUSION_CV_PARAM].value;
     diffusion += params[DIFFUSION_PARAM].value;
     diffusion = clamp(diffusion, 0.f, 10.f);
-    reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, -0.7f);
+    reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, 0.7f);
     reverb.plateDiffusion2 = rescale(diffusion, 0.f, 10.f, 0.f, 0.5f);
 
     decay = rescale(inputs[DECAY_CV_INPUT].value * params[DECAY_CV_PARAM].value, 0.f, 10.f, 0.1f, 0.999f);
@@ -106,10 +140,19 @@ void Plateau::step() {
     reverb.setModShape(modShape);
 
     reverb.process(inputs[LEFT_INPUT].value / 10.f, inputs[RIGHT_INPUT].value / 10.f);
-    outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * params[DRY_PARAM].value;
-    outputs[RIGHT_OUTPUT].value = inputs[LEFT_INPUT].value * params[DRY_PARAM].value;
-    outputs[LEFT_OUTPUT].value += reverb.leftOut * params[WET_PARAM].value * 10.f;
-    outputs[RIGHT_OUTPUT].value += reverb.rightOut * params[WET_PARAM].value * 10.f;
+
+    dry = inputs[DRY_CV_INPUT].value * params[DRY_CV_PARAM].value;
+    dry += params[DRY_PARAM].value;
+    dry = clamp(dry, 0.f, 1.f);
+
+    wet = inputs[WET_CV_INPUT].value * params[WET_CV_PARAM].value;
+    wet += params[WET_PARAM].value;
+    wet = clamp(wet, 0.f, 1.f) * 10.f;
+
+    outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * dry; // params[DRY_PARAM].value;
+    outputs[RIGHT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
+    outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
+    outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
 }
 
 void Plateau::onSampleRateChange() {
@@ -118,21 +161,41 @@ void Plateau::onSampleRateChange() {
 
 json_t* Plateau::toJson()  {
     json_t *rootJ = json_object();
+    json_object_set_new(rootJ, "frozen", json_boolean(freeze));
+    json_object_set_new(rootJ, "freezeToggle", json_boolean(freezeToggle));
     return rootJ;
 }
 
 void Plateau::fromJson(json_t *rootJ) {
-    json_object_set_new(rootJ, "frozen", json_integer(freeze));
+    json_t *frozenJ = json_object_get(rootJ, "frozen");
+    freeze = json_boolean_value(frozenJ);
+
+    json_t *freezeToggleJ = json_object_get(rootJ, "freezeToggle");
+    freezeToggle = json_boolean_value(freezeToggleJ);
+}
+
+void PlateauPanelStyleItem::onAction(EventAction &e) {
+    module->panelStyle = panelStyle;
+}
+
+void PlateauPanelStyleItem::step() {
+    rightText = (module->panelStyle == panelStyle) ? "✔" : "";
+    MenuItem::step();
 }
 
 PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
+    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     // Make jacks
     addInput(Port::create<PJ301MDarkSmall>(module->leftInputPos, Port::INPUT, module, Plateau::LEFT_INPUT));
@@ -152,7 +215,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addInput(Port::create<PJ301MDarkSmall>(module->modShapeCVPos, Port::INPUT, module, Plateau::MOD_SHAPE_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->modDepthCVPos, Port::INPUT, module, Plateau::MOD_DEPTH_CV_INPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(module->holdCVPos, Port::INPUT, module, Plateau::HOLD_CV_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(module->holdCVPos, Port::INPUT, module, Plateau::FREEZE_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->clearCVPos, Port::INPUT, module, Plateau::CLEAR_CV_INPUT));
 
     addOutput(Port::create<PJ301MDarkSmallOut>(module->leftOutputPos, Port::OUTPUT, module, Plateau::LEFT_OUTPUT));
@@ -161,7 +224,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     // Make knobs
     addParam(ParamWidget::create<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f));
     addParam(ParamWidget::create<RoganMedWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f));
-    addParam(ParamWidget::create<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 10.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f));
     addParam(ParamWidget::create<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f));
     addParam(ParamWidget::create<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f));
 
@@ -172,7 +235,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f));
 
     addParam(ParamWidget::create<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 1.f, 16.f, 0.5f));
+    addParam(ParamWidget::create<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f));
     addParam(ParamWidget::create<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f));
 
     // Make Attenuverters
@@ -195,10 +258,24 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(10.375, 247.35), module, Plateau::FREEZE_LIGHT));
 
+    addParam(ParamWidget::create<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM, 0.f, 10.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(33.875, 258.85), module, Plateau::FREEZE_TOGGLE_LIGHT));
+
     addParam(ParamWidget::create<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM, 0.f, 10.f, 0.f));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
 }
 
+void PlateauWidget::appendContextMenu(Menu *menu) {
+    Plateau *module = dynamic_cast<Plateau*>(this->module);
+    assert(module);
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
+    menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Dark", &PlateauPanelStyleItem::module,
+                                                      module, &PlateauPanelStyleItem::panelStyle, 0));
+    menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Light", &PlateauPanelStyleItem::module,
+                                                      module, &PlateauPanelStyleItem::panelStyle, 1));
+}
 
 Model *modelPlateau = Model::create<Plateau, PlateauWidget>("Valley", "Plateau", "Plateau",
                                                                   REVERB_TAG);
