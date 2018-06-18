@@ -577,11 +577,6 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    /*addChild(createUGraphDynamicText(Vec(53, 66.75), 14, &module->panelStyle, &module->clockBPM, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(53, 163), 14, &module->panelStyle, &module->mapXText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(89, 163), 14, &module->panelStyle, &module->mapYText, nullptr, ACTIVE_HIGH_VIEW));
-    addChild(createUGraphDynamicText(Vec(125, 163), 14, &module->panelStyle, &module->chaosText, nullptr, ACTIVE_HIGH_VIEW));*/
-
     auto intToText = [](int a) {return std::to_string(a);};
     auto floatToTempoText = [](float a){
         std::stringstream stream;
