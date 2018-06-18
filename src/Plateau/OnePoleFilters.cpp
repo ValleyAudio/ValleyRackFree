@@ -1,13 +1,13 @@
 #include "OnePoleFilters.hpp"
 
 OnePoleLPFilter::OnePoleLPFilter() {
-    setSampleRate(44100.f);
-    setCutoffFreq(_sampleRate / 2.f);
+    setSampleRate(44100.0);
+    setCutoffFreq(_sampleRate / 2.0);
     clear();
 }
 
 OnePoleLPFilter::OnePoleLPFilter(double cutoffFreq) {
-    setSampleRate(44100.f);
+    setSampleRate(44100.0);
     setCutoffFreq(cutoffFreq);
     clear();
 }
@@ -19,21 +19,22 @@ double OnePoleLPFilter::process() {
 }
 
 void OnePoleLPFilter::clear() {
-    input = 0.f;
-    _z = 0.f;
-    output = 0.f;
+    input = 0.0;
+    _z = 0.0;
+    output = 0.0;
 }
 
 void OnePoleLPFilter::setSampleRate(double sampleRate) {
     _sampleRate = sampleRate;
-    _maxCutoffFreq = sampleRate / 2.f - 1.f;
+    _1_sampleRate = 1.0 / sampleRate;
+    _maxCutoffFreq = sampleRate / 2.0 - 1.0;
     setCutoffFreq(_cutoffFreq);
 }
 
 void OnePoleLPFilter::setCutoffFreq(double cutoffFreq) {
     _cutoffFreq = cutoffFreq;
-    _b = expf(-2.f* M_PI * _cutoffFreq / _sampleRate);
-    _a = 1.f - _b;
+    _b = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
+    _a = 1.0 - _b;
 }
 
 double OnePoleLPFilter::getMaxCutoffFreq() const {
@@ -42,14 +43,16 @@ double OnePoleLPFilter::getMaxCutoffFreq() const {
 
 
 OnePoleHPFilter::OnePoleHPFilter() {
-    _sampleRate = 44100.f;
-    setCutoffFreq(0.f);
+    _cutoffFreq = 0.0;
+    setSampleRate(44100.0);
+    setCutoffFreq(_cutoffFreq);
     clear();
 }
 
 OnePoleHPFilter::OnePoleHPFilter(double cutoffFreq) {
-    _sampleRate = 44100.f;
-    setCutoffFreq(cutoffFreq);
+    _cutoffFreq = cutoffFreq;
+    setSampleRate(44100.0);
+    setCutoffFreq(_cutoffFreq);
     clear();
 }
 
@@ -63,23 +66,24 @@ double OnePoleHPFilter::process() {
 }
 
 void OnePoleHPFilter::clear() {
-    input = 0.f;
-    output = 0.f;
-    _x0 = 0.f;
-    _x1 = 0.f;
-    _y0 = 0.f;
-    _y1 = 0.f;
+    input = 0.0;
+    output = 0.0;
+    _x0 = 0.0;
+    _x1 = 0.0;
+    _y0 = 0.0;
+    _y1 = 0.0;
 }
 
 void OnePoleHPFilter::setCutoffFreq(double cutoffFreq) {
     _cutoffFreq = cutoffFreq;
-    _b1 = expf(-2.0 * M_PI * _cutoffFreq / _sampleRate);
-    _a0 = (1.f + _b1) / 2.f;
+    _b1 = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
+    _a0 = (1.0 + _b1) / 2.0;
     _a1 = -_a0;
 }
 
 void OnePoleHPFilter::setSampleRate(double sampleRate) {
     _sampleRate = sampleRate;
+    _1_sampleRate = 1.0 / _sampleRate;
     setCutoffFreq(_cutoffFreq);
     clear();
 }
@@ -89,13 +93,13 @@ int DCBlocker::i = 0;
 DCBlocker::DCBlocker() {
     id = i;
     i++;
-    setSampleRate(44100.f);
-    setCutoffFreq(_sampleRate / 2.f);
+    setSampleRate(44100.0);
+    setCutoffFreq(_sampleRate / 2.0);
     clear();
 }
 
 DCBlocker::DCBlocker(double cutoffFreq) {
-    setSampleRate(44100.f);
+    setSampleRate(44100.0);
     setCutoffFreq(cutoffFreq);
     clear();
 }
@@ -107,14 +111,14 @@ double DCBlocker::process() {
 }
 
 void DCBlocker::clear() {
-    input = 0.f;
-    _z = 0.f;
-    output = 0.f;
+    input = 0.0;
+    _z = 0.0;
+    output = 0.0;
 }
 
 void DCBlocker::setSampleRate(double sampleRate) {
     _sampleRate = sampleRate;
-    _maxCutoffFreq = sampleRate / 2.f;
+    _maxCutoffFreq = sampleRate / 2.0;
     setCutoffFreq(_cutoffFreq);
 }
 
