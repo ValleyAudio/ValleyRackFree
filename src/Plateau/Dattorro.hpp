@@ -10,6 +10,7 @@ public:
     void process(double leftInput, double rightInput);
     void clear();
     void setTimeScale(double timeScale);
+    void setPreDelay(double time);
     void setModShape(double shape);
     void setSampleRate(double sampleRate);
     void freeze();
@@ -30,6 +31,7 @@ public:
     double modSpeed = 1.0;
 private:
     double _timeScale = 1.0;
+    double _preDelayTime = 0.0;
     const long _kInApf1Time = 141;
     const long _kInApf2Time = 107;
     const long _kInApf3Time = 379;
@@ -76,26 +78,23 @@ private:
 
     InterpDelay<double> _preDelay;
 
-    MultiTapInterpDelay<float, 8> _earlyRefs;
-    double _earlyRefSum = 0.0;
+    AllpassFilter<double> _inApf1;
+    AllpassFilter<double> _inApf2;
+    AllpassFilter<double> _inApf3;
+    AllpassFilter<double> _inApf4;
 
-    AllpassFilter _inApf1;
-    AllpassFilter _inApf2;
-    AllpassFilter _inApf3;
-    AllpassFilter _inApf4;
-
-    AllpassFilter _leftApf1;
+    AllpassFilter<double> _leftApf1;
     InterpDelay<double> _leftDelay1;
     OnePoleLPFilter _leftFilter;
     OnePoleHPFilter _leftHpf;
-    AllpassFilter _leftApf2;
+    AllpassFilter<double> _leftApf2;
     InterpDelay<double> _leftDelay2;
 
-    AllpassFilter _rightApf1;
+    AllpassFilter<double> _rightApf1;
     InterpDelay<double> _rightDelay1;
     OnePoleLPFilter _rightFilter;
     OnePoleHPFilter _rightHpf;
-    AllpassFilter _rightApf2;
+    AllpassFilter<double> _rightApf2;
     InterpDelay<double> _rightDelay2;
 
     OnePoleHPFilter _leftOutDCBlock;
@@ -105,6 +104,12 @@ private:
     TriSawLFO _lfo2;
     TriSawLFO _lfo3;
     TriSawLFO _lfo4;
+
+    // Freeze Cross fade
+    double _fade = 1.0;
+    double _fadeTime = 0.002;
+    double _fadeStep = 1.0 / (_fadeTime * _sampleRate);
+    double _fadeDir = 1.0;
 
     double dattorroScale(double delayTime);
 };
