@@ -270,4 +270,16 @@ DynamicChoice* createDynamicChoice(const Vec& pos,
                                    int* visibilityHandle,
                                    DynamicViewMode viewMode);
 
+template<typename T = SVGKnob>
+T *createValleyKnob(Vec pos, Module *module, int paramId, float minValue, float maxValue,
+                    float defaultValue, float minAngle, float maxAngle) {
+    T *o = Component::create<T>(pos, module);
+	o->paramId = paramId;
+	o->setLimits(minValue, maxValue);
+	o->setDefaultValue(defaultValue);
+    o->minAngle = minAngle;
+    o->maxAngle = maxAngle;
+	return o;
+}
+
 #endif

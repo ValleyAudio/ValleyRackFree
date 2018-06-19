@@ -163,6 +163,7 @@ json_t* Plateau::toJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "frozen", json_boolean(freeze));
     json_object_set_new(rootJ, "freezeToggle", json_boolean(freezeToggle));
+    json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     return rootJ;
 }
 
@@ -172,6 +173,9 @@ void Plateau::fromJson(json_t *rootJ) {
 
     json_t *freezeToggleJ = json_object_get(rootJ, "freezeToggle");
     freezeToggle = json_boolean_value(freezeToggleJ);
+
+    json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
+    panelStyle = json_integer_value(panelStyleJ);
 }
 
 void PlateauPanelStyleItem::onAction(EventAction &e) {
@@ -186,8 +190,8 @@ void PlateauPanelStyleItem::step() {
 PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauPanelDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
@@ -222,21 +226,24 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addOutput(Port::create<PJ301MDarkSmallOut>(module->rightOutputPos, Port::OUTPUT, module, Plateau::RIGHT_OUTPUT));
 
     // Make knobs
-    addParam(ParamWidget::create<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganMedWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f));
-    addParam(ParamWidget::create<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f));
-    addParam(ParamWidget::create<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f));
-    addParam(ParamWidget::create<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f));
+    //addParam(ParamWidget::create<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f));
+    float minAngle = -0.77f * M_PI;
+    float maxAngle = 0.77f * M_PI;
+    addParam(createValleyKnob<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
 
-    addParam(ParamWidget::create<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f));
-    addParam(ParamWidget::create<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f));
-    addParam(ParamWidget::create<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.5f));
-    addParam(ParamWidget::create<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f));
-    addParam(ParamWidget::create<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f));
+    addParam(createValleyKnob<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle));
 
-    addParam(ParamWidget::create<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f));
-    addParam(ParamWidget::create<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f));
+    addParam(createValleyKnob<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle));
 
     // Make Attenuverters
     addParam(ParamWidget::create<RoganSmallWhite>(module->dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 1.f));
