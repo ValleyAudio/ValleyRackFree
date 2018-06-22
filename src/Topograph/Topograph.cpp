@@ -668,9 +668,9 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 
     addParam(ParamWidget::create<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(57.4, 119), module, Topograph::RESET_LIGHT));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(57.5, 118.5), module, Topograph::RESET_LIGHT));
     addParam(ParamWidget::create<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(114.4, 119), module, Topograph::RUNNING_LIGHT));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(114.5, 118.5), module, Topograph::RUNNING_LIGHT));
 }
 
 struct TopographPanelStyleItem : MenuItem {
@@ -823,4 +823,4 @@ void TopographWidget::appendContextMenu(Menu *menu) {
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
 }
 
-Model *modelTopograph = Model::create<Topograph, TopographWidget>("Valley", "Topograph", "Topograph", SEQUENCER_TAG);
+Model *modelTopograph = Model::create<Topograph, TopographWidget>(TOSTRING(SLUG), "Topograph", "Topograph", SEQUENCER_TAG);

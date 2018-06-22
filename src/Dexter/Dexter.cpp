@@ -1091,4 +1091,4 @@ void DexterWidget::appendContextMenu(Menu *menu) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Model *modelDexter = Model::create<Dexter, DexterWidget>("Valley", "Dexter", "Dexter", OSCILLATOR_TAG);
+Model *modelDexter = Model::create<Dexter, DexterWidget>(TOSTRING(SLUG), "Dexter", "Dexter", OSCILLATOR_TAG);
