@@ -29,6 +29,7 @@ public:
     double plateDiffusion2 = 0.5;
     double decay = 0.9999;
     double modSpeed = 1.0;
+    double diffuseInput = 0.0;
 private:
     double _timeScale = 1.0;
     double _preDelayTime = 0.0;
@@ -82,6 +83,7 @@ private:
     AllpassFilter<double> _inApf2;
     AllpassFilter<double> _inApf3;
     AllpassFilter<double> _inApf4;
+    double _tankFeed = 0.0;
 
     AllpassFilter<double> _leftApf1;
     InterpDelay<double> _leftDelay1;

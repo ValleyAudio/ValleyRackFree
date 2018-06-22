@@ -18,9 +18,13 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     freezeToggleButtonState = false;
     freeze = false;
     frozen = false;
+    tunedButtonState = false;
+    diffuseButtonState = false;
 
     clear = 0;
     cleared = false;
+    tuned = 0;
+    diffuseInput = 1;
 }
 
 void Plateau::step() {
@@ -63,6 +67,24 @@ void Plateau::step() {
         clear = 0;
     }
 
+    if(params[TUNED_MODE_PARAM].value > 0.5f && tunedButtonState == false) {
+        tuned = 1 - tuned;
+        tunedButtonState = true;
+    }
+    else if(params[TUNED_MODE_PARAM].value < 0.5f && tunedButtonState) {
+        tunedButtonState = false;
+    }
+    lights[TUNED_MODE_LIGHT].value = tuned ? 10.f : 0.f;
+
+    if(params[DIFFUSE_INPUT_PARAM].value > 0.5f && diffuseButtonState == false) {
+        diffuseInput = 1 - diffuseInput;
+        diffuseButtonState = true;
+    }
+    else if(params[DIFFUSE_INPUT_PARAM].value < 0.5f && diffuseButtonState) {
+        diffuseButtonState = false;
+    }
+    lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
+
     if(clear && !cleared) {
         cleared = true;
         reverb.clear();
@@ -78,9 +100,15 @@ void Plateau::step() {
 
     size = inputs[SIZE_CV_INPUT].value * params[SIZE_CV_PARAM].value * 0.1f;
     size += params[SIZE_PARAM].value;
-    size *= size;
-    size = rescale(size, 0.f, 1.f, sizeMin, sizeMax);
-    size = clamp(size, sizeMin, sizeMax);
+    if(tuned) {
+        size = sizeMin * powf(2.f, size * 5.f);
+        size = clamp(size, sizeMin, sizeMax);
+    }
+    else {
+        size *= size;
+        size = rescale(size, 0.f, 1.f, 0.01f, sizeMax);
+        size = clamp(size, 0.01f, sizeMax);
+    }
     reverb.setTimeScale(size);
 
     diffusion = inputs[DIFFUSION_CV_INPUT].value * params[DIFFUSION_CV_PARAM].value;
@@ -91,7 +119,7 @@ void Plateau::step() {
 
     decay = rescale(inputs[DECAY_CV_INPUT].value * params[DECAY_CV_PARAM].value, 0.f, 10.f, 0.1f, 0.999f);
     decay += params[DECAY_PARAM].value;
-    decay = clamp(decay, 0.1f, 0.999f);
+    decay = clamp(decay, 0.1f, decayMax);
     decay = 1.f - decay;
     decay = 1.f - decay * decay;
 
@@ -112,6 +140,8 @@ void Plateau::step() {
     reverbDampHigh = inputs[REVERB_HIGH_DAMP_CV_INPUT].value * params[REVERB_HIGH_DAMP_CV_PARAM].value;
     reverbDampHigh += params[REVERB_HIGH_DAMP_PARAM].value;
     reverbDampHigh = clamp(reverbDampHigh, 0.f, 10.f);
+
+    reverb.diffuseInput = (double)diffuseInput;
 
     reverb.decay = decay;
     reverb.inputLowCut = 440.f * powf(2.f, inputDampLow - 5.f);
@@ -149,7 +179,7 @@ void Plateau::step() {
     wet += params[WET_PARAM].value;
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * dry; // params[DRY_PARAM].value;
+    outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
     outputs[RIGHT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
     outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
@@ -159,11 +189,17 @@ void Plateau::onSampleRateChange() {
     reverb.setSampleRate(engineGetSampleRate());
 }
 
+void Plateau::reset() {
+    diffuseInput = 1;
+}
+
 json_t* Plateau::toJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "frozen", json_boolean(freeze));
     json_object_set_new(rootJ, "freezeToggle", json_boolean(freezeToggle));
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
+    json_object_set_new(rootJ, "tuned", json_integer((int)tuned));
+    json_object_set_new(rootJ, "diffuseInput", json_integer((int)diffuseInput));
     return rootJ;
 }
 
@@ -176,7 +212,15 @@ void Plateau::fromJson(json_t *rootJ) {
 
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     panelStyle = json_integer_value(panelStyleJ);
+
+    json_t *tunedJ = json_object_get(rootJ, "tuned");
+    tuned = json_integer_value(tunedJ);
+
+    json_t *diffuseInputJ = json_object_get(rootJ, "diffuseInput");
+    diffuseInput = json_integer_value(diffuseInputJ);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PlateauPanelStyleItem::onAction(EventAction &e) {
     module->panelStyle = panelStyle;
@@ -186,6 +230,8 @@ void PlateauPanelStyleItem::step() {
     rightText = (module->panelStyle == panelStyle) ? "✔" : "";
     MenuItem::step();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     {
@@ -226,7 +272,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addOutput(Port::create<PJ301MDarkSmallOut>(module->rightOutputPos, Port::OUTPUT, module, Plateau::RIGHT_OUTPUT));
 
     // Make knobs
-    //addParam(ParamWidget::create<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f));
+
     float minAngle = -0.77f * M_PI;
     float maxAngle = 0.77f * M_PI;
     addParam(createValleyKnob<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle));
@@ -261,7 +307,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 1.f));
     addParam(ParamWidget::create<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 1.f));
 
-
+    // Make buttons
     addParam(ParamWidget::create<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(10.375, 247.35), module, Plateau::FREEZE_LIGHT));
 
@@ -270,6 +316,12 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
 
     addParam(ParamWidget::create<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM, 0.f, 10.f, 0.f));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
+
+    addParam(ParamWidget::create<LightLEDButton>(Vec(13.875, 123.35), module, Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(16.375, 125.85), module, Plateau::TUNED_MODE_LIGHT));
+
+    addParam(ParamWidget::create<LightLEDButton>(Vec(151.875, 123.35), module, Plateau::DIFFUSE_INPUT_PARAM, 0.f, 10.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(154.375, 125.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
 }
 
 void PlateauWidget::appendContextMenu(Menu *menu) {
@@ -279,10 +331,10 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
     menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Dark", &PlateauPanelStyleItem::module,
-                                                      module, &PlateauPanelStyleItem::panelStyle, 0));
+                                                    module, &PlateauPanelStyleItem::panelStyle, 0));
     menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Light", &PlateauPanelStyleItem::module,
                                                       module, &PlateauPanelStyleItem::panelStyle, 1));
 }
 
-Model *modelPlateau = Model::create<Plateau, PlateauWidget>("Valley", "Plateau", "Plateau",
+Model *modelPlateau = Model::create<Plateau, PlateauWidget>(TOSTRING(SLUG), "Plateau", "Plateau",
                                                                   REVERB_TAG);

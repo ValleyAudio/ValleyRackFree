@@ -86,18 +86,21 @@ void Dattorro::process(double leftInput, double rightInput) {
 
     _leftInputDCBlock.input = leftInput;
     _rightInputDCBlock.input = rightInput;
-    _preDelay.input = _leftInputDCBlock.process() + _rightInputDCBlock.process();
-
     _inputLpf.setCutoffFreq(inputHighCut);
     _inputHpf.setCutoffFreq(inputLowCut);
-    _inputLpf.input = _preDelay.process();
+    _inputLpf.input = _leftInputDCBlock.process() + _rightInputDCBlock.process();
     _inputHpf.input = _inputLpf.process();
-    _inApf1.input = _inputHpf.process();
+    _inputHpf.process();
+    _preDelay.input = _inputHpf.output;
+    _inApf1.input = _preDelay.process();
     _inApf2.input = _inApf1.process();
     _inApf3.input = _inApf2.process();
     _inApf4.input = _inApf3.process();
-    _leftSum += _inApf4.process();
-    _rightSum += _inApf4.output;
+    //_leftSum += _inApf4.process();
+    //_rightSum += _inApf4.output;
+    _tankFeed = _inputHpf.output * (1.0 - diffuseInput) + _inApf4.process() * diffuseInput;
+    _leftSum += _tankFeed;
+    _rightSum += _tankFeed;
 
     _leftApf1.input = _leftSum;
     _leftDelay1.input = _leftApf1.process();
@@ -178,8 +181,8 @@ void Dattorro::clear() {
 
 void Dattorro::setTimeScale(double timeScale) {
     _timeScale = timeScale;
-    if(_timeScale < 0.01) {
-        _timeScale = 0.01;
+    if(_timeScale < 0.0001) {
+        _timeScale = 0.0001;
     }
 
     _leftDelay1.delayTime = dattorroScale(_kLeftDelay1Time * _timeScale);

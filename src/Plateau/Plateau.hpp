@@ -77,6 +77,9 @@ struct Plateau : Module {
         MOD_SHAPE_CV_PARAM,
         MOD_DEPTH_CV_PARAM,
 
+        TUNED_MODE_PARAM,
+        DIFFUSE_INPUT_PARAM,
+
         NUM_PARAMS
     };
 
@@ -84,14 +87,10 @@ struct Plateau : Module {
         FREEZE_LIGHT,
         CLEAR_LIGHT,
         FREEZE_TOGGLE_LIGHT,
+        TUNED_MODE_LIGHT,
+        DIFFUSE_INPUT_LIGHT,
         NUM_LIGHTS
     };
-
-    Plateau();
-    void step() override;
-    void onSampleRateChange() override;
-    json_t *toJson() override;
-    void fromJson(json_t *rootJ) override;
 
     // Control positions
     Vec dryPos = Vec(53.1, 56.1);
@@ -114,10 +113,10 @@ struct Plateau : Module {
     Vec clearButtonPos = Vec(157.875, 244.85);
 
     // Attenuverter positions
-    Vec dryAttenPos = Vec(29.53, 80.1);
-    Vec wetAttenPos = Vec(131.01, 80.1);
-    Vec inputLowDampAttenPos = Vec(29.53, 126.1);
-    Vec inputHighDampAttenPos = Vec(131.01, 126.1);
+    Vec dryAttenPos = Vec(29.53, 68.6);
+    Vec wetAttenPos = Vec(131.01, 68.6);
+    Vec inputLowDampAttenPos = Vec(29.53, 109.09);
+    Vec inputHighDampAttenPos = Vec(131.01, 109.09);
 
     Vec sizeAttenPos = Vec(5.1, 164.1);
     Vec diffAttenPos = Vec(65.11, 158.51);
@@ -130,15 +129,15 @@ struct Plateau : Module {
     Vec modDepthAttenPos = Vec(155.1, 306.1);
 
     // Jack positions
-    Vec leftInputPos = Vec(4.395, 37.39);
-    Vec rightInputPos = Vec(31.395, 37.39);
-    Vec leftOutputPos = Vec(127.395, 37.39);
-    Vec rightOutputPos = Vec(154.395, 37.39);
+    Vec leftInputPos = Vec(4.395, 28.385);
+    Vec rightInputPos = Vec(31.395, 28.385);
+    Vec leftOutputPos = Vec(127.395, 28.385);
+    Vec rightOutputPos = Vec(154.395, 28.385);
 
-    Vec dryCVPos = Vec(4.395, 94.41);
-    Vec wetCVPos = Vec(154.395, 94.41);
-    Vec inputLowDampCVPos = Vec(4.395, 130.395);
-    Vec inputHighDampCVPos = Vec(154.395, 130.395);
+    Vec dryCVPos = Vec(4.395, 73.397);
+    Vec wetCVPos = Vec(154.395, 73.397);
+    Vec inputLowDampCVPos = Vec(4.395, 100.426);
+    Vec inputHighDampCVPos = Vec(154.395, 100.426);
 
     Vec sizeCVPos = Vec(4.395, 190.395);
     Vec diffCVPos = Vec(94.395, 157.794);
@@ -158,7 +157,7 @@ struct Plateau : Module {
     const float dryMax = 1.f;
     const float wetMin = 0.f;
     const float wetMax = 1.f;
-    const float sizeMin = 0.01f;
+    const float sizeMin = 0.0025f;
     const float sizeMax = 2.5f;
     const float diffMin = 0.f;
     const float diffMax = 1.f;
@@ -193,6 +192,8 @@ struct Plateau : Module {
     bool freezeToggleButtonState;
     bool freeze;
     bool frozen;
+    bool tunedButtonState;
+    bool diffuseButtonState;
 
     int clear;
     bool cleared;
@@ -200,6 +201,15 @@ struct Plateau : Module {
     Dattorro reverb;
 
     int panelStyle = 0;
+    int tuned;
+    int diffuseInput;
+
+    Plateau();
+    void step() override;
+    void onSampleRateChange() override;
+    void reset() override;
+    json_t *toJson() override;
+    void fromJson(json_t *rootJ) override;
 };
 
 struct PlateauPanelStyleItem : MenuItem {
