@@ -1,6 +1,14 @@
-# ValleyRackFree Change Log
+# ValleyRackFree Change
+Log
 
 ## Changes
+
+### 0.6.4
+
+    • [New Module] Plateau reverb! A plate reverb with a twist. Can add large expansive textures to your
+    sounds, as well as be able to be tuned and excited at very short reverb times.
+    • [Update] Performance optimisations to Topograph and µGraph.
+    • [Update] All modules now have a dark jack look.
 
 ### 0.6.3
 

@@ -1,25 +1,29 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 0.6.0
+3rd party plugins for VCV Rack version 0.6.1
 
 ### Version
 
-0.6.3
+0.6.4
 
-    • Fixed Dexter sample rate bug. If Dexter is inserted at a sample rate other than
-    44.1K, the tuning would be incorrect until the sample rate was changed.
+    • [New Module] Plateau reverb! A plate reverb with a twist. Can add large expansive textures to your
+    sounds, as well as be able to be tuned and excited at very short reverb times.
+    • [Update] Performance optimisations to Topograph and µGraph.
+    • [Update] All modules now have a dark jack look.
 
 ### Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have v0.6.0 to run these modules.
+You must have 0.6.1 to run these modules.
 
 ### Modules
 
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
 * µGraph - Same as Topograph except more compact. It does, however, default to the Olivier pattern modes rather than Henri.
 * Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
+* Plateu - A plate reverb with a twist. Can add large expansive textures to your
+sounds, as well as be able to be tuned and excited at very short reverb times.
 
 ![Valley](./ValleyImg.png)
 
@@ -51,8 +55,7 @@ All controls have a CV input to control them. These are the silver jacks.
 In brief, Dexter is an FM wavetable oscillator. See the Dexter Manual pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/files/1887925/DexterManual.pdf)
 
 ## Todo
-* Topograph
-    * Fix text flicker
+* Develop more modules ;)
 
 ## Future
 
@@ -66,4 +69,4 @@ Topograph & µGraph are covered by GPL-3.0
 
 Topograph's and µGraph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
 
-Dexter is covered by BSD-3-Clause
+Dexter and Plateau are covered by BSD-3-Clause
