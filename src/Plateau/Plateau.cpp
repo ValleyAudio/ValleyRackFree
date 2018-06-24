@@ -102,7 +102,7 @@ void Plateau::step() {
     size += params[SIZE_PARAM].value;
     if(tuned) {
         size = sizeMin * powf(2.f, size * 5.f);
-        size = clamp(size, sizeMin, sizeMax);
+        size = clamp(size, sizeMin, 2.5f);
     }
     else {
         size *= size;
