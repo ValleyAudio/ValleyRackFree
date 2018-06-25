@@ -180,7 +180,7 @@ void Plateau::step() {
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
     outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
-    outputs[RIGHT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
+    outputs[RIGHT_OUTPUT].value = inputs[RIGHT_INPUT].value * dry;
     outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
 }

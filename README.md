@@ -4,7 +4,7 @@
 
 ### Version
 
-0.6.4
+0.6.5
 
     • [New Module] Plateau reverb! A plate reverb with a twist. Can add large expansive textures to your
     sounds, as well as be able to be tuned and excited at very short reverb times.
@@ -22,7 +22,7 @@ You must have 0.6.1 to run these modules.
 * Topograph - A port of the Mutable Instruments "Grids", the rhythm sequencer module that was missing from the VCV Audible Instruments plugin bundle. Covered by GPL-3.0 license.
 * µGraph - Same as Topograph except more compact. It does, however, default to the Olivier pattern modes rather than Henri.
 * Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
-* Plateu - A plate reverb with a twist. Can add large expansive textures to your
+* Plateau - A plate reverb with a twist. Can add large expansive textures to your
 sounds, as well as be able to be tuned and excited at very short reverb times.
 
 ![Valley](./ValleyImg.png)
