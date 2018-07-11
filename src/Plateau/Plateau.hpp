@@ -20,6 +20,10 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Plateau is based on the venerable Dattorro (1997) reverb algorithm.
+// Reference: Dattorro, J. (1997). Effect design part 1: Reverberator and other filters, J. Audio
+// Eng. Soc, 45(9), 660-684. 
 
 #ifndef DSJ_PLATEAU_HPP
 #define DSJ_PLATEAU_HPP

@@ -7,7 +7,8 @@
 0.6.5
 
     • [New Module] Plateau reverb! A plate reverb with a twist. Can add large expansive textures to your
-    sounds, as well as be able to be tuned and excited at very short reverb times.
+    sounds, as well as be able to be tuned and excited at very short reverb times. Based on the venerable
+    Dattorro (1997) plate reverb algorithm.
     • [Update] Performance optimisations to Topograph and µGraph.
     • [Update] All modules now have a dark jack look.
 
@@ -23,7 +24,8 @@ You must have 0.6.1 to run these modules.
 * µGraph - Same as Topograph except more compact. It does, however, default to the Olivier pattern modes rather than Henri.
 * Dexter - An FM wavetable oscillator with tonnes of modulation inputs, phase shaping and synchronisation options, as well multiple outputs from 2 separate voices and each operator.
 * Plateau - A plate reverb with a twist. Can add large expansive textures to your
-sounds, as well as be able to be tuned and excited at very short reverb times.
+sounds, as well as be able to be tuned and excited at very short reverb times. It is based on the
+well known Dattorro (1997) plate reverb algorithm.
 
 ![Valley](./ValleyImg.png)
 
@@ -62,6 +64,10 @@ In brief, Dexter is an FM wavetable oscillator. See the Dexter Manual pdf for mo
 I really want to focus on modules that are deep and versatile rather than "bread and butter stuff".
 
 I hope to produce more modules based on some of my existing research work.
+
+## Bibliography
+
+Dattorro, J. (1997). Effect design part 1: Reverberator and other filters, J. Audio Eng. Soc, 45(9), 660-684.
 
 ## License
 
