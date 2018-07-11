@@ -1,4 +1,6 @@
-// This plat 
+// 
+// This plate reverb is based upon Jon Dattorro's 1997 reverb algorithm.
+//
 
 #pragma once
 #include "AllpassFilter.hpp"
