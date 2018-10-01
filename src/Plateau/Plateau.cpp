@@ -2,6 +2,10 @@
 
 Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     reverb.setSampleRate(engineGetSampleRate());
+    wet = 0.5f;
+    dry = 1.f;
+    preDelay = 0.f;
+    preDelayCVSens = preDelayNormSens;
     size = 1.f;
     diffusion;
     decay = 0.f;
@@ -20,6 +24,7 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     frozen = false;
     tunedButtonState = false;
     diffuseButtonState = false;
+    preDelayCVSensState = 0;
 
     clear = 0;
     cleared = false;
@@ -96,7 +101,13 @@ void Plateau::step() {
     }
 
     // CV
-    reverb.setPreDelay(params[PRE_DELAY_PARAM].value);
+    switch(preDelayCVSensState) {
+        case 0: preDelayCVSens = preDelayNormSens; break;
+        case 1: preDelayCVSens = preDelayLowSens;
+    }
+    preDelay = params[PRE_DELAY_PARAM].value;
+    preDelay += 0.5f * (powf(2.f, inputs[PRE_DELAY_CV_INPUT].value * preDelayCVSens) - 1.f);
+    reverb.setPreDelay(clamp(preDelay, 0.f, 1.f));
 
     size = inputs[SIZE_CV_INPUT].value * params[SIZE_CV_PARAM].value * 0.1f;
     size += params[SIZE_PARAM].value;
@@ -200,6 +211,7 @@ json_t* Plateau::toJson()  {
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "tuned", json_integer((int)tuned));
     json_object_set_new(rootJ, "diffuseInput", json_integer((int)diffuseInput));
+    json_object_set_new(rootJ, "preDelayCVSens", json_integer((int)preDelayCVSensState));
     return rootJ;
 }
 
@@ -218,6 +230,9 @@ void Plateau::fromJson(json_t *rootJ) {
 
     json_t *diffuseInputJ = json_object_get(rootJ, "diffuseInput");
     diffuseInput = json_integer_value(diffuseInputJ);
+
+    json_t *preDelayCVSensJ = json_object_get(rootJ, "preDelayCVSens");
+    preDelayCVSensState = json_integer_value(preDelayCVSensJ);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,6 +243,15 @@ void PlateauPanelStyleItem::onAction(EventAction &e) {
 
 void PlateauPanelStyleItem::step() {
     rightText = (module->panelStyle == panelStyle) ? "✔" : "";
+    MenuItem::step();
+}
+
+void PlateauPreDelayCVSensItem::onAction(EventAction &e) {
+    module->preDelayCVSensState = preDelayCVSensState;
+}
+
+void PlateauPreDelayCVSensItem::step() {
+    rightText = (module->preDelayCVSensState == preDelayCVSensState) ? "✔" : "";
     MenuItem::step();
 }
 
@@ -252,6 +276,7 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addInput(Port::create<PJ301MDarkSmall>(module->rightInputPos, Port::INPUT, module, Plateau::RIGHT_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->dryCVPos, Port::INPUT, module, Plateau::DRY_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->wetCVPos, Port::INPUT, module, Plateau::WET_CV_INPUT));
+    addInput(Port::create<PJ301MDarkSmall>(module->preDelayCVPos, Port::INPUT, module, Plateau::PRE_DELAY_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->inputLowDampCVPos, Port::INPUT, module, Plateau::INPUT_LOW_DAMP_CV_INPUT));
     addInput(Port::create<PJ301MDarkSmall>(module->inputHighDampCVPos, Port::INPUT, module, Plateau::INPUT_HIGH_DAMP_CV_INPUT));
 
@@ -275,8 +300,8 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
 
     float minAngle = -0.77f * M_PI;
     float maxAngle = 0.77f * M_PI;
-    addParam(createValleyKnob<RoganMedWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedSmallWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedSmallWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle));
     addParam(createValleyKnob<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle));
     addParam(createValleyKnob<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
     addParam(createValleyKnob<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
@@ -292,20 +317,20 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(createValleyKnob<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle));
 
     // Make Attenuverters
-    addParam(ParamWidget::create<RoganSmallWhite>(module->dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallWhite>(module->wetAttenPos, module, Plateau::WET_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallGreen>(module->inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallGreen>(module->inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 1.f));
+    addParam(ParamWidget::create<RoganSmallWhite>(module->dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallWhite>(module->wetAttenPos, module, Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallGreen>(module->inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallGreen>(module->inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
 
-    addParam(ParamWidget::create<RoganSmallBlue>(module->sizeAttenPos, module, Plateau::SIZE_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallBlue>(module->diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallBlue>(module->decayAttenPos, module, Plateau::DECAY_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallGreen>(module->reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallGreen>(module->reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 1.f));
+    addParam(ParamWidget::create<RoganSmallBlue>(module->sizeAttenPos, module, Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallBlue>(module->diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallBlue>(module->decayAttenPos, module, Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallGreen>(module->reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallGreen>(module->reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
 
-    addParam(ParamWidget::create<RoganSmallRed>(module->modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 1.f));
+    addParam(ParamWidget::create<RoganSmallRed>(module->modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
 
     // Make buttons
     addParam(ParamWidget::create<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));
@@ -317,11 +342,11 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM, 0.f, 10.f, 0.f));
     addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(13.875, 123.35), module, Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(16.375, 125.85), module, Plateau::TUNED_MODE_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(16.375, 129.85), module, Plateau::TUNED_MODE_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(151.875, 123.35), module, Plateau::DIFFUSE_INPUT_PARAM, 0.f, 10.f, 0.f));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(154.375, 125.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
+    addParam(ParamWidget::create<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM, 0.f, 10.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(154.375, 129.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
 }
 
 void PlateauWidget::appendContextMenu(Menu *menu) {
@@ -334,7 +359,13 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                     module, &PlateauPanelStyleItem::panelStyle, 0));
     menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Light", &PlateauPanelStyleItem::module,
                                                       module, &PlateauPanelStyleItem::panelStyle, 1));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Predelay CV Sensitivity"));
+    menu->addChild(construct<PlateauPreDelayCVSensItem>(&MenuItem::text, "Normal (1x)", &PlateauPreDelayCVSensItem::module,
+                                                        module, &PlateauPreDelayCVSensItem::preDelayCVSensState, 0));
+    menu->addChild(construct<PlateauPreDelayCVSensItem>(&MenuItem::text, "Low (0.5x)", &PlateauPreDelayCVSensItem::module,
+                                                        module, &PlateauPreDelayCVSensItem::preDelayCVSensState, 1));
 }
 
-Model *modelPlateau = Model::create<Plateau, PlateauWidget>(TOSTRING(SLUG), "Plateau", "Plateau",
-                                                                  REVERB_TAG);
+Model *modelPlateau = Model::create<Plateau, PlateauWidget>(TOSTRING(SLUG), "Plateau", "Plateau", REVERB_TAG);

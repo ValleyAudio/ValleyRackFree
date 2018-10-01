@@ -33,6 +33,12 @@ struct RoganMedWhite : Rogan {
     }
 };
 
+struct RoganMedSmallWhite : Rogan {
+    RoganMedSmallWhite() {
+        setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSWhiteMedSmall.svg")));
+    }
+};
+
 struct RoganSmallWhite : Rogan {
     RoganSmallWhite() {
         setSVG(SVG::load(assetPlugin(plugin, "res/Rogan1PSWhiteSmall.svg")));

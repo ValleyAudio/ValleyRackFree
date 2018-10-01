@@ -67,12 +67,11 @@ public:
     int id;
     DCBlocker();
     DCBlocker(double cutoffFreq);
-    double process();
+    double process(double input);
     void clear();
     void setCutoffFreq(double cutoffFreq);
     void setSampleRate(double sampleRate);
     double getMaxCutoffFreq() const;
-    double input;
     double output;
 private:
     double _sampleRate;

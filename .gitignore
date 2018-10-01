@@ -36,5 +36,7 @@
 
 # Folders
 **/dist
-**/Plasma
+#**/Plasma
 **/FlowMo
+
+**/*.ai

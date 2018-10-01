@@ -11,7 +11,7 @@ CXXFLAGS += -O3
 LDFLAGS +=
 
 # Add .cpp and .c files to the build
-SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c)
+SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c src/*/*/*.cpp src/*/*/*/c)
 
 # Must include the VCV plugin Makefile framework
 RACK_DIR ?= ../..

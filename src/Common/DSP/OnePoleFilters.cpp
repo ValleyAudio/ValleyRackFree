@@ -104,14 +104,13 @@ DCBlocker::DCBlocker(double cutoffFreq) {
     clear();
 }
 
-double DCBlocker::process() {
+double DCBlocker::process(double input) {
     output = input - _z + _b * output;
     _z = input;
     return output;
 }
 
 void DCBlocker::clear() {
-    input = 0.0;
     _z = 0.0;
     output = 0.0;
 }
@@ -124,7 +123,7 @@ void DCBlocker::setSampleRate(double sampleRate) {
 
 void DCBlocker::setCutoffFreq(double cutoffFreq) {
     _cutoffFreq = cutoffFreq;
-    _b = 0.995f;
+    _b = 0.999f;
 }
 
 double DCBlocker::getMaxCutoffFreq() const {
