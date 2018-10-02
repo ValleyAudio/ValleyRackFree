@@ -4,13 +4,9 @@
 
 ### Version
 
-0.6.5
+0.6.6
 
-    • [New Module] Plateau reverb! A plate reverb with a twist. Can add large expansive textures to your
-    sounds, as well as be able to be tuned and excited at very short reverb times. Based on the venerable
-    Dattorro (1997) plate reverb algorithm.
-    • [Update] Performance optimisations to Topograph and µGraph.
-    • [Update] All modules now have a dark jack look.
+    • [Update] Plateau now features a CV input for Predelay. The sensitivity for this input is set in the context menu.
 
 ### Compatibility
 
