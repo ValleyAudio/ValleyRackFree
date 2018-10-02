@@ -56,6 +56,30 @@ In brief, Dexter is an FM wavetable oscillator. See the Dexter Manual pdf for mo
 
 Plateau is an implementation of the Dattorro (1997) plate reverb algorithm, with CV control over practically every section of the reverberator.
 
+The reverberator is split into 4 sections:
+    Input Equaliser -> Input Diffuser -> Reverb Equaliser -> Reverb "Tank"
+
+The white knobs control the dry and wet ratio of the effect, whilst the predelay delays the signal by upto 500ms before it enters the reverberator.
+
+Both equaliser sections (represented by the green knobs) sculpt the tone of the reverb, removing either low or high end from the signal. The reverb equaliser in particular allows the frequency response of the reverberant signal to evolve over time, either slowly damping the high end to create a natural decay, or by quickly removing the low end to create interesting "dub reggae" effects.
+
+The blue knobs control the reverb tank:
+* "Size"" manipulates the overall length of the reverb, and determines how much delay there is between a signal entering and leaving the tank.
+* "Diffusion" controls how smeared and reverberant the signal becomes over time. 0% diffusion means the signal will flutter rather than reverberate.
+* "Decay" sets how much the signal will decay over time. Fully clockwise means the signal will take a long to disappear.
+
+The red knobs control the LFOs that modulate the delay lines in the reverb tank:
+* "Rate" sets the speed that the delay lines will be modulated at.
+* "Shape" controls the shape of the LFOs. In the middle position the shape is a symmetrical triangle, whilst either extreme will be a falling or rising ramp.
+* "Depth" determines how far the delay lines in the tank will be modulated. Slight modulation creates a pleasant diffusion effect that prevents ringing from building up, whilst deep modulation creates a chaotic, pitch shifting effect.
+
+Finally, there are five buttons dotted around the panel:
+* "Tuned Mode" sets the all-pass filters to have a short, tuneable delay time, allowing you to 'play' the reverb like an instrument. The size input becomes 1V/Oct, although by default the tuning inverted. The size attenuverter can be set to fully anti-clockwise to restore normal tuning behaviour.
+* "Diffuse Input" enables / disables the input diffuser section. This is particularly useful in tuned mode where the diffuser normally blurs the inputs signal. Bypassing it results in a sharper, more precise sound.
+* "Hold" causes the reverb to be held indefinitely, where decay is set to 100% and the equalisers are bypassed.
+* "Tog." sets if the hold switch is momentary or toggle.
+* "Clear" purges the entire reverb, which is very handy if things get out of hand, although it can be used to great musical effect.
+
 ## Todo
 * Develop more modules ;)
 
