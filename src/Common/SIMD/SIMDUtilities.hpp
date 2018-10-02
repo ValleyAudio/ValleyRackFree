@@ -64,7 +64,7 @@ inline __m128 _mm_switch_ps(const __m128& a, const __m128& b, const __m128& cond
     return _mm_or_ps(_mm_andnot_ps(cond, a), _mm_and_ps(cond, b));
 }
 
-inline __m128 _mm_switch_pd(const __m128d& a, const __m128d& b, const __m128d& cond) {
+inline __m128d _mm_switch_pd(const __m128d& a, const __m128d& b, const __m128d& cond) {
     return _mm_or_pd(_mm_andnot_pd(cond, a), _mm_and_pd(cond, b));
 }
 
@@ -76,7 +76,7 @@ inline __m128 _mm_clamp_ps(const __m128& a, const __m128& min, const __m128& max
     return _mm_min_ps(_mm_max_ps(a, min), max);
 }
 
-inline __m128 _mm_clamp_pd(const __m128d& a, const __m128d& min, const __m128d& max) {
+inline __m128d _mm_clamp_pd(const __m128d& a, const __m128d& min, const __m128d& max) {
     return _mm_min_pd(_mm_max_pd(a, min), max);
 }
 
