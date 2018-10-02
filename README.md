@@ -52,6 +52,10 @@ All controls have a CV input to control them. These are the silver jacks.
 
 In brief, Dexter is an FM wavetable oscillator. See the Dexter Manual pdf for more information available [here](https://github.com/ValleyAudio/ValleyRackFree/files/1887925/DexterManual.pdf)
 
+### Plateau
+
+Plateau is an implementation of the Dattorro (1997) plate reverb algorithm, with CV control over practically every section of the reverberator.
+
 ## Todo
 * Develop more modules ;)
 
