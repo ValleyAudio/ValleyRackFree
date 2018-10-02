@@ -3,7 +3,7 @@
 Dattorro::Dattorro() {
     _dattorroScaleFactor = _sampleRate / _dattorroSampleRate;
 
-    _preDelay = InterpDelay<double>(192000, 0);
+    _preDelay = InterpDelay<double>(192010, 0);
 
     _inputLpf = OnePoleLPFilter(22000.0);
     _inputHpf = OnePoleHPFilter(0.0);
