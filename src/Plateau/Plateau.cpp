@@ -30,6 +30,9 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     cleared = false;
     tuned = 0;
     diffuseInput = 1;
+
+    leftInput = 0.f;
+    rightInput = 0.f;
 }
 
 void Plateau::step() {
@@ -180,7 +183,19 @@ void Plateau::step() {
     reverb.modDepth = modDepth;
     reverb.setModShape(modShape);
 
-    reverb.process(inputs[LEFT_INPUT].value / 10.f, inputs[RIGHT_INPUT].value / 10.f);
+    leftInput = inputs[LEFT_INPUT].value;
+    rightInput = inputs[RIGHT_INPUT].value;
+    if(inputs[LEFT_INPUT].active == false && inputs[RIGHT_INPUT].active == true) {
+        leftInput = inputs[RIGHT_INPUT].value;
+    }
+    else if(inputs[LEFT_INPUT].active == true && inputs[RIGHT_INPUT].active == false) {
+        rightInput = inputs[LEFT_INPUT].value;
+    }
+
+    leftInput *= 0.1f;
+    rightInput *= 0.1f;
+
+    reverb.process(leftInput, rightInput);
 
     dry = inputs[DRY_CV_INPUT].value * params[DRY_CV_PARAM].value;
     dry += params[DRY_PARAM].value;
@@ -190,8 +205,8 @@ void Plateau::step() {
     wet += params[WET_PARAM].value;
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].value = inputs[LEFT_INPUT].value * dry;
-    outputs[RIGHT_OUTPUT].value = inputs[RIGHT_INPUT].value * dry;
+    outputs[LEFT_OUTPUT].value = leftInput * dry;
+    outputs[RIGHT_OUTPUT].value = rightInput * dry;
     outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
 }

@@ -92,11 +92,12 @@ void Dattorro::process(double leftInput, double rightInput) {
     _inputHpf.input = _inputLpf.process();
     _inputHpf.process();
     _preDelay.input = _inputHpf.output;
-    _inApf1.input = _preDelay.process();
+    _preDelay.process();
+    _inApf1.input = _preDelay.output;
     _inApf2.input = _inApf1.process();
     _inApf3.input = _inApf2.process();
     _inApf4.input = _inApf3.process();
-    _tankFeed = _inputHpf.output * (1.0 - diffuseInput) + _inApf4.process() * diffuseInput;
+    _tankFeed = _preDelay.output * (1.0 - diffuseInput) + _inApf4.process() * diffuseInput;
     _leftSum += _tankFeed;
     _rightSum += _tankFeed;
 

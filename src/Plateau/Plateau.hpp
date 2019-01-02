@@ -231,6 +231,7 @@ struct Plateau : Module {
     int clear;
     bool cleared;
 
+    float leftInput, rightInput;
     Dattorro reverb;
 
     int panelStyle = 0;
