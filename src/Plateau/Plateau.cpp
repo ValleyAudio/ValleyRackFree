@@ -192,10 +192,7 @@ void Plateau::step() {
         rightInput = inputs[LEFT_INPUT].value;
     }
 
-    leftInput *= 0.1f;
-    rightInput *= 0.1f;
-
-    reverb.process(leftInput, rightInput);
+    reverb.process(leftInput * 0.1f, rightInput * 0.1f);
 
     dry = inputs[DRY_CV_INPUT].value * params[DRY_CV_PARAM].value;
     dry += params[DRY_PARAM].value;

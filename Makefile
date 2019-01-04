@@ -1,5 +1,5 @@
 SLUG = Valley
-VERSION = 0.6.7
+VERSION = 0.6.8
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=
