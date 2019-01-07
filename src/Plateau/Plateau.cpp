@@ -169,7 +169,7 @@ void Plateau::step() {
     modSpeed *= modSpeed;
     modSpeed = modSpeed * 99.f + 1.f;
 
-    modShape = inputs[MOD_SHAPE_CV_INPUT].value * params[MOD_DEPTH_CV_PARAM].value * 0.1f;
+    modShape = inputs[MOD_SHAPE_CV_INPUT].value * params[MOD_SHAPE_CV_PARAM].value * 0.1f;
     modShape += params[MOD_SHAPE_PARAM].value;
     modShape = rescale(modShape, 0.f, 1.f, modShapeMin, modShapeMax);
     modShape = clamp(modShape, modShapeMin, modShapeMax);
@@ -341,8 +341,8 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<RoganSmallGreen>(module->reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
 
     addParam(ParamWidget::create<RoganSmallRed>(module->modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
 
     // Make buttons
     addParam(ParamWidget::create<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));
