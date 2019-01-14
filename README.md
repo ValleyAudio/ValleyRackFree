@@ -4,9 +4,9 @@
 
 ### Version
 
-0.6.6
+0.6.9
 
-    • [Update] Plateau now features a CV input for Predelay. The sensitivity for this input is set in the context menu.
+    • [Fixed] Fixed a mix up between the modulation depth and shape jacks.
 
 ### Compatibility
 
