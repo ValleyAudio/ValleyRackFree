@@ -3,6 +3,18 @@ Log
 
 ## Changes
 
+### 0.6.9
+
+    • [Fixed] Corrected a mistake where the modulation depth and shape input jacks were mixed up.
+
+### 0.6.8
+
+    • [Fixed] Corrected the dry gain staging mistake that 0.6.7 introduced. We never speak of 0.6.7 again....
+
+### 0.6.7
+
+    • [Fixed] "Diffuse input" bypass switch correctly taps from after the pre-delay
+
 ### 0.6.6
 
     • [Update] Plateau now features a CV input for Predelay. The sensitivity for this input is set
