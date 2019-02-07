@@ -135,9 +135,7 @@ private:
     double _revPoint;
     double _riseRate;
     double _fallRate;
-    double _phase;
     double _step;
-    double _phasedStep;
     double _stepSize;
     bool _rising;
 

@@ -7,7 +7,7 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     preDelay = 0.f;
     preDelayCVSens = preDelayNormSens;
     size = 1.f;
-    diffusion;
+    diffusion = 1.f;
     decay = 0.f;
     inputDampLow = 0.f;
     inputDampHigh = 10.f;
@@ -312,21 +312,21 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
 
     float minAngle = -0.77f * M_PI;
     float maxAngle = 0.77f * M_PI;
-    addParam(createValleyKnob<RoganMedSmallWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedSmallWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedSmallWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedSmallWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
-    addParam(createValleyKnob<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
-    addParam(createValleyKnob<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, minAngle, maxAngle));
-    addParam(createValleyKnob<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle));
+    addParam(createValleyKnob<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
     // Make Attenuverters
     addParam(ParamWidget::create<RoganSmallWhite>(module->dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f));

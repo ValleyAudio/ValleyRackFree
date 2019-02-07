@@ -7,10 +7,12 @@ void init(rack::Plugin *p) {
 	plugin = p;
 	p->slug = TOSTRING(SLUG);
 	p->version = TOSTRING(VERSION);
-	p->website = "https://valleyaudio.github.io";
-	p->manual = "https://valleyaudio.github.io";
+	p->website = "https://github.com/ValleyAudio/ValleyRackFree";
+	p->manual = "https://github.com/ValleyAudio/ValleyRackFree/blob/master/README.md";
     p->addModel(modelTopograph);
     p->addModel(modelUGraph);
     p->addModel(modelDexter);
     p->addModel(modelPlateau);
+    p->addModel(modelAmalgam);
+    p->addModel(modelInterzone);
 }

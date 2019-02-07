@@ -77,7 +77,6 @@ private:
     double _sampleRate;
     double _cutoffFreq;
     double _maxCutoffFreq;
-    double _a;
     double _b;
     double _z;
 };
