@@ -16,6 +16,9 @@ Interzone::Interzone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
     lfoSlew.setSampleRate(engineGetSampleRate());
     lfoSlew.setCutoffFreq(14000.f);
 
+    gateSlew.setSampleRate(engineGetSampleRate());
+    gateSlew.setCutoffFreq(90.f);
+
     env.setSampleRate(engineGetSampleRate());
     sampleAndHold = 0.f;
 }
@@ -52,7 +55,9 @@ void Interzone::step() {
     env.timeScale = params[ENV_LENGTH_PARAM].value > 0.5f ? 0.1f : 1.f;
     env.process(gateLevel, inputs[TRIG_INPUT].value);
 
-    pitch = (long)params[OCTAVE_PARAM].value + params [COARSE_PARAM].value;
+    pitch = params[COARSE_MODE_PARAM].value > 0.5f ? semitone(params[COARSE_PARAM].value + 0.04) : params[COARSE_PARAM].value;
+    pitch -= 1.f;
+    pitch += (int)params[OCTAVE_PARAM].value;
     pitch += inputs[VOCT_INPUT_1].value + inputs[VOCT_INPUT_2].value;
     glide.setCutoffFreq(330.f * pow(2.f, (params[GLIDE_PARAM].value * 2.f) * -7.f));
     glide.input = pitch;
@@ -105,7 +110,9 @@ void Interzone::step() {
     output = highpass.process();
     outputs[FILTER_OUTPUT].value = highpass.output;
 
-    outputLevel = params[VCA_SOURCE_PARAM].value > 0.5f ? gateLevel : env.value;
+    gateSlew.input = gateLevel;
+    gateSlew.process();
+    outputLevel = params[VCA_SOURCE_PARAM].value > 0.5f ? gateSlew.output : env.value;
     outputLevel += inputs[VCA_LEVEL_CV_INPUT].value * params[VCA_LEVEL_CV_PARAM].value * 0.1f;
     outputLevel = clamp(outputLevel, -1.f, 1.f);
     outputs[VCA_OUTPUT].value = output * outputLevel;
@@ -118,6 +125,7 @@ void Interzone::onSampleRateChange() {
     highpass.setSampleRate(engineGetSampleRate());
     lfo.setSampleRate(engineGetSampleRate());
     lfoSlew.setSampleRate(engineGetSampleRate());
+    gateSlew.setSampleRate(engineGetSampleRate());
     env.setSampleRate(engineGetSampleRate());
     glide.setSampleRate(engineGetSampleRate());
     pink.setSampleRate(engineGetSampleRate());
@@ -173,11 +181,12 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
                                               2.f, 0.f, octaveMinAngle, octaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
-    addParam(ParamWidget::create<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, -1.f, 1.f, 0.f));
+    addParam(ParamWidget::create<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, 0.f, 2.f, 1.f));
     addParam(ParamWidget::create<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f));
     addParam(ParamWidget::create<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, -1.f, 1.f, 1.f));
     addParam(ParamWidget::create<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f));
     addParam(ParamWidget::create<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, -1.f, 1.f, -1.f));
+    addParam(ParamWidget::create<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f));
     addParam(ParamWidget::create<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 1.f));
 

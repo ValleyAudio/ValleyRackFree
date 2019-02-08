@@ -66,6 +66,7 @@ struct Interzone : Module {
         PW_MOD_PARAM,
         PW_MOD_SOURCE_PARAM,
         PW_MOD_ENV_POL_PARAM,
+        COARSE_MODE_PARAM,
         GLIDE_PARAM,
         SUB_OCTAVE_PARAM,
         SUB_WAVE_PARAM,
@@ -139,6 +140,7 @@ struct Interzone : Module {
     DLFO lfo;
     PinkNoise pink;
     OnePoleLPFilter lfoSlew;
+    OnePoleLPFilter gateSlew;
     DEnv env;
 
     int panelStyle = 0;
@@ -163,15 +165,16 @@ struct InterzoneWidget : ModuleWidget {
     // Control Positions
     Vec VCOGlideSliderPos = Vec(13.15f, 43.6f);
     Vec VCOModSliderPos = Vec(34.f, 43.6f);
-    Vec VCOOctavePos = Vec(117.212f, 64.674f);
-    Vec VCOCoarsePos = Vec(105.584f, 113.266f);
-    Vec VCOFinePos = Vec(141.584f, 113.266f);
+    Vec VCOOctavePos = Vec(123.212f, 64.674f);
+    Vec VCOCoarsePos = Vec(114.584f, 113.266f);
+    Vec VCOFinePos = Vec(144.584f, 113.266f);
     Vec VCOWidthSliderPos = Vec(171.15f, 43.6f);
     Vec VCOPWMSliderPos = Vec(191.95f, 43.6f);
     Vec VCOPWMSourcePos = Vec(222.742f, 89.345f);
     Vec VCOPWMEnvPolPos = Vec(222.888f, 51.172f);
     Vec VCOModEnvPolPos = Vec(64.498f, 51.172f);
-    Vec VCOModSourcePos = Vec(64.498f, 93.173f);
+    Vec VCOModSourcePos = Vec(64.498f, 99.173f);
+    Vec VCOCoarseModePos = Vec(88.489f, 51.172f);
     Vec VCOSubOctPos = Vec(336.05f, 43.6f);
 
     Vec MixerSawLevelPos = Vec(270.15f, 43.6f);

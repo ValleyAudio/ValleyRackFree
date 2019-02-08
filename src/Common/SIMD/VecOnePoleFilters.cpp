@@ -44,17 +44,19 @@ VecOnePoleHPFilter::VecOnePoleHPFilter() {
     setSampleRate(44100.f);
     setCutoffFreq(_sampleRate / 2.f);
     clear();
+    _bypassed = false;
 }
 
 VecOnePoleHPFilter::VecOnePoleHPFilter(float cutoffFreq) {
     setSampleRate(44100.f);
     setCutoffFreq(cutoffFreq);
     clear();
+    _bypassed = false;
 }
 
 __m128 VecOnePoleHPFilter::process(const __m128& input) {
     _z =  _mm_add_ps(_mm_mul_ps(_a, input), _mm_mul_ps(_z, _b));
-    return _mm_sub_ps(input, _z);
+    return _bypassed ? input : _mm_sub_ps(input, _z);
 }
 
 void VecOnePoleHPFilter::clear() {
@@ -76,4 +78,8 @@ void VecOnePoleHPFilter::setCutoffFreq(float cutoffFreq) {
 
 float VecOnePoleHPFilter::getMaxCutoffFreq() const {
     return _maxCutoffFreq;
+}
+
+void VecOnePoleHPFilter::setBypass(bool bypass) {
+    _bypassed = bypass;
 }

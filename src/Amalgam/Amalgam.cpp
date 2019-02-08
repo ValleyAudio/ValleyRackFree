@@ -17,13 +17,20 @@ Amalgam::Amalgam() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
     float newSampleRate = engineGetSampleRate();
     vecAmalgam.setSampleRate(newSampleRate);
-    xInDCFilter.setSampleRate(newSampleRate);
-    yInDCFilter.setSampleRate(newSampleRate);
+    xyAndDCFilter.setSampleRate(newSampleRate);
+    xyXorDCFilter.setSampleRate(newSampleRate);
     zOutDCFilter.setSampleRate(newSampleRate);
-
-    xInDCFilter.setCutoffFreq(10.f);
-    yInDCFilter.setCutoffFreq(10.f);
-    zOutDCFilter.setCutoffFreq(10.f);
+    zPls1DCFilter.setSampleRate(newSampleRate);
+    zPls2DCFilter.setSampleRate(newSampleRate);
+    zAndDCFilter.setSampleRate(newSampleRate);
+    zXorDCFilter.setSampleRate(newSampleRate);
+    xyAndDCFilter.setCutoffFreq(1.f);
+    xyXorDCFilter.setCutoffFreq(1.f);
+    zOutDCFilter.setCutoffFreq(1.f);
+    zPls1DCFilter.setCutoffFreq(1.f);
+    zPls2DCFilter.setCutoffFreq(1.f);
+    zAndDCFilter.setCutoffFreq(1.f);
+    zXorDCFilter.setCutoffFreq(1.f);
 }
 
 void Amalgam::step() {
@@ -43,6 +50,19 @@ void Amalgam::step() {
     paramB += inputs[PARAM_B_CV1_INPUT].value * 0.1f * params[PARAM_B_CV1_PARAM].value;
     paramB += inputs[PARAM_B_CV2_INPUT].value * 0.1f * params[PARAM_B_CV2_PARAM].value;
     paramB = clamp(paramB, 0.f, 1.f);
+
+    dcCoupleButtonState = params[DC_COUPLE_PARAM].value > 0.5f ? true : false;
+    if(dcCoupleButtonState && !prevDcCoupleButtonState) {
+        dcCoupled = dcCoupled ? false : true;
+    }
+    prevDcCoupleButtonState = dcCoupleButtonState;
+    lights[DC_COUPLE_LIGHT].value = dcCoupled ? 10.f : 0.f;
+
+    xyAndDCFilter.setBypass(dcCoupled);
+    xyXorDCFilter.setBypass(dcCoupled);
+    zOutDCFilter.setBypass(dcCoupled);
+    zPls1DCFilter.setBypass(dcCoupled);
+    zPls2DCFilter.setBypass(dcCoupled);
 
     xIn[0] = inputs[X_LEFT_INPUT].value;
     xIn[1] = inputs[X_RIGHT_INPUT].value;
@@ -72,18 +92,18 @@ void Amalgam::step() {
     yGain += params[Y_GAIN].value;
     yGain = clamp(yGain, 0.f, 4.f);
 
-
     __x = _mm_set_ps(xIn[0], xIn[0], xIn[1], xIn[1]);
     __y = _mm_set_ps(yIn[0], yIn[0], yIn[1], yIn[1]);
     __x = _mm_mul_ps(__x, _mm_set1_ps(0.15f));
     __y = _mm_mul_ps(__y, _mm_set1_ps(0.15f));
-
     __x = _mm_mul_ps(vecDriveSignal(__x, _mm_set1_ps(xGain)), _mm_set1_ps(1.333333f));
     __y = _mm_mul_ps(vecDriveSignal(__y, _mm_set1_ps(yGain)), _mm_set1_ps(1.333333f));
 
     // AND and XOR
     __xyAnd = _mm_switch_ps(__zeros, __fives, _mm_and_ps(_mm_cmpgt_ps(__x, __zeros), _mm_cmpgt_ps(__y, __zeros)));
     __xyXor = _mm_switch_ps(__zeros, __fives, _mm_xor_ps(_mm_cmpgt_ps(__x, __zeros), _mm_cmpgt_ps(__y, __zeros)));
+    __xyAnd = xyAndDCFilter.process(__xyAnd);
+    __xyXor = xyXorDCFilter.process(__xyXor);
 
     __z = vecAmalgam.process(__x, __y, paramA, paramB);
 
@@ -91,7 +111,9 @@ void Amalgam::step() {
     __zPls1 = _mm_and_ps(__fives, _mm_and_ps(_mm_cmpgt_ps(__z, __zeros), _mm_cmple_ps(__z, __halfs)));
     __zPls2 = _mm_and_ps(__fives, _mm_or_ps(_mm_and_ps(_mm_cmpgt_ps(__z, __zeros), _mm_cmple_ps(__z, _mm_set1_ps(0.25f))),
                                             _mm_and_ps(_mm_cmpgt_ps(__z, __halfs), _mm_cmple_ps(__z, _mm_set1_ps(0.99f)))));
-    __z = zOutDCFilter.process(__z);
+
+    __zPls1 = zPls1DCFilter.process(__zPls1);
+    __zPls2 = zPls2DCFilter.process(__zPls2);
 
     _mm_storeu_ps(zOut, __z);
     _mm_storeu_ps(zPls1, __zPls1);
@@ -101,6 +123,15 @@ void Amalgam::step() {
 
     zAnd = (zOut[0] > 0.f) & (zOut[2] > 0.f) ? 5.f : 0.f;
     zXor = (zOut[0] > 0.f) ^ (zOut[2] > 0.f) ? 5.f : 0.f;
+    zAndDCFilter.input = zAnd;
+    zXorDCFilter.input = zXor;
+    zAndDCFilter.process();
+    zXorDCFilter.process();
+    zAnd = dcCoupled ? zAnd : zAndDCFilter.output;
+    zXor = dcCoupled ? zXor : zXorDCFilter.output;
+
+    __z = zOutDCFilter.process(__z);
+    _mm_storeu_ps(zOut, __z);
 
     outputs[X_Y_LEFT_AND_OUTPUT].value = andOut[2];
     outputs[X_Y_RIGHT_AND_OUTPUT].value = andOut[0];
@@ -118,10 +149,12 @@ void Amalgam::step() {
 
 void Amalgam::onSampleRateChange() {
     float newSampleRate = engineGetSampleRate();
-    vecAmalgam.setSampleRate(newSampleRate * 4);
-    xInDCFilter.setSampleRate(newSampleRate * 4);
-    yInDCFilter.setSampleRate(newSampleRate * 4);
-    zOutDCFilter.setSampleRate(newSampleRate * 4);
+    vecAmalgam.setSampleRate(newSampleRate);
+    xyAndDCFilter.setSampleRate(newSampleRate);
+    xyXorDCFilter.setSampleRate(newSampleRate);
+    zOutDCFilter.setSampleRate(newSampleRate);
+    zPls1DCFilter.setSampleRate(newSampleRate);
+    zPls2DCFilter.setSampleRate(newSampleRate);
 }
 
 float Amalgam::driveSignal(float x, float drive) {
@@ -387,6 +420,10 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
         }
         addChild(paramBBlurText);
     }
+
+    addParam(ParamWidget::create<LightLEDButton>(DCCoupleLightPos, module, Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f));
+    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(DCCoupleLightPos.plus(Vec(2.5f, 2.5f)), module, Amalgam::DC_COUPLE_LIGHT));
+
 }
 
 void AmalgamWidget::appendContextMenu(Menu *menu) {

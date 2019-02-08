@@ -29,6 +29,7 @@
 #include "../ValleyComponents.hpp"
 #include "DiodeRingMod.hpp"
 #include "VecAmalgam.hpp"
+#include "../Common/DSP/OnePoleFilters.hpp"
 #include <vector>
 #include <cstdint>
 #include <vector>
@@ -88,10 +89,12 @@ struct Amalgam : Module {
         PARAM_A_CV2_PARAM,
         PARAM_B_CV1_PARAM,
         PARAM_B_CV2_PARAM,
+        DC_COUPLE_PARAM,
         NUM_PARAMS
     };
 
     enum LightIds {
+        DC_COUPLE_LIGHT,
         NUM_LIGHTS
     };
 
@@ -131,8 +134,9 @@ struct Amalgam : Module {
     float driveOut = 0.f;
 
     VecAmalgam vecAmalgam;
-    VecOnePoleHPFilter xInDCFilter, yInDCFilter;
-    VecOnePoleHPFilter zOutDCFilter;
+    VecOnePoleHPFilter xyAndDCFilter, xyXorDCFilter;
+    VecOnePoleHPFilter zOutDCFilter, zPls1DCFilter, zPls2DCFilter;
+    OnePoleHPFilter zAndDCFilter, zXorDCFilter;
 
     float paramA = 0.f;
     float paramB = 0.f;
@@ -142,6 +146,9 @@ struct Amalgam : Module {
     int textColor = 2;
 
     int crossModMode = 0;
+    bool dcCoupleButtonState = false;
+    bool prevDcCoupleButtonState = false;
+    bool dcCoupled = false;
     int panelStyle = 0;
 
     Amalgam();
@@ -214,6 +221,8 @@ struct AmalgamWidget : ModuleWidget {
     Vec zLeftPulse2OutputPos = Vec(4.645, 319.2);
     Vec zRightPulseOutputPos = Vec(100.654, 319.2);
     Vec zRightPulse2OutputPos = Vec(124.654, 319.2);
+
+    Vec DCCoupleLightPos = Vec(59.044, 31.775);
 };
 
 #endif

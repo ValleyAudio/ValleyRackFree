@@ -33,11 +33,13 @@ public:
     void setCutoffFreq(float cutoffFreq);
     void setSampleRate(float sampleRate);
     float getMaxCutoffFreq() const;
+    void setBypass(bool bypass);
 private:
     float _sampleRate;
     float _1_sampleRate;
     float _cutoffFreq;
     float _maxCutoffFreq;
+    bool _bypassed;
     __m128 _a;
     __m128 _b;
     __m128 _z;
