@@ -2,7 +2,7 @@
 // Amalgam.hpp
 // Author: Dale Johnson
 // Contact: valley.audio.soft@gmail.com
-// Date: 24/6/2018
+// Date: 8/2/2019
 //
 // Copyright 2018 Dale Johnson. Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met: 1. Redistributions of

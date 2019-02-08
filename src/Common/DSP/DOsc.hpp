@@ -3,7 +3,7 @@
 #include <cmath>
 #include "./OnePoleFilters.hpp"
 
-class D101Osc {
+class DOsc {
 public:
     float _saw, _pulse, _pulsePhase;
     float _subSaw, _subPulse;
@@ -20,7 +20,7 @@ public:
         NUM_HARMONICS
     };
 
-    D101Osc() {
+    DOsc() {
         _sampleRate = 44100.f;
         _step = 0.f;
         setFrequency(100.f);
