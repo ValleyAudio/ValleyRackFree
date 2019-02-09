@@ -24,7 +24,7 @@ Interzone::Interzone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 }
 
 void Interzone::step() {
-    lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].value));
+    lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].value + inputs[LFO_RATE_INPUT].value));
     lfo.sync(inputs[LFO_SYNC_INPUT].value);
     lfo.trigger(inputs[LFO_TRIG_INPUT].value);
     lfo.process();
@@ -39,9 +39,10 @@ void Interzone::step() {
     outputs[LFO_SH_OUTPUT].value = lfo.out[DLFO::SH_WAVE] * 5.f;
     outputs[LFO_NOISE_OUTPUT].value = noise * 5.f;
 
-    lfoSlew.setCutoffFreq(440.f * pow(2.f, (params[LFO_SLEW_PARAM].value * 2.f) * -6.f));
+    lfoSlew.setCutoffFreq(1760.f * pow(2.f, (params[LFO_SLEW_PARAM].value * 2.f) * -6.f));
     lfoSlew.input = lfo.out[(int)params[LFO_WAVE_PARAM].value];
-    lfoValue = lfoSlew.process();
+    lfoSlew.process();
+    lfoValue = params[LFO_SLEW_PARAM].value > 0.001f ? lfoSlew.output : lfoSlew.input;
     lights[LFO_LIGHT].value = lfoValue;
 
     // CV Input conditioning
