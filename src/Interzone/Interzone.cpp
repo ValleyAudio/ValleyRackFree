@@ -58,19 +58,19 @@ void Interzone::step() {
 
     pitch = params[COARSE_MODE_PARAM].value > 0.5f ? semitone(params[COARSE_PARAM].value + 0.04) : params[COARSE_PARAM].value;
     pitch -= 1.f;
-    pitch += (int)params[OCTAVE_PARAM].value;
+    pitch += (int)params[OCTAVE_PARAM].value + params[FINE_PARAM].value;
     pitch += inputs[VOCT_INPUT_1].value + inputs[VOCT_INPUT_2].value;
     glide.setCutoffFreq(330.f * pow(2.f, (params[GLIDE_PARAM].value * 2.f) * -7.f));
     glide.input = pitch;
     pitch = glide.process();
 
-    oscPitchMod = params[PITCH_MOD_SOURCE_PARAM].value > 0.5f ? params[PITCH_MOD_ENV_POL_PARAM].value * env.value : lfoValue;
+    oscPitchMod = params[PITCH_MOD_SOURCE_PARAM].value > 0.5f ? (params[PITCH_MOD_ENV_POL_PARAM].value * 2.f - 1.f) * env.value : lfoValue;
     osc.setFrequency(261.626f * powf(2.f, pitch + oscPitchMod * params[PITCH_MOD_PARAM].value * params[PITCH_MOD_PARAM].value));
 
     switch((int)params[PW_MOD_SOURCE_PARAM].value) {
         case 0: pwm = inputs[PW_MOD_INPUT].value * -0.1f; break;
         case 1: pwm = (lfoValue * -0.5f - 0.5f); break;
-        case 2: pwm = -params[PW_MOD_ENV_POL_PARAM].value * env.value;
+        case 2: pwm = -(params[PW_MOD_ENV_POL_PARAM].value * 2.f - 1.f) * env.value;
     }
 
     pwm *= params[PW_MOD_PARAM].value;
@@ -78,7 +78,7 @@ void Interzone::step() {
     osc._pwm = clamp(pwm, 0.0f, 0.5f);
     osc.setSubOctave((int)params[SUB_OCTAVE_PARAM].value);
 
-    filterCutoff = env.value * params[FILTER_ENV_POL_PARAM].value * params[FILTER_ENV_PARAM].value * 10.0f;
+    filterCutoff = env.value * (params[FILTER_ENV_POL_PARAM].value * 2.f - 1.f) * params[FILTER_ENV_PARAM].value * 10.0f;
     filterCutoff += lfoValue * params[FILTER_MOD_PARAM].value * params[FILTER_MOD_PARAM].value * 5.f;
     filterCutoff += pitch * params[FILTER_VOCT_PARAM].value;
     filterCutoff += inputs[FILTER_CUTOFF_INPUT_1].value * params[FILTER_CV_1_PARAM].value;
@@ -184,9 +184,9 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
 
     addParam(ParamWidget::create<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, 0.f, 2.f, 1.f));
     addParam(ParamWidget::create<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f));
-    addParam(ParamWidget::create<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, -1.f, 1.f, 1.f));
+    addParam(ParamWidget::create<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f));
     addParam(ParamWidget::create<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, -1.f, 1.f, -1.f));
+    addParam(ParamWidget::create<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f));
     addParam(ParamWidget::create<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 1.f));
@@ -206,7 +206,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<OrangeSlider>(FilterEnvPos, module, Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<OrangeSlider>(FilterLFOPos, module, Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<OrangeSlider>(FilterVOctPos, module, Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM, -1.f, 1.f, 1.f));
+    addParam(ParamWidget::create<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f));
     addParam(ParamWidget::create<RoganSmallBlue>(FilterCV1Pos, module, Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f));
     addParam(ParamWidget::create<RoganSmallBlue>(FilterCV2Pos, module, Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f));
 
