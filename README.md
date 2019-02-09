@@ -4,9 +4,10 @@
 
 ### Version
 
-0.6.9
+0.6.10
 
-    • [Fixed] Fixed a mix up between the modulation depth and shape jacks.
+    • [New] Interzone
+    • [New] Amalgam
 
 ### Compatibility
 
@@ -22,6 +23,8 @@ You must have 0.6.1 to run these modules.
 * Plateau - A plate reverb with a twist. Can add large expansive textures to your
 sounds, as well as be able to be tuned and excited at very short reverb times. It is based on the
 well known Dattorro (1997) plate reverb algorithm.
+* Amalgam - A signal masher and multipler
+* Interzone - A complete, monophonic, virtual analogue synth voice
 
 ![Valley](./ValleyImg.png)
 
