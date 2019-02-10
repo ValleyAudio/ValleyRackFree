@@ -24,7 +24,7 @@ Interzone::Interzone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 }
 
 void Interzone::step() {
-    lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].value + inputs[LFO_RATE_INPUT].value));
+    lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].value + params[LFO_FINE_PARAM].value + inputs[LFO_RATE_INPUT].value));
     lfo.sync(inputs[LFO_SYNC_INPUT].value);
     lfo.trigger(inputs[LFO_TRIG_INPUT].value);
     lfo.process();
@@ -85,7 +85,7 @@ void Interzone::step() {
     filterCutoff += inputs[FILTER_CUTOFF_INPUT_2].value * params[FILTER_CV_2_PARAM].value;
     filterCutoff += params[FILTER_CUTOFF_PARAM].value;
     filter.setCutoff(filterCutoff);
-    filter.setQ(params[FILTER_Q_PARAM].value);
+    filter.setQ(params[FILTER_Q_PARAM].value + inputs[FILTER_RES_INPUT].value);
     filter.set4Pole(params[FILTER_POLES_PARAM].value);
 
     outputs[ENV_POSITIVE_OUTPUT].value = env.value * 5.f;
