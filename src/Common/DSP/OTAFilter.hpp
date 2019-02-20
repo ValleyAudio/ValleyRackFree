@@ -12,6 +12,7 @@
 #define G_TABLE_SIZE 1100000
 #define TANH_TABLE_SIZE 8192
 #include "../Utilities.hpp"
+#include "NonLinear.hpp"
 #include <iostream>
 
 static float kGTable[G_TABLE_SIZE];
@@ -20,31 +21,12 @@ void calcGTable(float sampleRate);
 void calcTanhTable();
 float lookUpTanhf(float x);
 
-inline float tanhDriveSignal(float x) {
-    float xx = x * x;
-    if(x < -1.3f) {
-        return -1.f;
-    }
-    else if(x < -0.75f) {
-        return (xx + 2.6f * x + 1.69f) * 0.833333f - 1.f;
-    }
-    else if(x > 1.3f) {
-        return 1.f;
-    }
-    else if(x > 0.75f) {
-        return 1.f - (xx - 2.6f * x + 1.69f) * 0.833333f;
-    }
-    return x;
-}
-
 class TPTOnePoleStage {
 public:
   TPTOnePoleStage();
   inline float process(float in) {
-    /*_v = (lookUpTanhf(in) - _z) * _G;
-    _out = lookUpTanhf(_v + _z);*/
-    _v = (tanhDriveSignal(in) - _z) * _G;
-    _out = tanhDriveSignal(_v + _z);
+    _v = (tanhDriveSignal(in, 1.f) - _z) * _G;
+    _out = tanhDriveSignal(_v + _z, 1.f);
     _z = _out + _v;
     return _out;
   }
@@ -91,7 +73,7 @@ public:
       _sigma *= _1_h;
 
       //_u = (in * 0.5f - _k * lookUpTanhf(_sigma) * _1_tanhf) / (1.f + _k * _gamma);
-      _u = (in * 0.5f - _k * tanhDriveSignal(_sigma) * _1_tanhf) / (1.f + _k * _gamma);
+      _u = (in * 0.5f - _k * tanhDriveSignal(_sigma, 1.f) * _1_tanhf) / (1.f + _k * _gamma);
       _lp1 = _stage1.process(_u);
       _lp2 = _stage2.process(_lp1);
       _lp3 = _stage3.process(_lp2);

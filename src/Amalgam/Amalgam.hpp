@@ -30,6 +30,8 @@
 #include "DiodeRingMod.hpp"
 #include "VecAmalgam.hpp"
 #include "../Common/DSP/OnePoleFilters.hpp"
+#include "../Common/DSP/NonLinear.hpp"
+#include "../Common/SIMD/VecNonLinear.hpp"
 #include <vector>
 #include <cstdint>
 #include <vector>
@@ -154,9 +156,6 @@ struct Amalgam : Module {
     Amalgam();
     void step() override;
     void onSampleRateChange() override;
-
-    float driveSignal(float x, float drive);
-    __m128 vecDriveSignal(const __m128& x, const __m128& drive);
     json_t *toJson() override;
     void fromJson(json_t *rootJ) override;
 };

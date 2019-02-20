@@ -17,3 +17,4 @@ extern Model *modelDexter;
 extern Model *modelPlateau;
 extern Model *modelAmalgam;
 extern Model *modelInterzone;
+extern Model *modelFeline;
