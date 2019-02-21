@@ -204,7 +204,7 @@ struct InterzoneWidget : ModuleWidget {
     Vec MixerSawLevelPos = Vec(270.15f, 43.6f);
     Vec MixerPulseLevelPos = Vec(291.15f, 43.6f);
     Vec MixerSubLevelPos = Vec(312.15f, 43.6f);
-    Vec MixerSubWavePos = Vec(380.f, 111.4f);
+    Vec MixerSubWavePos = Vec(373.3f, 102.85f);
     Vec MixerNoiseTypePos = Vec(399.481f, 56.632f);
     Vec MixerNoiseLevelPos = Vec(426.15f, 43.6f);
     Vec MixerExtInLevelPos = Vec(447.15f, 43.6f);

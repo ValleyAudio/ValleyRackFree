@@ -96,6 +96,7 @@ void Interzone::step() {
     outputs[SAW_OUTPUT].value = osc._saw * 5.f;
     outputs[PULSE_OUTPUT].value = osc._pulse * 5.f;
     subWave = params[SUB_WAVE_PARAM].value > 0.f ? osc._subSaw : osc._subPulse;
+    params[SUB_WAVE_PARAM].value < 0.f ? osc.setSubWave(2) : osc.setSubWave(1);
     outputs[SUB_OUTPUT].value = subWave * 5.f;
 
     mix = osc._saw * params[SAW_LEVEL_PARAM].value;
@@ -194,7 +195,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     addParam(ParamWidget::create<GreenSlider>(MixerSawLevelPos, module, Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f));
     addParam(ParamWidget::create<GreenSlider>(MixerPulseLevelPos, module, Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<GreenSlider>(MixerSubLevelPos, module, Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM, 0.0f, 1.f, 0.0f));
+    addParam(ParamWidget::create<CKSSThree>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM, -1.0f, 1.f, 0.0f));
     addParam(ParamWidget::create<CKSS>(MixerNoiseTypePos, module, Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f));
     addParam(ParamWidget::create<GreenSlider>(MixerNoiseLevelPos, module, Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f));
     addParam(ParamWidget::create<GreenSlider>(MixerExtInLevelPos, module, Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f));
