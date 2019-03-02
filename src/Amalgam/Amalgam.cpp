@@ -159,13 +159,17 @@ void Amalgam::onSampleRateChange() {
 
 json_t* Amalgam::toJson()  {
     json_t *rootJ = json_object();
+    int dcCoupledI = dcCoupled ? 1 : 0;
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
+    json_object_set_new(rootJ, "dcCoupled", json_integer(dcCoupledI));
     return rootJ;
 }
 
 void Amalgam::fromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
+    json_t *dcCoupledJ = json_object_get(rootJ, "dcCoupled");
     panelStyle = json_integer_value(panelStyleJ);
+    dcCoupled = json_integer_value(dcCoupledJ) ? true : false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
