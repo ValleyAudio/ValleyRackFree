@@ -1,13 +1,13 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 0.6.1
+3rd party plugins for VCV Rack version 0.6.2c
 
 ### Version
 
-0.6.10
+0.6.15
 
-    • [New] Interzone
-    • [New] Amalgam
+    • [Update] Added input gain sensitivity and output saturation modes to Plateau.
+    • [Fix] Fixed DC offset switch save state bug in Amalgam.
 
 ### Compatibility
 
