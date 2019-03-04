@@ -25,6 +25,8 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     tunedButtonState = false;
     diffuseButtonState = false;
     preDelayCVSensState = 0;
+    inputSensitivityState = 0;
+    outputSaturationState = 0;
 
     clear = 0;
     cleared = false;
@@ -192,7 +194,8 @@ void Plateau::step() {
         rightInput = inputs[LEFT_INPUT].value;
     }
 
-    reverb.process(leftInput * 0.1f, rightInput * 0.1f);
+    inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
+    reverb.process(leftInput * 0.1f * inputSensitivity, rightInput * 0.1f * inputSensitivity);
 
     dry = inputs[DRY_CV_INPUT].value * params[DRY_CV_PARAM].value;
     dry += params[DRY_PARAM].value;
@@ -206,6 +209,11 @@ void Plateau::step() {
     outputs[RIGHT_OUTPUT].value = rightInput * dry;
     outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
+
+    if(outputSaturationState) {
+        outputs[LEFT_OUTPUT].value = tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.2f, 0.9f) * 5.f;
+        outputs[RIGHT_OUTPUT].value = tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.2f, 0.9f) * 5.f;
+    }
 }
 
 void Plateau::onSampleRateChange() {
@@ -224,6 +232,8 @@ json_t* Plateau::toJson()  {
     json_object_set_new(rootJ, "tuned", json_integer((int)tuned));
     json_object_set_new(rootJ, "diffuseInput", json_integer((int)diffuseInput));
     json_object_set_new(rootJ, "preDelayCVSens", json_integer((int)preDelayCVSensState));
+    json_object_set_new(rootJ, "inputSensitivity", json_integer((int)inputSensitivityState));
+    json_object_set_new(rootJ, "outputSaturation", json_integer((int)outputSaturationState));
     return rootJ;
 }
 
@@ -245,6 +255,12 @@ void Plateau::fromJson(json_t *rootJ) {
 
     json_t *preDelayCVSensJ = json_object_get(rootJ, "preDelayCVSens");
     preDelayCVSensState = json_integer_value(preDelayCVSensJ);
+
+    json_t *inputSensitivityJ = json_object_get(rootJ, "inputSensitivity");
+    inputSensitivityState = json_integer_value(inputSensitivityJ);
+
+    json_t *outputSaturationJ = json_object_get(rootJ, "outputSaturation");
+    outputSaturationState = json_integer_value(outputSaturationJ);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +280,24 @@ void PlateauPreDelayCVSensItem::onAction(EventAction &e) {
 
 void PlateauPreDelayCVSensItem::step() {
     rightText = (module->preDelayCVSensState == preDelayCVSensState) ? "✔" : "";
+    MenuItem::step();
+}
+
+void PlateauInputSensItem::onAction(EventAction &e) {
+    module->inputSensitivityState = inputSensitivityState;
+}
+
+void PlateauInputSensItem::step() {
+    rightText = (module->inputSensitivityState == inputSensitivityState) ? "✔" : "";
+    MenuItem::step();
+}
+
+void PlateauOutputSaturationItem::onAction(EventAction &e) {
+    module->outputSaturationState = outputSaturationState;
+}
+
+void PlateauOutputSaturationItem::step() {
+    rightText = (module->outputSaturationState == outputSaturationState) ? "✔" : "";
     MenuItem::step();
 }
 
@@ -378,6 +412,20 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                         module, &PlateauPreDelayCVSensItem::preDelayCVSensState, 0));
     menu->addChild(construct<PlateauPreDelayCVSensItem>(&MenuItem::text, "Low (0.5x)", &PlateauPreDelayCVSensItem::module,
                                                         module, &PlateauPreDelayCVSensItem::preDelayCVSensState, 1));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Input Sensitivity"));
+    menu->addChild(construct<PlateauInputSensItem>(&MenuItem::text, "0 dB", &PlateauInputSensItem::module,
+                                                        module, &PlateauInputSensItem::inputSensitivityState, 0));
+    menu->addChild(construct<PlateauInputSensItem>(&MenuItem::text, "-18 dB", &PlateauInputSensItem::module,
+                                                        module, &PlateauInputSensItem::inputSensitivityState, 1));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Output Saturation"));
+    menu->addChild(construct<PlateauOutputSaturationItem>(&MenuItem::text, "Off", &PlateauOutputSaturationItem::module,
+                                                          module, &PlateauOutputSaturationItem::outputSaturationState, 0));
+    menu->addChild(construct<PlateauOutputSaturationItem>(&MenuItem::text, "On", &PlateauOutputSaturationItem::module,
+                                                          module, &PlateauOutputSaturationItem::outputSaturationState, 1));
 }
 
 Model *modelPlateau = Model::create<Plateau, PlateauWidget>(TOSTRING(SLUG), "Plateau", "Plateau", REVERB_TAG);
