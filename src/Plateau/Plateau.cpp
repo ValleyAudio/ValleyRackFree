@@ -211,8 +211,8 @@ void Plateau::step() {
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
 
     if(outputSaturationState) {
-        outputs[LEFT_OUTPUT].value = tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.2f, 0.9f) * 5.f;
-        outputs[RIGHT_OUTPUT].value = tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.2f, 0.9f) * 5.f;
+        outputs[LEFT_OUTPUT].value = tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.1f, 0.95f) * 10.f;
+        outputs[RIGHT_OUTPUT].value = tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.1f, 0.95f) * 10.f;
     }
 }
 

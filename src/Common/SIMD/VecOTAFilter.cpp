@@ -50,6 +50,8 @@ VecOTAFilter::VecOTAFilter() {
     _highG = (float*)aligned_alloc_16(4 * sizeof(float));
 
     setSampleRate(44100.f);
+    _poles = -1;
+    setNumPoles(2);
 }
 
 VecOTAFilter::~VecOTAFilter() {
@@ -96,7 +98,9 @@ void VecOTAFilter::setCutoff(const __m128& pitch) {
     _stage2._G = __G;
     _stage3._G = __G;
     _stage4._G = __G;
-    __gamma = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__G, __G), __G), __G);
+    __G2 = _mm_mul_ps(__G, __G);
+    __G3 = _mm_mul_ps(__G2, __G);
+    __gamma = _mm_mul_ps(__G3, __G);
 }
 
 void VecOTAFilter::setQ(const __m128& Q) {

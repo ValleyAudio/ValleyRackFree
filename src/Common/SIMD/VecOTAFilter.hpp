@@ -57,8 +57,6 @@ public:
   ~VecOTAFilter();
 
   inline __m128 process(const __m128& in) {
-      __G2 = _mm_mul_ps(__G, __G);
-      __G3 = _mm_mul_ps(__G2, __G);
       __sigma = _mm_mul_ps(__G3, _stage1._z);
       __sigma = _mm_add_ps(__sigma, _mm_mul_ps(__G2, _stage2._z));
       __sigma = _mm_add_ps(__sigma, _mm_mul_ps(__G, _stage3._z));
@@ -71,7 +69,10 @@ public:
       __lp2 = _stage2.process(__lp1);
       __lp3 = _stage3.process(__lp2);
       __lp4 = _stage4.process(__lp3);
-      out = __lp4;
+      out = _mm_mul_ps(__lp1, __1p);
+      out = _mm_add_ps(out, _mm_mul_ps(__lp2, __2p));
+      out = _mm_add_ps(out, _mm_mul_ps(__lp3, __3p));
+      out = _mm_add_ps(out, _mm_mul_ps(__lp4, __4p));
       return out;
   }
 
@@ -79,8 +80,21 @@ public:
   void setCutoff(const __m128& pitch);
   void setQ(const __m128& Q);
 
-  inline void set4Pole(float isFourPole) {
-      _fourPole = isFourPole;
+  inline void setNumPoles(int poles) {
+      if(poles == _poles) {
+          return;
+      }
+      _poles = poles;
+      __1p = __zeros;
+      __2p = __zeros;
+      __3p = __zeros;
+      __4p = __zeros;
+      switch(_poles) {
+          case 1 : __1p = __ones; break;
+          case 2 : __2p = __ones; break;
+          case 3 : __3p = __ones; break;
+          case 4 : __4p = __ones; break;
+      }
   }
 
   __m128 out;
@@ -97,6 +111,9 @@ protected:
   __m128 __G, __G2, __G3;
   __m128 __sigma, __gamma;
   __m128 __u, __lp1, __lp2, __lp3, __lp4;
+
+  int _poles;
+  __m128 __1p, __2p, __3p, __4p;
 
   __m128 __frac;
   __m128i __cutoffI;
