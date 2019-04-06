@@ -3,6 +3,8 @@
 class DEnv {
 public:
     DEnv() {
+        _gated = false;
+        _triggered = false;
         _idling = true;
         _attacking = false;
         _decaying = false;
@@ -19,15 +21,16 @@ public:
         base = 20000.f;
         maxTime = 10.f;
         timeScale = 1.f;
-        prevTrigState = 0.f;
+        _prevGateState = false;
+        _prevTrigState = 0.f;
         setSampleRate(44100.f);
     }
     void process(float gate, float trig) {
-        if(gate >= 0.5f) {
-            if(trig >= 0.5f && prevTrigState < 0.5f && !_triggered) {
+        /*if(gate >= 0.5f) {
+            if(trig >= 0.5f && _prevTrigState < 0.5f && !_triggered) {
                 _triggered = true;
             }
-            prevTrigState = trig;
+            _prevTrigState = trig;
             if(_idling || _releasing || _triggered) {
                 _triggered = false;
                 _attacking = true;
@@ -44,8 +47,40 @@ public:
                 _sustaining = false;
                 _releasing = true;
             }
+        }*/
+
+        if(trig >= 0.1f && _prevTrigState < 0.1f && !_triggered) {
+            printf("Triggered\n");
+            _triggered = true;
+        }
+        _prevTrigState = trig;
+
+        _prevGateState = _gated;
+        _gated = gate >= 0.1f ? true : false;
+
+        if(_gated || _triggered) {
+            if(_idling || _releasing) {
+                printf("Begin envelope\n");
+                _triggered = false;
+                _attacking = true;
+                _idling = false;
+                _decaying = false;
+                _sustaining = false;
+                _releasing = false;
+            }
         }
 
+        if(!_gated && _prevGateState) {
+            printf("Gate now off\n");
+            if(!_idling) {
+                _attacking = false;
+                _decaying = false;
+                _sustaining = false;
+                _releasing = true;
+            }
+        }
+
+        // The envelope
         if(_idling) {
             value = 0.f;
         }
@@ -54,7 +89,12 @@ public:
             if(value > (1.f - 1e-4)) {
                 value = 1.f;
                 _attacking = false;
-                _decaying = true;
+                if(_gated) {
+                    _decaying = true;
+                }
+                else {
+                    _releasing = true;
+                }
             }
         }
         if(_decaying) {
@@ -102,7 +142,9 @@ public:
 private:
     float _sampleRate, _sampleTime;
     float base, maxTime;
-    float prevTrigState;
-    bool _idling, _attacking, _decaying, _sustaining, _releasing, _triggered;
+    bool _prevGateState;
+    float _prevTrigState;
+    bool _idling, _attacking, _decaying, _sustaining, _releasing;
+    bool _gated, _triggered;
 
 };
