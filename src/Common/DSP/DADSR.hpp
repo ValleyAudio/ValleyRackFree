@@ -50,7 +50,6 @@ public:
         }*/
 
         if(trig >= 0.1f && _prevTrigState < 0.1f && !_triggered) {
-            printf("Triggered\n");
             _triggered = true;
         }
         _prevTrigState = trig;
@@ -60,7 +59,6 @@ public:
 
         if(_gated || _triggered) {
             if(_idling || _releasing) {
-                printf("Begin envelope\n");
                 _triggered = false;
                 _attacking = true;
                 _idling = false;
@@ -71,7 +69,6 @@ public:
         }
 
         if(!_gated && _prevGateState) {
-            printf("Gate now off\n");
             if(!_idling) {
                 _attacking = false;
                 _decaying = false;
