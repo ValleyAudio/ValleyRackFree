@@ -27,6 +27,7 @@ public:
         setSubOctave(0);
         _subOffsetLevel = 0;
         _subOffsetDegree = 0;
+        _subWidth = 0.5f;
         _saw = 0.f;
         _subSaw = 0.f;
         _pwm = 0.5f;
@@ -101,25 +102,21 @@ public:
         switch(octave) {
             case SUB_2_OCTAVE_HARMONIC:
                 _subScale = 0.25f;
-                _subWidth = 0.5f;
                 _subLimit = 4;
                 _subOffsetDegree = 0.25f;
                 break;
             case SUB_OCTAVE_HARMONIC:
                 _subScale = 0.5f;
-                _subWidth = 0.5f;
                 _subLimit = 2;
                 _subOffsetDegree = 0.5f;
                 break;
             case SUB_FIFTH_HARMONIC:
                 _subScale = 0.75f;
-                _subWidth = 0.5f;
                 _subLimit = 4;
                 _subOffsetDegree = 0.75;
                 break;
             case ZEROETH_HARMONIC:
                 _subScale = 1.f;
-                _subWidth = 0.5f;
                 _subLimit = 1;
                 _subOffsetDegree = 0.f;
                 break;
@@ -131,19 +128,16 @@ public:
                 break;*/
             case FIFTH_HARMONIC:
                 _subScale = 1.5f;
-                _subWidth = 0.5f;
                 _subLimit = 2;
                 _subOffsetDegree = 0.5f;
                 break;
             case OCTAVE_HARMONIC:
                 _subScale = 2.f;
-                _subWidth = 0.5f;
                 _subLimit = 1;
                 _subOffsetDegree = 0.f;
                 break;
             case DOUBLE_OCTAVE_HARMONIC:
                 _subScale = 4.f;
-                _subWidth = 0.5f;
                 _subLimit = 1;
                 _subOffsetDegree = 0.f;
                 break;

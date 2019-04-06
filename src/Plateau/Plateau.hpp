@@ -31,6 +31,7 @@
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
 #include "Dattorro.hpp"
+#include "../Common/DSP/NonLinear.hpp"
 #include <vector>
 
 struct Plateau : Module {
@@ -211,6 +212,7 @@ struct Plateau : Module {
     float size;
     float diffusion;
     float decay;
+    float inputSensitivity;
     float inputDampLow;
     float inputDampHigh;
     float reverbDampLow;
@@ -227,6 +229,8 @@ struct Plateau : Module {
     bool tunedButtonState;
     bool diffuseButtonState;
     int preDelayCVSensState;
+    int inputSensitivityState;
+    int outputSaturationState;
 
     int clear;
     bool cleared;
@@ -256,6 +260,20 @@ struct PlateauPanelStyleItem : MenuItem {
 struct PlateauPreDelayCVSensItem : MenuItem {
     Plateau* module;
     int preDelayCVSensState;
+    void onAction(EventAction &e) override;
+    void step() override;
+};
+
+struct PlateauInputSensItem : MenuItem {
+    Plateau* module;
+    int inputSensitivityState;
+    void onAction(EventAction &e) override;
+    void step() override;
+};
+
+struct PlateauOutputSaturationItem : MenuItem {
+    Plateau* module;
+    int outputSaturationState;
     void onAction(EventAction &e) override;
     void step() override;
 };

@@ -137,8 +137,8 @@ void Amalgam::step() {
     outputs[X_Y_RIGHT_AND_OUTPUT].value = andOut[0];
     outputs[X_Y_LEFT_XOR_OUTPUT].value = xorOut[2];
     outputs[X_Y_RIGHT_XOR_OUTPUT].value = xorOut[0];
-    outputs[Z_LEFT_OUTPUT].value = driveSignal(zOut[0], 0.66f) * 5.5f;
-    outputs[Z_RIGHT_OUTPUT].value = driveSignal(zOut[2], 0.66f) * 5.5f;
+    outputs[Z_LEFT_OUTPUT].value = tanhDriveSignal(zOut[0], 0.66f) * 5.5f;
+    outputs[Z_RIGHT_OUTPUT].value = tanhDriveSignal(zOut[2], 0.66f) * 5.5f;
     outputs[Z_AND_OUTPUT].value = zAnd;
     outputs[Z_XOR_OUTPUT].value = zXor;
     outputs[Z_LEFT_PULSE_1_OUTPUT].value = zPls1[2];
@@ -157,48 +157,19 @@ void Amalgam::onSampleRateChange() {
     zPls2DCFilter.setSampleRate(newSampleRate);
 }
 
-float Amalgam::driveSignal(float x, float drive) {
-    x *= drive;
-
-    if(x < -1.3f) {
-        return -1.f;
-    }
-    else if(x < -0.75f) {
-        return (x * x + 2.6f * x + 1.69f) * 0.833333f - 1.f;
-    }
-    else if(x > 1.3f) {
-        return 1.f;
-    }
-    else if(x > 0.75f) {
-        return 1.f - (x * x - 2.6f * x + 1.69f) * 0.833333f;
-    }
-    return x;
-}
-
-__m128 Amalgam::vecDriveSignal(const __m128& x, const __m128& drive) {
-    __m128 xd = _mm_mul_ps(x, drive);
-    __m128 out = xd;
-    __m128 a = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(2.6f), xd), _mm_set1_ps(1.69f));
-    __m128 b = _mm_sub_ps(_mm_mul_ps(_mm_add_ps(_mm_mul_ps(xd, xd), a), _mm_set1_ps(0.833333f)), _mm_set1_ps(1.f));
-    a = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(-2.6f), xd), _mm_set1_ps(1.69f));
-    __m128 c = _mm_sub_ps(_mm_set1_ps(1.f), _mm_mul_ps(_mm_add_ps(_mm_mul_ps(xd, xd), a), _mm_set1_ps(0.833333f)));
-
-    out = _mm_switch_ps(out, b, _mm_cmplt_ps(xd, _mm_set1_ps(-0.75f)));
-    out = _mm_switch_ps(out, _mm_set1_ps(-1.f), _mm_cmplt_ps(xd, _mm_set1_ps(-1.3f)));
-
-    out = _mm_switch_ps(out, c, _mm_cmpgt_ps(xd, _mm_set1_ps(0.75f)));
-    return _mm_switch_ps(out, _mm_set1_ps(1.f), _mm_cmpgt_ps(xd, _mm_set1_ps(1.3f)));
-}
-
 json_t* Amalgam::toJson()  {
     json_t *rootJ = json_object();
+    int dcCoupledI = dcCoupled ? 1 : 0;
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
+    json_object_set_new(rootJ, "dcCoupled", json_integer(dcCoupledI));
     return rootJ;
 }
 
 void Amalgam::fromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
+    json_t *dcCoupledJ = json_object_get(rootJ, "dcCoupled");
     panelStyle = json_integer_value(panelStyleJ);
+    dcCoupled = json_integer_value(dcCoupledJ) ? true : false;
 }
 
 void Amalgam::reset() {

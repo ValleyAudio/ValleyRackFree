@@ -15,4 +15,5 @@ void init(rack::Plugin *p) {
     p->addModel(modelPlateau);
     p->addModel(modelAmalgam);
     p->addModel(modelInterzone);
+    //p->addModel(modelFeline);
 }

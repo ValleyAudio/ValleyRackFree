@@ -61,7 +61,7 @@ TPTOnePoleStage::TPTOnePoleStage() {
     _out = 0.f;
     setSampleRate(44100.f);
     //_1_tanhf = 1.f / lookUpTanhf(1.f);
-    _1_tanhf = 1.f / tanhDriveSignal(1.f);
+    _1_tanhf = 1.f / tanhDriveSignal(1.f, 1.f);
     _nlp = false;
 }
 
