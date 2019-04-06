@@ -201,6 +201,11 @@ void Amalgam::fromJson(json_t *rootJ) {
     panelStyle = json_integer_value(panelStyleJ);
 }
 
+void Amalgam::reset() {
+    dcCoupleButtonState = false;
+    dcCoupled = false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AmalgamPanelStyleItem::onAction(EventAction &e) {

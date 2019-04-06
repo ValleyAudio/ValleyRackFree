@@ -159,6 +159,7 @@ struct Amalgam : Module {
     __m128 vecDriveSignal(const __m128& x, const __m128& drive);
     json_t *toJson() override;
     void fromJson(json_t *rootJ) override;
+    void reset() override;
 };
 
 struct AmalgamPanelStyleItem : MenuItem {
