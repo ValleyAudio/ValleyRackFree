@@ -306,8 +306,8 @@ void PlateauOutputSaturationItem::step() {
 PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauPanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/PlateauPanelLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);

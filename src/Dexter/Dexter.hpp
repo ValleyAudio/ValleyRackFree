@@ -521,7 +521,7 @@ struct AlgoGraphic : FramebufferWidget {
                     algoGraphicFile += "Dark";
                 }
                 algoGraphicFile += ".svg";
-                addFrame(SVG::load(assetPlugin(plugin, algoGraphicFile)));
+                addFrame(SVG::load(assetPlugin(pluginInstance, algoGraphicFile)));
             }
         }
     }

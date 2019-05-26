@@ -682,8 +682,8 @@ void Dexter::fromJson(json_t *rootJ) {
 DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/DexterPanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/DexterPanelLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);

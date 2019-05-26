@@ -5,7 +5,7 @@ using namespace rack;
 #include <sstream> // stringstream
 #define VALLEY_NAME "ValleyDev"
 
-extern Plugin *plugin;
+extern Plugin *pluginInstance;
 
 ////////////////////
 // module widgets

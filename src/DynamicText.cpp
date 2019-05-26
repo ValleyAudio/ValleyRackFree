@@ -52,13 +52,13 @@ void DynamicText::step() {
 void DynamicText::setFont(const FontMode& newFontMode) {
     switch(newFontMode) {
         case FONT_MODE_ALTEDIN:
-            font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+            font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
             break;
         case FONT_MODE_7SEG:
-            font = Font::load(assetPlugin(plugin, "res/DSEG14Classic-Italic.ttf"));
+            font = Font::load(assetPlugin(pluginInstance, "res/DSEG14Classic-Italic.ttf"));
             break;
         default:
-            font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+            font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
     }
 }
 

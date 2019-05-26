@@ -160,8 +160,8 @@ void InterzonePanelStyleItem::step() {
 InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/InterzonePanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/InterzonePanelLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelLight.svg")));
 
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;

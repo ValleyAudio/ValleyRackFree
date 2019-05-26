@@ -478,7 +478,7 @@ struct TopographDynamicText : TransparentWidget {
     int* colourHandle;
 
     TopographDynamicText() {
-        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+        font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         pText = nullptr;
@@ -551,8 +551,8 @@ struct TopographWidget : ModuleWidget {
 TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanel.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/TopographPanelWhite.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanel.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanelWhite.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);

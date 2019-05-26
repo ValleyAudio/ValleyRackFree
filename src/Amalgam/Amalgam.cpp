@@ -188,8 +188,8 @@ void AmalgamPanelStyleItem::step() {
 AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/AmalgamPanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/AmalgamPanelLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/AmalgamPanelDark.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/AmalgamPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);

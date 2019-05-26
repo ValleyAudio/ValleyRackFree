@@ -491,7 +491,7 @@ struct UGraphDynamicText : TransparentWidget {
     int* colourHandle;
 
     UGraphDynamicText() {
-        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+        font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         pText = nullptr;
@@ -566,8 +566,8 @@ struct UGraphWidget : ModuleWidget {
 UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
     {
         DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/UGraphPanel.svg")));
-        panel->addPanel(SVG::load(assetPlugin(plugin, "res/UGraphPanelLight.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/UGraphPanel.svg")));
+        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/UGraphPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);

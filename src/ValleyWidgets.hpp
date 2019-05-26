@@ -208,7 +208,7 @@ public:
     NVGcolor textColor;
 
     DynamicValueText(std::shared_ptr<T> value, std::function<std::string(T)> valueToText)  {
-        font = Font::load(assetPlugin(plugin, "res/din1451alt.ttf"));
+        font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         colorHandle = nullptr;
