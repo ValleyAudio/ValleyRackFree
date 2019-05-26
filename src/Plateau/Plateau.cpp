@@ -428,4 +428,4 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                           module, &PlateauOutputSaturationItem::outputSaturationState, 1));
 }
 
-Model *modelPlateau = Model::create<Plateau, PlateauWidget>(TOSTRING(SLUG), "Plateau", "Plateau", REVERB_TAG);
+Model *modelPlateau = Model::create<Plateau, PlateauWidget>("Plateau");

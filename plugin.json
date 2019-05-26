@@ -1,0 +1,65 @@
+{
+  "slug": "Valley",
+  "name": "Valley",
+  "version": "1.0.0",
+  "license": "GPL-3.0-or-later",
+  "author": "Dale Johnson",
+  "authorEmail": "valley.audio.soft@gmail.com",
+  "authorUrl": "https://valleyaudio.github.io",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "modules": [
+    {
+      "slug": "Topograph",
+      "name": "Topograph",
+      "description": "",
+      "tags": [
+        "SEQUENCER"
+      ]
+    },
+    {
+      "slug": "uGraph",
+      "name": "uGraph",
+      "description": "",
+      "tags": [
+        "SEQUENCER"
+      ]
+    },
+    {
+      "slug": "Plateau",
+      "name": "Plateau",
+      "description": "",
+      "tags": [
+        "REVERB"
+      ]
+    },
+    {
+      "slug": "Dexter",
+      "name": "Dexter",
+      "description": "",
+      "tags": [
+        "OSCILLATOR"
+      ]
+    },
+    {
+      "slug": "Interzone",
+      "name": "Interzone",
+      "description": "",
+      "tags": [
+        "SYNTH_VOICE"
+      ]
+    },
+    {
+      "slug": "Amalgam",
+      "name": "Amalgam",
+      "description": "",
+      "tags": [
+        "RING_MODULATOR",
+        "EFFECT",
+        "WAVESHAPER"
+      ]
+    }
+  ]
+}

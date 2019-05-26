@@ -823,4 +823,4 @@ void TopographWidget::appendContextMenu(Menu *menu) {
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
 }
 
-Model *modelTopograph = Model::create<Topograph, TopographWidget>(TOSTRING(SLUG), "Topograph", "Topograph", SEQUENCER_TAG);
+Model *modelTopograph = Model::create<Topograph, TopographWidget>("Topograph");

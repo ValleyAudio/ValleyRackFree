@@ -1,3 +1,6 @@
+// Credit to Madalina to helping me with the octave jump code
+// for calculating now inversion
+
 #ifndef DSJ_AMN_VALLEY_CHORDS_HPP
 #define DSJ_AMN_VALLEY_CHORDS_HPP
 #include <string>

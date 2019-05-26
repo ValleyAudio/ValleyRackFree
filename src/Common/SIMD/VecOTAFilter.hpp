@@ -80,55 +80,87 @@ public:
   void setCutoff(const __m128& pitch);
   void setQ(const __m128& Q);
 
-  inline void setNumPoles(int poles) {
-      if(poles == _poles) {
-          return;
-      }
-      _poles = poles;
-      __1p = __zeros;
-      __2p = __zeros;
-      __3p = __zeros;
-      __4p = __zeros;
-      switch(_poles) {
-          case 1 : __1p = __ones; break;
+    inline void setMode(int mode) {
+        if(_mode == mode) {
+            return;
+        }
+        _mode = mode;
+        __1p = __zeros;
+        __2p = __zeros;
+        __3p = __zeros;
+        __4p = __zeros;
+        switch(_mode) {
+          /*case 1 : __1p = __ones; break;
           case 2 : __2p = __ones; break;
           case 3 : __3p = __ones; break;
-          case 4 : __4p = __ones; break;
-      }
-  }
+          case 4 : __4p = __ones; break;*/
+            case LP2_MODE:
+                __2p = __ones;
+                break;
+            case LP4_MODE:
+                __4p = __ones;
+                break;
+            case BP2_MODE:
+                __1p = _mm_set1_ps(2.f);
+                __2p = _mm_set1_ps(-2.f);
+                break;
+            case BP4_MODE:
+                __2p = _mm_set1_ps(4.f);
+                __3p = _mm_set1_ps(-8.f);
+                __4p = _mm_set1_ps(4.f);
+                break;
+            default :
+                __4p = __ones;
+        }
+        /*__1p = _mm_set1_ps(2.f);
+        __2p = _mm_set1_ps(-2.f);*/
+    }
 
-  __m128 out;
+    __m128 out;
+    enum Modes {
+      LP2_MODE = 0,
+      LP4_MODE,
+      BP2_MODE,
+      BP4_MODE,
+      HP2_MODE,
+      HP4_MODE
+    };
 
 protected:
-  VecTPTOnePoleStage _stage1;
-  VecTPTOnePoleStage _stage2;
-  VecTPTOnePoleStage _stage3;
-  VecTPTOnePoleStage _stage4;
-  __m128 __k;
+    VecTPTOnePoleStage _stage1;
+    VecTPTOnePoleStage _stage2;
+    VecTPTOnePoleStage _stage3;
+    VecTPTOnePoleStage _stage4;
+    __m128 __k;
 
-  __m128 __ones, __zeros;
-  __m128 __pitch, __cutoff, __g , __h, __1_h;
-  __m128 __G, __G2, __G3;
-  __m128 __sigma, __gamma;
-  __m128 __u, __lp1, __lp2, __lp3, __lp4;
+    __m128 __ones, __zeros;
+    __m128 __pitch, __cutoff, __g , __h, __1_h;
+    __m128 __G, __G2, __G3;
+    __m128 __sigma, __gamma;
+    __m128 __u, __lp1, __lp2, __lp3, __lp4;
 
-  int _poles;
-  __m128 __1p, __2p, __3p, __4p;
+    int _mode;
+    __m128 __1p, __2p, __3p, __4p;
 
-  __m128 __frac;
-  __m128i __cutoffI;
-  int32_t* _pos;
-  float* _lowG;
-  float* _highG;
-  __m128 __lowG, __highG;
+    __m128 __frac;
+    __m128i __cutoffI;
+    int32_t* _pos;
+    float* _lowG;
+    float* _highG;
+    __m128 __lowG, __highG;
 
-  float _1_tanhf;
-  float _fourPole;
+    float * _lowH;
+    float* _highH;
+    __m128 __lowH, __highH;
 
-  float _kGTable[G_TABLE_SIZE];
-  float _sampleRate;
+    float _1_tanhf;
+    float _fourPole;
 
-  void calcInternalGTable();
+    float _kGTable[G_TABLE_SIZE];
+    float _kHTable[G_TABLE_SIZE];
+    float _sampleRate;
+
+    void calcInternalGTable();
 };
 
 #endif /* OTAFilter_hpp */

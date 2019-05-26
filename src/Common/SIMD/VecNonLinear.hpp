@@ -27,7 +27,5 @@ inline __m128 VecPolyTanh(const __m128& x) {
        p5 =    -0.02431  (-0.02645, -0.02217)
        */
 
-
-
     return y;
 }

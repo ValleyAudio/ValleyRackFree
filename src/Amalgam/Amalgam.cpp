@@ -409,4 +409,4 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
                                                       module, &AmalgamPanelStyleItem::panelStyle, 1));
 }
 
-Model *modelAmalgam = Model::create<Amalgam, AmalgamWidget>(TOSTRING(SLUG), "Amalgam", "Amalgam", RING_MODULATOR_TAG, EFFECT_TAG, WAVESHAPER_TAG);
+Model *modelAmalgam = Model::create<Amalgam, AmalgamWidget>("Amalgam");

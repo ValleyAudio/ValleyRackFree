@@ -282,5 +282,4 @@ void InterzoneWidget::appendContextMenu(Menu *menu) {
                                                       module, &InterzonePanelStyleItem::panelStyle, 1));
 }
 
-Model *modelInterzone = Model::create<Interzone, InterzoneWidget>(TOSTRING(SLUG), "Interzone", "Interzone",
-                                                                  SYNTH_VOICE_TAG);
+Model *modelInterzone = Model::create<Interzone, InterzoneWidget>("Interzone");

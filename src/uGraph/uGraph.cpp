@@ -780,4 +780,4 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
                                                    module, &UGraphRunModeItem::runMode, UGraph::RunMode::MOMENTARY));
 }
 
-Model *modelUGraph = Model::create<UGraph, UGraphWidget>(TOSTRING(SLUG), "uGraph", "uGraph", SEQUENCER_TAG);
+Model *modelUGraph = Model::create<UGraph, UGraphWidget>("uGraph");

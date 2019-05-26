@@ -48,16 +48,20 @@ VecOTAFilter::VecOTAFilter() {
     _pos = (int32_t*)aligned_alloc_16(4 * sizeof(int32_t));
     _lowG = (float*)aligned_alloc_16(4 * sizeof(float));
     _highG = (float*)aligned_alloc_16(4 * sizeof(float));
+    _lowH = (float*)aligned_alloc_16(4 * sizeof(float));
+    _highH = (float*)aligned_alloc_16(4 * sizeof(float));
 
     setSampleRate(44100.f);
-    _poles = -1;
-    setNumPoles(2);
+    _mode = -1;
+    setMode(LP4_MODE);
 }
 
 VecOTAFilter::~VecOTAFilter() {
     aligned_free_16(_pos);
     aligned_free_16(_lowG);
     aligned_free_16(_highG);
+    aligned_free_16(_lowH);
+    aligned_free_16(_highH);
 }
 
 void VecOTAFilter::setSampleRate(float sampleRate) {
@@ -80,18 +84,24 @@ void VecOTAFilter::setCutoff(const __m128& pitch) {
     for(auto i = 0; i < 4; ++i) {
         _lowG[i] = _kGTable[_pos[i]];
         _highG[i] = _kGTable[_pos[i] + 1];
+        _lowH[i] = _kHTable[_pos[i]];
+        _highH[i] = _kHTable[_pos[i] + 1];
     }
 
     __lowG = _mm_load_ps(_lowG);
     __highG = _mm_load_ps(_highG);
     __g = _mm_linterp_ps(__lowG, __highG, __frac);
 
+    __lowH = _mm_load_ps(_lowH);
+    __highH = _mm_load_ps(_highH);
+    __1_h = _mm_linterp_ps(__lowH, __highH, __frac);
+
     /*long pos = (long)_cutoff;
     float frac = _cutoff - (float)pos;
     _g = linterp(kGTable[pos], kGTable[pos + 1], frac);*/
 
-    __h = _mm_add_ps(__ones, __g);
-    __1_h = _mm_div_ps(__ones, __h);
+    /*__h = _mm_add_ps(__ones, __g);
+    __1_h = _mm_div_ps(__ones, __h);*/
     __G = _mm_mul_ps(__g, __1_h);
 
     _stage1._G = __G;
@@ -115,6 +125,7 @@ void VecOTAFilter::calcInternalGTable() {
     float T_2 = T / 2.f;
     float wa = 0.f;
     float g = 0.f;
+    float h = 0.f;
 
     for(auto i = 0; i < G_TABLE_SIZE; ++i) {
         f = 440.f * powf(2.f, ((i - 500000.f) / 100000.f));
@@ -122,5 +133,8 @@ void VecOTAFilter::calcInternalGTable() {
         wa = (2.f / T) * tanf(wd * T_2);
         g = wa * T_2;
         _kGTable[i] = g;
+        h = g + 1.f;
+        h = 1.f / h;
+        _kHTable[i] = h;
     }
 }
