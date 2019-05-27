@@ -30,7 +30,6 @@
 #include "Osc4Core_SIMD.hpp"
 #include "Chords.hpp"
 #include "RoutingMatrix.hpp"
-#include "dsp/digital.hpp"
 #include <algorithm>
 #define NUM_OP_WAVES 1
 #define NUM_WAVE_TABLES 1
