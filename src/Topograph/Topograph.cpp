@@ -557,10 +557,10 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     auto floatToTempoText = [](float a){
         std::stringstream stream;
@@ -636,41 +636,41 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
         addChild(vText);
     }
 
-    addParam(ParamWidget::create<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
-    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
+    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 50.0), Port::INPUT, module, Topograph::CLOCK_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 113.0), Port::INPUT, module, Topograph::RESET_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 176.0), Port::INPUT, module, Topograph::MAPX_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 236.0), Port::INPUT, module, Topograph::MAPY_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(17.0, 296.0), Port::INPUT, module, Topograph::CHAOS_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(131.0, 236.0), Port::INPUT, module, Topograph::BD_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(167.0, 236.0), Port::INPUT, module, Topograph::SN_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(203.0, 236.0), Port::INPUT, module, Topograph::HH_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(167.0, 50.0), Port::INPUT, module, Topograph::SWING_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(74.5, 113.0), Port::INPUT, module, Topograph::RUN_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 50.0), PortWidget::INPUT, module, Topograph::CLOCK_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 113.0), PortWidget::INPUT, module, Topograph::RESET_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 176.0), PortWidget::INPUT, module, Topograph::MAPX_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 236.0), PortWidget::INPUT, module, Topograph::MAPY_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 296.0), PortWidget::INPUT, module, Topograph::CHAOS_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(131.0, 236.0), PortWidget::INPUT, module, Topograph::BD_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(167.0, 236.0), PortWidget::INPUT, module, Topograph::SN_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(203.0, 236.0), PortWidget::INPUT, module, Topograph::HH_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(167.0, 50.0), PortWidget::INPUT, module, Topograph::SWING_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(74.5, 113.0), PortWidget::INPUT, module, Topograph::RUN_INPUT));
 
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(131.2, 272.536), Port::OUTPUT, module, Topograph::BD_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(167.2, 272.536), Port::OUTPUT, module, Topograph::SN_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(203.2, 272.536), Port::OUTPUT, module, Topograph::HH_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(131.2, 308.536), Port::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(167.2, 308.536), Port::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(203.2, 308.536), Port::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(131.2, 272.536), PortWidget::OUTPUT, module, Topograph::BD_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(167.2, 272.536), PortWidget::OUTPUT, module, Topograph::SN_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(203.2, 272.536), PortWidget::OUTPUT, module, Topograph::HH_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(131.2, 308.536), PortWidget::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(167.2, 308.536), PortWidget::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(203.2, 308.536), PortWidget::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
 
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(57.5, 118.5), module, Topograph::RESET_LIGHT));
-    addParam(ParamWidget::create<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(114.5, 118.5), module, Topograph::RUNNING_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<RedLight>>(Vec(57.5, 118.5), module, Topograph::RESET_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<RedLight>>(Vec(114.5, 118.5), module, Topograph::RUNNING_LIGHT));
 }
 
 struct TopographPanelStyleItem : MenuItem {
@@ -823,4 +823,4 @@ void TopographWidget::appendContextMenu(Menu *menu) {
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
 }
 
-Model *modelTopograph = Model::create<Topograph, TopographWidget>("Topograph");
+Model *modelTopograph = createModel<Topograph, TopographWidget>("Topograph");

@@ -688,10 +688,10 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     {
         AlgoGraphic* algo = new AlgoGraphic;
@@ -719,7 +719,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
                                                   ACTIVE_LOW_VIEW, 0, 20, 10, SNAP_MOTION);
         addParam(dynParam);
     }
-    //addParam(ParamWidget::create<RoganMedBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, 0.0, 1.0, 0.0));
+    //addParam(createParam<RoganMedBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, 0.0, 1.0, 0.0));
 
     {
         DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, nullptr,
@@ -734,44 +734,44 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     addParam(createDynamicKnob<DynRoganMedBlue>(Fine2KnobPos, module, Dexter::B_FINE_PARAM, nullptr,
                                                 ACTIVE_LOW_VIEW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
 
-    addParam(ParamWidget::create<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM, 0, 22, 0.0));
-    addParam(ParamWidget::create<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganMedRed>(ShapeKnobPos, module, Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganMedOrange>(FeedbackKnobPos, module, Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0));
+    addParam(createParam<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM, 0, 22, 0.0));
+    addParam(createParam<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganMedRed>(ShapeKnobPos, module, Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<RoganMedOrange>(FeedbackKnobPos, module, Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0));
 
-    addParam(ParamWidget::create<RoganSmallBlue>(ChordDepthKnobPos, module, Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallBlue>(InvertDepthKnobPos, module, Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallBlue>(DetuneDepthKnobPos, module, Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallBlue>(AlgoDepthKnobPos, module, Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallOrange>(FBDepthKnobPos, module, Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallGreen>(BrightDepthKnobPos, module, Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallRed>(ShapeDepthKnobPos, module, Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBlue>(ChordDepthKnobPos, module, Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBlue>(InvertDepthKnobPos, module, Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBlue>(DetuneDepthKnobPos, module, Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBlue>(AlgoDepthKnobPos, module, Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallOrange>(FBDepthKnobPos, module, Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallGreen>(BrightDepthKnobPos, module, Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallRed>(ShapeDepthKnobPos, module, Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0));
 
-    addParam(ParamWidget::create<LightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<LightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<LightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0));
 
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(MasterLFOButtonLEDPos, module, Dexter::MASTER_LFO_LIGHT));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(ResetPhaseButtonLEDPos, module, Dexter::RESET_PHASE_LIGHT));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(FullInversionButtonLEDPos, module, Dexter::FULL_INVERSION_LIGHT));
+    addChild(createLight<MediumLight<RedLight>>(MasterLFOButtonLEDPos, module, Dexter::MASTER_LFO_LIGHT));
+    addChild(createLight<MediumLight<RedLight>>(ResetPhaseButtonLEDPos, module, Dexter::RESET_PHASE_LIGHT));
+    addChild(createLight<MediumLight<RedLight>>(FullInversionButtonLEDPos, module, Dexter::FULL_INVERSION_LIGHT));
 
-    addOutput(Port::create<PJ301MDarkSmallOut>(AOutLeftJack, Port::OUTPUT, module, Dexter::A_LEFT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(AOutRightJack, Port::OUTPUT, module, Dexter::A_RIGHT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Op1OutJack, Port::OUTPUT, module, Dexter::OP_1_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Op2OutJack, Port::OUTPUT, module, Dexter::OP_2_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Op3OutJack, Port::OUTPUT, module, Dexter::OP_3_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Op4OutJack, Port::OUTPUT, module, Dexter::OP_4_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(BOutJack, Port::OUTPUT, module, Dexter::B_OUTPUT));
-    addInput(Port::create<PJ301MDarkSmall>(VOct1CVJack, Port::INPUT, module, Dexter::A_VOCT_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(VOct2CVJack, Port::INPUT, module, Dexter::B_VOCT_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(AOutLeftJack, PortWidget::OUTPUT, module, Dexter::A_LEFT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(AOutRightJack, PortWidget::OUTPUT, module, Dexter::A_RIGHT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Op1OutJack, PortWidget::OUTPUT, module, Dexter::OP_1_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Op2OutJack, PortWidget::OUTPUT, module, Dexter::OP_2_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Op3OutJack, PortWidget::OUTPUT, module, Dexter::OP_3_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Op4OutJack, PortWidget::OUTPUT, module, Dexter::OP_4_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(BOutJack, PortWidget::OUTPUT, module, Dexter::B_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(VOct1CVJack, PortWidget::INPUT, module, Dexter::A_VOCT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(VOct2CVJack, PortWidget::INPUT, module, Dexter::B_VOCT_INPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(ChordCVJack, Port::INPUT, module, Dexter::CHORD_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(InvertCVJack, Port::INPUT, module, Dexter::INVERT_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(DetuneCVJack, Port::INPUT, module, Dexter::DETUNE_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(AlgorithmCVJack, Port::INPUT, module, Dexter::ALGO_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(FeedbackCVJack, Port::INPUT, module, Dexter::FEEDBACK_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(BrightCVJack, Port::INPUT, module, Dexter::BRIGHTNESS_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(ShapeCVJack, Port::INPUT, module, Dexter::SHAPE_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(ChordCVJack, PortWidget::INPUT, module, Dexter::CHORD_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(InvertCVJack, PortWidget::INPUT, module, Dexter::INVERT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(DetuneCVJack, PortWidget::INPUT, module, Dexter::DETUNE_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(AlgorithmCVJack, PortWidget::INPUT, module, Dexter::ALGO_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(FeedbackCVJack, PortWidget::INPUT, module, Dexter::FEEDBACK_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(BrightCVJack, PortWidget::INPUT, module, Dexter::BRIGHTNESS_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(ShapeCVJack, PortWidget::INPUT, module, Dexter::SHAPE_INPUT));
     {
         DynamicFrameText* chordText = new DynamicFrameText;
         chordText->size = 12;
@@ -872,29 +872,29 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         }
 
         // Buttons
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module,
+        addParam(createParam<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module,
                                              module->opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY),
+        addParam(createParam<LightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY),
                                              module, module->opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module,
+        addParam(createParam<LightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module,
                                              module->opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module,
+        addParam(createParam<LightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module,
                                              module->opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module,
+        addParam(createParam<LightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module,
                                              module->opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module,
+        addParam(createParam<LightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module,
                                              module->opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpPreButtonPosX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpPreButtonPosX + offset + ledOffset,
                                                  OpPreButtonPosY + ledOffset), module, module->opLights[op][Dexter::OP_PRE_LIGHT]));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpSettingsButtonRootX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpSettingsButtonRootX + offset + ledOffset,
                                                  OpSettingsButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_SETTINGS]));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpPercButtonRootX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpPercButtonRootX + offset + ledOffset,
                                                  OpPercButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_POST_SHAPE]));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpIsolateButtonRootX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpIsolateButtonRootX + offset + ledOffset,
                                                  OpIsolateButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_WEAK]));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpLFOButtonRootX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpLFOButtonRootX + offset + ledOffset,
                                                  OpLFOButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_LFO]));
-        addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset,
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset,
                                                  OpSyncButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_SYNC]));
 
         addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpWaveButtonX + offset, 110.375),
@@ -986,36 +986,36 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 4", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
 
 
-        addParam(ParamWidget::create<RoganSmallMustard>(Vec(OpMod1KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][0], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallMustard>(Vec(OpMod2KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][1], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallMustard>(Vec(OpMod3KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][2], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallMustard>(Vec(OpMod4KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][3], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod1KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][0], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod2KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][1], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod3KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][2], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod4KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][3], -1.0, 1.0, 0.0));
 
-        addParam(ParamWidget::create<RoganSmallBlue>(Vec(OpPitch1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][4], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallPurple>(Vec(OpWave1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][5], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallRed>(Vec(OpShape1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][6], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallGreen>(Vec(OpLevel1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][7], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallBlue>(Vec(OpPitch1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][4], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallPurple>(Vec(OpWave1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][5], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallRed>(Vec(OpShape1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][6], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallGreen>(Vec(OpLevel1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][7], -1.0, 1.0, 0.0));
 
-        addParam(ParamWidget::create<RoganSmallBlue>(Vec(OpPitch2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][8], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallPurple>(Vec(OpWave2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][9], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][10], -1.0, 1.0, 0.0));
-        addParam(ParamWidget::create<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][11], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallBlue>(Vec(OpPitch2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][8], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallPurple>(Vec(OpWave2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][9], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][10], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][11], -1.0, 1.0, 0.0));
 
         //addInput(createInput<PJ301MDarkSmall>(Vec(OpSyncJackRootX + offset, OpSyncJackRootY), module, module->opSyncInputs[op]);
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][0]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][1]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][2]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpModJackRowY), Port::INPUT, module, module->opCVInputs[op][3]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][0]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][1]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][2]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][3]));
 
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][4]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][5]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][6]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), Port::INPUT, module, module->opCVInputs[op][7]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][4]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][5]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][6]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][7]));
 
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][8]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][9]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][10]));
-        addInput(Port::create<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), Port::INPUT, module, module->opCVInputs[op][11]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][8]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][9]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][10]));
+        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][11]));
 
     }
 }
@@ -1091,4 +1091,4 @@ void DexterWidget::appendContextMenu(Menu *menu) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Model *modelDexter = Model::create<Dexter, DexterWidget>("Dexter");
+Model *modelDexter = createModel<Dexter, DexterWidget>("Dexter");

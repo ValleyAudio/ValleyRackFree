@@ -168,106 +168,106 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
         addChild(panel);
     }
 
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     // Params
 
-    addParam(ParamWidget::create<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM, 0.5f, 0.f, 0.5f));
-    addParam(ParamWidget::create<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f));
+    addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM, 0.5f, 0.f, 0.5f));
+    addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f));
     addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, -2.f,
                                               2.f, 0.f, octaveMinAngle, octaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
-    addParam(ParamWidget::create<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, 0.f, 2.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f));
-    addParam(ParamWidget::create<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f));
-    addParam(ParamWidget::create<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f));
-    addParam(ParamWidget::create<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 1.f));
+    addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, 0.f, 2.f, 1.f));
+    addParam(createParam<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f));
+    addParam(createParam<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f));
+    addParam(createParam<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f));
+    addParam(createParam<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f));
+    addParam(createParam<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 1.f));
 
-    addParam(ParamWidget::create<GreenSlider>(MixerSawLevelPos, module, Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f));
-    addParam(ParamWidget::create<GreenSlider>(MixerPulseLevelPos, module, Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<GreenSlider>(MixerSubLevelPos, module, Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSSThree>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<CKSS>(MixerNoiseTypePos, module, Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<GreenSlider>(MixerNoiseLevelPos, module, Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<GreenSlider>(MixerExtInLevelPos, module, Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(MixerSawLevelPos, module, Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f));
+    addParam(createParam<GreenSlider>(MixerPulseLevelPos, module, Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(MixerSubLevelPos, module, Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<CKSSThree>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<CKSS>(MixerNoiseTypePos, module, Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f));
+    addParam(createParam<GreenSlider>(MixerNoiseLevelPos, module, Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(MixerExtInLevelPos, module, Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f));
 
-    addParam(ParamWidget::create<BlueSlider>(FilterCutoffPos, module, Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f));
-    addParam(ParamWidget::create<BlueSlider>(FilterResPos, module, Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f));
-    addParam(ParamWidget::create<BlueSlider>(FilterHPFPos, module, Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f));
-    addParam(ParamWidget::create<CKSS>(FilterPolesPos, module, Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f));
-    addParam(ParamWidget::create<OrangeSlider>(FilterEnvPos, module, Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<OrangeSlider>(FilterLFOPos, module, Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<OrangeSlider>(FilterVOctPos, module, Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallBlue>(FilterCV1Pos, module, Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganSmallBlue>(FilterCV2Pos, module, Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f));
+    addParam(createParam<BlueSlider>(FilterCutoffPos, module, Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f));
+    addParam(createParam<BlueSlider>(FilterResPos, module, Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<BlueSlider>(FilterHPFPos, module, Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f));
+    addParam(createParam<CKSS>(FilterPolesPos, module, Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f));
+    addParam(createParam<OrangeSlider>(FilterEnvPos, module, Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<OrangeSlider>(FilterLFOPos, module, Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<OrangeSlider>(FilterVOctPos, module, Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f));
+    addParam(createParam<RoganSmallBlue>(FilterCV1Pos, module, Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f));
+    addParam(createParam<RoganSmallBlue>(FilterCV2Pos, module, Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f));
 
 
-    addParam(ParamWidget::create<RedSlider>(EnvAttackPos, module, Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RedSlider>(EnvDecayPos, module, Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<RedSlider>(EnvSustainPos, module, Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f));
-    addParam(ParamWidget::create<RedSlider>(EnvReleasePos, module, Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(EnvLengthPos, module, Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<CKSS>(EnvCyclePos, module, Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<LightLEDButton>(EnvManualPos, module, Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(EnvManualPos.plus(Vec(2.5f, 2.5f)), module, Interzone::ENV_LIGHT));
+    addParam(createParam<RedSlider>(EnvAttackPos, module, Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<RedSlider>(EnvDecayPos, module, Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<RedSlider>(EnvSustainPos, module, Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f));
+    addParam(createParam<RedSlider>(EnvReleasePos, module, Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<CKSS>(EnvLengthPos, module, Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f));
+    addParam(createParam<CKSS>(EnvCyclePos, module, Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f));
+    addParam(createParam<LightLEDButton>(EnvManualPos, module, Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f));
+    addChild(createLight<MediumLight<RedLight>>(EnvManualPos.plus(Vec(2.5f, 2.5f)), module, Interzone::ENV_LIGHT));
 
-    addParam(ParamWidget::create<GreenSlider>(LFORatePos, module, Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f));
-    addParam(ParamWidget::create<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f));
-    addParam(ParamWidget::create<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(LFORatePos, module, Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f));
+    addParam(createParam<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f));
+    addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f));
     addParam(createValleyKnob<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM,
                                               0.f, 6.f, 0.f, lfoWaveMinAngle, lfoWaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
-    addParam(ParamWidget::create<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallOrange>(VCALevelPos, module, Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallOrange>(VCALevelPos, module, Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f));
 
     // Lights
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(249.244, 155.875), module, Interzone::LFO_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(249.244, 155.875), module, Interzone::LFO_LIGHT));
 
     // IO
-    addInput(Port::create<PJ301MDarkSmall>(VOctIn1Pos, Port::INPUT, module, Interzone::VOCT_INPUT_1));
-    addInput(Port::create<PJ301MDarkSmall>(VOctIn2Pos, Port::INPUT, module, Interzone::VOCT_INPUT_2));
-    addInput(Port::create<PJ301MDarkSmall>(PWMInPos, Port::INPUT, module, Interzone::PW_MOD_INPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(SawOutPos, Port::OUTPUT, module, Interzone::SAW_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(PulseOutPos, Port::OUTPUT, module, Interzone::PULSE_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(SubOutPos, Port::OUTPUT, module, Interzone::SUB_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(VOctIn1Pos, PortWidget::INPUT, module, Interzone::VOCT_INPUT_1));
+    addInput(createPort<PJ301MDarkSmall>(VOctIn2Pos, PortWidget::INPUT, module, Interzone::VOCT_INPUT_2));
+    addInput(createPort<PJ301MDarkSmall>(PWMInPos, PortWidget::INPUT, module, Interzone::PW_MOD_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(SawOutPos, PortWidget::OUTPUT, module, Interzone::SAW_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(PulseOutPos, PortWidget::OUTPUT, module, Interzone::PULSE_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(SubOutPos, PortWidget::OUTPUT, module, Interzone::SUB_OUTPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(MixerExtInPos, Port::INPUT, module, Interzone::EXT_INPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(MixerOutPos, Port::OUTPUT, module, Interzone::MIX_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(MixerExtInPos, PortWidget::INPUT, module, Interzone::EXT_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(MixerOutPos, PortWidget::OUTPUT, module, Interzone::MIX_OUTPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(LFORateInPos, Port::INPUT, module, Interzone::LFO_RATE_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(LFOTrigInPos, Port::INPUT, module, Interzone::LFO_TRIG_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(LFOSyncInPos, Port::INPUT, module, Interzone::LFO_SYNC_INPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOSineOutPos, Port::OUTPUT, module, Interzone::LFO_SINE_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOTriOutPos, Port::OUTPUT, module, Interzone::LFO_TRI_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOSawUpPos, Port::OUTPUT, module, Interzone::LFO_SAW_UP_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOSawDownPos, Port::OUTPUT, module, Interzone::LFO_SAW_DOWN_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOPulseOutPos, Port::OUTPUT, module, Interzone::LFO_PULSE_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFOSHOutPos, Port::OUTPUT, module, Interzone::LFO_SH_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(LFONoiseOutPos, Port::OUTPUT, module, Interzone::LFO_NOISE_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(LFORateInPos, PortWidget::INPUT, module, Interzone::LFO_RATE_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(LFOTrigInPos, PortWidget::INPUT, module, Interzone::LFO_TRIG_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(LFOSyncInPos, PortWidget::INPUT, module, Interzone::LFO_SYNC_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOSineOutPos, PortWidget::OUTPUT, module, Interzone::LFO_SINE_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOTriOutPos, PortWidget::OUTPUT, module, Interzone::LFO_TRI_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOSawUpPos, PortWidget::OUTPUT, module, Interzone::LFO_SAW_UP_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOSawDownPos, PortWidget::OUTPUT, module, Interzone::LFO_SAW_DOWN_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOPulseOutPos, PortWidget::OUTPUT, module, Interzone::LFO_PULSE_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFOSHOutPos, PortWidget::OUTPUT, module, Interzone::LFO_SH_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(LFONoiseOutPos, PortWidget::OUTPUT, module, Interzone::LFO_NOISE_OUTPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(FilterCutoffIn1Pos, Port::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_1));
-    addInput(Port::create<PJ301MDarkSmall>(FilterCutoffIn2Pos, Port::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_2));
-    addInput(Port::create<PJ301MDarkSmall>(FilterResInPos, Port::INPUT, module, Interzone::FILTER_RES_INPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(FilterOutPos, Port::OUTPUT, module, Interzone::FILTER_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(FilterCutoffIn1Pos, PortWidget::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_1));
+    addInput(createPort<PJ301MDarkSmall>(FilterCutoffIn2Pos, PortWidget::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_2));
+    addInput(createPort<PJ301MDarkSmall>(FilterResInPos, PortWidget::INPUT, module, Interzone::FILTER_RES_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(FilterOutPos, PortWidget::OUTPUT, module, Interzone::FILTER_OUTPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(EnvGateInPos, Port::INPUT, module, Interzone::GATE_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(EnvTrigInPos, Port::INPUT, module, Interzone::TRIG_INPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(EnvPositiveOutPos, Port::OUTPUT, module, Interzone::ENV_POSITIVE_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(EnvNegativeOutPos, Port::OUTPUT, module, Interzone::ENV_NEGATIVE_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(EnvGateInPos, PortWidget::INPUT, module, Interzone::GATE_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(EnvTrigInPos, PortWidget::INPUT, module, Interzone::TRIG_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(EnvPositiveOutPos, PortWidget::OUTPUT, module, Interzone::ENV_POSITIVE_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(EnvNegativeOutPos, PortWidget::OUTPUT, module, Interzone::ENV_NEGATIVE_OUTPUT));
 
-    addOutput(Port::create<PJ301MDarkSmallOut>(VCAOutPos, Port::OUTPUT, module, Interzone::VCA_OUTPUT));
-    addInput(Port::create<PJ301MDarkSmall>(VCALevelCVPos, Port::INPUT, module, Interzone::VCA_LEVEL_CV_INPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(VCAOutPos, PortWidget::OUTPUT, module, Interzone::VCA_OUTPUT));
+    addInput(createPort<PJ301MDarkSmall>(VCALevelCVPos, PortWidget::INPUT, module, Interzone::VCA_LEVEL_CV_INPUT));
 }
 
 void InterzoneWidget::appendContextMenu(Menu *menu) {
@@ -282,4 +282,4 @@ void InterzoneWidget::appendContextMenu(Menu *menu) {
                                                       module, &InterzonePanelStyleItem::panelStyle, 1));
 }
 
-Model *modelInterzone = Model::create<Interzone, InterzoneWidget>("Interzone");
+Model *modelInterzone = createModel<Interzone, InterzoneWidget>("Interzone");

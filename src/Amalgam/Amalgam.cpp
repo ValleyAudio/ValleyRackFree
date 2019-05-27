@@ -194,57 +194,57 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     // Make jacks
-    addInput(Port::create<PJ301MDarkSmall>(xLeftInputPos, Port::INPUT, module, Amalgam::X_LEFT_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(xRightInputPos, Port::INPUT, module, Amalgam::X_RIGHT_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(yLeftInputPos, Port::INPUT, module, Amalgam::Y_LEFT_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(yRightInputPos, Port::INPUT, module, Amalgam::Y_RIGHT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(xLeftInputPos, PortWidget::INPUT, module, Amalgam::X_LEFT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(xRightInputPos, PortWidget::INPUT, module, Amalgam::X_RIGHT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(yLeftInputPos, PortWidget::INPUT, module, Amalgam::Y_LEFT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(yRightInputPos, PortWidget::INPUT, module, Amalgam::Y_RIGHT_INPUT));
 
-    addInput(Port::create<PJ301MDarkSmall>(xDriveCVInputPos, Port::INPUT, module, Amalgam::X_GAIN_CV_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(yDriveCVInputPos, Port::INPUT, module, Amalgam::Y_GAIN_CV_INPUT));
-    //addInput(Port::create<PJ301MDarkSmall>(modeCVInputPos, Port::INPUT, module, Amalgam::MODE_CV_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(typeCV1InputPos, Port::INPUT, module, Amalgam::TYPE_CV1_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(typeCV2InputPos, Port::INPUT, module, Amalgam::TYPE_CV2_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(paramACV1InputPos, Port::INPUT, module, Amalgam::PARAM_A_CV1_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(paramACV2InputPos, Port::INPUT, module, Amalgam::PARAM_A_CV2_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(paramBCV1InputPos, Port::INPUT, module, Amalgam::PARAM_B_CV1_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(paramBCV2InputPos, Port::INPUT, module, Amalgam::PARAM_B_CV2_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(xDriveCVInputPos, PortWidget::INPUT, module, Amalgam::X_GAIN_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(yDriveCVInputPos, PortWidget::INPUT, module, Amalgam::Y_GAIN_CV_INPUT));
+    //addInput(createPort<PJ301MDarkSmall>(modeCVInputPos, PortWidget::INPUT, module, Amalgam::MODE_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(typeCV1InputPos, PortWidget::INPUT, module, Amalgam::TYPE_CV1_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(typeCV2InputPos, PortWidget::INPUT, module, Amalgam::TYPE_CV2_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(paramACV1InputPos, PortWidget::INPUT, module, Amalgam::PARAM_A_CV1_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(paramACV2InputPos, PortWidget::INPUT, module, Amalgam::PARAM_A_CV2_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(paramBCV1InputPos, PortWidget::INPUT, module, Amalgam::PARAM_B_CV1_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(paramBCV2InputPos, PortWidget::INPUT, module, Amalgam::PARAM_B_CV2_INPUT));
 
 
-    addOutput(Port::create<PJ301MDarkSmallOut>(leftANDOutputPos, Port::OUTPUT, module, Amalgam::X_Y_LEFT_AND_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(leftXOROutputPos, Port::OUTPUT, module, Amalgam::X_Y_LEFT_XOR_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(rightANDOutputPos, Port::OUTPUT, module, Amalgam::X_Y_RIGHT_AND_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(rightXOROutputPos, Port::OUTPUT, module, Amalgam::X_Y_RIGHT_XOR_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zLeftOutputPos, Port::OUTPUT, module, Amalgam::Z_LEFT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zRightOutputPos, Port::OUTPUT, module, Amalgam::Z_RIGHT_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zANDOutputPos, Port::OUTPUT, module, Amalgam::Z_AND_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zXOROutputPos, Port::OUTPUT, module, Amalgam::Z_XOR_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zLeftPulseOutputPos, Port::OUTPUT, module, Amalgam::Z_LEFT_PULSE_1_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zRightPulseOutputPos, Port::OUTPUT, module, Amalgam::Z_RIGHT_PULSE_1_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zLeftPulse2OutputPos, Port::OUTPUT, module, Amalgam::Z_LEFT_PULSE_2_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(zRightPulse2OutputPos, Port::OUTPUT, module, Amalgam::Z_RIGHT_PULSE_2_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(leftANDOutputPos, PortWidget::OUTPUT, module, Amalgam::X_Y_LEFT_AND_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(leftXOROutputPos, PortWidget::OUTPUT, module, Amalgam::X_Y_LEFT_XOR_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(rightANDOutputPos, PortWidget::OUTPUT, module, Amalgam::X_Y_RIGHT_AND_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(rightXOROutputPos, PortWidget::OUTPUT, module, Amalgam::X_Y_RIGHT_XOR_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zLeftOutputPos, PortWidget::OUTPUT, module, Amalgam::Z_LEFT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zRightOutputPos, PortWidget::OUTPUT, module, Amalgam::Z_RIGHT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zANDOutputPos, PortWidget::OUTPUT, module, Amalgam::Z_AND_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zXOROutputPos, PortWidget::OUTPUT, module, Amalgam::Z_XOR_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zLeftPulseOutputPos, PortWidget::OUTPUT, module, Amalgam::Z_LEFT_PULSE_1_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zRightPulseOutputPos, PortWidget::OUTPUT, module, Amalgam::Z_RIGHT_PULSE_1_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zLeftPulse2OutputPos, PortWidget::OUTPUT, module, Amalgam::Z_LEFT_PULSE_2_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(zRightPulse2OutputPos, PortWidget::OUTPUT, module, Amalgam::Z_RIGHT_PULSE_2_OUTPUT));
 
     // Knobs
 
-    addParam(ParamWidget::create<RoganSmallWhite>(xDriveKnobPos, module, Amalgam::X_GAIN, 0.f, 4.f, 1.f));
-    addParam(ParamWidget::create<RoganSmallWhite>(yDriveKnobPos, module, Amalgam::Y_GAIN, 0.f, 4.f, 1.f));
-    //addParam(ParamWidget::create<RoganMedSmallWhite>(modeKnobPos, module, Amalgam::MODE_PARAM, 0.f, 1.f, 0.f));
-    addParam(ParamWidget::create<DynRoganMedGreen>(paramAKnobPos, module, Amalgam::A_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<DynRoganMedBlue>(paramBKnobPos, module, Amalgam::B_PARAM, 0.0f, 1.f, 0.f));
-    addParam(ParamWidget::create<RoganMedWhite>(typeKnobPos, module, Amalgam::TYPE_PARAM, 0.0f, VecAmalgam::NUM_MODES - 0.9f, 0.f));
-    addParam(ParamWidget::create<RoganSmallWhite>(modeCV1KnobPos, module, Amalgam::TYPE_CV1_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallWhite>(modeCV2KnobPos, module, Amalgam::TYPE_CV2_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallWhite>(xDriveCVKnobPos, module, Amalgam::X_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallWhite>(yDriveCVKnobPos, module, Amalgam::Y_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallGreen>(paramACV1KnobPos, module, Amalgam::PARAM_A_CV1_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallGreen>(paramACV2KnobPos, module, Amalgam::PARAM_A_CV2_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallBlue>(paramBCV1KnobPos, module, Amalgam::PARAM_B_CV1_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(ParamWidget::create<RoganSmallBlue>(paramBCV2KnobPos, module, Amalgam::PARAM_B_CV2_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallWhite>(xDriveKnobPos, module, Amalgam::X_GAIN, 0.f, 4.f, 1.f));
+    addParam(createParam<RoganSmallWhite>(yDriveKnobPos, module, Amalgam::Y_GAIN, 0.f, 4.f, 1.f));
+    //addParam(createParam<RoganMedSmallWhite>(modeKnobPos, module, Amalgam::MODE_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<DynRoganMedGreen>(paramAKnobPos, module, Amalgam::A_PARAM, 0.0f, 1.f, 0.f));
+    addParam(createParam<DynRoganMedBlue>(paramBKnobPos, module, Amalgam::B_PARAM, 0.0f, 1.f, 0.f));
+    addParam(createParam<RoganMedWhite>(typeKnobPos, module, Amalgam::TYPE_PARAM, 0.0f, VecAmalgam::NUM_MODES - 0.9f, 0.f));
+    addParam(createParam<RoganSmallWhite>(modeCV1KnobPos, module, Amalgam::TYPE_CV1_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallWhite>(modeCV2KnobPos, module, Amalgam::TYPE_CV2_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallWhite>(xDriveCVKnobPos, module, Amalgam::X_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallWhite>(yDriveCVKnobPos, module, Amalgam::Y_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallGreen>(paramACV1KnobPos, module, Amalgam::PARAM_A_CV1_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallGreen>(paramACV2KnobPos, module, Amalgam::PARAM_A_CV2_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallBlue>(paramBCV1KnobPos, module, Amalgam::PARAM_B_CV1_PARAM, -1.0f, 1.f, 0.0f));
+    addParam(createParam<RoganSmallBlue>(paramBCV2KnobPos, module, Amalgam::PARAM_B_CV2_PARAM, -1.0f, 1.f, 0.0f));
     {
         DynamicText* modeBackText = new DynamicText;
         modeBackText->size = 13;
@@ -392,8 +392,8 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
         addChild(paramBBlurText);
     }
 
-    addParam(ParamWidget::create<LightLEDButton>(DCCoupleLightPos, module, Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(DCCoupleLightPos.plus(Vec(2.5f, 2.5f)), module, Amalgam::DC_COUPLE_LIGHT));
+    addParam(createParam<LightLEDButton>(DCCoupleLightPos, module, Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f));
+    addChild(createLight<MediumLight<RedLight>>(DCCoupleLightPos.plus(Vec(2.5f, 2.5f)), module, Amalgam::DC_COUPLE_LIGHT));
 
 }
 
@@ -409,4 +409,4 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
                                                       module, &AmalgamPanelStyleItem::panelStyle, 1));
 }
 
-Model *modelAmalgam = Model::create<Amalgam, AmalgamWidget>("Amalgam");
+Model *modelAmalgam = createModel<Amalgam, AmalgamWidget>("Amalgam");

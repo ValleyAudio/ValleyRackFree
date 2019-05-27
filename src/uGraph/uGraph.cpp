@@ -572,10 +572,10 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
         panel->mode = &module->panelStyle;
         addChild(panel);
     }
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(Widget::create<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(Widget::create<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     auto floatToTempoText = [](float a){
         std::stringstream stream;
@@ -645,41 +645,41 @@ UGraphWidget::UGraphWidget(UGraph *module) : ModuleWidget(module){
         addChild(vText);
     }
 
-    addParam(ParamWidget::create<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<RoganSmallBrightRed>(Vec(43.5, 217.65), module, UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<RoganSmallOrange>(Vec(79.5, 217.65), module, UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<RoganSmallYellow>(Vec(115.5, 217.65), module, UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(ParamWidget::create<RoganMedWhite>(Vec(108.5, 30.15), module, UGraph::SWING_PARAM, 0.0, 0.9, 0.0));
+    addParam(createParam<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406));
+    addParam(createParam<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBrightRed>(Vec(43.5, 217.65), module, UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<RoganSmallOrange>(Vec(79.5, 217.65), module, UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<RoganSmallYellow>(Vec(115.5, 217.65), module, UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
+    addParam(createParam<RoganMedWhite>(Vec(108.5, 30.15), module, UGraph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 35.5), Port::INPUT, module, UGraph::CLOCK_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 214), Port::INPUT, module, UGraph::RESET_INPUT));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(42.5, 186), Port::INPUT, module, UGraph::MAPX_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 186), Port::INPUT, module, UGraph::MAPY_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(114.5, 186), Port::INPUT, module, UGraph::CHAOS_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(42.5, 261.5), Port::INPUT, module, UGraph::BD_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 261.5), Port::INPUT, module, UGraph::SN_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(114.5, 261.5), Port::INPUT, module, UGraph::HH_FILL_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(78.5, 35.5), Port::INPUT, module, UGraph::SWING_CV));
-    addInput(Port::create<PJ301MDarkSmall>(Vec(8.0, 133.35), Port::INPUT, module, UGraph::RUN_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(8.0, 35.5), PortWidget::INPUT, module, UGraph::CLOCK_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(8.0, 214), PortWidget::INPUT, module, UGraph::RESET_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(Vec(42.5, 186), PortWidget::INPUT, module, UGraph::MAPX_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(78.5, 186), PortWidget::INPUT, module, UGraph::MAPY_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(114.5, 186), PortWidget::INPUT, module, UGraph::CHAOS_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(42.5, 261.5), PortWidget::INPUT, module, UGraph::BD_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(78.5, 261.5), PortWidget::INPUT, module, UGraph::SN_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(114.5, 261.5), PortWidget::INPUT, module, UGraph::HH_FILL_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(78.5, 35.5), PortWidget::INPUT, module, UGraph::SWING_CV));
+    addInput(createPort<PJ301MDarkSmall>(Vec(8.0, 133.35), PortWidget::INPUT, module, UGraph::RUN_INPUT));
 
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(42.5, 299.736), Port::OUTPUT, module, UGraph::BD_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(78.5, 299.736), Port::OUTPUT, module, UGraph::SN_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(114.5, 299.736), Port::OUTPUT, module, UGraph::HH_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(42.5, 327.736), Port::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(78.5, 327.736), Port::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
-    addOutput(Port::create<PJ301MDarkSmallOut>(Vec(114.5, 327.736), Port::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(42.5, 299.736), PortWidget::OUTPUT, module, UGraph::BD_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(78.5, 299.736), PortWidget::OUTPUT, module, UGraph::SN_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(114.5, 299.736), PortWidget::OUTPUT, module, UGraph::HH_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(42.5, 327.736), PortWidget::OUTPUT, module, UGraph::BD_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(78.5, 327.736), PortWidget::OUTPUT, module, UGraph::SN_ACC_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(Vec(114.5, 327.736), PortWidget::OUTPUT, module, UGraph::HH_ACC_OUTPUT));
 
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(50.1, 247), module, UGraph::BD_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(86.1, 247), module, UGraph::SN_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(122.1, 247), module, UGraph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(50.1, 247), module, UGraph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(86.1, 247), module, UGraph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(122.1, 247), module, UGraph::HH_LIGHT));
 
-    addParam(ParamWidget::create<LightLEDButton>(Vec(12.1, 189.6), module, UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(14.5, 192), module, UGraph::RESET_LIGHT));
-    addParam(ParamWidget::create<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
-    addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(12.1, 189.6), module, UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 192), module, UGraph::RESET_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
 
     std::vector<std::string> seqModeItems(seqModeItemText, seqModeItemText + 3);
     addChild(createDynamicChoice(Vec(90, 88), 55.f, seqModeItems, &module->sequencerModeChoice, nullptr, ACTIVE_LOW_VIEW));
@@ -780,4 +780,4 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
                                                    module, &UGraphRunModeItem::runMode, UGraph::RunMode::MOMENTARY));
 }
 
-Model *modelUGraph = Model::create<UGraph, UGraphWidget>("uGraph");
+Model *modelUGraph = createModel<UGraph, UGraphWidget>("uGraph");
