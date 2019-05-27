@@ -490,8 +490,8 @@ struct Dexter : Module {
     void makeChord(float chord, float invert);
     void onSampleRateChange() override;
     void reset() override;
-    json_t *toJson() override;
-    void fromJson(json_t *rootJ) override;
+    json_t *dataToJson() override;
+    void dataFromJson(json_t *rootJ) override;
 };
 
 int round_int( double r ) {

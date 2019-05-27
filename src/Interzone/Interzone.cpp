@@ -133,13 +133,13 @@ void Interzone::onSampleRateChange() {
     pink.setSampleRate(engineGetSampleRate());
 }
 
-json_t* Interzone::toJson()  {
+json_t* Interzone::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     return rootJ;
 }
 
-void Interzone::fromJson(json_t *rootJ) {
+void Interzone::dataFromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     panelStyle = json_integer_value(panelStyleJ);
 }

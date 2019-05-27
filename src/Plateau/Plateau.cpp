@@ -224,7 +224,7 @@ void Plateau::reset() {
     diffuseInput = 1;
 }
 
-json_t* Plateau::toJson()  {
+json_t* Plateau::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "frozen", json_boolean(freeze));
     json_object_set_new(rootJ, "freezeToggle", json_boolean(freezeToggle));
@@ -237,7 +237,7 @@ json_t* Plateau::toJson()  {
     return rootJ;
 }
 
-void Plateau::fromJson(json_t *rootJ) {
+void Plateau::dataFromJson(json_t *rootJ) {
     json_t *frozenJ = json_object_get(rootJ, "frozen");
     freeze = json_boolean_value(frozenJ);
 

@@ -505,7 +505,7 @@ void Dexter::reset() {
     }
 }
 
-json_t *Dexter::toJson() {
+json_t *Dexter::dataToJson() {
     json_t *rootJ = json_object();
 
     json_object_set_new(rootJ, "op1syncEnable", json_integer(opButtonSync[0]));
@@ -565,7 +565,7 @@ json_t *Dexter::toJson() {
     return rootJ;
 }
 
-void Dexter::fromJson(json_t *rootJ) {
+void Dexter::dataFromJson(json_t *rootJ) {
     json_t *j_opSyncEnable = json_object_get(rootJ, "op1syncEnable");
     json_t *j_opWeakSync = json_object_get(rootJ, "op1weakSyncEnable");
     json_t *j_opPostShape = json_object_get(rootJ, "op1PostShape");

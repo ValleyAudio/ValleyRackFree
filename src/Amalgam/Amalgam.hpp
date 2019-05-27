@@ -156,8 +156,8 @@ struct Amalgam : Module {
     Amalgam();
     void step() override;
     void onSampleRateChange() override;
-    json_t *toJson() override;
-    void fromJson(json_t *rootJ) override;
+    json_t *dataToJson() override;
+    void dataFromJson(json_t *rootJ) override;
 };
 
 struct AmalgamPanelStyleItem : MenuItem {

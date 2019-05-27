@@ -157,7 +157,7 @@ void Amalgam::onSampleRateChange() {
     zPls2DCFilter.setSampleRate(newSampleRate);
 }
 
-json_t* Amalgam::toJson()  {
+json_t* Amalgam::dataToJson()  {
     json_t *rootJ = json_object();
     int dcCoupledI = dcCoupled ? 1 : 0;
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
@@ -165,7 +165,7 @@ json_t* Amalgam::toJson()  {
     return rootJ;
 }
 
-void Amalgam::fromJson(json_t *rootJ) {
+void Amalgam::dataFromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     json_t *dcCoupledJ = json_object_get(rootJ, "dcCoupled");
     panelStyle = json_integer_value(panelStyleJ);

@@ -182,7 +182,7 @@ struct Topograph : Module {
         panelStyle = 0;
     }
 
-    json_t *toJson() override {
+    json_t *dataToJson() override {
         json_t *rootJ = json_object();
         json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
         json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
@@ -195,7 +195,7 @@ struct Topograph : Module {
         return rootJ;
     }
 
-    void fromJson(json_t *rootJ) override {
+    void dataFromJson(json_t *rootJ) override {
         json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
         if (sequencerModeJ) {
             sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
