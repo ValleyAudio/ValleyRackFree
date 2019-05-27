@@ -20,8 +20,5 @@ RACK_DIR ?= ../..
 #.PHONY: dist
 #dist: all
 
-ifndef VERSION
-	$(error VERSION must be defined when making distributables)
-endif
-	DISTRIBUTABLES += $(wildcard LICENSE* *.pdf README*) res
-	include $(RACK_DIR)/plugin.mk
+DISTRIBUTABLES += $(wildcard LICENSE* *.pdf README*) res
+include $(RACK_DIR)/plugin.mk

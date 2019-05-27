@@ -5,7 +5,7 @@ DynamicItem::DynamicItem(unsigned long itemNumber) {
     _choice = nullptr;
 }
 
-void DynamicItem::onAction(EventAction &e) {
+void DynamicItem::onAction(const event::Action &e) {
     if(_choice != nullptr) {
         *_choice = _itemNumber;
     }
@@ -20,8 +20,8 @@ DynamicChoice::DynamicChoice() {
     _textSize = 14;
 }
 
-void DynamicChoice::onAction(EventAction &e) {
-    Menu* menu = gScene->createMenu();
+void DynamicChoice::onAction(const event::Action &e) {
+    Menu* menu = createMenu();
     menu->box.pos = getAbsoluteOffset(Vec(0, box.size.y)).round();
 	menu->box.size.x = box.size.x;
     for(unsigned long i = 0; i < _items.size(); ++i){

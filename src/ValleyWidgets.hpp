@@ -35,7 +35,7 @@ enum DynamicViewMode {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic Switch
 
-struct DynamicSwitchWidget : virtual ParamWidget, FramebufferWidget {
+struct DynamicSwitchWidget : Switch {
     std::vector<std::shared_ptr<SVG>> frames;
     SVGWidget* sw;
     int* visibility;
@@ -44,7 +44,7 @@ struct DynamicSwitchWidget : virtual ParamWidget, FramebufferWidget {
     DynamicSwitchWidget();
     void addFrame(std::shared_ptr<SVG> svg);
     void step() override;
-    void onChange(EventChange &e) override;
+    void onChange(const event::Change &e) override;
 };
 
 template <class TDynamicSwitch>
@@ -53,10 +53,13 @@ DynamicSwitchWidget* createDynamicSwitchWidget(Vec pos, Module *module, int para
                                                int* visibilityHandle, DynamicViewMode viewMode) {
 	DynamicSwitchWidget *dynSwitch = new TDynamicSwitch();
 	dynSwitch->box.pos = pos;
-	dynSwitch->module = module;
-	dynSwitch->paramId = paramId;
-	dynSwitch->setLimits(minValue, maxValue);
-	dynSwitch->setDefaultValue(defaultValue);
+	//dynSwitch->module = module;
+	dynSwitch->paramQuantity->paramId = paramId;
+	//dynSwitch->setLimits(minValue, maxValue);
+	//dynSwitch->setDefaultValue(defaultValue);
+    if (module) {
+		module->configParam(paramId, minValue, maxValue, defaultValue);
+	}
     dynSwitch->visibility = visibilityHandle;
     dynSwitch->viewMode = viewMode;
 	return dynSwitch;
@@ -94,10 +97,11 @@ enum DynamicKnobMotion {
     SNAP_MOTION
 };
 
-struct DynamicKnob : virtual Knob, FramebufferWidget {
+struct DynamicKnob : virtual Knob {
 	/** Angles in radians */
 	float minAngle, maxAngle;
 	/** Not owned */
+    FramebufferWidget *fb;
 	TransformWidget *tw;
 	SVGWidget *sw;
     CircularShadow *shadow;
@@ -107,7 +111,7 @@ struct DynamicKnob : virtual Knob, FramebufferWidget {
 	DynamicKnob();
 	void setSVG(std::shared_ptr<SVG> svg);
 	void step() override;
-	void onChange(EventChange &e) override;
+	void onChange(const event::Change &e) override;
 };
 
 template <class TDynamicKnob>
@@ -121,11 +125,14 @@ DynamicKnob* createDynamicKnob(const Vec& pos,
                                float defaultValue,
                                DynamicKnobMotion motion) {
     DynamicKnob* knob = new TDynamicKnob;
-    knob->module = module;
+    //knob->module = module;
     knob->box.pos = pos;
-    knob->paramId = paramId;
-    knob->setLimits(minValue, maxValue);
-    knob->setDefaultValue(defaultValue);
+    knob->paramQuantity->paramId = paramId;
+    //knob->setLimits(minValue, maxValue);
+    //knob->setDefaultValue(defaultValue);
+    if (module) {
+		module->configParam(paramId, minValue, maxValue, defaultValue);
+	}
     knob->_visibility = visibilityHandle;
     knob->_viewMode = viewMode;
     if(motion == SNAP_MOTION) {
@@ -265,7 +272,7 @@ struct DynamicItem : MenuItem {
     unsigned long _itemNumber;
     unsigned long* _choice;
     DynamicItem(unsigned long itemNumber);
-    void onAction(EventAction &e) override;
+    void onAction(const event::Action &e) override;
 };
 
 struct DynamicChoice : ChoiceButton {
@@ -278,7 +285,7 @@ struct DynamicChoice : ChoiceButton {
     DynamicViewMode _viewMode;
     DynamicChoice();
     void step() override;
-    void onAction(EventAction &e) override;
+    void onAction(const event::Action &e) override;
     void draw(NVGcontext* vg) override;
 };
 
@@ -289,13 +296,24 @@ DynamicChoice* createDynamicChoice(const Vec& pos,
                                    int* visibilityHandle,
                                    DynamicViewMode viewMode);
 
-template<typename T = SVGKnob>
+template<class T = SVGKnob>
 T *createValleyKnob(Vec pos, Module *module, int paramId, float minValue, float maxValue,
                     float defaultValue, float minAngle, float maxAngle, DynamicKnobMotion motion) {
-    T *o = Component::create<T>(pos, module);
+    /*T *o = Component::create<T>(pos, module);
 	o->paramId = paramId;
 	o->setLimits(minValue, maxValue);
 	o->setDefaultValue(defaultValue);
+    o->minAngle = minAngle;
+    o->maxAngle = maxAngle;
+    if(motion == SNAP_MOTION) {
+        o->snap = true;
+    }
+	return o;*/
+    T *o = createParam<T>(pos, module, paramId);
+	//o->setLimits(minValue, maxValue);
+    if (module) {
+		module->configParam(paramId, minValue, maxValue, defaultValue);
+	}
     o->minAngle = minAngle;
     o->maxAngle = maxAngle;
     if(motion == SNAP_MOTION) {
