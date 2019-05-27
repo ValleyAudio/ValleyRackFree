@@ -37,6 +37,7 @@ enum DynamicViewMode {
 
 struct DynamicSwitchWidget : Switch {
     std::vector<std::shared_ptr<SVG>> frames;
+    FramebufferWidget *fb;
     SVGWidget* sw;
     int* visibility;
     DynamicViewMode viewMode;
@@ -143,8 +144,8 @@ DynamicKnob* createDynamicKnob(const Vec& pos,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct SVGStepSlider : SVGSlider {
-	void step() override;
+struct SVGStepSlider : app::SvgSlider {
+	void onChange(const event::Change& e) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

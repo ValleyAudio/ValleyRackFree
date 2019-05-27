@@ -1,14 +1,19 @@
 #include "ValleyWidgets.hpp"
 
 DynamicKnob::DynamicKnob() {
-    shadow = new CircularShadow();
-	addChild(shadow);
-	shadow->box.size = Vec();
+    fb = new widget::FramebufferWidget;
+	addChild(fb);
 
-	tw = new TransformWidget();
-	addChild(tw);
-	sw = new SVGWidget();
+	shadow = new CircularShadow;
+	fb->addChild(shadow);
+	shadow->box.size = math::Vec();
+
+	tw = new widget::TransformWidget;
+	fb->addChild(tw);
+
+	sw = new widget::SvgWidget;
 	tw->addChild(sw);
+
     _visibility = nullptr;
     _viewMode = ACTIVE_HIGH_VIEW;
 }
@@ -38,29 +43,39 @@ void DynamicKnob::step() {
     else {
         visible = true;
     }
-	if (dirty) {
+	if (fb->dirty) {
 		tw->box.size = box.size;
         float angle;
-		if (isfinite(minValue) && isfinite(maxValue)) {
+		/*if (isfinite(minValue) && isfinite(maxValue)) {
 			angle = rescale(value, minValue, maxValue, minAngle, maxAngle);
 		}
 		else {
 			angle = rescale(value, -1.0, 1.0, minAngle, maxAngle);
 			angle = fmodf(angle, 2*M_PI);
-		}
-		tw->identity();
-		// Scale SVG to box
-		tw->scale(box.size.div(sw->box.size));
-		// Rotate SVG
-		Vec center = sw->box.getCenter();
-		tw->translate(center);
-		tw->rotate(angle);
-		tw->translate(center.neg());
+		}*/
+        if(paramQuantity) {
+            if (paramQuantity->isBounded()) {
+                angle = math::rescale(paramQuantity->getScaledValue(), 0.f, 1.f, minAngle, maxAngle);
+            }
+            else {
+                angle = math::rescale(paramQuantity->getValue(), -1.f, 1.f, minAngle, maxAngle);
+            }
+            angle = std::fmod(angle, 2*M_PI);
+
+            tw->identity();
+            // Scale SVG to box
+            tw->scale(box.size.div(sw->box.size));
+            // Rotate SVG
+            Vec center = sw->box.getCenter();
+            tw->translate(center);
+            tw->rotate(angle);
+            tw->translate(center.neg());
+        }
 	}
-	FramebufferWidget::step();
+	fb->step();
 }
 
-void DynamicKnob::onChange(EventChange &e) {
-	dirty = true;
+void DynamicKnob::onChange(const event::Change &e) {
+	fb->dirty = true;
 	Knob::onChange(e);
 }
