@@ -15,7 +15,7 @@ DynamicChoice::DynamicChoice() {
     _choice = nullptr;
     _visibility = nullptr;
     _viewMode = ACTIVE_HIGH_VIEW;
-    _font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
+    _font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     _text = std::make_shared<std::string>("");
     _textSize = 14;
 }

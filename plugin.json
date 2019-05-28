@@ -20,14 +20,6 @@
       ]
     },
     {
-      "slug": "uGraph",
-      "name": "uGraph",
-      "description": "",
-      "tags": [
-        "SEQUENCER"
-      ]
-    },
-    {
       "slug": "Plateau",
       "name": "Plateau",
       "description": "",
@@ -36,29 +28,11 @@
       ]
     },
     {
-      "slug": "Dexter",
-      "name": "Dexter",
-      "description": "",
-      "tags": [
-        "OSCILLATOR"
-      ]
-    },
-    {
       "slug": "Interzone",
       "name": "Interzone",
       "description": "",
       "tags": [
         "SYNTH_VOICE"
-      ]
-    },
-    {
-      "slug": "Amalgam",
-      "name": "Amalgam",
-      "description": "",
-      "tags": [
-        "RING_MODULATOR",
-        "EFFECT",
-        "WAVESHAPER"
       ]
     }
   ]

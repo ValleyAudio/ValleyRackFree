@@ -110,7 +110,7 @@ struct DynamicKnob : virtual Knob {
     DynamicViewMode _viewMode;
 
 	DynamicKnob();
-	void setSVG(std::shared_ptr<SVG> svg);
+	void setSvg(std::shared_ptr<SVG> svg);
 	void step() override;
 	void onChange(const event::Change &e) override;
 };
@@ -216,7 +216,7 @@ public:
     NVGcolor textColor;
 
     DynamicValueText(std::shared_ptr<T> value, std::function<std::string(T)> valueToText)  {
-        font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
+        font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         colorHandle = nullptr;
@@ -247,6 +247,9 @@ public:
     }
 
     void step() override {
+        if(_value == nullptr) {
+            return;
+        }
         _text = _valueToText(*_value);
         if(visibility != nullptr) {
             if(*visibility) {
@@ -310,11 +313,11 @@ T *createValleyKnob(Vec pos, Module *module, int paramId, float minValue, float 
         o->snap = true;
     }
 	return o;*/
-    T *o = createParam<T>(pos, module, paramId);
 	//o->setLimits(minValue, maxValue);
     if (module) {
 		module->configParam(paramId, minValue, maxValue, defaultValue);
 	}
+    T *o = createParam<T>(pos, module, paramId);
     o->minAngle = minAngle;
     o->maxAngle = maxAngle;
     if(motion == SNAP_MOTION) {

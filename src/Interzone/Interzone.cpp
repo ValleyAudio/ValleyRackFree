@@ -146,7 +146,7 @@ void Interzone::dataFromJson(json_t *rootJ) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void InterzonePanelStyleItem::onAction(EventAction &e) {
+void InterzonePanelStyleItem::onAction(const event::Action &e) {
     module->panelStyle = panelStyle;
 }
 
@@ -158,7 +158,7 @@ void InterzonePanelStyleItem::step() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
-    {
+    /*{
         DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelDark.svg")));
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelLight.svg")));
@@ -166,7 +166,8 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
-    }
+    }*/
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/InterzonePanelDark.svg")));
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -176,7 +177,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     // Params
 
     addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
+    /*addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
     addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM, 0.5f, 0.f, 0.5f));
     addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f));
     addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, -2.f,
@@ -267,7 +268,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     addOutput(createPort<PJ301MDarkSmallOut>(EnvNegativeOutPos, PortWidget::OUTPUT, module, Interzone::ENV_NEGATIVE_OUTPUT));
 
     addOutput(createPort<PJ301MDarkSmallOut>(VCAOutPos, PortWidget::OUTPUT, module, Interzone::VCA_OUTPUT));
-    addInput(createPort<PJ301MDarkSmall>(VCALevelCVPos, PortWidget::INPUT, module, Interzone::VCA_LEVEL_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(VCALevelCVPos, PortWidget::INPUT, module, Interzone::VCA_LEVEL_CV_INPUT));*/
 }
 
 void InterzoneWidget::appendContextMenu(Menu *menu) {

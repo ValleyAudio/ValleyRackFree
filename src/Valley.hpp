@@ -1,4 +1,4 @@
-#include "rack0.hpp"
+#include "rack.hpp"
 using namespace rack;
 
 #include <iomanip> // setprecision
@@ -12,9 +12,10 @@ extern Plugin *pluginInstance;
 ////////////////////
 
 extern Model *modelTopograph;
+extern Model *modelPlateau;
+extern Model *modelInterzone;
+
 /*extern Model *modelUGraph;
 extern Model *modelDexter;
-extern Model *modelPlateau;
 extern Model *modelAmalgam;
-extern Model *modelInterzone;
 extern Model *modelFeline;*/

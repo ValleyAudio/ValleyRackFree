@@ -461,83 +461,6 @@ struct PanelBorder : TransparentWidget {
 	}
 };
 
-struct TopographDynamicText : TransparentWidget {
-    std::string oldText;
-    std::string* pText;
-    std::shared_ptr<Font> font;
-    int size;
-    NVGcolor drawColour;
-    int* visibility;
-    DynamicViewMode viewMode;
-
-    enum Colour {
-        COLOUR_WHITE,
-        COLOUR_BLACK
-    };
-    int* colourHandle;
-
-    TopographDynamicText() {
-        font = Font::load(assetPlugin(pluginInstance, "res/din1451alt.ttf"));
-        size = 16;
-        visibility = nullptr;
-        pText = nullptr;
-        viewMode = ACTIVE_HIGH_VIEW;
-    }
-
-    void draw(NVGcontext* vg) {
-        nvgFontSize(vg, size);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, 0.f);
-        Vec textPos = Vec(0.f, 0.f);
-        if(colourHandle != nullptr) {
-            switch(*colourHandle) {
-                case COLOUR_BLACK : drawColour = nvgRGB(0x00,0x00,0x00); break;
-                case COLOUR_WHITE : drawColour = nvgRGB(0xFF,0xFF,0xFF); break;
-                default : drawColour = nvgRGB(0x00,0x00,0x00);
-            }
-        }
-        else {
-            drawColour = nvgRGB(0x00,0x00,0x00);
-        }
-
-        nvgFillColor(vg, drawColour);
-        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        if(pText != nullptr) {
-            nvgText(vg, textPos.x, textPos.y, pText->c_str(), NULL);
-        }
-    }
-
-    void step() {
-        if(visibility != nullptr) {
-            if(*visibility) {
-                visible = true;
-            }
-            else {
-                visible = false;
-            }
-            if(viewMode == ACTIVE_LOW_VIEW) {
-                visible = !visible;
-            }
-        }
-        else {
-            visible = true;
-        }
-    }
-};
-
-TopographDynamicText* createTopographDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
-                               int* visibilityHandle, DynamicViewMode viewMode) {
-    TopographDynamicText* dynText = new TopographDynamicText();
-    dynText->size = size;
-    dynText->colourHandle = colourHandle;
-    dynText->pText = pText;
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    return dynText;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// Context Menu ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -549,13 +472,14 @@ struct TopographWidget : ModuleWidget {
 
 TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     {
-        DynamicPanelWidget *panel = new DynamicPanelWidget();
+        /*DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanel.svg")));
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanelWhite.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
-        addChild(panel);
+        addChild(panel);*/
     }
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -575,7 +499,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     };
 
     // Tempo text
-    {
+    if(module) {
         std::shared_ptr<float> i = module->tempo;
         DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToTempoText);
         vText->box.pos = Vec(69, 83);
@@ -586,7 +510,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     }
 
     // Map X Text
-    {
+    if(module) {
         addChild(createDynamicText(Vec(27.1,208.5), 14, "Map X", &module->inEuclideanMode,
                                  &module->panelStyle, ACTIVE_LOW_VIEW));
         addChild(createDynamicText(Vec(22.1,208.5), 14, "Len:", &module->inEuclideanMode,
@@ -602,7 +526,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     }
 
     // Map Y Text
-    {
+    if(module) {
         addChild(createDynamicText(Vec(27.1,268.5), 14, "Map Y", &module->inEuclideanMode,
                                    &module->panelStyle, ACTIVE_LOW_VIEW));
         addChild(createDynamicText(Vec(22.1,268.5), 14, "Len:", &module->inEuclideanMode,
@@ -619,7 +543,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     }
 
     // Chaos Text
-    {
+    if(module) {
         addChild(createDynamicText(Vec(27.1,329), 14, "Chaos", &module->inEuclideanMode,
                                  &module->panelStyle, ACTIVE_LOW_VIEW));
         addChild(createDynamicText(Vec(22.1,329), 14, "Len:", &module->inEuclideanMode,
@@ -675,7 +599,7 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
 struct TopographPanelStyleItem : MenuItem {
     Topograph* module;
     int panelStyle;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->panelStyle = panelStyle;
     }
     void step() override {
@@ -687,7 +611,7 @@ struct TopographPanelStyleItem : MenuItem {
 struct TopographSequencerModeItem : MenuItem {
     Topograph* module;
     Topograph::SequencerMode sequencerMode;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->sequencerMode = sequencerMode;
         module->inEuclideanMode = 0;
         switch(sequencerMode) {
@@ -712,7 +636,7 @@ struct TopographSequencerModeItem : MenuItem {
 struct TopographTriggerOutputModeItem : MenuItem {
     Topograph* module;
     Topograph::TriggerOutputMode triggerOutputMode;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->triggerOutputMode = triggerOutputMode;
     }
     void step() override {
@@ -724,7 +648,7 @@ struct TopographTriggerOutputModeItem : MenuItem {
 struct TopographAccOutputModeItem : MenuItem {
     Topograph* module;
     Topograph::AccOutputMode accOutputMode;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->accOutputMode = accOutputMode;
         switch(accOutputMode) {
             case Topograph::INDIVIDUAL_ACCENTS:
@@ -743,7 +667,7 @@ struct TopographAccOutputModeItem : MenuItem {
 struct TopographClockResolutionItem : MenuItem {
     Topograph* module;
     Topograph::ExtClockResolution extClockResolution;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->extClockResolution = extClockResolution;
         module->grids.reset();
     }
@@ -756,7 +680,7 @@ struct TopographClockResolutionItem : MenuItem {
 struct TopographRunModeItem : MenuItem {
     Topograph* module;
     Topograph::RunMode runMode;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->runMode = runMode;
     }
     void step() override {

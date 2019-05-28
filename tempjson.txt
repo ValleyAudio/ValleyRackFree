@@ -1,0 +1,27 @@
+,
+{
+  "slug": "uGraph",
+  "name": "uGraph",
+  "description": "",
+  "tags": [
+    "SEQUENCER"
+  ]
+},
+{
+  "slug": "Dexter",
+  "name": "Dexter",
+  "description": "",
+  "tags": [
+    "OSCILLATOR"
+  ]
+},
+{
+  "slug": "Amalgam",
+  "name": "Amalgam",
+  "description": "",
+  "tags": [
+    "RING_MODULATOR",
+    "EFFECT",
+    "WAVESHAPER"
+  ]
+}

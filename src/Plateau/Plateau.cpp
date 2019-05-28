@@ -265,7 +265,7 @@ void Plateau::dataFromJson(json_t *rootJ) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlateauPanelStyleItem::onAction(EventAction &e) {
+void PlateauPanelStyleItem::onAction(const event::Action &e) {
     module->panelStyle = panelStyle;
 }
 
@@ -274,7 +274,7 @@ void PlateauPanelStyleItem::step() {
     MenuItem::step();
 }
 
-void PlateauPreDelayCVSensItem::onAction(EventAction &e) {
+void PlateauPreDelayCVSensItem::onAction(const event::Action &e) {
     module->preDelayCVSensState = preDelayCVSensState;
 }
 
@@ -283,7 +283,7 @@ void PlateauPreDelayCVSensItem::step() {
     MenuItem::step();
 }
 
-void PlateauInputSensItem::onAction(EventAction &e) {
+void PlateauInputSensItem::onAction(const event::Action &e) {
     module->inputSensitivityState = inputSensitivityState;
 }
 
@@ -292,7 +292,7 @@ void PlateauInputSensItem::step() {
     MenuItem::step();
 }
 
-void PlateauOutputSaturationItem::onAction(EventAction &e) {
+void PlateauOutputSaturationItem::onAction(const event::Action &e) {
     module->outputSaturationState = outputSaturationState;
 }
 
@@ -305,78 +305,79 @@ void PlateauOutputSaturationItem::step() {
 
 PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     {
-        DynamicPanelWidget *panel = new DynamicPanelWidget();
+        /*DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelDark.svg")));
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
-        addChild(panel);
+        addChild(panel);*/
     }
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelDark.svg")));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     // Make jacks
-    addInput(createPort<PJ301MDarkSmall>(module->leftInputPos, PortWidget::INPUT, module, Plateau::LEFT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->rightInputPos, PortWidget::INPUT, module, Plateau::RIGHT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->dryCVPos, PortWidget::INPUT, module, Plateau::DRY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->wetCVPos, PortWidget::INPUT, module, Plateau::WET_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->preDelayCVPos, PortWidget::INPUT, module, Plateau::PRE_DELAY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->inputLowDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_LOW_DAMP_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->inputHighDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_HIGH_DAMP_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(leftInputPos, PortWidget::INPUT, module, Plateau::LEFT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(rightInputPos, PortWidget::INPUT, module, Plateau::RIGHT_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(dryCVPos, PortWidget::INPUT, module, Plateau::DRY_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(wetCVPos, PortWidget::INPUT, module, Plateau::WET_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(preDelayCVPos, PortWidget::INPUT, module, Plateau::PRE_DELAY_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(inputLowDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_LOW_DAMP_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(inputHighDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_HIGH_DAMP_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(module->sizeCVPos, PortWidget::INPUT, module, Plateau::SIZE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->diffCVPos, PortWidget::INPUT, module, Plateau::DIFFUSION_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->decayCVPos, PortWidget::INPUT, module, Plateau::DECAY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->reverbLowDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_LOW_DAMP_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->reverbHighDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_HIGH_DAMP_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(sizeCVPos, PortWidget::INPUT, module, Plateau::SIZE_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(diffCVPos, PortWidget::INPUT, module, Plateau::DIFFUSION_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(decayCVPos, PortWidget::INPUT, module, Plateau::DECAY_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(reverbLowDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_LOW_DAMP_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(reverbHighDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_HIGH_DAMP_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(module->modRateCVPos, PortWidget::INPUT, module, Plateau::MOD_SPEED_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->modShapeCVPos, PortWidget::INPUT, module, Plateau::MOD_SHAPE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->modDepthCVPos, PortWidget::INPUT, module, Plateau::MOD_DEPTH_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(modRateCVPos, PortWidget::INPUT, module, Plateau::MOD_SPEED_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(modShapeCVPos, PortWidget::INPUT, module, Plateau::MOD_SHAPE_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(modDepthCVPos, PortWidget::INPUT, module, Plateau::MOD_DEPTH_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(module->holdCVPos, PortWidget::INPUT, module, Plateau::FREEZE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(module->clearCVPos, PortWidget::INPUT, module, Plateau::CLEAR_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(holdCVPos, PortWidget::INPUT, module, Plateau::FREEZE_CV_INPUT));
+    addInput(createPort<PJ301MDarkSmall>(clearCVPos, PortWidget::INPUT, module, Plateau::CLEAR_CV_INPUT));
 
-    addOutput(createPort<PJ301MDarkSmallOut>(module->leftOutputPos, PortWidget::OUTPUT, module, Plateau::LEFT_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(module->rightOutputPos, PortWidget::OUTPUT, module, Plateau::RIGHT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(leftOutputPos, PortWidget::OUTPUT, module, Plateau::LEFT_OUTPUT));
+    addOutput(createPort<PJ301MDarkSmallOut>(rightOutputPos, PortWidget::OUTPUT, module, Plateau::RIGHT_OUTPUT));
 
     // Make knobs
 
     float minAngle = -0.77f * M_PI;
     float maxAngle = 0.77f * M_PI;
-    addParam(createValleyKnob<RoganMedSmallWhite>(module->dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedSmallWhite>(module->wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganSmallWhite>(module->preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(module->inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(module->inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedSmallWhite>(dryPos, module, Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedSmallWhite>(wetPos, module, Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganSmallWhite>(preDelayPos, module, Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
-    addParam(createValleyKnob<RoganMedBlue>(module->sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedBlue>(module->diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedBlue>(module->decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(module->reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(module->reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedBlue>(sizePos, module, Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedBlue>(diffPos, module, Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedBlue>(decayPos, module, Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedGreen>(reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
-    addParam(createValleyKnob<RoganMedRed>(module->modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedRed>(module->modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedRed>(module->modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedRed>(modRatePos, module, Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedRed>(modDepthPos, module, Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    addParam(createValleyKnob<RoganMedRed>(modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
     // Make Attenuverters
-    addParam(createParam<RoganSmallWhite>(module->dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallWhite>(module->wetAttenPos, module, Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(module->inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(module->inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallWhite>(dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallWhite>(wetAttenPos, module, Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallGreen>(inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallGreen>(inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
 
-    addParam(createParam<RoganSmallBlue>(module->sizeAttenPos, module, Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallBlue>(module->diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallBlue>(module->decayAttenPos, module, Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(module->reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(module->reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallBlue>(sizeAttenPos, module, Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallBlue>(diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallBlue>(decayAttenPos, module, Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallGreen>(reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallGreen>(reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
 
-    addParam(createParam<RoganSmallRed>(module->modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallRed>(module->modShapeAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallRed>(module->modDepthAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallRed>(modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallRed>(modShapeAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallRed>(modDepthAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
 
     // Make buttons
     addParam(createParam<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));

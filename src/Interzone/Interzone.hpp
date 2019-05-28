@@ -173,7 +173,7 @@ struct Interzone : Module {
 struct InterzonePanelStyleItem : MenuItem {
     Interzone* module;
     int panelStyle;
-    void onAction(EventAction &e) override;
+    void onAction(const event::Action &e) override;
     void step() override;
 };
 

@@ -6,10 +6,11 @@ Plugin *pluginInstance;
 void init(rack::Plugin *p) {
 	pluginInstance = p;
     p->addModel(modelTopograph);
+    p->addModel(modelPlateau);
+    p->addModel(modelInterzone);
+
     /*p->addModel(modelUGraph);
     p->addModel(modelDexter);
-    p->addModel(modelPlateau);
     p->addModel(modelAmalgam);
-    p->addModel(modelInterzone);
     p->addModel(modelFeline);*/
 }

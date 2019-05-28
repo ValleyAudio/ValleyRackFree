@@ -18,7 +18,7 @@ DynamicKnob::DynamicKnob() {
     _viewMode = ACTIVE_HIGH_VIEW;
 }
 
-void DynamicKnob::setSVG(std::shared_ptr<SVG> svg) {
+void DynamicKnob::setSvg(std::shared_ptr<SVG> svg) {
 	sw->svg = svg;
 	sw->wrap();
 	tw->box.size = sw->box.size;
