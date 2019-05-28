@@ -1,29 +1,29 @@
 #include "Interzone.hpp"
 
 Interzone::Interzone() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-    calcGTable(engineGetSampleRate());
-    filter.setSampleRate(engineGetSampleRate());
+    calcGTable(APP->engine->getSampleRate());
+    filter.setSampleRate(APP->engine->getSampleRate());
     filter.setCutoff(5.f);
     filter.setNLP(true);
-    highpass.setSampleRate(engineGetSampleRate());
+    highpass.setSampleRate(APP->engine->getSampleRate());
 
-    lfoSlew.setSampleRate(engineGetSampleRate());
+    lfoSlew.setSampleRate(APP->engine->getSampleRate());
     lfoSlew.setCutoffFreq(14000.f);
-    osc.setSampleRate(engineGetSampleRate());
-    glide.setSampleRate(engineGetSampleRate());
+    osc.setSampleRate(APP->engine->getSampleRate());
+    glide.setSampleRate(APP->engine->getSampleRate());
 
-    lfo.setSampleRate(engineGetSampleRate());
-    lfoSlew.setSampleRate(engineGetSampleRate());
+    lfo.setSampleRate(APP->engine->getSampleRate());
+    lfoSlew.setSampleRate(APP->engine->getSampleRate());
     lfoSlew.setCutoffFreq(14000.f);
 
-    gateSlew.setSampleRate(engineGetSampleRate());
+    gateSlew.setSampleRate(APP->engine->getSampleRate());
     gateSlew.setCutoffFreq(90.f);
 
-    env.setSampleRate(engineGetSampleRate());
+    env.setSampleRate(APP->engine->getSampleRate());
     sampleAndHold = 0.f;
 }
 
-void Interzone::step() {
+void Interzone::process(const ProcessArgs &args) {
     lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].value + params[LFO_FINE_PARAM].value + inputs[LFO_RATE_INPUT].value));
     lfo.sync(inputs[LFO_SYNC_INPUT].value);
     lfo.trigger(inputs[LFO_TRIG_INPUT].value);
@@ -121,16 +121,16 @@ void Interzone::step() {
 }
 
 void Interzone::onSampleRateChange() {
-    calcGTable(engineGetSampleRate());
-    osc.setSampleRate(engineGetSampleRate());
-    filter.setSampleRate(engineGetSampleRate());
-    highpass.setSampleRate(engineGetSampleRate());
-    lfo.setSampleRate(engineGetSampleRate());
-    lfoSlew.setSampleRate(engineGetSampleRate());
-    gateSlew.setSampleRate(engineGetSampleRate());
-    env.setSampleRate(engineGetSampleRate());
-    glide.setSampleRate(engineGetSampleRate());
-    pink.setSampleRate(engineGetSampleRate());
+    calcGTable(APP->engine->getSampleRate());
+    osc.setSampleRate(APP->engine->getSampleRate());
+    filter.setSampleRate(APP->engine->getSampleRate());
+    highpass.setSampleRate(APP->engine->getSampleRate());
+    lfo.setSampleRate(APP->engine->getSampleRate());
+    lfoSlew.setSampleRate(APP->engine->getSampleRate());
+    gateSlew.setSampleRate(APP->engine->getSampleRate());
+    env.setSampleRate(APP->engine->getSampleRate());
+    glide.setSampleRate(APP->engine->getSampleRate());
+    pink.setSampleRate(APP->engine->getSampleRate());
 }
 
 json_t* Interzone::dataToJson()  {
@@ -176,8 +176,8 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
 
     // Params
 
-    addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
-    /*addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
+    /*addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
     addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM, 0.5f, 0.f, 0.5f));
     addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f));
     addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, -2.f,
@@ -236,39 +236,39 @@ InterzoneWidget::InterzoneWidget(Interzone* module) : ModuleWidget(module) {
     addChild(createLight<SmallLight<RedLight>>(Vec(249.244, 155.875), module, Interzone::LFO_LIGHT));
 
     // IO
-    addInput(createPort<PJ301MDarkSmall>(VOctIn1Pos, PortWidget::INPUT, module, Interzone::VOCT_INPUT_1));
-    addInput(createPort<PJ301MDarkSmall>(VOctIn2Pos, PortWidget::INPUT, module, Interzone::VOCT_INPUT_2));
-    addInput(createPort<PJ301MDarkSmall>(PWMInPos, PortWidget::INPUT, module, Interzone::PW_MOD_INPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(SawOutPos, PortWidget::OUTPUT, module, Interzone::SAW_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(PulseOutPos, PortWidget::OUTPUT, module, Interzone::PULSE_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(SubOutPos, PortWidget::OUTPUT, module, Interzone::SUB_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(VOctIn1Pos, module, Interzone::VOCT_INPUT_1));
+    addInput(createInput<PJ301MDarkSmall>(VOctIn2Pos, module, Interzone::VOCT_INPUT_2));
+    addInput(createInput<PJ301MDarkSmall>(PWMInPos, module, Interzone::PW_MOD_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(SawOutPos, module, Interzone::SAW_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(PulseOutPos, module, Interzone::PULSE_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(SubOutPos, module, Interzone::SUB_OUTPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(MixerExtInPos, PortWidget::INPUT, module, Interzone::EXT_INPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(MixerOutPos, PortWidget::OUTPUT, module, Interzone::MIX_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(MixerExtInPos, module, Interzone::EXT_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(MixerOutPos, module, Interzone::MIX_OUTPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(LFORateInPos, PortWidget::INPUT, module, Interzone::LFO_RATE_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(LFOTrigInPos, PortWidget::INPUT, module, Interzone::LFO_TRIG_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(LFOSyncInPos, PortWidget::INPUT, module, Interzone::LFO_SYNC_INPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOSineOutPos, PortWidget::OUTPUT, module, Interzone::LFO_SINE_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOTriOutPos, PortWidget::OUTPUT, module, Interzone::LFO_TRI_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOSawUpPos, PortWidget::OUTPUT, module, Interzone::LFO_SAW_UP_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOSawDownPos, PortWidget::OUTPUT, module, Interzone::LFO_SAW_DOWN_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOPulseOutPos, PortWidget::OUTPUT, module, Interzone::LFO_PULSE_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFOSHOutPos, PortWidget::OUTPUT, module, Interzone::LFO_SH_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(LFONoiseOutPos, PortWidget::OUTPUT, module, Interzone::LFO_NOISE_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(LFORateInPos, module, Interzone::LFO_RATE_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(LFOTrigInPos, module, Interzone::LFO_TRIG_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(LFOSyncInPos, module, Interzone::LFO_SYNC_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOSineOutPos, module, Interzone::LFO_SINE_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOTriOutPos, module, Interzone::LFO_TRI_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOSawUpPos, module, Interzone::LFO_SAW_UP_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOSawDownPos, module, Interzone::LFO_SAW_DOWN_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOPulseOutPos, module, Interzone::LFO_PULSE_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFOSHOutPos, module, Interzone::LFO_SH_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(LFONoiseOutPos, module, Interzone::LFO_NOISE_OUTPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(FilterCutoffIn1Pos, PortWidget::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_1));
-    addInput(createPort<PJ301MDarkSmall>(FilterCutoffIn2Pos, PortWidget::INPUT, module, Interzone::FILTER_CUTOFF_INPUT_2));
-    addInput(createPort<PJ301MDarkSmall>(FilterResInPos, PortWidget::INPUT, module, Interzone::FILTER_RES_INPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(FilterOutPos, PortWidget::OUTPUT, module, Interzone::FILTER_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(FilterCutoffIn1Pos, module, Interzone::FILTER_CUTOFF_INPUT_1));
+    addInput(createInput<PJ301MDarkSmall>(FilterCutoffIn2Pos, module, Interzone::FILTER_CUTOFF_INPUT_2));
+    addInput(createInput<PJ301MDarkSmall>(FilterResInPos, module, Interzone::FILTER_RES_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(FilterOutPos, module, Interzone::FILTER_OUTPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(EnvGateInPos, PortWidget::INPUT, module, Interzone::GATE_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(EnvTrigInPos, PortWidget::INPUT, module, Interzone::TRIG_INPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(EnvPositiveOutPos, PortWidget::OUTPUT, module, Interzone::ENV_POSITIVE_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(EnvNegativeOutPos, PortWidget::OUTPUT, module, Interzone::ENV_NEGATIVE_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(EnvGateInPos, module, Interzone::GATE_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(EnvTrigInPos, module, Interzone::TRIG_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(EnvPositiveOutPos, module, Interzone::ENV_POSITIVE_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(EnvNegativeOutPos, module, Interzone::ENV_NEGATIVE_OUTPUT));
 
-    addOutput(createPort<PJ301MDarkSmallOut>(VCAOutPos, PortWidget::OUTPUT, module, Interzone::VCA_OUTPUT));
-    addInput(createPort<PJ301MDarkSmall>(VCALevelCVPos, PortWidget::INPUT, module, Interzone::VCA_LEVEL_CV_INPUT));*/
+    addOutput(createOutput<PJ301MDarkSmallOut>(VCAOutPos, module, Interzone::VCA_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(VCALevelCVPos, module, Interzone::VCA_LEVEL_CV_INPUT));*/
 }
 
 void InterzoneWidget::appendContextMenu(Menu *menu) {

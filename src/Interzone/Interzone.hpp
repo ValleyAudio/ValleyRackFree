@@ -138,7 +138,7 @@ struct Interzone : Module {
     };
 
     Interzone();
-    void step() override;
+    void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;

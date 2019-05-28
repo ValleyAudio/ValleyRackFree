@@ -209,7 +209,7 @@ struct LightLEDButton : DynamicSwitchWidget {
 
 struct RedDynamicLight : DynamicModuleLightWidget {
 	RedDynamicLight() {
-		addBaseColor(COLOR_RED);
+		addBaseColor(SCHEME_RED);
 	}
 };
 

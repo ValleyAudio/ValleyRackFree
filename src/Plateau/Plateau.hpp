@@ -182,7 +182,7 @@ struct Plateau : Module {
     int diffuseInput;
 
     Plateau();
-    void step() override;
+    void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
     void reset();
     json_t *dataToJson() override;

@@ -161,22 +161,22 @@ struct Topograph : Module {
     int textVisible = 1;
 
     Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-        metro = Metronome(120, engineGetSampleRate(), 24.0, 0.0);
+        metro = Metronome(120, args.sampleRate, 24.0, 0.0);
         numTicks = ticks_granularity[2];
         srand(time(NULL));
-        BDLed = Oneshot(0.1, engineGetSampleRate());
-        SNLed = Oneshot(0.1, engineGetSampleRate());
-        HHLed = Oneshot(0.1, engineGetSampleRate());
-        resetLed = Oneshot(0.1, engineGetSampleRate());
+        BDLed = Oneshot(0.1, args.sampleRate);
+        SNLed = Oneshot(0.1, args.sampleRate);
+        HHLed = Oneshot(0.1, args.sampleRate);
+        resetLed = Oneshot(0.1, args.sampleRate);
         //clockTrig.setThresholds(0.25, 0.75);
         //resetTrig.setThresholds(0.25, 0.75);
         //runInputTrig.setThresholds(0.25, 0.75);
         for(int i = 0; i < 6; ++i) {
-            drumTriggers[i] = Oneshot(0.001, engineGetSampleRate());
+            drumTriggers[i] = Oneshot(0.001, args.sampleRate);
             gateState[i] = false;
         }
         for(int i = 0; i < 3; ++i) {
-            drumLED[i] = Oneshot(0.1, engineGetSampleRate());
+            drumLED[i] = Oneshot(0.1, args.sampleRate);
         }
         panelStyle = 0;
     }
@@ -263,7 +263,7 @@ struct Topograph : Module {
     void updateOutputs();
 };
 
-void Topograph::step() {
+void Topograph::process(const ProcessArgs &args) {
     if(runMode == TOGGLE) {
         if (runButtonTrig.process(params[RUN_BUTTON_PARAM].value) ||
             runInputTrig.process(inputs[RUN_INPUT].value)) {
@@ -438,13 +438,13 @@ void Topograph::updateOutputs() {
 }
 
 void Topograph::onSampleRateChange() {
-    metro.setSampleRate(engineGetSampleRate());
+    metro.setSampleRate(APP->engine->getSampleRate());
     for(int i = 0; i < 3; ++i) {
-        drumLED[i].setSampleRate(engineGetSampleRate());
+        drumLED[i].setSampleRate(APP->engine->getSampleRate());
     }
-    resetLed.setSampleRate(engineGetSampleRate());
+    resetLed.setSampleRate(APP->engine->getSampleRate());
     for(int i = 0; i < 6; ++i) {
-        drumTriggers[i].setSampleRate(engineGetSampleRate());
+        drumTriggers[i].setSampleRate(APP->engine->getSampleRate());
     }
 }
 
@@ -568,23 +568,23 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
     addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
 
-    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 50.0), PortWidget::INPUT, module, Topograph::CLOCK_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 113.0), PortWidget::INPUT, module, Topograph::RESET_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 176.0), PortWidget::INPUT, module, Topograph::MAPX_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 236.0), PortWidget::INPUT, module, Topograph::MAPY_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(17.0, 296.0), PortWidget::INPUT, module, Topograph::CHAOS_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(131.0, 236.0), PortWidget::INPUT, module, Topograph::BD_FILL_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(167.0, 236.0), PortWidget::INPUT, module, Topograph::SN_FILL_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(203.0, 236.0), PortWidget::INPUT, module, Topograph::HH_FILL_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(167.0, 50.0), PortWidget::INPUT, module, Topograph::SWING_CV));
-    addInput(createPort<PJ301MDarkSmall>(Vec(74.5, 113.0), PortWidget::INPUT, module, Topograph::RUN_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, Topograph::CLOCK_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 113.0), module, Topograph::RESET_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, Topograph::MAPX_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, Topograph::MAPY_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, Topograph::CHAOS_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(131.0, 236.0), module, Topograph::BD_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 236.0), module, Topograph::SN_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, Topograph::HH_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 50.0), module, Topograph::SWING_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(74.5, 113.0), module, Topograph::RUN_INPUT));
 
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(131.2, 272.536), PortWidget::OUTPUT, module, Topograph::BD_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(167.2, 272.536), PortWidget::OUTPUT, module, Topograph::SN_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(203.2, 272.536), PortWidget::OUTPUT, module, Topograph::HH_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(131.2, 308.536), PortWidget::OUTPUT, module, Topograph::BD_ACC_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(167.2, 308.536), PortWidget::OUTPUT, module, Topograph::SN_ACC_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Vec(203.2, 308.536), PortWidget::OUTPUT, module, Topograph::HH_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.2, 272.536), module, Topograph::BD_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.2, 272.536), module, Topograph::SN_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.2, 272.536), module, Topograph::HH_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.2, 308.536), module, Topograph::BD_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.2, 308.536), module, Topograph::SN_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.2, 308.536), module, Topograph::HH_ACC_OUTPUT));
 
     addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));

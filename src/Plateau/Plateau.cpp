@@ -1,7 +1,7 @@
 #include "Plateau.hpp"
 
 Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-    reverb.setSampleRate(engineGetSampleRate());
+    reverb.setSampleRate(APP->engine->getSampleRate());
     wet = 0.5f;
     dry = 1.f;
     preDelay = 0.f;
@@ -37,7 +37,7 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     rightInput = 0.f;
 }
 
-void Plateau::step() {
+void Plateau::process(const ProcessArgs &args) {
     //Freeze
     if(params[FREEZE_TOGGLE_PARAM].value > 0.5f && !freezeToggleButtonState) {
         freezeToggleButtonState = true;
@@ -217,7 +217,7 @@ void Plateau::step() {
 }
 
 void Plateau::onSampleRateChange() {
-    reverb.setSampleRate(engineGetSampleRate());
+    reverb.setSampleRate(APP->engine->getSampleRate());
 }
 
 void Plateau::reset() {
@@ -319,29 +319,29 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
     // Make jacks
-    addInput(createPort<PJ301MDarkSmall>(leftInputPos, PortWidget::INPUT, module, Plateau::LEFT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(rightInputPos, PortWidget::INPUT, module, Plateau::RIGHT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(dryCVPos, PortWidget::INPUT, module, Plateau::DRY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(wetCVPos, PortWidget::INPUT, module, Plateau::WET_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(preDelayCVPos, PortWidget::INPUT, module, Plateau::PRE_DELAY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(inputLowDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_LOW_DAMP_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(inputHighDampCVPos, PortWidget::INPUT, module, Plateau::INPUT_HIGH_DAMP_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(leftInputPos, module, Plateau::LEFT_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(rightInputPos, module, Plateau::RIGHT_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(dryCVPos, module, Plateau::DRY_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(wetCVPos, module, Plateau::WET_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(preDelayCVPos, module, Plateau::PRE_DELAY_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(inputLowDampCVPos, module, Plateau::INPUT_LOW_DAMP_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(inputHighDampCVPos, module, Plateau::INPUT_HIGH_DAMP_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(sizeCVPos, PortWidget::INPUT, module, Plateau::SIZE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(diffCVPos, PortWidget::INPUT, module, Plateau::DIFFUSION_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(decayCVPos, PortWidget::INPUT, module, Plateau::DECAY_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(reverbLowDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_LOW_DAMP_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(reverbHighDampCVPos, PortWidget::INPUT, module, Plateau::REVERB_HIGH_DAMP_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(sizeCVPos, module, Plateau::SIZE_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(diffCVPos, module, Plateau::DIFFUSION_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(decayCVPos, module, Plateau::DECAY_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(reverbLowDampCVPos, module, Plateau::REVERB_LOW_DAMP_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(reverbHighDampCVPos, module, Plateau::REVERB_HIGH_DAMP_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(modRateCVPos, PortWidget::INPUT, module, Plateau::MOD_SPEED_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(modShapeCVPos, PortWidget::INPUT, module, Plateau::MOD_SHAPE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(modDepthCVPos, PortWidget::INPUT, module, Plateau::MOD_DEPTH_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(modRateCVPos, module, Plateau::MOD_SPEED_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(modShapeCVPos, module, Plateau::MOD_SHAPE_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(modDepthCVPos, module, Plateau::MOD_DEPTH_CV_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(holdCVPos, PortWidget::INPUT, module, Plateau::FREEZE_CV_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(clearCVPos, PortWidget::INPUT, module, Plateau::CLEAR_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(holdCVPos, module, Plateau::FREEZE_CV_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(clearCVPos, module, Plateau::CLEAR_CV_INPUT));
 
-    addOutput(createPort<PJ301MDarkSmallOut>(leftOutputPos, PortWidget::OUTPUT, module, Plateau::LEFT_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(rightOutputPos, PortWidget::OUTPUT, module, Plateau::RIGHT_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(leftOutputPos, module, Plateau::LEFT_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(rightOutputPos, module, Plateau::RIGHT_OUTPUT));
 
     // Make knobs
 
