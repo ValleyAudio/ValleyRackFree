@@ -1,6 +1,26 @@
 #include "Plateau.hpp"
 
-Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+Plateau::Plateau() {
+	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f);
+    configParam(Plateau::FREEZE_TOGGLE_PARAM, 0.f, 10.f, 0.f);
+    configParam(Plateau::CLEAR_PARAM, 0.f, 10.f, 0.f);
+    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f);
+    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f);
+    configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 10.f, 0.f);
+
     reverb.setSampleRate(APP->engine->getSampleRate());
     wet = 0.5f;
     dry = 1.f;
@@ -39,21 +59,21 @@ Plateau::Plateau() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 void Plateau::process(const ProcessArgs &args) {
     //Freeze
-    if(params[FREEZE_TOGGLE_PARAM].value > 0.5f && !freezeToggleButtonState) {
+    if(params[FREEZE_TOGGLE_PARAM].getValue() > 0.5f && !freezeToggleButtonState) {
         freezeToggleButtonState = true;
         freezeToggle = !freezeToggle;
     }
-    else if(params[FREEZE_TOGGLE_PARAM].value < 0.5f && freezeToggleButtonState) {
+    else if(params[FREEZE_TOGGLE_PARAM].getValue() < 0.5f && freezeToggleButtonState) {
         freezeToggleButtonState = false;
     }
     lights[FREEZE_TOGGLE_LIGHT].value = freezeToggle ? 10.f : 0.f;
 
-    if((params[FREEZE_PARAM].value > 0.5f || inputs[FREEZE_CV_INPUT].value > 0.5f)
+    if((params[FREEZE_PARAM].getValue() > 0.5f || inputs[FREEZE_CV_INPUT].getVoltage() > 0.5f)
     && !freezeButtonState) {
         freeze = freezeToggle ? !freeze : true;
         freezeButtonState = true;
     }
-    if(params[FREEZE_PARAM].value <= 0.5f && inputs[FREEZE_CV_INPUT].value <= 0.5f
+    if(params[FREEZE_PARAM].getValue() <= 0.5f && inputs[FREEZE_CV_INPUT].getVoltage() <= 0.5f
     && freezeButtonState) {
         freeze = freezeToggle ? freeze : false;
         freezeButtonState = false;
@@ -70,27 +90,27 @@ void Plateau::process(const ProcessArgs &args) {
     lights[FREEZE_LIGHT].value = freeze ? 10.f : 0.f;
 
     // Clear
-    if(params[CLEAR_PARAM].value > 0.5f || inputs[CLEAR_CV_INPUT].value > 0.5f) {
+    if(params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) {
         clear = 1;
     }
-    else if(params[CLEAR_PARAM].value < 0.5f && inputs[CLEAR_CV_INPUT].value < 0.5f) {
+    else if(params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) {
         clear = 0;
     }
 
-    if(params[TUNED_MODE_PARAM].value > 0.5f && tunedButtonState == false) {
+    if(params[TUNED_MODE_PARAM].getValue() > 0.5f && tunedButtonState == false) {
         tuned = 1 - tuned;
         tunedButtonState = true;
     }
-    else if(params[TUNED_MODE_PARAM].value < 0.5f && tunedButtonState) {
+    else if(params[TUNED_MODE_PARAM].getValue() < 0.5f && tunedButtonState) {
         tunedButtonState = false;
     }
     lights[TUNED_MODE_LIGHT].value = tuned ? 10.f : 0.f;
 
-    if(params[DIFFUSE_INPUT_PARAM].value > 0.5f && diffuseButtonState == false) {
+    if(params[DIFFUSE_INPUT_PARAM].getValue() > 0.5f && diffuseButtonState == false) {
         diffuseInput = 1 - diffuseInput;
         diffuseButtonState = true;
     }
-    else if(params[DIFFUSE_INPUT_PARAM].value < 0.5f && diffuseButtonState) {
+    else if(params[DIFFUSE_INPUT_PARAM].getValue() < 0.5f && diffuseButtonState) {
         diffuseButtonState = false;
     }
     lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
@@ -110,12 +130,12 @@ void Plateau::process(const ProcessArgs &args) {
         case 0: preDelayCVSens = preDelayNormSens; break;
         case 1: preDelayCVSens = preDelayLowSens;
     }
-    preDelay = params[PRE_DELAY_PARAM].value;
-    preDelay += 0.5f * (powf(2.f, inputs[PRE_DELAY_CV_INPUT].value * preDelayCVSens) - 1.f);
+    preDelay = params[PRE_DELAY_PARAM].getValue();
+    preDelay += 0.5f * (powf(2.f, inputs[PRE_DELAY_CV_INPUT].getVoltage() * preDelayCVSens) - 1.f);
     reverb.setPreDelay(clamp(preDelay, 0.f, 1.f));
 
-    size = inputs[SIZE_CV_INPUT].value * params[SIZE_CV_PARAM].value * 0.1f;
-    size += params[SIZE_PARAM].value;
+    size = inputs[SIZE_CV_INPUT].getVoltage() * params[SIZE_CV_PARAM].getValue() * 0.1f;
+    size += params[SIZE_PARAM].getValue();
     if(tuned) {
         size = sizeMin * powf(2.f, size * 5.f);
         size = clamp(size, sizeMin, 2.5f);
@@ -127,34 +147,34 @@ void Plateau::process(const ProcessArgs &args) {
     }
     reverb.setTimeScale(size);
 
-    diffusion = inputs[DIFFUSION_CV_INPUT].value * params[DIFFUSION_CV_PARAM].value;
-    diffusion += params[DIFFUSION_PARAM].value;
+    diffusion = inputs[DIFFUSION_CV_INPUT].getVoltage() * params[DIFFUSION_CV_PARAM].getValue();
+    diffusion += params[DIFFUSION_PARAM].getValue();
     diffusion = clamp(diffusion, 0.f, 10.f);
     reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, 0.7f);
     reverb.plateDiffusion2 = rescale(diffusion, 0.f, 10.f, 0.f, 0.5f);
 
-    decay = rescale(inputs[DECAY_CV_INPUT].value * params[DECAY_CV_PARAM].value, 0.f, 10.f, 0.1f, 0.999f);
-    decay += params[DECAY_PARAM].value;
+    decay = rescale(inputs[DECAY_CV_INPUT].getVoltage() * params[DECAY_CV_PARAM].getValue(), 0.f, 10.f, 0.1f, 0.999f);
+    decay += params[DECAY_PARAM].getValue();
     decay = clamp(decay, 0.1f, decayMax);
     decay = 1.f - decay;
     decay = 1.f - decay * decay;
 
-    inputDampLow = inputs[INPUT_LOW_DAMP_CV_INPUT].value * params[INPUT_LOW_DAMP_CV_PARAM].value;
-    inputDampLow += params[INPUT_LOW_DAMP_PARAM].value;
+    inputDampLow = inputs[INPUT_LOW_DAMP_CV_INPUT].getVoltage() * params[INPUT_LOW_DAMP_CV_PARAM].getValue();
+    inputDampLow += params[INPUT_LOW_DAMP_PARAM].getValue();
     inputDampLow = clamp(inputDampLow, 0.f, 10.f);
     inputDampLow = 10.f - inputDampLow;
 
-    inputDampHigh = inputs[INPUT_HIGH_DAMP_CV_INPUT].value * params[INPUT_HIGH_DAMP_CV_PARAM].value;
-    inputDampHigh += params[INPUT_HIGH_DAMP_PARAM].value;
+    inputDampHigh = inputs[INPUT_HIGH_DAMP_CV_INPUT].getVoltage() * params[INPUT_HIGH_DAMP_CV_PARAM].getValue();
+    inputDampHigh += params[INPUT_HIGH_DAMP_PARAM].getValue();
     inputDampHigh = clamp(inputDampHigh, 0.f, 10.f);
 
-    reverbDampLow = inputs[REVERB_LOW_DAMP_CV_INPUT].value * params[REVERB_LOW_DAMP_CV_PARAM].value;
-    reverbDampLow += params[REVERB_LOW_DAMP_PARAM].value;
+    reverbDampLow = inputs[REVERB_LOW_DAMP_CV_INPUT].getVoltage() * params[REVERB_LOW_DAMP_CV_PARAM].getValue();
+    reverbDampLow += params[REVERB_LOW_DAMP_PARAM].getValue();
     reverbDampLow = clamp(reverbDampLow, 0.f, 10.f);
     reverbDampLow = 10.f - reverbDampLow;
 
-    reverbDampHigh = inputs[REVERB_HIGH_DAMP_CV_INPUT].value * params[REVERB_HIGH_DAMP_CV_PARAM].value;
-    reverbDampHigh += params[REVERB_HIGH_DAMP_PARAM].value;
+    reverbDampHigh = inputs[REVERB_HIGH_DAMP_CV_INPUT].getVoltage() * params[REVERB_HIGH_DAMP_CV_PARAM].getValue();
+    reverbDampHigh += params[REVERB_HIGH_DAMP_PARAM].getValue();
     reverbDampHigh = clamp(reverbDampHigh, 0.f, 10.f);
 
     reverb.diffuseInput = (double)diffuseInput;
@@ -165,54 +185,54 @@ void Plateau::process(const ProcessArgs &args) {
     reverb.reverbLowCut = 440.f * powf(2.f, reverbDampLow - 5.f);
     reverb.reverbHighCut = 440.f * powf(2.f, reverbDampHigh - 5.f);
 
-    modSpeed = inputs[MOD_SPEED_CV_INPUT].value * params[MOD_SPEED_CV_PARAM].value * 0.1f;
-    modSpeed += params[MOD_SPEED_PARAM].value;
+    modSpeed = inputs[MOD_SPEED_CV_INPUT].getVoltage() * params[MOD_SPEED_CV_PARAM].getValue() * 0.1f;
+    modSpeed += params[MOD_SPEED_PARAM].getValue();
     modSpeed = clamp(modSpeed, modSpeedMin, modSpeedMax);
     modSpeed *= modSpeed;
     modSpeed = modSpeed * 99.f + 1.f;
 
-    modShape = inputs[MOD_SHAPE_CV_INPUT].value * params[MOD_SHAPE_CV_PARAM].value * 0.1f;
-    modShape += params[MOD_SHAPE_PARAM].value;
+    modShape = inputs[MOD_SHAPE_CV_INPUT].getVoltage() * params[MOD_SHAPE_CV_PARAM].getValue() * 0.1f;
+    modShape += params[MOD_SHAPE_PARAM].getValue();
     modShape = rescale(modShape, 0.f, 1.f, modShapeMin, modShapeMax);
     modShape = clamp(modShape, modShapeMin, modShapeMax);
 
-    modDepth = inputs[MOD_DEPTH_CV_INPUT].value * params[MOD_DEPTH_CV_PARAM].value;
+    modDepth = inputs[MOD_DEPTH_CV_INPUT].getVoltage() * params[MOD_DEPTH_CV_PARAM].getValue();
     modDepth = rescale(modDepth, 0.f, 10.f, modDepthMin, modDepthMax);
-    modDepth += params[MOD_DEPTH_PARAM].value;
+    modDepth += params[MOD_DEPTH_PARAM].getValue();
     modDepth = clamp(modDepth, modDepthMin, modDepthMax);
 
     reverb.modSpeed = modSpeed;
     reverb.modDepth = modDepth;
     reverb.setModShape(modShape);
 
-    leftInput = inputs[LEFT_INPUT].value;
-    rightInput = inputs[RIGHT_INPUT].value;
-    if(inputs[LEFT_INPUT].active == false && inputs[RIGHT_INPUT].active == true) {
-        leftInput = inputs[RIGHT_INPUT].value;
+    leftInput = inputs[LEFT_INPUT].getVoltage();
+    rightInput = inputs[RIGHT_INPUT].getVoltage();
+    if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
+        leftInput = inputs[RIGHT_INPUT].getVoltage();
     }
-    else if(inputs[LEFT_INPUT].active == true && inputs[RIGHT_INPUT].active == false) {
-        rightInput = inputs[LEFT_INPUT].value;
+    else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
+        rightInput = inputs[LEFT_INPUT].getVoltage();
     }
 
     inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
     reverb.process(leftInput * 0.1f * inputSensitivity, rightInput * 0.1f * inputSensitivity);
 
-    dry = inputs[DRY_CV_INPUT].value * params[DRY_CV_PARAM].value;
-    dry += params[DRY_PARAM].value;
+    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
+    dry += params[DRY_PARAM].getValue();
     dry = clamp(dry, 0.f, 1.f);
 
-    wet = inputs[WET_CV_INPUT].value * params[WET_CV_PARAM].value;
-    wet += params[WET_PARAM].value;
+    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
+    wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].value = leftInput * dry;
-    outputs[RIGHT_OUTPUT].value = rightInput * dry;
+    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry);
+    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry);
     outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
     outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
 
     if(outputSaturationState) {
-        outputs[LEFT_OUTPUT].value = tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.111f, 0.95f) * 9.999f;
-        outputs[RIGHT_OUTPUT].value = tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.111f, 0.95f) * 9.999f;
+        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.111f, 0.95f) * 9.999f);
+        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.111f, 0.95f) * 9.999f);
     }
 }
 
@@ -303,7 +323,8 @@ void PlateauOutputSaturationItem::step() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
+PlateauWidget::PlateauWidget(Plateau* module) {
+		setModule(module);
     {
         /*DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelDark.svg")));
@@ -364,35 +385,35 @@ PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     addParam(createValleyKnob<RoganMedRed>(modShapePos, module, Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
 
     // Make Attenuverters
-    addParam(createParam<RoganSmallWhite>(dryAttenPos, module, Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallWhite>(wetAttenPos, module, Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallWhite>(dryAttenPos, module, Plateau::DRY_CV_PARAM));
+    addParam(createParam<RoganSmallWhite>(wetAttenPos, module, Plateau::WET_CV_PARAM));
+    addParam(createParam<RoganSmallGreen>(inputLowDampAttenPos, module, Plateau::INPUT_LOW_DAMP_CV_PARAM));
+    addParam(createParam<RoganSmallGreen>(inputHighDampAttenPos, module, Plateau::INPUT_HIGH_DAMP_CV_PARAM));
 
-    addParam(createParam<RoganSmallBlue>(sizeAttenPos, module, Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallBlue>(diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallBlue>(decayAttenPos, module, Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallGreen>(reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallBlue>(sizeAttenPos, module, Plateau::SIZE_CV_PARAM));
+    addParam(createParam<RoganSmallBlue>(diffAttenPos, module, Plateau::DIFFUSION_CV_PARAM));
+    addParam(createParam<RoganSmallBlue>(decayAttenPos, module, Plateau::DECAY_CV_PARAM));
+    addParam(createParam<RoganSmallGreen>(reverbLowDampAttenPos, module, Plateau::REVERB_LOW_DAMP_CV_PARAM));
+    addParam(createParam<RoganSmallGreen>(reverbHighDampAttenPos, module, Plateau::REVERB_HIGH_DAMP_CV_PARAM));
 
-    addParam(createParam<RoganSmallRed>(modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallRed>(modShapeAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f));
-    addParam(createParam<RoganSmallRed>(modDepthAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<RoganSmallRed>(modRateAttenPos, module, Plateau::MOD_SPEED_CV_PARAM));
+    addParam(createParam<RoganSmallRed>(modShapeAttenPos, module, Plateau::MOD_SHAPE_CV_PARAM));
+    addParam(createParam<RoganSmallRed>(modDepthAttenPos, module, Plateau::MOD_DEPTH_CV_PARAM));
 
     // Make buttons
-    addParam(createParam<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(10.375, 247.35), module, Plateau::FREEZE_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(33.875, 258.85), module, Plateau::FREEZE_TOGGLE_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(16.375, 129.85), module, Plateau::TUNED_MODE_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM, 0.f, 10.f, 0.f));
+    addParam(createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(154.375, 129.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
 }
 

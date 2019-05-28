@@ -77,11 +77,11 @@ struct Topograph : Module {
     Metronome metro;
     PatternGenerator grids;
     uint8_t numTicks;
-    SchmittTrigger clockTrig;
-    SchmittTrigger resetTrig;
-    SchmittTrigger resetButtonTrig;
-    SchmittTrigger runButtonTrig;
-    SchmittTrigger runInputTrig;
+    dsp::SchmittTrigger clockTrig;
+    dsp::SchmittTrigger resetTrig;
+    dsp::SchmittTrigger resetButtonTrig;
+    dsp::SchmittTrigger runButtonTrig;
+    dsp::SchmittTrigger runInputTrig;
     bool initExtReset = true;
     int running = 0;
     bool extClock = false;
@@ -160,23 +160,24 @@ struct Topograph : Module {
     int panelStyle;
     int textVisible = 1;
 
-    Topograph() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-        metro = Metronome(120, args.sampleRate, 24.0, 0.0);
+    Topograph() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        metro = Metronome(120, APP->engine->getSampleRate(), 24.0, 0.0);
         numTicks = ticks_granularity[2];
         srand(time(NULL));
-        BDLed = Oneshot(0.1, args.sampleRate);
-        SNLed = Oneshot(0.1, args.sampleRate);
-        HHLed = Oneshot(0.1, args.sampleRate);
-        resetLed = Oneshot(0.1, args.sampleRate);
+        BDLed = Oneshot(0.1, APP->engine->getSampleRate());
+        SNLed = Oneshot(0.1, APP->engine->getSampleRate());
+        HHLed = Oneshot(0.1, APP->engine->getSampleRate());
+        resetLed = Oneshot(0.1, APP->engine->getSampleRate());
         //clockTrig.setThresholds(0.25, 0.75);
         //resetTrig.setThresholds(0.25, 0.75);
         //runInputTrig.setThresholds(0.25, 0.75);
         for(int i = 0; i < 6; ++i) {
-            drumTriggers[i] = Oneshot(0.001, args.sampleRate);
+            drumTriggers[i] = Oneshot(0.001, APP->engine->getSampleRate());
             gateState[i] = false;
         }
         for(int i = 0; i < 3; ++i) {
-            drumLED[i] = Oneshot(0.1, args.sampleRate);
+            drumLED[i] = Oneshot(0.1, APP->engine->getSampleRate());
         }
         panelStyle = 0;
     }
@@ -257,7 +258,7 @@ struct Topograph : Module {
         }
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
     void updateUI();
     void updateOutputs();
@@ -265,23 +266,23 @@ struct Topograph : Module {
 
 void Topograph::process(const ProcessArgs &args) {
     if(runMode == TOGGLE) {
-        if (runButtonTrig.process(params[RUN_BUTTON_PARAM].value) ||
-            runInputTrig.process(inputs[RUN_INPUT].value)) {
+        if (runButtonTrig.process(params[RUN_BUTTON_PARAM].getValue()) ||
+            runInputTrig.process(inputs[RUN_INPUT].getVoltage())) {
             if(runMode == TOGGLE){
                 running = !running;
             }
         }
     }
     else {
-        running = params[RUN_BUTTON_PARAM].value + inputs[RUN_INPUT].value;
+        running = params[RUN_BUTTON_PARAM].getValue() + inputs[RUN_INPUT].getVoltage();
         if(running == 0) {
             metro.reset();
         }
     }
     lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
 
-    if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].value) ||
-        resetTrig.process(inputs[RESET_INPUT].value)) {
+    if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
+        resetTrig.process(inputs[RESET_INPUT].getVoltage())) {
         grids.reset();
         metro.reset();
         resetLed.trigger();
@@ -290,9 +291,9 @@ void Topograph::process(const ProcessArgs &args) {
     }
 
     // Clock, tempo and swing
-    tempoParam = params[TEMPO_PARAM].value;
+    tempoParam = params[TEMPO_PARAM].getValue();
     *tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
-    swing = clamp(params[SWING_PARAM].value + inputs[SWING_CV].value / 10.f, 0.f, 0.9f);
+    swing = clamp(params[SWING_PARAM].getValue() + inputs[SWING_CV].getVoltage() / 10.f, 0.f, 0.9f);
     swingHighTempo = *tempo / (1 - swing);
     swingLowTempo = *tempo / (1 + swing);
     if(elapsedTicks < 6) {
@@ -318,22 +319,22 @@ void Topograph::process(const ProcessArgs &args) {
         metro.process();
     }
 
-    *mapX = params[MAPX_PARAM].value + (inputs[MAPX_CV].value / 10.f);
+    *mapX = params[MAPX_PARAM].getValue() + (inputs[MAPX_CV].getVoltage() / 10.f);
     *mapX = clamp(*mapX, 0.f, 1.f);
-    *mapY = params[MAPY_PARAM].value + (inputs[MAPY_CV].value / 10.f);
+    *mapY = params[MAPY_PARAM].getValue() + (inputs[MAPY_CV].getVoltage() / 10.f);
     *mapY = clamp(*mapY, 0.f, 1.f);
-    BDFill = params[BD_DENS_PARAM].value + (inputs[BD_FILL_CV].value / 10.f);
+    BDFill = params[BD_DENS_PARAM].getValue() + (inputs[BD_FILL_CV].getVoltage() / 10.f);
     BDFill = clamp(BDFill, 0.f, 1.f);
-    SNFill = params[SN_DENS_PARAM].value + (inputs[SN_FILL_CV].value / 10.f);
+    SNFill = params[SN_DENS_PARAM].getValue() + (inputs[SN_FILL_CV].getVoltage() / 10.f);
     SNFill = clamp(SNFill, 0.f, 1.f);
-    HHFill = params[HH_DENS_PARAM].value + (inputs[HH_FILL_CV].value / 10.f);
+    HHFill = params[HH_DENS_PARAM].getValue() + (inputs[HH_FILL_CV].getVoltage() / 10.f);
     HHFill = clamp(HHFill, 0.f, 1.f);
-    *chaos = params[CHAOS_PARAM].value + (inputs[CHAOS_CV].value / 10.f);
+    *chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
     *chaos = clamp(*chaos, 0.f, 1.f);
 
     if(running) {
         if(extClock) {
-            if(clockTrig.process(inputs[CLOCK_INPUT].value)) {
+            if(clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
                 advStep = true;
             }
         }
@@ -406,31 +407,31 @@ void Topograph::updateOutputs() {
         for(int i = 0; i < 6; ++i) {
             drumTriggers[i].process();
             if(drumTriggers[i].getState()) {
-                outputs[outIDs[i]].value = 10;
+                outputs[outIDs[i]].setVoltage(10);
             }
             else {
-                outputs[outIDs[i]].value = 0;
+                outputs[outIDs[i]].setVoltage(0);
             }
         }
     }
     else if(extClock && triggerOutputMode == GATE) {
         for(int i = 0; i < 6; ++i) {
-            if(inputs[CLOCK_INPUT].value > 0 && gateState[i]) {
+            if(inputs[CLOCK_INPUT].getVoltage() > 0 && gateState[i]) {
                 gateState[i] = false;
-                outputs[outIDs[i]].value = 10;
+                outputs[outIDs[i]].setVoltage(10);
             }
-            if(inputs[CLOCK_INPUT].value <= 0) {
-                outputs[outIDs[i]].value = 0;
+            if(inputs[CLOCK_INPUT].getVoltage() <= 0) {
+                outputs[outIDs[i]].setVoltage(0);
             }
         }
     }
     else {
         for(int i = 0; i < 6; ++i) {
             if(metro.getElapsedTickTime() < 0.5 && gateState[i]) {
-                outputs[outIDs[i]].value = 10;
+                outputs[outIDs[i]].setVoltage(10);
             }
             else {
-                outputs[outIDs[i]].value = 0;
+                outputs[outIDs[i]].setVoltage(0);
                 gateState[i] = false;
             }
         }
