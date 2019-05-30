@@ -14,8 +14,8 @@ extern Plugin *pluginInstance;
 extern Model *modelTopograph;
 extern Model *modelPlateau;
 extern Model *modelInterzone;
+extern Model *modelAmalgam;
 
 /*extern Model *modelUGraph;
 extern Model *modelDexter;
-extern Model *modelAmalgam;
 extern Model *modelFeline;*/

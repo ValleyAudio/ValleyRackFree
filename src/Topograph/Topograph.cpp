@@ -162,6 +162,17 @@ struct Topograph : Module {
 
     Topograph() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406);
+        configParam(Topograph::MAPX_PARAM, 0.0, 1.0, 0.0);
+        configParam(Topograph::MAPY_PARAM, 0.0, 1.0, 0.0);
+        configParam(Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0);
+        configParam(Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(Topograph::SWING_PARAM, 0.0, 0.9, 0.0);
+        configParam(Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0);
+        configParam(Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0);
+
         metro = Metronome(120, APP->engine->getSampleRate(), 24.0, 0.0);
         numTicks = ticks_granularity[2];
         srand(time(NULL));
@@ -560,14 +571,14 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
         addChild(vText);
     }
 
-    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM, 0.0, 0.9, 0.0));
+    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM));
+    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM));
+    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM));
+    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM));
 
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, Topograph::CLOCK_INPUT));
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 113.0), module, Topograph::RESET_INPUT));
@@ -591,9 +602,9 @@ TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
     addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(57.5, 118.5), module, Topograph::RESET_LIGHT));
-    addParam(createParam<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(114.5, 118.5), module, Topograph::RUNNING_LIGHT));
 }
 

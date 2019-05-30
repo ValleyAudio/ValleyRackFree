@@ -125,6 +125,9 @@ void DynamicFrameText::draw(NVGcontext* vg) {
     if(itemHandle != nullptr) {
         item = *itemHandle;
     }
+    else {
+        item = 0;
+    }
     if((int)textItem.size() && item >= 0 && item < (int)textItem.size()) {
         nvgFontSize(vg, size);
         nvgFontFaceId(vg, font->handle);

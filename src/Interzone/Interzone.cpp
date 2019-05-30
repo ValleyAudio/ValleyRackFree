@@ -1,7 +1,54 @@
 #include "Interzone.hpp"
 
 Interzone::Interzone() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    configParam(Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::PW_PARAM, 0.5f, 0.f, 0.5f);
+    configParam(Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f);
+
+    configParam(Interzone::COARSE_PARAM, 0.f, 2.f, 1.f);
+    configParam(Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f);
+    configParam(Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f);
+    configParam(Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f);
+    configParam(Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f);
+    configParam(Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 3.f);
+
+    configParam(Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f);
+    configParam(Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::SUB_WAVE_PARAM, 0.0f, 2.f, 1.f);
+    configParam(Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f);
+    configParam(Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f);
+
+    configParam(Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f);
+    configParam(Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f);
+    configParam(Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f);
+    configParam(Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f);
+    configParam(Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f);
+    configParam(Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f);
+    configParam(Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f);
+
+    configParam(Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f);
+    configParam(Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f);
+    configParam(Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f);
+    configParam(Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f);
+
+    configParam(Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f);
+    configParam(Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f);
+    configParam(Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f);
+    configParam(Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f);
+
     calcGTable(APP->engine->getSampleRate());
     filter.setSampleRate(APP->engine->getSampleRate());
     filter.setCutoff(5.f);
@@ -96,8 +143,8 @@ void Interzone::process(const ProcessArgs &args) {
     osc.process();
     outputs[SAW_OUTPUT].setVoltage(osc._saw * 5.f);
     outputs[PULSE_OUTPUT].setVoltage(osc._pulse * 5.f);
-    subWave = params[SUB_WAVE_PARAM].getValue() > 0.f ? osc._subSaw : osc._subPulse;
-    params[SUB_WAVE_PARAM].getValue() < 0.f ? osc.setSubWave(2) : osc.setSubWave(1);
+    subWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? osc._subSaw : osc._subPulse;
+    params[SUB_WAVE_PARAM].getValue() < 1.f ? osc.setSubWave(2) : osc.setSubWave(1);
     outputs[SUB_OUTPUT].setVoltage(subWave * 5.f);
 
     mix = osc._saw * params[SAW_LEVEL_PARAM].getValue();
@@ -178,61 +225,60 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
 
     // Params
 
-    /*addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM, 0.5f, 0.f, 0.5f));
-    addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f));
+    addParam(createParam<OrangeSlider>(VCOGlideSliderPos, module, Interzone::GLIDE_PARAM));
+    addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM));
+    addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM));
+    addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM));
     addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, -2.f,
                                               2.f, 0.f, octaveMinAngle, octaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
-    addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM, 0.f, 2.f, 1.f));
-    addParam(createParam<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f));
-    addParam(createParam<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f));
-    addParam(createParam<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f));
-    addParam(createParam<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f));
-    addParam(createParam<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 1.f));
+    addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM));
+    addParam(createParam<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM));
+    addParam(createParam<CKSS>(VCOModEnvPolPos, module, Interzone::PITCH_MOD_ENV_POL_PARAM));
+    addParam(createParam<CKSS>(VCOModSourcePos, module, Interzone::PITCH_MOD_SOURCE_PARAM));
+    addParam(createParam<CKSS>(VCOPWMEnvPolPos, module, Interzone::PW_MOD_ENV_POL_PARAM));
+    addParam(createParam<CKSS>(VCOCoarseModePos, module, Interzone::COARSE_MODE_PARAM));
+    addParam(createParam<CKSSThree>(VCOPWMSourcePos, module, Interzone::PW_MOD_SOURCE_PARAM));
+    addParam(createParam<YellowStepSlider>(VCOSubOctPos, module, Interzone::SUB_OCTAVE_PARAM));
 
-    addParam(createParam<GreenSlider>(MixerSawLevelPos, module, Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f));
-    addParam(createParam<GreenSlider>(MixerPulseLevelPos, module, Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<GreenSlider>(MixerSubLevelPos, module, Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<CKSSThree>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM, -1.0f, 1.f, 0.0f));
-    addParam(createParam<CKSS>(MixerNoiseTypePos, module, Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f));
-    addParam(createParam<GreenSlider>(MixerNoiseLevelPos, module, Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<GreenSlider>(MixerExtInLevelPos, module, Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(MixerSawLevelPos, module, Interzone::SAW_LEVEL_PARAM));
+    addParam(createParam<GreenSlider>(MixerPulseLevelPos, module, Interzone::PULSE_LEVEL_PARAM));
+    addParam(createParam<GreenSlider>(MixerSubLevelPos, module, Interzone::SUB_LEVEL_PARAM));
+    addParam(createParam<CKSSThree>(MixerSubWavePos, module, Interzone::SUB_WAVE_PARAM));
+    addParam(createParam<CKSS>(MixerNoiseTypePos, module, Interzone::NOISE_TYPE_PARAM));
+    addParam(createParam<GreenSlider>(MixerNoiseLevelPos, module, Interzone::NOISE_LEVEL_PARAM));
+    addParam(createParam<GreenSlider>(MixerExtInLevelPos, module, Interzone::EXT_LEVEL_PARAM));
 
-    addParam(createParam<BlueSlider>(FilterCutoffPos, module, Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f));
-    addParam(createParam<BlueSlider>(FilterResPos, module, Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f));
-    addParam(createParam<BlueSlider>(FilterHPFPos, module, Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f));
-    addParam(createParam<CKSS>(FilterPolesPos, module, Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f));
-    addParam(createParam<OrangeSlider>(FilterEnvPos, module, Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<OrangeSlider>(FilterLFOPos, module, Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<OrangeSlider>(FilterVOctPos, module, Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f));
-    addParam(createParam<RoganSmallBlue>(FilterCV1Pos, module, Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f));
-    addParam(createParam<RoganSmallBlue>(FilterCV2Pos, module, Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f));
+    addParam(createParam<BlueSlider>(FilterCutoffPos, module, Interzone::FILTER_CUTOFF_PARAM));
+    addParam(createParam<BlueSlider>(FilterResPos, module, Interzone::FILTER_Q_PARAM));
+    addParam(createParam<BlueSlider>(FilterHPFPos, module, Interzone::FILTER_HPF_PARAM));
+    addParam(createParam<CKSS>(FilterPolesPos, module, Interzone::FILTER_POLES_PARAM));
+    addParam(createParam<OrangeSlider>(FilterEnvPos, module, Interzone::FILTER_ENV_PARAM));
+    addParam(createParam<OrangeSlider>(FilterLFOPos, module, Interzone::FILTER_MOD_PARAM));
+    addParam(createParam<OrangeSlider>(FilterVOctPos, module, Interzone::FILTER_VOCT_PARAM));
+    addParam(createParam<CKSS>(FilterEnvPolPos, module, Interzone::FILTER_ENV_POL_PARAM));
+    addParam(createParam<RoganSmallBlue>(FilterCV1Pos, module, Interzone::FILTER_CV_1_PARAM));
+    addParam(createParam<RoganSmallBlue>(FilterCV2Pos, module, Interzone::FILTER_CV_2_PARAM));
 
-
-    addParam(createParam<RedSlider>(EnvAttackPos, module, Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<RedSlider>(EnvDecayPos, module, Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<RedSlider>(EnvSustainPos, module, Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f));
-    addParam(createParam<RedSlider>(EnvReleasePos, module, Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f));
-    addParam(createParam<CKSS>(EnvLengthPos, module, Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f));
-    addParam(createParam<CKSS>(EnvCyclePos, module, Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f));
-    addParam(createParam<LightLEDButton>(EnvManualPos, module, Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<RedSlider>(EnvAttackPos, module, Interzone::ENV_ATTACK_PARAM));
+    addParam(createParam<RedSlider>(EnvDecayPos, module, Interzone::ENV_DECAY_PARAM));
+    addParam(createParam<RedSlider>(EnvSustainPos, module, Interzone::ENV_SUSTAIN_PARAM));
+    addParam(createParam<RedSlider>(EnvReleasePos, module, Interzone::ENV_RELEASE_PARAM));
+    addParam(createParam<CKSS>(EnvLengthPos, module, Interzone::ENV_LENGTH_PARAM));
+    addParam(createParam<CKSS>(EnvCyclePos, module, Interzone::ENV_CYCLE_PARAM));
+    addParam(createParam<LightLEDButton>(EnvManualPos, module, Interzone::ENV_MANUAL_PARAM));
     addChild(createLight<MediumLight<RedLight>>(EnvManualPos.plus(Vec(2.5f, 2.5f)), module, Interzone::ENV_LIGHT));
 
-    addParam(createParam<GreenSlider>(LFORatePos, module, Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f));
-    addParam(createParam<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f));
-    addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f));
+    addParam(createParam<GreenSlider>(LFORatePos, module, Interzone::LFO_RATE_PARAM));
+    addParam(createParam<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM));
+    addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM));
     addParam(createValleyKnob<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM,
                                               0.f, 6.f, 0.f, lfoWaveMinAngle, lfoWaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
-    addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f));
-    addParam(createParam<RoganSmallOrange>(VCALevelPos, module, Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f));
+    addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM));
+    addParam(createParam<RoganSmallOrange>(VCALevelPos, module, Interzone::VCA_LEVEL_CV_PARAM));
 
     // Lights
     addChild(createLight<SmallLight<RedLight>>(Vec(249.244, 155.875), module, Interzone::LFO_LIGHT));
@@ -270,7 +316,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addOutput(createOutput<PJ301MDarkSmallOut>(EnvNegativeOutPos, module, Interzone::ENV_NEGATIVE_OUTPUT));
 
     addOutput(createOutput<PJ301MDarkSmallOut>(VCAOutPos, module, Interzone::VCA_OUTPUT));
-    addInput(createInput<PJ301MDarkSmall>(VCALevelCVPos, module, Interzone::VCA_LEVEL_CV_INPUT));*/
+    addInput(createInput<PJ301MDarkSmall>(VCALevelCVPos, module, Interzone::VCA_LEVEL_CV_INPUT));
 }
 
 void InterzoneWidget::appendContextMenu(Menu *menu) {
