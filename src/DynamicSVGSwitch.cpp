@@ -1,8 +1,8 @@
 #include "ValleyWidgets.hpp"
 
 DynamicSwitchWidget::DynamicSwitchWidget() {
-    visibility = nullptr;
-    viewMode = ACTIVE_HIGH_VIEW;
+    _visibility = nullptr;
+    _viewMode = ACTIVE_HIGH_VIEW;
     fb = new widget::FramebufferWidget;
 	addChild(fb);
 
@@ -21,14 +21,14 @@ void DynamicSwitchWidget::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void DynamicSwitchWidget::step() {
-    if(visibility != nullptr) {
-        if(*visibility) {
+    if(_visibility != nullptr) {
+        if(*_visibility) {
             visible = true;
         }
         else {
             visible = false;
         }
-        if(viewMode == ACTIVE_LOW_VIEW) {
+        if(_viewMode == ACTIVE_LOW_VIEW) {
             visible = !visible;
         }
     }
@@ -39,12 +39,6 @@ void DynamicSwitchWidget::step() {
 }
 
 void DynamicSwitchWidget::onChange(const event::Change &e) {
-    /*assert(frames.size() > 0);
-    float valueScaled = rescale(value, minValue, maxValue, 0, frames.size() - 1);
-    int index = clamp((int) roundf(valueScaled), 0, frames.size() - 1);
-    sw->setSVG(frames[index]);
-    dirty = true;
-    ParamWidget::onChange(e);*/
     if (!frames.empty() && paramQuantity) {
 		int index = (int) std::round(paramQuantity->getValue());
 		index = math::clamp(index, 0, (int) frames.size() - 1);

@@ -1,6 +1,70 @@
 #include "Dexter.hpp"
 
-Dexter::Dexter() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+Dexter::Dexter() {
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    configParam(Dexter::OCTAVE_PARAM, 0.0, 6.0, 3.0);
+    configParam(Dexter::COARSE_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::FINE_PARAM, -0.05, 0.05, 0.0);
+    configParam(Dexter::CHORD_PARAM, 0.0, NUM_CHORDS - 1, 0.0);
+    configParam(Dexter::INVERT_PARAM, 0.0, 20.0, 10.0);
+
+    configParam(Dexter::ALGORITHM_PARAM, 0, 22, 0.0, "Algorithm");
+    configParam(Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0);
+    configParam(Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0);
+
+    configParam(Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0);
+
+    configParam(Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0);
+    configParam(Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0);
+    configParam(Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0);
+
+    for(auto op = 0; op < kNumOperators; ++op) {
+        configParam(Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0, 26, 3, "Multiplier");
+        configParam(Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -1.0, 1.0, 0.0);
+        configParam(Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -0.25, 0.25, 0.0);
+        configParam(Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
+        configParam(Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
+        if(op == 0) {
+            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 1.0);
+        }
+        else {
+            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
+        }
+        configParam(opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0);
+
+        configParam(Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                    0.0, 1.0, 0.0);
+
+        configParam(OP_1_MOD_1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_MOD_2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_MOD_3_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_MOD_4_PARAM + 12 * op, -1.0, 1.0, 0.0);
+
+        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+
+        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+
+        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_WAVEBANKS - 1), 0.0);
+    }
+
     resetPhaseState = false;
     octave = 0;
     aPitch = 0.f;
@@ -131,8 +195,8 @@ Dexter::Dexter() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
     __leftOut = __zeros;
     __rightOut = __zeros;
 
-    coreA.setSampleRate(engineGetSampleRate());
-    coreB.setSampleRate(engineGetSampleRate());
+    coreA.setSampleRate(APP->engine->getSampleRate());
+    coreB.setSampleRate(APP->engine->getSampleRate());
 }
 
 Dexter::~Dexter() {
@@ -151,7 +215,7 @@ Dexter::~Dexter() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Dexter::step() {
-    if(params[RESET_PHASE_BUTTON].value) {
+    if(params[RESET_PHASE_BUTTON].getValue()) {
         if(!resetPhaseState) {
             resetPhaseState = true;
             coreA.resetPhase();
@@ -163,57 +227,57 @@ void Dexter::step() {
         lights[RESET_PHASE_LIGHT].value = 0.f;
     }
 
-    if(masterLFOButtonTrig.process(params[MASTER_LFO_BUTTON].value)) {
+    if(masterLFOButtonTrig.process(params[MASTER_LFO_BUTTON].getValue())) {
         masterLFO = 1.f - masterLFO;
     }
     lights[MASTER_LFO_LIGHT].value = masterLFO ? 1.f : 0.f;
 
-    if(fullInversionButtonTrig.process(params[FULL_INVERSION_BUTTON].value)) {
+    if(fullInversionButtonTrig.process(params[FULL_INVERSION_BUTTON].getValue())) {
         buttonFullInversion = buttonFullInversion ? 0 : 1;
     }
     lights[FULL_INVERSION_LIGHT].value = buttonFullInversion ? 1.f : 0.f;
 
     // Menu system
     for(auto op = 0; op < kNumOperators; ++op) {
-        if(opSettBtnTrig[op].process(params[opParams[op][OP_SETTINGS_PARAM]].value)) {
+        if(opSettBtnTrig[op].process(params[opParams[op][OP_SETTINGS_PARAM]].getValue())) {
             opSettingsMenu[op] = !opSettingsMenu[op];
         }
         lights[opLights[op][OP_SETTINGS]].value = opSettingsMenu[op] ? 1.f : 0.f;
 
-        if(opSyncBtnTrig[op].process(params[opParams[op][OP_SYNC_PARAM]].value)) {
+        if(opSyncBtnTrig[op].process(params[opParams[op][OP_SYNC_PARAM]].getValue())) {
             opButtonSync[op] = 1.f - opButtonSync[op];
         }
         lights[opLights[op][OP_SYNC]].value = opButtonSync[op] ? 1.f : 0.f;
 
-        if(opPostShapeBtnTrig[op].process(params[opParams[op][OP_POST_SHAPE_PARAM]].value)) {
+        if(opPostShapeBtnTrig[op].process(params[opParams[op][OP_POST_SHAPE_PARAM]].getValue())) {
             opButtonPostShape[op] = 1.f - opButtonPostShape[op];
         }
         lights[opLights[op][OP_POST_SHAPE]].value = opButtonPostShape[op] ? 1.f : 0.f;
 
-        if(opWeakBtnTrig[op].process(params[opParams[op][OP_WEAK_PARAM]].value)) {
+        if(opWeakBtnTrig[op].process(params[opParams[op][OP_WEAK_PARAM]].getValue())) {
             opButtonWeakSync[op] = 1.f - opButtonWeakSync[op];
         }
         lights[opLights[op][OP_WEAK]].value = opButtonWeakSync[op] ? 1.f : 0.f;
 
-        if(opLFOBtnTrig[op].process(params[opParams[op][OP_LFO_PARAM]].value)) {
+        if(opLFOBtnTrig[op].process(params[opParams[op][OP_LFO_PARAM]].getValue())) {
             opButtonLFO[op] = 1.f - opButtonLFO[op];
         }
         lights[opLights[op][OP_LFO]].value = (opButtonLFO[op] + masterLFO) ? 1.f : 0.f;
 
-        if(opPreFadeBtnTrig[op].process(params[opParams[op][OP_PRE_PARAM]].value)) {
+        if(opPreFadeBtnTrig[op].process(params[opParams[op][OP_PRE_PARAM]].getValue())) {
             opButtonPreFade[op] = 1.f - opButtonPreFade[op];
         }
         lights[opLights[op][OP_PRE_LIGHT]].value = opButtonPreFade[op] ? 1.f : 0.f;
     }
 
     for(auto op = 0; op < kNumOperators; ++op) {
-        if(opWaveMenuBtnTrig[op].process(params[opParams[op][OP_WAVE_MENU_PARAM]].value)) {
+        if(opWaveMenuBtnTrig[op].process(params[opParams[op][OP_WAVE_MENU_PARAM]].getValue())) {
             opMenuPage[op] = 0;
         }
-        else if (opModAMenuBtnTrig[op].process(params[opParams[op][OP_MODA_MENU_PARAM]].value)) {
+        else if (opModAMenuBtnTrig[op].process(params[opParams[op][OP_MODA_MENU_PARAM]].getValue())) {
             opMenuPage[op] = 1;
         }
-        else if (opModBMenuBtnTrig[op].process(params[opParams[op][OP_MODB_MENU_PARAM]].value)) {
+        else if (opModBMenuBtnTrig[op].process(params[opParams[op][OP_MODB_MENU_PARAM]].getValue())) {
             opMenuPage[op] = 2;
         }
 
@@ -238,21 +302,21 @@ void Dexter::step() {
         lights[opLights[op][OP_MODB_LIGHT]].value = opModBMenuVis[op] ? 1.f : 0.f;
     }
 
-    brightness = params[BRIGHTNESS_PARAM].value;
-    brightness += inputs[BRIGHTNESS_INPUT].value * 0.1f * params[BRIGHT_DEPTH_PARAM].value;
+    brightness = params[BRIGHTNESS_PARAM].getValue();
+    brightness += inputs[BRIGHTNESS_INPUT].getVoltage() * 0.1f * params[BRIGHT_DEPTH_PARAM].getValue();
     brightness = clamp(brightness, -1.f, 1.f);
-    allShape = params[SHAPE_PARAM].value + inputs[SHAPE_INPUT].value * 0.1f * params[SHAPE_DEPTH_PARAM].value;
+    allShape = params[SHAPE_PARAM].getValue() + inputs[SHAPE_INPUT].getVoltage() * 0.1f * params[SHAPE_DEPTH_PARAM].getValue();
 
-    octaveAKnob = (int)params[OCTAVE_PARAM].value;
-    aPitch = (float)(octaveAKnob - 3) + params[COARSE_PARAM].value + params[FINE_PARAM].value;
-    aPitch += inputs[A_VOCT_INPUT].value;
-    chordKnob = (int)params[CHORD_PARAM].value;
-    chordParam = (float)chordKnob + (inputs[CHORD_INPUT].value * 0.1f * params[CHORD_DEPTH_PARAM].value * (float)(NUM_CHORDS - 1));
+    octaveAKnob = (int)params[OCTAVE_PARAM].getValue();
+    aPitch = (float)(octaveAKnob - 3) + params[COARSE_PARAM].getValue() + params[FINE_PARAM].getValue();
+    aPitch += inputs[A_VOCT_INPUT].getVoltage();
+    chordKnob = (int)params[CHORD_PARAM].getValue();
+    chordParam = (float)chordKnob + (inputs[CHORD_INPUT].getVoltage() * 0.1f * params[CHORD_DEPTH_PARAM].getValue() * (float)(NUM_CHORDS - 1));
     chordParam = clamp(chordParam, 0.f, (float)NUM_CHORDS - 1.f);
-    chordDetuneParam = params[DETUNE_PARAM].value + inputs[DETUNE_INPUT].value * 0.1f * params[DETUNE_DEPTH_PARAM].value;
+    chordDetuneParam = params[DETUNE_PARAM].getValue() + inputs[DETUNE_INPUT].getVoltage() * 0.1f * params[DETUNE_DEPTH_PARAM].getValue();
     chordDetuneParam = clamp(chordDetuneParam, 0.f, 1.f) * -0.1f;
-    invDepthKnob = (int)params[INVERT_PARAM].value;
-    invDepthParam = invDepthKnob + (int)(inputs[INVERT_INPUT].value * params[INVERT_DEPTH_PARAM].value) - 10;
+    invDepthKnob = (int)params[INVERT_PARAM].getValue();
+    invDepthParam = invDepthKnob + (int)(inputs[INVERT_INPUT].getVoltage() * params[INVERT_DEPTH_PARAM].getValue()) - 10;
     invDepthParam = clamp(invDepthParam, -10, 10);
     if((Chords)chordParam != currentChord || invDepthParam != invDepth || chordDetuneParam != chordDetune
        || buttonFullInversion != fullInversion) {
@@ -261,9 +325,9 @@ void Dexter::step() {
         makeChord(chordParam, invDepthParam);
     }
 
-    octaveBKnob = (int)params[B_OCTAVE_PARAM].value;
-    bPitch = (float)(octaveBKnob - 3) + params[B_COARSE_PARAM].value + params[B_FINE_PARAM].value;
-    bPitch += inputs[B_VOCT_INPUT].value;
+    octaveBKnob = (int)params[B_OCTAVE_PARAM].getValue();
+    bPitch = (float)(octaveBKnob - 3) + params[B_COARSE_PARAM].getValue() + params[B_FINE_PARAM].getValue();
+    bPitch += inputs[B_VOCT_INPUT].getVoltage();
 
     coreA.setSyncSource(opSyncSource);
     coreB.setSyncSource(opSyncSource);
@@ -274,24 +338,24 @@ void Dexter::step() {
         modMatrix[op].setRowDestination(2, (RoutingMatrixDestination) opMod3Assign[op]);
         modMatrix[op].setRowDestination(3, (RoutingMatrixDestination) opMod4Assign[op]);
 
-        modMatrix[op].setRowSourceValue(0, inputs[opCVInputs[op][OP_MOD_CV_1]].value * 0.1f);
-        modMatrix[op].setRowSourceValue(1, inputs[opCVInputs[op][OP_MOD_CV_2]].value * 0.1f);
-        modMatrix[op].setRowSourceValue(2, inputs[opCVInputs[op][OP_MOD_CV_3]].value * 0.1f);
-        modMatrix[op].setRowSourceValue(3, inputs[opCVInputs[op][OP_MOD_CV_4]].value * 0.1f);
+        modMatrix[op].setRowSourceValue(0, inputs[opCVInputs[op][OP_MOD_CV_1]].getVoltage() * 0.1f);
+        modMatrix[op].setRowSourceValue(1, inputs[opCVInputs[op][OP_MOD_CV_2]].getVoltage() * 0.1f);
+        modMatrix[op].setRowSourceValue(2, inputs[opCVInputs[op][OP_MOD_CV_3]].getVoltage() * 0.1f);
+        modMatrix[op].setRowSourceValue(3, inputs[opCVInputs[op][OP_MOD_CV_4]].getVoltage() * 0.1f);
 
-        modMatrix[op].setRowDepth(0, params[opCVAtten[op][OP_MOD_CV_1]].value);
-        modMatrix[op].setRowDepth(1, params[opCVAtten[op][OP_MOD_CV_2]].value);
-        modMatrix[op].setRowDepth(2, params[opCVAtten[op][OP_MOD_CV_3]].value);
-        modMatrix[op].setRowDepth(3, params[opCVAtten[op][OP_MOD_CV_4]].value);
+        modMatrix[op].setRowDepth(0, params[opCVAtten[op][OP_MOD_CV_1]].getValue());
+        modMatrix[op].setRowDepth(1, params[opCVAtten[op][OP_MOD_CV_2]].getValue());
+        modMatrix[op].setRowDepth(2, params[opCVAtten[op][OP_MOD_CV_3]].getValue());
+        modMatrix[op].setRowDepth(3, params[opCVAtten[op][OP_MOD_CV_4]].getValue());
 
         modMatrix[op].process();
 
-        opPitch[op] = params[opParams[op][OP_COARSE_PARAM]].value;
-        opPitch[op] += params[opParams[op][OP_FINE_PARAM]].value;
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].value * params[opCVAtten[op][OP_PITCH_CV_1]].value;
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].value * params[opCVAtten[op][OP_PITCH_CV_2]].value;
+        opPitch[op] = params[opParams[op][OP_COARSE_PARAM]].getValue();
+        opPitch[op] += params[opParams[op][OP_FINE_PARAM]].getValue();
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].getVoltage() * params[opCVAtten[op][OP_PITCH_CV_1]].getValue();
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].getVoltage() * params[opCVAtten[op][OP_PITCH_CV_2]].getValue();
         opPitch[op] += modMatrix[op].getDestinationValue(PITCH_DEST);
-        opMultipleKnob[op] = (int)params[opParams[op][OP_MULT_PARAM]].value;
+        opMultipleKnob[op] = (int)params[opParams[op][OP_MULT_PARAM]].getValue();
         multiple = opMultipleKnob[op] + (int)modMatrix[op].getDestinationValue(RATIO_DEST);
 
         pOpFreqs[0] = freqLUT.getFrequency((opPitch[op]) + bPitch) * multiples[clamp(multiple, 0, 26)];
@@ -318,25 +382,25 @@ void Dexter::step() {
         __opLowFreq[op] = _mm_load_ps(pOpFreqs);
         __opHighFreq[op] = _mm_load_ps(pOpFreqs + 4);
 
-        opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].value;
+        opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].getValue();
         opWaveBank[op] = opWaveBankKnob[op] + modMatrix[op].getDestinationValue(WAVE_BANK_DEST);
         opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_WAVEBANKS - 1);
 
-        opWave[op] = params[opParams[op][OP_WAVE_PARAM]].value;
-        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].value * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].value;
-        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_2]].value * 0.1f * params[opCVAtten[op][OP_WAVE_CV_2]].value;
+        opWave[op] = params[opParams[op][OP_WAVE_PARAM]].getValue();
+        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
+        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_2]].getValue();
         opWave[op] += modMatrix[op].getDestinationValue(WAVE_POS_DEST);
         opWave[op] = clamp(opWave[op], 0.f, (float)NUM_OP_WAVES);
 
-        opShape[op] = params[opParams[op][OP_SHAPE_PARAM]].value + allShape;
-        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_1]].value * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_1]].value;
-        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_2]].value * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_2]].value;
+        opShape[op] = params[opParams[op][OP_SHAPE_PARAM]].getValue() + allShape;
+        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_1]].getValue();
+        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_2]].getValue();
         opShape[op] += modMatrix[op].getDestinationValue(SHAPE_DEST);
         opShape[op] = clamp(opShape[op], -1.f, 1.f);
 
-        opLevel[op] = params[opParams[op][OP_LEVEL_PARAM]].value;
-        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_1]].value * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_1]].value;
-        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_2]].value * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_2]].value;
+        opLevel[op] = params[opParams[op][OP_LEVEL_PARAM]].getValue();
+        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_1]].getValue();
+        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_2]].getValue();
         opLevel[op] += modMatrix[op].getDestinationValue(LEVEL_DEST);
         opLevel[op] = clamp(opLevel[op], 0.f, 1.0f);
 
@@ -374,8 +438,8 @@ void Dexter::step() {
         coreB.setSyncMode(op, opSyncMode[op]);
 
         // Enable sync if any external mod jack is connected, regardless of the sync button state
-        bool modJackState = inputs[opCVInputs[op][OP_MOD_CV_1]].active | inputs[opCVInputs[op][OP_MOD_CV_2]].active
-                          | inputs[opCVInputs[op][OP_MOD_CV_3]].active | inputs[opCVInputs[op][OP_MOD_CV_4]].active;
+        bool modJackState = inputs[opCVInputs[op][OP_MOD_CV_1]].isConnected() | inputs[opCVInputs[op][OP_MOD_CV_2]].isConnected()
+                          | inputs[opCVInputs[op][OP_MOD_CV_3]].isConnected() | inputs[opCVInputs[op][OP_MOD_CV_4]].isConnected();
         coreA.enableSync(op, modJackState);
         coreB.enableSync(op, modJackState);
 
@@ -406,12 +470,12 @@ void Dexter::step() {
         coreA.setLevel(op, opLevel[op]);
         coreB.setLevel(op, opLevel[op]);
     }
-    algo = round_int(params[ALGORITHM_PARAM].value + inputs[ALGO_INPUT].value * 0.1f * params[ALGO_DEPTH_PARAM].value * (float)(kNumAlgorithms - 1.f));
+    algo = round_int(params[ALGORITHM_PARAM].getValue() + inputs[ALGO_INPUT].getVoltage() * 0.1f * params[ALGO_DEPTH_PARAM].getValue() * (float)(kNumAlgorithms - 1.f));
     algo = clamp(algo, 0, kNumAlgorithms - 1);
     coreA.setAlgorithm(algo);
     coreB.setAlgorithm(algo);
-    feedback = params[FEEDBACK_PARAM].value;
-    feedback += inputs[FEEDBACK_INPUT].value * 0.025 * params[FB_DEPTH_PARAM].value;
+    feedback = params[FEEDBACK_PARAM].getValue();
+    feedback += inputs[FEEDBACK_INPUT].getVoltage() * 0.025 * params[FB_DEPTH_PARAM].getValue();
     feedback = clamp(feedback, 0.f, 0.25f);
     coreA.setFeedback(feedback);
     coreB.setFeedback(feedback);
@@ -424,9 +488,9 @@ void Dexter::step() {
     }
 
     _mm_store_ps(pBOut, _mm_and_ps(coreA.getBOutput(), __bOutMask));
-    outputs[B_OUTPUT].value = pBOut[0];
+    outputs[B_OUTPUT].setVoltage(pBOut[0]);
 
-    if(outputs[A_RIGHT_OUTPUT].active) {
+    if(outputs[A_RIGHT_OUTPUT].isConnected()) {
         __leftOut = __zeros;
         __rightOut = __zeros;
         __leftOut = _mm_mul_ps(coreA.getMainOutput(), __lowLeftGain);
@@ -459,12 +523,12 @@ void Dexter::step() {
                                       _mm_and_ps(coreB.getOpOutput(3), __highChordMask)));
     }
 
-    outputs[A_LEFT_OUTPUT].value = 0;
-    outputs[A_RIGHT_OUTPUT].value = 0;
-    outputs[OP_1_OUTPUT].value = 0;
-    outputs[OP_2_OUTPUT].value = 0;
-    outputs[OP_3_OUTPUT].value = 0;
-    outputs[OP_4_OUTPUT].value = 0;
+    outputs[A_LEFT_OUTPUT].setVoltage(0);
+    outputs[A_RIGHT_OUTPUT].setVoltage(0);
+    outputs[OP_1_OUTPUT].setVoltage(0);
+    outputs[OP_2_OUTPUT].setVoltage(0);
+    outputs[OP_3_OUTPUT].setVoltage(0);
+    outputs[OP_4_OUTPUT].setVoltage(0);
     for(auto i = 0; i < 4; ++i) {
         outputs[A_LEFT_OUTPUT].value += pLeftOut[i];
         outputs[A_RIGHT_OUTPUT].value += pRightOut[i];
@@ -489,8 +553,8 @@ void Dexter::makeChord(float chord, float invert) {
 
 void Dexter::onSampleRateChange() {
     for(auto i = 0; i < kMaxChordSize; ++i) {
-        coreA.setSampleRate(engineGetSampleRate());
-        coreB.setSampleRate(engineGetSampleRate());
+        coreA.setSampleRate(APP->engine->getSampleRate());
+        coreB.setSampleRate(APP->engine->getSampleRate());
     }
 }
 
@@ -680,20 +744,21 @@ void Dexter::dataFromJson(json_t *rootJ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
-    {
+    /*{
         DynamicPanelWidget *panel = new DynamicPanelWidget();
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelDark.svg")));
         panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelLight.svg")));
         box.size = panel->box.size;
         panel->mode = &module->panelStyle;
         addChild(panel);
-    }
+    }*/
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    {
+    if(module) {
         AlgoGraphic* algo = new AlgoGraphic;
         algo->box.pos = Vec(138.75, 88.245);
         algo->value = &module->algo;
@@ -701,101 +766,83 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         addChild(algo);
     }
 
-    addParam(createDynamicKnob<DynRoganMedBlue>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, 0.0, 6.0, 3.0, SNAP_MOTION));
-    addParam(createDynamicKnob<DynRoganMedBlue>(CoarseKnobPos, module, Dexter::COARSE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
-    addParam(createDynamicKnob<DynRoganMedBlue>(FineKnobPos, module, Dexter::FINE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
+    addParam(createParam<RoganMedBlueSnap>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM));
+    addParam(createParam<RoganMedBlue>(CoarseKnobPos, module, Dexter::COARSE_PARAM));
+    addParam(createParam<RoganMedBlue>(FineKnobPos, module, Dexter::FINE_PARAM));
+    addParam(createParam<RoganMedSmallBlueSnap>(ChordKnobPos, module, Dexter::CHORD_PARAM));
+    addParam(createParam<RoganMedSmallBlueSnap>(InvertKnobPos, module, Dexter::INVERT_PARAM));
+    addParam(createParam<RoganMedSmallBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM));
+    addParam(createParam<RoganMedBlueSnap>(Octave2KnobPos, module, Dexter::B_OCTAVE_PARAM));
+    addParam(createParam<RoganMedBlue>(Coarse2KnobPos, module, Dexter::B_COARSE_PARAM));
+    addParam(createParam<RoganMedBlue>(Fine2KnobPos, module, Dexter::B_FINE_PARAM));
 
-    {
-        DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(ChordKnobPos, module, Dexter::CHORD_PARAM, nullptr,
-                                                  ACTIVE_LOW_VIEW, 0.0, NUM_CHORDS - 1, 0.0, SNAP_MOTION);
-        addParam(dynParam);
-    }
+    addParam(createParam<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM));
+    addParam(createParam<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM));
+    addParam(createParam<RoganMedRed>(ShapeKnobPos, module, Dexter::SHAPE_PARAM));
+    addParam(createParam<RoganMedOrange>(FeedbackKnobPos, module, Dexter::FEEDBACK_PARAM));
 
-    {
-        DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(InvertKnobPos, module, Dexter::INVERT_PARAM, nullptr,
-                                                  ACTIVE_LOW_VIEW, 0, 20, 10, SNAP_MOTION);
-        addParam(dynParam);
-    }
-    //addParam(createParam<RoganMedBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<RoganSmallBlue>(ChordDepthKnobPos, module, Dexter::CHORD_DEPTH_PARAM));
+    addParam(createParam<RoganSmallBlue>(InvertDepthKnobPos, module, Dexter::INVERT_DEPTH_PARAM));
+    addParam(createParam<RoganSmallBlue>(DetuneDepthKnobPos, module, Dexter::DETUNE_DEPTH_PARAM));
+    addParam(createParam<RoganSmallBlue>(AlgoDepthKnobPos, module, Dexter::ALGO_DEPTH_PARAM));
+    addParam(createParam<RoganSmallOrange>(FBDepthKnobPos, module, Dexter::FB_DEPTH_PARAM));
+    addParam(createParam<RoganSmallGreen>(BrightDepthKnobPos, module, Dexter::BRIGHT_DEPTH_PARAM));
+    addParam(createParam<RoganSmallRed>(ShapeDepthKnobPos, module, Dexter::SHAPE_DEPTH_PARAM));
 
-    {
-        DynamicKnob* dynParam = createDynamicKnob<DynRoganMedSmallBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM, nullptr,
-                                                  ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION);
-        addParam(dynParam);
-    }
-
-    addParam(createDynamicKnob<DynRoganMedBlue>(Octave2KnobPos, module, Dexter::B_OCTAVE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, 0.0, 6.0, 3.0, SNAP_MOTION));
-    addParam(createDynamicKnob<DynRoganMedBlue>(Coarse2KnobPos, module, Dexter::B_COARSE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
-    addParam(createDynamicKnob<DynRoganMedBlue>(Fine2KnobPos, module, Dexter::B_FINE_PARAM, nullptr,
-                                                ACTIVE_LOW_VIEW, -0.05, 0.05, 0.0, SMOOTH_MOTION));
-
-    addParam(createParam<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM, 0, 22, 0.0));
-    addParam(createParam<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganMedRed>(ShapeKnobPos, module, Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<RoganMedOrange>(FeedbackKnobPos, module, Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0));
-
-    addParam(createParam<RoganSmallBlue>(ChordDepthKnobPos, module, Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallBlue>(InvertDepthKnobPos, module, Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallBlue>(DetuneDepthKnobPos, module, Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallBlue>(AlgoDepthKnobPos, module, Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallOrange>(FBDepthKnobPos, module, Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallGreen>(BrightDepthKnobPos, module, Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0));
-    addParam(createParam<RoganSmallRed>(ShapeDepthKnobPos, module, Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0));
-
-    addParam(createParam<LightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0));
-    addParam(createParam<LightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0));
-    addParam(createParam<LightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0));
+    addParam(createParam<LightLEDButton>(MasterLFOButtonPos, module, Dexter::MASTER_LFO_BUTTON));
+    addParam(createParam<LightLEDButton>(ResetPhaseButtonPos, module, Dexter::RESET_PHASE_BUTTON));
+    addParam(createParam<LightLEDButton>(FullInversionButtonPos, module, Dexter::FULL_INVERSION_BUTTON));
 
     addChild(createLight<MediumLight<RedLight>>(MasterLFOButtonLEDPos, module, Dexter::MASTER_LFO_LIGHT));
     addChild(createLight<MediumLight<RedLight>>(ResetPhaseButtonLEDPos, module, Dexter::RESET_PHASE_LIGHT));
     addChild(createLight<MediumLight<RedLight>>(FullInversionButtonLEDPos, module, Dexter::FULL_INVERSION_LIGHT));
 
-    addOutput(createPort<PJ301MDarkSmallOut>(AOutLeftJack, PortWidget::OUTPUT, module, Dexter::A_LEFT_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(AOutRightJack, PortWidget::OUTPUT, module, Dexter::A_RIGHT_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Op1OutJack, PortWidget::OUTPUT, module, Dexter::OP_1_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Op2OutJack, PortWidget::OUTPUT, module, Dexter::OP_2_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Op3OutJack, PortWidget::OUTPUT, module, Dexter::OP_3_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(Op4OutJack, PortWidget::OUTPUT, module, Dexter::OP_4_OUTPUT));
-    addOutput(createPort<PJ301MDarkSmallOut>(BOutJack, PortWidget::OUTPUT, module, Dexter::B_OUTPUT));
-    addInput(createPort<PJ301MDarkSmall>(VOct1CVJack, PortWidget::INPUT, module, Dexter::A_VOCT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(VOct2CVJack, PortWidget::INPUT, module, Dexter::B_VOCT_INPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(AOutLeftJack, module, Dexter::A_LEFT_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(AOutRightJack, module, Dexter::A_RIGHT_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Op1OutJack, module, Dexter::OP_1_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Op2OutJack, module, Dexter::OP_2_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Op3OutJack, module, Dexter::OP_3_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Op4OutJack, module, Dexter::OP_4_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(BOutJack, module, Dexter::B_OUTPUT));
+    addInput(createInput<PJ301MDarkSmall>(VOct1CVJack, module, Dexter::A_VOCT_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(VOct2CVJack, module, Dexter::B_VOCT_INPUT));
 
-    addInput(createPort<PJ301MDarkSmall>(ChordCVJack, PortWidget::INPUT, module, Dexter::CHORD_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(InvertCVJack, PortWidget::INPUT, module, Dexter::INVERT_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(DetuneCVJack, PortWidget::INPUT, module, Dexter::DETUNE_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(AlgorithmCVJack, PortWidget::INPUT, module, Dexter::ALGO_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(FeedbackCVJack, PortWidget::INPUT, module, Dexter::FEEDBACK_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(BrightCVJack, PortWidget::INPUT, module, Dexter::BRIGHTNESS_INPUT));
-    addInput(createPort<PJ301MDarkSmall>(ShapeCVJack, PortWidget::INPUT, module, Dexter::SHAPE_INPUT));
-    {
-        DynamicFrameText* chordText = new DynamicFrameText;
-        chordText->size = 12;
-        chordText->box.pos = Vec(24.91, 124.468);
-        chordText->box.size = Vec(82, 14);
-        chordText->itemHandle = &module->chordKnob;
-        chordText->visibility = nullptr;
-        chordText->viewMode = ACTIVE_LOW_VIEW;
+    addInput(createInput<PJ301MDarkSmall>(ChordCVJack, module, Dexter::CHORD_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(InvertCVJack, module, Dexter::INVERT_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(DetuneCVJack, module, Dexter::DETUNE_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(AlgorithmCVJack, module, Dexter::ALGO_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(FeedbackCVJack, module, Dexter::FEEDBACK_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(BrightCVJack, module, Dexter::BRIGHTNESS_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(ShapeCVJack, module, Dexter::SHAPE_INPUT));
+
+    DynamicFrameText* chordText = new DynamicFrameText;
+    chordText->size = 12;
+    chordText->box.pos = Vec(24.91, 124.468);
+    chordText->box.size = Vec(82, 14);
+    chordText->visibility = nullptr;
+    chordText->viewMode = ACTIVE_LOW_VIEW;
+    if(module) {
         chordText->colorHandle = &module->panelStyle;
+        chordText->itemHandle = &module->chordKnob;
         for(auto i = 0; i < NUM_CHORDS; ++i) {
             chordText->addItem(chordNames[i]);
         }
-        addChild(chordText);
     }
+    else {
+        chordText->customColor = nvgRGB(0xFF,0xFF,0xFF);
+        chordText->addItem("Single");
+    }
+    addChild(chordText);
 
-    {
-        DynamicFrameText* octaveText = new DynamicFrameText;
-        octaveText->size = 14;
-        octaveText->box.pos = Vec(35.61, 68.076);
-        octaveText->box.size = Vec(82, 14);
+    DynamicFrameText* octaveText = new DynamicFrameText;
+    octaveText->size = 14;
+    octaveText->box.pos = Vec(35.61, 68.076);
+    octaveText->box.size = Vec(82, 14);
+    octaveText->visibility = nullptr;
+    octaveText->viewMode = ACTIVE_LOW_VIEW;
+    if(module) {
+        octaveText->colorHandle = &module->panelStyle;
         octaveText->itemHandle = &module->octaveAKnob;
-        octaveText->visibility = nullptr;
-        octaveText->viewMode = ACTIVE_LOW_VIEW;
-        octaveText->colorHandle = &module->panelStyle;
         octaveText->addItem("-3");
         octaveText->addItem("-2");
         octaveText->addItem("-1");
@@ -803,122 +850,73 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
         octaveText->addItem("+1");
         octaveText->addItem("+2");
         octaveText->addItem("+3");
-        addChild(octaveText);
     }
-
-    {
-        DynamicFrameText* octaveText = new DynamicFrameText;
-        octaveText->size = 14;
-        octaveText->box.pos = Vec(35.61, 186.076);
-        octaveText->box.size = Vec(82, 14);
-        octaveText->itemHandle = &module->octaveBKnob;
-        octaveText->visibility = nullptr;
-        octaveText->viewMode = ACTIVE_LOW_VIEW;
-        octaveText->colorHandle = &module->panelStyle;
-        octaveText->addItem("-3");
-        octaveText->addItem("-2");
-        octaveText->addItem("-1");
+    else {
+        octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
         octaveText->addItem("0");
-        octaveText->addItem("+1");
-        octaveText->addItem("+2");
-        octaveText->addItem("+3");
-        addChild(octaveText);
     }
+    addChild(octaveText);
 
     // Operator Controls
     float operatorSpacing = 125.5275;
     float offset = 0.0;
     for(auto op = 0; op < kNumOperators; ++op) {
         offset = operatorSpacing * op;
+        int* visibilityHandle = nullptr;
+        if(module) {
+            visibilityHandle = &module->opSettingsMenu[op];
+        }
+        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                     visibilityHandle, ACTIVE_LOW_VIEW, SNAP_MOTION));
+        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                     visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
+        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                     visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
+        addParam(createDynamicParam<DynRoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                       visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
+        addParam(createDynamicParam<DynRoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                    visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
+        addParam(createDynamicParam<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                    visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
 
-        addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module,
-                                                    module->opParams[op][Dexter::OP_MULT_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW_VIEW, 0, 26, 3, SNAP_MOTION));
-        {
-            DynamicFrameText* multText = new DynamicFrameText;
-            multText->size = 14;
-            multText->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
-            multText->box.size = Vec(81, 14);
-            multText->itemHandle = &module->opMultipleKnob[op];
-            multText->visibility = &module->opSettingsMenu[op];
-            multText->viewMode = ACTIVE_LOW_VIEW;
+        DynamicFrameText* multText = new DynamicFrameText;
+        multText->size = 14;
+        multText->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
+        multText->box.size = Vec(81, 14);
+        multText->viewMode = ACTIVE_LOW_VIEW;
+        if(module) {
             multText->colorHandle = &module->panelStyle;
+            multText->itemHandle = &module->opMultipleKnob[op];
+            multText->visibility = visibilityHandle;
             for(unsigned long i = 0; i < kNumMultiples; ++i) {
                 multText->addItem(module->multiplesText[i]);
             }
-            addChild(multText);
-        }
-        addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module,
-                                                    module->opParams[op][Dexter::OP_COARSE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW_VIEW, -1.0, 1.0, 0.0, SMOOTH_MOTION));
-        addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module,
-                                                    module->opParams[op][Dexter::OP_FINE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW_VIEW, -0.25, 0.25, 0.0, SMOOTH_MOTION));
-        addParam(createDynamicKnob<DynRoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module,
-                                                    module->opParams[op][Dexter::OP_WAVE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
-        addParam(createDynamicKnob<DynRoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module,
-                                                    module->opParams[op][Dexter::OP_SHAPE_PARAM], &module->opSettingsMenu[op],
-                                                    ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
-        if(op == 0) {
-            addParam(createDynamicKnob<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
-                                                        module->opParams[op][Dexter::OP_LEVEL_PARAM], &module->opSettingsMenu[op],
-                                                        ACTIVE_LOW_VIEW, 0.0, 1.0, 1.0, SMOOTH_MOTION));
         }
         else {
-            addParam(createDynamicKnob<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
-                                                        module->opParams[op][Dexter::OP_LEVEL_PARAM], &module->opSettingsMenu[op],
-                                                        ACTIVE_LOW_VIEW, 0.0, 1.0, 0.0, SMOOTH_MOTION));
+            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
+            multText->addItem("1");
         }
+        addChild(multText);
 
         // Buttons
-        addParam(createParam<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module,
-                                             module->opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0));
-        addParam(createParam<LightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY),
-                                             module, module->opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0));
-        addParam(createParam<LightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module,
-                                             module->opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0));
-        addParam(createParam<LightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module,
-                                             module->opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0));
-        addParam(createParam<LightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module,
-                                             module->opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0));
-        addParam(createParam<LightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module,
-                                             module->opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpPreButtonPosX + offset + ledOffset,
-                                                 OpPreButtonPosY + ledOffset), module, module->opLights[op][Dexter::OP_PRE_LIGHT]));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpSettingsButtonRootX + offset + ledOffset,
-                                                 OpSettingsButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_SETTINGS]));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpPercButtonRootX + offset + ledOffset,
-                                                 OpPercButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_POST_SHAPE]));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpIsolateButtonRootX + offset + ledOffset,
-                                                 OpIsolateButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_WEAK]));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpLFOButtonRootX + offset + ledOffset,
-                                                 OpLFOButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_LFO]));
-        addChild(createLight<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset,
-                                                 OpSyncButtonRootY + ledOffset), module, module->opLights[op][Dexter::OP_SYNC]));
-
-        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpWaveButtonX + offset, 110.375),
-                                                        module, module->opParams[op][Dexter::OP_WAVE_MENU_PARAM],
-                                                        0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH_VIEW));
-        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpModAButtonX + offset, 110.375),
-                                                        module, module->opParams[op][Dexter::OP_MODA_MENU_PARAM],
-                                                        0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH_VIEW));
-        addParam(createDynamicSwitchWidget<LightLEDButton>(Vec(OpModBButtonX + offset, 110.375),
-                                                        module, module->opParams[op][Dexter::OP_MODB_MENU_PARAM],
-                                                        0.0, 1.0, 0.0, &module->opSettingsMenu[op],
-                                                        ACTIVE_HIGH_VIEW));
-
-        addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpWaveButtonX + offset + ledOffset,
-                                                    110.375 + ledOffset), module, module->opLights[op][Dexter::OP_WAVE_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModAButtonX + offset + ledOffset,
-                                                    110.375 + ledOffset), module, module->opLights[op][Dexter::OP_MODA_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModBButtonX + offset + ledOffset,
-                                                    110.375 + ledOffset), module, module->opLights[op][Dexter::OP_MODB_LIGHT],
-                                                    &module->opSettingsMenu[op], ACTIVE_HIGH_VIEW));
+        addParam(createParam<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module, Dexter::OP_1_PRE_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addParam(createParam<LightLEDButton>(Vec(OpSettingsButtonRootX + offset, OpSettingsButtonRootY), module, Dexter::OP_1_SETTINGS_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addParam(createParam<LightLEDButton>(Vec(OpPercButtonRootX + offset, OpPercButtonRootY), module, Dexter::OP_1_POST_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addParam(createParam<LightLEDButton>(Vec(OpIsolateButtonRootX + offset, OpIsolateButtonRootY), module, Dexter::OP_1_WEAK_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addParam(createParam<LightLEDButton>(Vec(OpLFOButtonRootX + offset, OpLFOButtonRootY), module, Dexter::OP_1_LFO_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addParam(createParam<LightLEDButton>(Vec(OpSyncButtonRootX + offset, OpSyncButtonRootY), module, Dexter::OP_1_SYNC_PARAM + Dexter::NUM_PARAM_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpPreButtonPosX + offset + ledOffset, OpPreButtonPosY + ledOffset),
+                                                    module, Dexter::OP_1_PRE_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpSettingsButtonRootX + offset + ledOffset, OpSettingsButtonRootY + ledOffset),
+                                                    module, Dexter::OP_1_SETTINGS_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpPercButtonRootX + offset + ledOffset, OpPercButtonRootY + ledOffset),
+                                                    module, Dexter::OP_1_POST_SHAPE_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpIsolateButtonRootX + offset + ledOffset, OpIsolateButtonRootY + ledOffset),
+                                                    module, Dexter::OP_1_WEAK_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpLFOButtonRootX + offset + ledOffset, OpLFOButtonRootY + ledOffset),
+                                                    module, Dexter::OP_1_LFO_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
+        addChild(createLight<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset, OpSyncButtonRootY + ledOffset),
+                                                    module, Dexter::OP_1_SYNC_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
 
         for(auto i = 0; i < 6; ++i){
             DynamicText* dynText = new DynamicText();
@@ -926,97 +924,124 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
             dynText->text = std::make_shared<std::string>(OpMainText[i]);
             dynText->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
             dynText->box.size = Vec(82,14);
-            dynText->visibility = &module->opSettingsMenu[op];
+
+            if(module) {
+                dynText->visibility = &module->opSettingsMenu[op];
+                dynText->colorHandle = &module->panelStyle;
+            }
+            else {
+                dynText->visibility = nullptr;
+                dynText->customColor = nvgRGB(0xFF, 0xFF, 0xFF);
+            }
             dynText->viewMode = ACTIVE_LOW_VIEW;
-            dynText->colorHandle = &module->panelStyle;
             addChild(dynText);
         }
 
         // Settings Menu
-        addChild(createDynamicText(Vec(203.2045 + offset, 125), 12, "Wave", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(203.2045 + offset, 134), 12, "Table", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        if(module) {
+            addParam(createDynamicParam<LightLEDButton>(Vec(OpWaveButtonX + offset, 110.375), module,
+                                                        Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+            addParam(createDynamicParam<LightLEDButton>(Vec(OpModAButtonX + offset, 110.375), module,
+                                                        Dexter::OP_1_MODA_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+            addParam(createDynamicParam<LightLEDButton>(Vec(OpModBButtonX + offset, 110.375), module,
+                                                        Dexter::OP_1_MODB_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
 
-        addChild(createDynamicText(Vec(234.6105 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(234.6105 + offset, 134), 12, "1 & 2", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpWaveButtonX + offset + ledOffset,
+                                                        110.375 + ledOffset), module, Dexter::OP_1_WAVE_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModAButtonX + offset + ledOffset,
+                                                        110.375 + ledOffset), module, Dexter::OP_1_MODA_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModBButtonX + offset + ledOffset,
+                                                        110.375 + ledOffset), module, Dexter::OP_1_MODB_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
+                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
 
-        addChild(createDynamicText(Vec(266.0295 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(266.0295 + offset, 134), 12, "3 & 4", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(203.2045 + offset, 125), 12, "Wave", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(203.2045 + offset, 134), 12, "Table", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
 
-        // Wavetable Menu
-        addParam(createDynamicKnob<DynRoganMedBlue>(Vec(OpTableKnobRootX + offset, OpRow1Y), module,
-                                                    module->opParams[op][Dexter::OP_BANK_PARAM], &module->opWaveMenuVis[op],
-                                                    ACTIVE_HIGH_VIEW, 0.0, (float)(NUM_WAVEBANKS - 1.f), 0.0, SNAP_MOTION));
+            addChild(createDynamicText(Vec(234.6105 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(234.6105 + offset, 134), 12, "1 & 2", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
 
-        std::vector<std::string> syncItems(syncModes, syncModes + kNumSyncModes);
-        addChild(createDynamicChoice(Vec(238.819 + offset, 55.25), 67.806, syncItems, &module->opMenuSyncMode[op],
-                 &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
-        std::vector<std::string> shapeItems(shapeModes, shapeModes + kNumShapeModes);
-        addChild(createDynamicChoice(Vec(238.819 + offset, 87.125), 67.806, shapeItems, &module->opMenuShapeMode[op],
-                 &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(266.0295 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(266.0295 + offset, 134), 12, "3 & 4", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
 
-        addChild(createDynamicText(Vec(211.062 + offset, 81.468 - 2.718), 14, "Table", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(273.222 + offset, 45.058 - 4.0), 12, "Sync Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(273.222 + offset, 77.933 - 4.0), 12, "Shape Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            // Wavetable Menu
+            addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpTableKnobRootX + offset, OpRow1Y), module,
+                                                         Dexter::OP_1_BANK_PARAM + Dexter::NUM_PARAM_GROUPS * op, &module->opWaveMenuVis[op],
+                                                         ACTIVE_HIGH_VIEW, SNAP_MOTION));
 
-        {
-            DynamicFrameText* tableText = new DynamicFrameText;
-            tableText->size = 12;
-            tableText->box.pos = Vec(211.062 + offset, 91.468);
-            tableText->box.size = Vec(82, 14);
-            tableText->itemHandle = &module->opWaveBankKnob[op];
-            tableText->visibility = &module->opWaveMenuVis[op];
-            tableText->viewMode = ACTIVE_HIGH_VIEW;
-            tableText->colorHandle = &module->panelStyle;
-            for(auto i = 0; i < NUM_WAVEBANKS; ++i) {
-                tableText->addItem(waveTableNames[i]);
+            std::vector<std::string> syncItems(syncModes, syncModes + kNumSyncModes);
+            addChild(createDynamicChoice(Vec(238.819 + offset, 55.25), 67.806, syncItems, &module->opMenuSyncMode[op],
+                     &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
+            std::vector<std::string> shapeItems(shapeModes, shapeModes + kNumShapeModes);
+            addChild(createDynamicChoice(Vec(238.819 + offset, 87.125), 67.806, shapeItems, &module->opMenuShapeMode[op],
+                     &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
+
+            addChild(createDynamicText(Vec(211.062 + offset, 81.468 - 2.718), 14, "Table", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(273.222 + offset, 45.058 - 4.0), 12, "Sync Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(273.222 + offset, 77.933 - 4.0), 12, "Shape Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+
+            {
+                DynamicFrameText* tableText = new DynamicFrameText;
+                tableText->size = 12;
+                tableText->box.pos = Vec(211.062 + offset, 91.468);
+                tableText->box.size = Vec(82, 14);
+                tableText->itemHandle = &module->opWaveBankKnob[op];
+                tableText->visibility = &module->opWaveMenuVis[op];
+                tableText->viewMode = ACTIVE_HIGH_VIEW;
+                tableText->colorHandle = &module->panelStyle;
+                for(auto i = 0; i < NUM_WAVEBANKS; ++i) {
+                    tableText->addItem(waveTableNames[i]);
+                }
+                addChild(tableText);
             }
-            addChild(tableText);
+
+            // Mod Menus
+            std::vector<std::string> modAssignItems(modDest, modDest + NUM_DESTS);
+            addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod1Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
+            addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod2Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 1", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 2", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+
+            addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod3Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
+            addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod4Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 3", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+            addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 4", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
         }
 
-        // Mod Menus
-        std::vector<std::string> modAssignItems(modDest, modDest + NUM_DESTS);
-        addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod1Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod2Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 1", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 2", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod1KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_1_PARAM + 12 * op));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod2KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_2_PARAM + 12 * op));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod3KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_3_PARAM + 12 * op));
+        addParam(createParam<RoganSmallMustard>(Vec(OpMod4KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_4_PARAM + 12 * op));
 
-        addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod3Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod4Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 3", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 4", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        addParam(createParam<RoganSmallBlue>(Vec(OpPitch1KnobRootX + offset, OpCV1RowY), module, Dexter::OP_1_PITCH_CV1_PARAM + 12 * op));
+        addParam(createParam<RoganSmallPurple>(Vec(OpWave1KnobRootX + offset, OpCV1RowY), module, Dexter::OP_1_WAVE_CV1_PARAM + 12 * op));
+        addParam(createParam<RoganSmallRed>(Vec(OpShape1KnobRootX + offset, OpCV1RowY), module, Dexter::OP_1_SHAPE_CV1_PARAM + 12 * op));
+        addParam(createParam<RoganSmallGreen>(Vec(OpLevel1KnobRootX + offset, OpCV1RowY), module, Dexter::OP_1_LEVEL_CV1_PARAM + 12 * op));
 
-
-        addParam(createParam<RoganSmallMustard>(Vec(OpMod1KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][0], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallMustard>(Vec(OpMod2KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][1], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallMustard>(Vec(OpMod3KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][2], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallMustard>(Vec(OpMod4KnobRootX + offset, OpModRowY), module, module->opCVAtten[op][3], -1.0, 1.0, 0.0));
-
-        addParam(createParam<RoganSmallBlue>(Vec(OpPitch1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][4], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallPurple>(Vec(OpWave1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][5], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallRed>(Vec(OpShape1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][6], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallGreen>(Vec(OpLevel1KnobRootX + offset, OpCV1RowY), module, module->opCVAtten[op][7], -1.0, 1.0, 0.0));
-
-        addParam(createParam<RoganSmallBlue>(Vec(OpPitch2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][8], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallPurple>(Vec(OpWave2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][9], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][10], -1.0, 1.0, 0.0));
-        addParam(createParam<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, module->opCVAtten[op][11], -1.0, 1.0, 0.0));
+        addParam(createParam<RoganSmallBlue>(Vec(OpPitch2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_PITCH_CV2_PARAM + 12 * op));
+        addParam(createParam<RoganSmallPurple>(Vec(OpWave2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_WAVE_CV2_PARAM + 12 * op));
+        addParam(createParam<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_SHAPE_CV2_PARAM + 12 * op));
+        addParam(createParam<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_LEVEL_CV2_PARAM + 12 * op));
 
         //addInput(createInput<PJ301MDarkSmall>(Vec(OpSyncJackRootX + offset, OpSyncJackRootY), module, module->opSyncInputs[op]);
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][0]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][1]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][2]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpModJackRowY), PortWidget::INPUT, module, module->opCVInputs[op][3]));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_1_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_2_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_3_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_4_INPUT + 12 * op));
 
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][4]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][5]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][6]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][7]));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV1JackRootY), module, Dexter::OP_1_PITCH_1_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV1JackRootY), module, Dexter::OP_1_WAVE_1_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV1JackRootY), module, Dexter::OP_1_SHAPE_1_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV1JackRootY), module, Dexter::OP_1_LEVEL_1_INPUT + 12 * op));
 
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][8]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][9]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][10]));
-        addInput(createPort<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), PortWidget::INPUT, module, module->opCVInputs[op][11]));
-
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpCV2JackRootY), module, Dexter::OP_1_PITCH_2_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpCV2JackRootY), module, Dexter::OP_1_WAVE_2_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpCV2JackRootY), module, Dexter::OP_1_SHAPE_2_INPUT + 12 * op));
+        addInput(createInput<PJ301MDarkSmall>(Vec(OpCV4JackRootX + offset, OpCV2JackRootY), module, Dexter::OP_1_LEVEL_2_INPUT + 12 * op));
     }
 }
 
@@ -1027,7 +1052,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
 struct DexterPanelStyleItem : MenuItem {
     Dexter* module;
     int panelStyle;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->panelStyle = panelStyle;
     }
     void step() override {
@@ -1039,7 +1064,7 @@ struct DexterPanelStyleItem : MenuItem {
 struct DexterOpSyncSourceItem : MenuItem {
     Dexter* module;
     FourVoiceOPCore::OpSyncSource opSyncSource = FourVoiceOPCore::PARENT_SYNC_SOURCE;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->opSyncSource = opSyncSource;
     }
     void step() override {
@@ -1051,7 +1076,7 @@ struct DexterOpSyncSourceItem : MenuItem {
 struct DexterOpOuputSource : MenuItem {
     Dexter* module;
     unsigned long indivBOutputs = 0;
-    void onAction(EventAction &e) override {
+    void onAction(const event::Action &e) override {
         module->indivBOutputs = indivBOutputs;
     }
     void step() override {

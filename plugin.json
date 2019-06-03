@@ -1,9 +1,9 @@
 {
-  "slug": "Valley",
+  "slug": "ValleyRackFree",
   "name": "Valley",
   "version": "1.0.0",
   "license": "GPL-3.0-or-later",
-  "author": "Dale Johnson",
+  "author": "Valley",
   "authorEmail": "valley.audio.soft@gmail.com",
   "authorUrl": "https://valleyaudio.github.io",
   "pluginUrl": "",
@@ -17,6 +17,14 @@
       "description": "",
       "tags": [
         "SEQUENCER"
+      ]
+    },
+    {
+      "slug": "Dexter",
+      "name": "Dexter",
+      "description": "",
+      "tags": [
+        "OSCILLATOR"
       ]
     },
     {

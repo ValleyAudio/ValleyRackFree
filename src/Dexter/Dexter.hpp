@@ -42,8 +42,6 @@ int modulo(int a, int b) {
     return a - ((b) * floor(a/b));
 }
 
-const Vec syncChoiceRootPos = Vec(0.0, 0.0);
-
 const unsigned long kNumShapeModes = 12;
 const unsigned long kNumSyncModes = 15;
 const unsigned long kNumModDests = 11;
@@ -58,99 +56,6 @@ const std::string syncModes[kNumSyncModes] = {"Hard", "5th", "+1 Oct", "-1 Oct",
 const std::string modDest[NUM_DESTS] = {"Pitch", "Multiple", "Wave Pos.", "Wave Bank", "Shape",
                                         "Level", "Ext FM", "Ext Sync", "Shape Mode", "Post Shape",
                                         "Sync Mode", "Sync En.", "Weak Sync"};
-
-// Control positions
-const float ledOffset = 2.5;
-const Vec ChordKnobPos(10.41, 84.625);
-const Vec InvertKnobPos(53.71, 84.625);
-const Vec DetuneKnobPos(96.41, 84.625);
-const Vec OctaveAKnobPos(8.41, 35.12); // 10.41
-const Vec CoarseKnobPos(51.71, 35.12); // 55.71
-const Vec FineKnobPos(94.41, 35.12); // 100.41
-const Vec AlgoKnobPos(143.71, 35.12);
-const Vec BrightKnobPos(51.71, 205.625);
-const Vec ShapeKnobPos(8.41, 205.625);
-const Vec FeedbackKnobPos(94.41, 205.625);
-
-const Vec Octave2KnobPos(8.41, 153.12); // 153.12
-const Vec Coarse2KnobPos(51.71, 153.12);
-const Vec Fine2KnobPos(94.41, 153.12);
-
-const Vec ChordDepthKnobPos(5.5, 258.509);
-const Vec InvertDepthKnobPos(31.7, 258.509);
-const Vec DetuneDepthKnobPos(58, 258.509); // 58
-const Vec AlgoDepthKnobPos(85.2, 258.509); // 84.2
-const Vec FBDepthKnobPos(110.55, 258.509); // 110.55
-const Vec BrightDepthKnobPos(136.85, 258.509); // 136.85
-const Vec ShapeDepthKnobPos(163.15, 258.509); // 163.15
-
-const Vec MasterLFOButtonPos(138.125, 166);
-const Vec ResetPhaseButtonPos(138.125, 184.462);
-const Vec FullInversionButtonPos(53.71, 127);
-const Vec MasterLFOButtonLEDPos(140.45, 168.35);
-const Vec ResetPhaseButtonLEDPos(140.45, 186.742);
-const Vec FullInversionButtonLEDPos(56.035, 129.28);
-
-const Vec ChordCVJack(5.0, 280.735);
-const Vec InvertCVJack(31.25, 280.735);
-const Vec DetuneCVJack(57.5, 280.735);
-const Vec AlgorithmCVJack(83.75, 280.735);
-const Vec FeedbackCVJack(110.0, 280.735);
-const Vec BrightCVJack(136.25, 280.735);
-const Vec ShapeCVJack(162.5, 280.735);
-
-const Vec AOutLeftJack(5.0, 319.951);
-const Vec AOutRightJack(31.25, 319.951);
-const Vec Op1OutJack(57.5, 319.951);
-const Vec Op2OutJack(83.75, 319.951);
-const Vec Op3OutJack(110.0, 319.951);
-const Vec Op4OutJack(136.25, 319.951);
-const Vec BOutJack(162.5, 319.951);
-
-const Vec VOct1CVJack(136.25, 210.519);
-const Vec VOct2CVJack(162.5, 210.519);
-
-const float OpMultKnobRootX = 192.922;          const float OpRow1Y = 44.12;
-const float OpTableKnobRootX = 194.922;
-const float OpCoarseKnobRootX = 234.172;
-const float OpFineKnobRootX = 275.422;
-const float OpWaveKnobRootX = 192.922;          const float OpRow2Y = 96.625;
-const float OpShapeKnobRootX = 234.172;
-const float OpLevelKnobRootX = 275.422;
-const float OpMod1KnobRootX = 196.338;          const float OpModRowY = 185.401;
-const float OpMod2KnobRootX = 226.288;
-const float OpMod3KnobRootX = 256.537;
-const float OpMod4KnobRootX = 286.35;
-const float OpPitch1KnobRootX = 196.338;        const float OpCV1RowY = 247.649;
-const float OpPitch2KnobRootX = 196.338;        const float OpCV2RowY = 296.699;
-const float OpWave1KnobRootX = 226.288;
-const float OpWave2KnobRootX = 226.288;
-const float OpShape1KnobRootX = 256.537;
-const float OpShape2KnobRootX = 256.537;
-const float OpLevel1KnobRootX = 286.35;
-const float OpLevel2KnobRootX = 286.35;
-
-const float OpSettingsButtonRootX = 191.25;     const float OpSettingsButtonRootY = 27.7;
-const float OpWaveButtonX = 195.992;
-const float OpModAButtonX = 227.398;
-const float OpModBButtonX = 258.804;
-const float OpMiscButtonX = 290.21;
-const float OpPreButtonPosX = 198.65;          const float OpPreButtonPosY = 146.998;
-const float OpPercButtonRootX = 220.912;        const float OpPercButtonRootY = 146.998;
-const float OpIsolateButtonRootX = 220.912;     const float OpIsolateButtonRootY = 165.748;
-const float OpLFOButtonRootX = 267.561;         const float OpLFOButtonRootY = 146.998;
-const float OpSyncButtonRootX = 267.561;        const float OpSyncButtonRootY = 165.748;
-
-const float OpSyncJackRootX = 195.238;          const float OpSyncJackRootY = 147.75;
-const float OpCV1JackRootX = 195.238;           const float OpModJackRowY = 209.001;
-const float OpCV2JackRootX = 225.188;
-const float OpCV3JackRootX = 255.25;
-const float OpCV4JackRootX = 285.25;            const float OpCV1JackRootY = 271.25;
-                                                const float OpCV2JackRootY = 320.0;
-
-const std::string OpMainText[] = {"Mul:", "Coarse", "Fine", "Wave", "Shape", "Level"};
-const float OpMainTextX[] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
-const float OpMainTextY[] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
 
 struct Dexter : Module {
     enum ParamIds {
@@ -377,8 +282,8 @@ struct Dexter : Module {
 
     bool resetPhaseState = false;
     float masterLFO = 0.f;
-    SchmittTrigger resetPhaseButtonTrig;
-    SchmittTrigger masterLFOButtonTrig;
+    dsp::SchmittTrigger resetPhaseButtonTrig;
+    dsp::SchmittTrigger masterLFOButtonTrig;
     int octave;
     float timer = 0.f;
     float aPitch = 0.f;
@@ -408,7 +313,7 @@ struct Dexter : Module {
     float chordDetuneParam;
     int buttonFullInversion = 0;
     int fullInversion = 0;
-    SchmittTrigger fullInversionButtonTrig;
+    dsp::SchmittTrigger fullInversionButtonTrig;
     int chordKnob;
     int invDepth;
     int invDepthParam;
@@ -469,16 +374,16 @@ struct Dexter : Module {
     int opMiscMenuVis[kNumOperators] = {0, 0, 0, 0};
     unsigned long opMenuPage[kNumOperators] = {0, 0, 0, 0};
 
-    SchmittTrigger opSettBtnTrig[kNumOperators];
-    SchmittTrigger opSyncBtnTrig[kNumOperators];
-    SchmittTrigger opWeakBtnTrig[kNumOperators];
-    SchmittTrigger opLFOBtnTrig[kNumOperators];
-    SchmittTrigger opPreFadeBtnTrig[kNumOperators];
-    SchmittTrigger opPostShapeBtnTrig[kNumOperators];
-    SchmittTrigger opWaveMenuBtnTrig[kNumOperators];
-    SchmittTrigger opModAMenuBtnTrig[kNumOperators];
-    SchmittTrigger opModBMenuBtnTrig[kNumOperators];
-    SchmittTrigger opMiscMenuBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opSettBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opSyncBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opWeakBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opLFOBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opPreFadeBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opPostShapeBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opWaveMenuBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opModAMenuBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opModBMenuBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opMiscMenuBtnTrig[kNumOperators];
 
     float sampleRate = 44100.f;
     int panelStyle = 0;
@@ -488,7 +393,7 @@ struct Dexter : Module {
     void step() override;
     void makeChord(float chord, float invert);
     void onSampleRateChange() override;
-    void reset() override;
+    void reset();
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 };
@@ -520,7 +425,7 @@ struct AlgoGraphic : FramebufferWidget {
                     algoGraphicFile += "Dark";
                 }
                 algoGraphicFile += ".svg";
-                addFrame(SVG::load(assetPlugin(pluginInstance, algoGraphicFile)));
+                addFrame(SVG::load(asset::plugin(pluginInstance, algoGraphicFile)));
             }
         }
     }
@@ -535,7 +440,7 @@ struct AlgoGraphic : FramebufferWidget {
     }
 
     void step() override {
-        if (isNear(gPixelRatio, 1.f)) {
+        if (isNear(APP->window->pixelRatio,1.f)) {
             oversample = 2.f;
         }
         if(style != nullptr) {
@@ -558,6 +463,99 @@ struct AlgoGraphic : FramebufferWidget {
 struct DexterWidget : ModuleWidget {
     DexterWidget(Dexter *module);
     void appendContextMenu(Menu *menu) override;
+    // Control positions
+    const float ledOffset = 2.5;
+    Vec ChordKnobPos = Vec(10.41, 84.625);
+    Vec InvertKnobPos = Vec(53.71, 84.625);
+    Vec DetuneKnobPos = Vec(96.41, 84.625);
+    Vec OctaveAKnobPos = Vec(8.41, 35.12); // 10.41
+    Vec CoarseKnobPos = Vec(51.71, 35.12); // 55.71
+    Vec FineKnobPos = Vec(94.41, 35.12); // 100.41
+    Vec AlgoKnobPos = Vec(143.71, 35.12);
+    Vec BrightKnobPos = Vec(51.71, 205.625);
+    Vec ShapeKnobPos = Vec(8.41, 205.625);
+    Vec FeedbackKnobPos = Vec(94.41, 205.625);
+
+    Vec Octave2KnobPos = Vec(8.41, 153.12); // 153.12
+    Vec Coarse2KnobPos = Vec(51.71, 153.12);
+    Vec Fine2KnobPos = Vec(94.41, 153.12);
+
+    Vec ChordDepthKnobPos = Vec(5.5, 258.509);
+    Vec InvertDepthKnobPos = Vec(31.7, 258.509);
+    Vec DetuneDepthKnobPos = Vec(58, 258.509); // 58
+    Vec AlgoDepthKnobPos = Vec(85.2, 258.509); // 84.2
+    Vec FBDepthKnobPos = Vec(110.55, 258.509); // 110.55
+    Vec BrightDepthKnobPos = Vec(136.85, 258.509); // 136.85
+    Vec ShapeDepthKnobPos = Vec(163.15, 258.509); // 163.15
+
+    Vec MasterLFOButtonPos = Vec(138.125, 166);
+    Vec ResetPhaseButtonPos = Vec(138.125, 184.462);
+    Vec FullInversionButtonPos = Vec(53.71, 127);
+    Vec MasterLFOButtonLEDPos = Vec(140.45, 168.35);
+    Vec ResetPhaseButtonLEDPos = Vec(140.45, 186.742);
+    Vec FullInversionButtonLEDPos = Vec(56.035, 129.28);
+
+    Vec ChordCVJack = Vec(5.0, 280.735);
+    Vec InvertCVJack = Vec(31.25, 280.735);
+    Vec DetuneCVJack = Vec(57.5, 280.735);
+    Vec AlgorithmCVJack = Vec(83.75, 280.735);
+    Vec FeedbackCVJack = Vec(110.0, 280.735);
+    Vec BrightCVJack = Vec(136.25, 280.735);
+    Vec ShapeCVJack = Vec(162.5, 280.735);
+
+    Vec AOutLeftJack = Vec(5.0, 319.951);
+    Vec AOutRightJack = Vec(31.25, 319.951);
+    Vec Op1OutJack = Vec(57.5, 319.951);
+    Vec Op2OutJack = Vec(83.75, 319.951);
+    Vec Op3OutJack = Vec(110.0, 319.951);
+    Vec Op4OutJack = Vec(136.25, 319.951);
+    Vec BOutJack = Vec(162.5, 319.951);
+
+    Vec VOct1CVJack = Vec(136.25, 210.519);
+    Vec VOct2CVJack = Vec(162.5, 210.519);
+
+    float OpMultKnobRootX = 192.922;          const float OpRow1Y = 44.12;
+    const float OpTableKnobRootX = 194.922;
+    const float OpCoarseKnobRootX = 234.172;
+    const float OpFineKnobRootX = 275.422;
+    const float OpWaveKnobRootX = 192.922;          const float OpRow2Y = 96.625;
+    const float OpShapeKnobRootX = 234.172;
+    const float OpLevelKnobRootX = 275.422;
+    const float OpMod1KnobRootX = 196.338;          const float OpModRowY = 185.401;
+    const float OpMod2KnobRootX = 226.288;
+    const float OpMod3KnobRootX = 256.537;
+    const float OpMod4KnobRootX = 286.35;
+    const float OpPitch1KnobRootX = 196.338;        const float OpCV1RowY = 247.649;
+    const float OpPitch2KnobRootX = 196.338;        const float OpCV2RowY = 296.699;
+    const float OpWave1KnobRootX = 226.288;
+    const float OpWave2KnobRootX = 226.288;
+    const float OpShape1KnobRootX = 256.537;
+    const float OpShape2KnobRootX = 256.537;
+    const float OpLevel1KnobRootX = 286.35;
+    const float OpLevel2KnobRootX = 286.35;
+
+    const float OpSettingsButtonRootX = 191.25;     const float OpSettingsButtonRootY = 27.7;
+    const float OpWaveButtonX = 195.992;
+    const float OpModAButtonX = 227.398;
+    const float OpModBButtonX = 258.804;
+    const float OpMiscButtonX = 290.21;
+    const float OpPreButtonPosX = 198.65;          const float OpPreButtonPosY = 146.998;
+    const float OpPercButtonRootX = 220.912;        const float OpPercButtonRootY = 146.998;
+    const float OpIsolateButtonRootX = 220.912;     const float OpIsolateButtonRootY = 165.748;
+    const float OpLFOButtonRootX = 267.561;         const float OpLFOButtonRootY = 146.998;
+    const float OpSyncButtonRootX = 267.561;        const float OpSyncButtonRootY = 165.748;
+
+    const float OpSyncJackRootX = 195.238;          const float OpSyncJackRootY = 147.75;
+    const float OpCV1JackRootX = 195.238;           const float OpModJackRowY = 209.001;
+    const float OpCV2JackRootX = 225.188;
+    const float OpCV3JackRootX = 255.25;
+    const float OpCV4JackRootX = 285.25;            const float OpCV1JackRootY = 271.25;
+                                                    const float OpCV2JackRootY = 320.0;
+
+    std::string OpMainText[6] = {"Mul:", "Coarse", "Fine", "Wave", "Shape", "Level"};
+    float OpMainTextX[6] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
+    float OpMainTextY[6] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
+    Vec syncChoiceRootPos = Vec(0.0, 0.0);
 };
 
 #endif

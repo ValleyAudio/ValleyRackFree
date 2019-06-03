@@ -39,8 +39,8 @@ struct DynamicSwitchWidget : Switch {
     std::vector<std::shared_ptr<SVG>> frames;
     FramebufferWidget *fb;
     SVGWidget* sw;
-    int* visibility;
-    DynamicViewMode viewMode;
+    int* _visibility;
+    DynamicViewMode _viewMode;
 
     DynamicSwitchWidget();
     void addFrame(std::shared_ptr<SVG> svg);
@@ -61,8 +61,8 @@ DynamicSwitchWidget* createDynamicSwitchWidget(Vec pos, Module *module, int para
     if (module) {
 		module->configParam(paramId, minValue, maxValue, defaultValue);
 	}
-    dynSwitch->visibility = visibilityHandle;
-    dynSwitch->viewMode = viewMode;
+    dynSwitch->_visibility = visibilityHandle;
+    dynSwitch->_viewMode = viewMode;
 	return dynSwitch;
 }
 
@@ -111,35 +111,46 @@ struct DynamicKnob : virtual Knob {
 
 	DynamicKnob();
 	void setSvg(std::shared_ptr<SVG> svg);
-	void step() override;
-	void onChange(const event::Change &e) override;
 };
 
-template <class TDynamicKnob>
-DynamicKnob* createDynamicKnob(const Vec& pos,
-                               Module* module,
-                               int paramId,
-                               int* visibilityHandle,
-                               DynamicViewMode viewMode,
-                               float minValue,
-                               float maxValue,
-                               float defaultValue,
-                               DynamicKnobMotion motion) {
-    DynamicKnob* knob = new TDynamicKnob;
-    //knob->module = module;
-    knob->box.pos = pos;
-    knob->paramQuantity->paramId = paramId;
-    //knob->setLimits(minValue, maxValue);
-    //knob->setDefaultValue(defaultValue);
-    if (module) {
-		module->configParam(paramId, minValue, maxValue, defaultValue);
+struct DynamicSvgKnob : SvgKnob {
+    int* _visibility;
+    DynamicViewMode _viewMode;
+
+	DynamicSvgKnob();
+	void step() override;
+};
+
+template <class TParamWidget>
+TParamWidget *createDynamicParam(math::Vec pos, engine::Module *module,
+                                 int paramId, int* visibilityHandle,
+                                 DynamicViewMode viewMode,
+                                 DynamicKnobMotion motion) {
+	TParamWidget *o = new TParamWidget;
+	o->box.pos = pos;
+	if (module) {
+		o->paramQuantity = module->paramQuantities[paramId];
+        o->_visibility = visibilityHandle;
 	}
-    knob->_visibility = visibilityHandle;
-    knob->_viewMode = viewMode;
+    o->_viewMode = viewMode;
     if(motion == SNAP_MOTION) {
-        knob->snap = true;
+        o->snap = true;
     }
-    return knob;
+	return o;
+}
+
+template <class TParamWidget>
+TParamWidget *createDynamicParam(math::Vec pos, engine::Module *module,
+                                 int paramId, int* visibilityHandle,
+                                 DynamicViewMode viewMode) {
+	TParamWidget *o = new TParamWidget;
+	o->box.pos = pos;
+	if (module) {
+		o->paramQuantity = module->paramQuantities[paramId];
+        o->_visibility = visibilityHandle;
+	}
+    o->_viewMode = viewMode;
+	return o;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,17 +314,6 @@ DynamicChoice* createDynamicChoice(const Vec& pos,
 template<class T = SVGKnob>
 T *createValleyKnob(Vec pos, Module *module, int paramId, float minValue, float maxValue,
                     float defaultValue, float minAngle, float maxAngle, DynamicKnobMotion motion) {
-    /*T *o = Component::create<T>(pos, module);
-	o->paramId = paramId;
-	o->setLimits(minValue, maxValue);
-	o->setDefaultValue(defaultValue);
-    o->minAngle = minAngle;
-    o->maxAngle = maxAngle;
-    if(motion == SNAP_MOTION) {
-        o->snap = true;
-    }
-	return o;*/
-	//o->setLimits(minValue, maxValue);
     if (module) {
 		module->configParam(paramId, minValue, maxValue, defaultValue);
 	}

@@ -63,9 +63,22 @@ struct RoganMedBlue : Rogan {
     }
 };
 
+struct RoganMedSmallBlue : Rogan {
+    RoganMedSmallBlue() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMed.svg")));
+    }
+};
+
 struct RoganMedBlueSnap : Rogan {
     RoganMedBlueSnap() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMed.svg")));
+        snap = true;
+    }
+};
+
+struct RoganMedSmallBlueSnap : Rogan {
+    RoganMedSmallBlueSnap() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMedSmall.svg")));
         snap = true;
     }
 };
@@ -136,7 +149,7 @@ struct RoganSmallOrange : Rogan {
     }
 };
 
-struct DynRogan1PSRed : DynamicKnob {
+struct DynRogan1PSRed : DynamicSvgKnob {
     DynRogan1PSRed() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -144,7 +157,7 @@ struct DynRogan1PSRed : DynamicKnob {
     }
 };
 
-struct DynRogan1PSBlue : DynamicKnob {
+struct DynRogan1PSBlue : DynamicSvgKnob {
     DynRogan1PSBlue() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -152,7 +165,7 @@ struct DynRogan1PSBlue : DynamicKnob {
     }
 };
 
-struct DynRogan1PSGreen : DynamicKnob {
+struct DynRogan1PSGreen : DynamicSvgKnob {
     DynRogan1PSGreen() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -160,7 +173,7 @@ struct DynRogan1PSGreen : DynamicKnob {
     }
 };
 
-struct DynRoganMedRed : DynamicKnob {
+struct DynRoganMedRed : DynamicSvgKnob {
     DynRoganMedRed() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -168,7 +181,7 @@ struct DynRoganMedRed : DynamicKnob {
     }
 };
 
-struct DynRoganMedBlue : DynamicKnob {
+struct DynRoganMedBlue : DynamicSvgKnob {
     DynRoganMedBlue() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -176,7 +189,7 @@ struct DynRoganMedBlue : DynamicKnob {
     }
 };
 
-struct DynRoganMedSmallBlue : DynamicKnob {
+struct DynRoganMedSmallBlue : DynamicSvgKnob {
     DynRoganMedSmallBlue() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -184,7 +197,7 @@ struct DynRoganMedSmallBlue : DynamicKnob {
     }
 };
 
-struct DynRoganMedGreen : DynamicKnob {
+struct DynRoganMedGreen : DynamicSvgKnob {
     DynRoganMedGreen() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
@@ -192,7 +205,7 @@ struct DynRoganMedGreen : DynamicKnob {
     }
 };
 
-struct DynRoganMedPurple : DynamicKnob {
+struct DynRoganMedPurple : DynamicSvgKnob {
     DynRoganMedPurple() {
         minAngle = -0.83*M_PI;
         maxAngle = 0.83*M_PI;
