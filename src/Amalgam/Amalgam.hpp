@@ -170,6 +170,7 @@ struct AmalgamPanelStyleItem : MenuItem {
 struct AmalgamWidget : ModuleWidget {
     AmalgamWidget(Amalgam *module);
     void appendContextMenu(Menu *menu);
+    void step() override;
 
     // Control positions
     Vec xDriveKnobPos = Vec(50.1, 53.083);
@@ -222,6 +223,8 @@ struct AmalgamWidget : ModuleWidget {
     Vec zRightPulse2OutputPos = Vec(124.654, 319.2);
 
     Vec DCCoupleLightPos = Vec(59.044, 31.775);
+
+    SvgPanel* lightPanel;
 };
 
 #endif

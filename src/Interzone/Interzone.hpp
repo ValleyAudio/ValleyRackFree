@@ -180,6 +180,7 @@ struct InterzonePanelStyleItem : MenuItem {
 struct InterzoneWidget : ModuleWidget {
     InterzoneWidget(Interzone *module);
     void appendContextMenu(Menu *menu);
+    void step() override;
 
     float octaveMinAngle = -0.222222f * M_PI;
     float octaveMaxAngle = 0.222222f * M_PI;
@@ -273,6 +274,8 @@ struct InterzoneWidget : ModuleWidget {
 
     Vec VCAOutPos = Vec(444.154f, 241.667f);
     Vec VCALevelCVPos = Vec(249.068, jackRow2Y);
+
+    SvgPanel* lightPanel;
 };
 
 #endif

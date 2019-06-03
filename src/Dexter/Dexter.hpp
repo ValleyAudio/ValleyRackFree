@@ -463,6 +463,8 @@ struct AlgoGraphic : FramebufferWidget {
 struct DexterWidget : ModuleWidget {
     DexterWidget(Dexter *module);
     void appendContextMenu(Menu *menu) override;
+    void step() override;
+
     // Control positions
     const float ledOffset = 2.5;
     Vec ChordKnobPos = Vec(10.41, 84.625);
@@ -556,6 +558,8 @@ struct DexterWidget : ModuleWidget {
     float OpMainTextX[6] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
     float OpMainTextY[6] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
     Vec syncChoiceRootPos = Vec(0.0, 0.0);
+
+    SvgPanel* lightPanel;
 };
 
 #endif

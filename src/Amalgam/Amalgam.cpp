@@ -202,15 +202,15 @@ void AmalgamPanelStyleItem::step() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
-    /*{
-        DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
-        panel->addPanel(SVG::load(asset::plugin(pluginInstance, "res/AmalgamPanelLight.svg")));
-        box.size = panel->box.size;
-        panel->mode = &module->panelStyle;
-        addChild(panel);
-    }*/
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
+
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelLight.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
+
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -428,6 +428,20 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
                                                     module, &AmalgamPanelStyleItem::panelStyle, 0));
     menu->addChild(construct<AmalgamPanelStyleItem>(&MenuItem::text, "Light", &AmalgamPanelStyleItem::module,
                                                       module, &AmalgamPanelStyleItem::panelStyle, 1));
+}
+
+void AmalgamWidget::step() {
+    if(module) {
+        if(dynamic_cast<Amalgam*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+    }
+    Widget::step();
 }
 
 Model *modelAmalgam = createModel<Amalgam, AmalgamWidget>("Amalgam");

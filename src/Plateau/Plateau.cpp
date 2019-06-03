@@ -281,6 +281,7 @@ void Plateau::dataFromJson(json_t *rootJ) {
 
     json_t *outputSaturationJ = json_object_get(rootJ, "outputSaturation");
     outputSaturationState = json_integer_value(outputSaturationJ);
+    printf("Data from JSON\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,17 +324,15 @@ void PlateauOutputSaturationItem::step() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PlateauWidget::PlateauWidget(Plateau* module) {
-		setModule(module);
-    {
-        /*DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/PlateauPanelLight.svg")));
-        box.size = panel->box.size;
-        panel->mode = &module->panelStyle;
-        addChild(panel);*/
-    }
+PlateauWidget::PlateauWidget(Plateau* module) : ModuleWidget(module) {
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelDark.svg")));
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelLight.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
+
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -415,6 +414,7 @@ PlateauWidget::PlateauWidget(Plateau* module) {
 
     addParam(createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(154.375, 129.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
+    printf("Loaded widget\n");
 }
 
 void PlateauWidget::appendContextMenu(Menu *menu) {
@@ -426,7 +426,7 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Dark", &PlateauPanelStyleItem::module,
                                                     module, &PlateauPanelStyleItem::panelStyle, 0));
     menu->addChild(construct<PlateauPanelStyleItem>(&MenuItem::text, "Light", &PlateauPanelStyleItem::module,
-                                                      module, &PlateauPanelStyleItem::panelStyle, 1));
+                                                    module, &PlateauPanelStyleItem::panelStyle, 1));
 
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Predelay CV Sensitivity"));
@@ -448,6 +448,20 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                           module, &PlateauOutputSaturationItem::outputSaturationState, 0));
     menu->addChild(construct<PlateauOutputSaturationItem>(&MenuItem::text, "On", &PlateauOutputSaturationItem::module,
                                                           module, &PlateauOutputSaturationItem::outputSaturationState, 1));
+}
+
+void PlateauWidget::step() {
+    if(module) {
+        if(dynamic_cast<Plateau*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+    }
+    Widget::step();
 }
 
 Model *modelPlateau = createModel<Plateau, PlateauWidget>("Plateau");

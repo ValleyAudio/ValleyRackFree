@@ -220,6 +220,7 @@ struct PlateauOutputSaturationItem : MenuItem {
 struct PlateauWidget : ModuleWidget {
     PlateauWidget(Plateau *module);
     void appendContextMenu(Menu *menu);
+    void step() override;
 
     // Control positions
     Vec dryPos = Vec(52.1, 61.6);
@@ -281,6 +282,8 @@ struct PlateauWidget : ModuleWidget {
 
     Vec holdCVPos = Vec(4.395, 265.42);
     Vec clearCVPos = Vec(154.395, 265.42);
+
+    SvgPanel* lightPanel;
 };
 
 #endif

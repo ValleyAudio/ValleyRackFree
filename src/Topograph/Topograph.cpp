@@ -180,9 +180,7 @@ struct Topograph : Module {
         SNLed = Oneshot(0.1, APP->engine->getSampleRate());
         HHLed = Oneshot(0.1, APP->engine->getSampleRate());
         resetLed = Oneshot(0.1, APP->engine->getSampleRate());
-        //clockTrig.setThresholds(0.25, 0.75);
-        //resetTrig.setThresholds(0.25, 0.75);
-        //runInputTrig.setThresholds(0.25, 0.75);
+
         for(int i = 0; i < 6; ++i) {
             drumTriggers[i] = Oneshot(0.001, APP->engine->getSampleRate());
             gateState[i] = false;
@@ -480,18 +478,20 @@ struct PanelBorder : TransparentWidget {
 struct TopographWidget : ModuleWidget {
     TopographWidget(Topograph *topograph);
     void appendContextMenu(Menu* menu) override;
+    void step() override;
+    SvgPanel* lightPanel;
 };
 
 TopographWidget::TopographWidget(Topograph *module) : ModuleWidget(module){
-    {
-        /*DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanel.svg")));
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/TopographPanelWhite.svg")));
-        box.size = panel->box.size;
-        panel->mode = &module->panelStyle;
-        addChild(panel);*/
-    }
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
+    
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanelWhite.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
+
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -756,6 +756,20 @@ void TopographWidget::appendContextMenu(Menu *menu) {
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::TOGGLE));
     menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Momentary", &TopographRunModeItem::module,
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
+}
+
+void TopographWidget::step() {
+    if(module) {
+        if(dynamic_cast<Topograph*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+    }
+    Widget::step();
 }
 
 Model *modelTopograph = createModel<Topograph, TopographWidget>("Topograph");

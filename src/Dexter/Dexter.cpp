@@ -744,15 +744,15 @@ void Dexter::dataFromJson(json_t *rootJ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
-    /*{
-        DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/DexterPanelLight.svg")));
-        box.size = panel->box.size;
-        panel->mode = &module->panelStyle;
-        addChild(panel);
-    }*/
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
+
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelLight.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
+
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -1112,6 +1112,20 @@ void DexterWidget::appendContextMenu(Menu *menu) {
                                                    module, &DexterOpOuputSource::indivBOutputs, 0));
      menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice B", &DexterOpOuputSource::module,
                                                    module, &DexterOpOuputSource::indivBOutputs, 1));
+}
+
+void DexterWidget::step() {
+    if(module) {
+        if(dynamic_cast<Dexter*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+    }
+    Widget::step();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

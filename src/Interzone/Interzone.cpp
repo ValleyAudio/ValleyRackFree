@@ -206,17 +206,15 @@ void InterzonePanelStyleItem::step() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 InterzoneWidget::InterzoneWidget(Interzone* module) {
-		setModule(module);
-    /*{
-        DynamicPanelWidget *panel = new DynamicPanelWidget();
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelDark.svg")));
-        panel->addPanel(SVG::load(assetPlugin(pluginInstance, "res/InterzonePanelLight.svg")));
-
-        box.size = panel->box.size;
-        panel->mode = &module->panelStyle;
-        addChild(panel);
-    }*/
+    setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/InterzonePanelDark.svg")));
+
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/InterzonePanelLight.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -329,6 +327,20 @@ void InterzoneWidget::appendContextMenu(Menu *menu) {
                                                     module, &InterzonePanelStyleItem::panelStyle, 0));
     menu->addChild(construct<InterzonePanelStyleItem>(&MenuItem::text, "Light", &InterzonePanelStyleItem::module,
                                                       module, &InterzonePanelStyleItem::panelStyle, 1));
+}
+
+void InterzoneWidget::step() {
+    if(module) {
+        if(dynamic_cast<Interzone*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+    }
+    Widget::step();
 }
 
 Model *modelInterzone = createModel<Interzone, InterzoneWidget>("Interzone");
