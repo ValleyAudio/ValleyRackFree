@@ -5,8 +5,9 @@ Feline::Feline() {
     configParam(Feline::CUTOFF_PARAM, 0.f, 10.f, 10.f, "Cutoff Frequency");
     configParam(Feline::RESONANCE_PARAM, 0.f, 10.f, 0.f, "Resonance");
     configParam(Feline::SPACING_PARAM, -1.f, 1.f, 0.f, "Stereo Cutoff Spacing");
-    configParam(Feline::HIGH_PASS_PARAM, 0.f, 10.f, 0.f, "Highpass Cutoff Frequency");
+    //configParam(Feline::HIGH_PASS_PARAM, 0.f, 10.f, 0.f, "Highpass Cutoff Frequency");
     configParam(Feline::POLES_PARAM, 0.f, 1.f, 0.f, "Poles");
+    configParam(Feline::SLOPE_PARAM, 0.f, 1.f, 0.f, "Slope");
     configParam(Feline::SPACING_POLARITY_PARAM, 0.f, 1.f, 0.f, "Spacing Mode");
     configParam(Feline::DRIVE_PARAM, 0.f, 1.f, 0.f, "Input Drive");
 
@@ -47,10 +48,10 @@ void Feline::step() {
     resonance += inputs[CV1_2_INPUT].getVoltage() * params[CV1_2_PARAM].getValue();
     resonance += inputs[CV2_2_INPUT].getVoltage() * params[CV2_2_PARAM].getValue();
 
-    hpfFreq = params[HIGH_PASS_PARAM].getValue();
+    /*hpfFreq = params[HIGH_PASS_PARAM].getValue();
     hpfFreq += inputs[CV1_5_INPUT].getVoltage() * params[CV1_5_PARAM].getValue();
     hpfFreq += inputs[CV2_5_INPUT].getVoltage() * params[CV2_5_PARAM].getValue();
-    hpf.setCutoffFreq(440.f * powf(2.f, hpfFreq - 5.0));
+    hpf.setCutoffFreq(440.f * powf(2.f, hpfFreq - 5.0));*/
 
     spacing = params[SPACING_PARAM].getValue();
     spacing += inputs[CV1_4_INPUT].getVoltage() * params[CV1_4_PARAM].getValue() * 0.1f;
@@ -62,7 +63,7 @@ void Feline::step() {
     leftCutoff += cutoff;
     rightCutoff = cutoff + spacing;
 
-    filter.setMode(params[POLES_PARAM].getValue() + 2);
+    filter.setMode(params[POLES_PARAM].getValue() + params[SLOPE_PARAM].getValue() * 2);
 
     if(leftCutoff != prevLeftCutoff || rightCutoff != prevRightCutoff) {
         prevLeftCutoff = leftCutoff;
@@ -84,7 +85,8 @@ void Feline::step() {
     __input = _mm_set_ps(0.f, 0.f, input[1], input[0]);
 
 
-    __output = hpf.process(filter.process(_mm_mul_ps(__input, _mm_set1_ps(0.5f))));
+    //__output = hpf.process(filter.process(_mm_mul_ps(__input, _mm_set1_ps(0.5f))));
+    __output = filter.process(_mm_mul_ps(__input, _mm_set1_ps(0.5f)));
     _mm_storeu_ps(output, __output);
     outputs[LEFT_OUTPUT].setVoltage(output[0] * 5.f);
     outputs[RIGHT_OUTPUT].setVoltage(output[1] * 5.f);
@@ -148,9 +150,11 @@ FelineWidget::FelineWidget(Feline* module) {
     addParam(createParam<OrangeSlider>(cutoffSliderPos, module, Feline::CUTOFF_PARAM));
     addParam(createParam<OrangeSlider>(resonanceSliderPos, module, Feline::RESONANCE_PARAM));
     addParam(createParam<BlueSlider>(spacingSliderPos, module, Feline::SPACING_PARAM));
-    addParam(createParam<BlueSlider>(hpfSliderPos, module, Feline::HIGH_PASS_PARAM));
+    //addParam(createParam<BlueSlider>(hpfSliderPos, module, Feline::HIGH_PASS_PARAM));
+    addParam(createParam<BlueSlider>(hpfSliderPos, module, Feline::SPACING_POLARITY_PARAM));
     addParam(createParam<CKSS>(polesPos, module, Feline::POLES_PARAM));
-    addParam(createParam<RoganSmallBlue>(spacingPolPos, module, Feline::SPACING_POLARITY_PARAM));
+    addParam(createParam<CKSS>(slopePos, module, Feline::SLOPE_PARAM));
+    //addParam(createParam<RoganSmallBlue>(spacingPolPos, module, Feline::SPACING_POLARITY_PARAM));
     addParam(createParam<RoganMedWhite>(driveKnobPos, module, Feline::DRIVE_PARAM));
 
     long p = 0;

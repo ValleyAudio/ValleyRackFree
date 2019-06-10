@@ -53,6 +53,7 @@ struct Feline : Module {
         RESONANCE_PARAM,
         HIGH_PASS_PARAM,
         POLES_PARAM,
+        SLOPE_PARAM,
         SPACING_PARAM,
         SPACING_POLARITY_PARAM,
         DRIVE_PARAM,
@@ -113,6 +114,7 @@ struct FelineWidget : ModuleWidget {
     Vec hpfSliderPos = Vec(89.f, 31.8f);
 
     Vec polesPos = Vec(12.495f, 157.662f);
+    Vec slopePos = Vec(92.495f, 157.662f);
     Vec spacingPolPos = Vec(92.495f, 157.662f);
     Vec driveKnobPos = Vec(44.1f, 146.1f);
     float cvKnobY[2] = {199.1f, 252.1f};

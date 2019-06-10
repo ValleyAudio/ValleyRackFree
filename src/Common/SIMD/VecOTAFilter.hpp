@@ -85,15 +85,12 @@ public:
             return;
         }
         _mode = mode;
+        __0p = __zeros;
         __1p = __zeros;
         __2p = __zeros;
         __3p = __zeros;
         __4p = __zeros;
         switch(_mode) {
-          /*case 1 : __1p = __ones; break;
-          case 2 : __2p = __ones; break;
-          case 3 : __3p = __ones; break;
-          case 4 : __4p = __ones; break;*/
             case LP2_MODE:
                 __2p = __ones;
                 break;
@@ -112,8 +109,6 @@ public:
             default :
                 __4p = __ones;
         }
-        /*__1p = _mm_set1_ps(2.f);
-        __2p = _mm_set1_ps(-2.f);*/
     }
 
     __m128 out;
@@ -140,7 +135,7 @@ protected:
     __m128 __u, __lp1, __lp2, __lp3, __lp4;
 
     int _mode;
-    __m128 __1p, __2p, __3p, __4p;
+    __m128 __0p, __1p, __2p, __3p, __4p;
 
     __m128 __frac;
     __m128i __cutoffI;
