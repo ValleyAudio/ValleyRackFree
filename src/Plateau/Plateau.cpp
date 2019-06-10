@@ -17,24 +17,23 @@ Plateau::Plateau() {
     configParam(Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, "Modulation Shape");
 
 
-    configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f);
-    configParam(Plateau::FREEZE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Plateau::FREEZE_TOGGLE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Plateau::CLEAR_PARAM, 0.f, 1.f, 0.f);
-    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f);
+    configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f, "Dry CV Depth");
+    configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f, "Wet CV Depth");
+    configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input Low Cut CV");
+    configParam(Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input High Cut CV");
+    configParam(Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f, "Size CV");
+    configParam(Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f, "Diffusion CV");
+    configParam(Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f, "Decay CV");
+    configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb Low Cut CV");
+    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, -1.f, 1.f, 0.f, "Reverb High Cut CV");
+    configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f, "Mod Speed CV");
+    configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f, "Mod Shape CV");
+    configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f, "Mod Depth CV");
+    configParam(Plateau::FREEZE_PARAM, 0.f, 1.f, 0.f, "Freeze");
+    configParam(Plateau::FREEZE_TOGGLE_PARAM, 0.f, 1.f, 0.f, "Freeze Toggle");
+    configParam(Plateau::CLEAR_PARAM, 0.f, 1.f, 0.f, "Clear");
+    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
+    configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
 
     reverb.setSampleRate(APP->engine->getSampleRate());
     wet = 0.5f;
@@ -74,13 +73,6 @@ Plateau::Plateau() {
 
 void Plateau::process(const ProcessArgs &args) {
     //Freeze
-    /*if(params[FREEZE_TOGGLE_PARAM].getValue() > 0.5f && !freezeToggleButtonState) {
-        freezeToggleButtonState = true;
-        freezeToggle = !freezeToggle;
-    }
-    else if(params[FREEZE_TOGGLE_PARAM].getValue() < 0.5f && freezeToggleButtonState) {
-        freezeToggleButtonState = false;
-    }*/
     freezeToggle = params[FREEZE_TOGGLE_PARAM].getValue() > 0.5f ? true : false;
     lights[FREEZE_TOGGLE_LIGHT].value = freezeToggle ? 10.f : 0.f;
 
@@ -113,23 +105,9 @@ void Plateau::process(const ProcessArgs &args) {
         clear = 0;
     }
 
-    /*if(params[TUNED_MODE_PARAM].getValue() > 0.5f && tunedButtonState == false) {
-        tuned = 1 - tuned;
-        tunedButtonState = true;
-    }
-    else if(params[TUNED_MODE_PARAM].getValue() < 0.5f && tunedButtonState) {
-        tunedButtonState = false;
-    }*/
     tuned = params[TUNED_MODE_PARAM].getValue() > 0.5f ? 1 : 0;
     lights[TUNED_MODE_LIGHT].value = tuned ? 10.f : 0.f;
 
-    /*if(params[DIFFUSE_INPUT_PARAM].getValue() > 0.5f && diffuseButtonState == false) {
-        diffuseInput = 1 - diffuseInput;
-        diffuseButtonState = true;
-    }
-    else if(params[DIFFUSE_INPUT_PARAM].getValue() < 0.5f && diffuseButtonState) {
-        diffuseButtonState = false;
-    }*/
     diffuseInput = params[DIFFUSE_INPUT_PARAM].getValue();
     lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
 

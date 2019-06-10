@@ -171,16 +171,16 @@ struct UGraph : Module {
 
     UGraph() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406);
-        configParam(UGraph::MAPX_PARAM, 0.0, 1.0, 0.0);
-        configParam(UGraph::MAPY_PARAM, 0.0, 1.0, 0.0);
-        configParam(UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0);
-        configParam(UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5);
-        configParam(UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5);
-        configParam(UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5);
-        configParam(UGraph::SWING_PARAM, 0.0, 0.9, 0.0);
-        configParam(UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0);
-        configParam(UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0);
+        configParam(UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406, "Tempo", "BPM", 0.f, 202.020202, 37.979797);
+        configParam(UGraph::MAPX_PARAM, 0.0, 1.0, 0.0, "Pattern Map X");
+        configParam(UGraph::MAPY_PARAM, 0.0, 1.0, 0.0, "Pattern Map Y");
+        configParam(UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0, "Pattern Chaos");
+        configParam(UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 1 Density");
+        configParam(UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 2 Density");
+        configParam(UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 3 Density");
+        configParam(UGraph::SWING_PARAM, 0.0, 0.9, 0.0, "Swing");
+        configParam(UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0, "Reset");
+        configParam(UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0, "Run");
 
         float sampleRate = APP->engine->getSampleRate();
         metro = Metronome(120, sampleRate, 24.0, 0.0);

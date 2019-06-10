@@ -67,7 +67,7 @@ Dexter::Dexter() {
         configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 2 Depth");
         configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 2 Depth");
 
-        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_WAVEBANKS - 1), 0.0);
+        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_WAVEBANKS - 1), 0.0, opStr + "Wave Bank");
     }
 
     resetPhaseState = false;

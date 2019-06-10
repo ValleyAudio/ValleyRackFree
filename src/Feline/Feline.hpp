@@ -51,9 +51,8 @@ struct Feline : Module {
     enum ParamIds {
         CUTOFF_PARAM,
         RESONANCE_PARAM,
-        HIGH_PASS_PARAM,
         POLES_PARAM,
-        SLOPE_PARAM,
+        TYPE_PARAM,
         SPACING_PARAM,
         SPACING_POLARITY_PARAM,
         DRIVE_PARAM,
@@ -78,7 +77,6 @@ struct Feline : Module {
     float prevLeftCutoff, prevRightCutoff;
 
     int panelStyle;
-    VecOnePoleHPFilter hpf;
     VecOTAFilter filter;
     __m128 __filterOut;
     __m128 __state[4];
@@ -111,11 +109,10 @@ struct FelineWidget : ModuleWidget {
     Vec cutoffSliderPos = Vec(9.f, 31.8f);
     Vec resonanceSliderPos = Vec(36.f, 31.8f);
     Vec spacingSliderPos = Vec(63.f, 31.8f);
-    Vec hpfSliderPos = Vec(89.f, 31.8f);
+    Vec spacingPolSliderPos = Vec(89.f, 31.8f);
 
     Vec polesPos = Vec(12.495f, 157.662f);
-    Vec slopePos = Vec(92.495f, 157.662f);
-    Vec spacingPolPos = Vec(92.495f, 157.662f);
+    Vec typePos = Vec(93.505f, 157.662f);
     Vec driveKnobPos = Vec(44.1f, 146.1f);
     float cvKnobY[2] = {199.1f, 252.1f};
     float cvKnobX[5] = {5.1f, 27.6f, 50.1f, 72.6f, 95.1f};
