@@ -1,19 +1,18 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 0.6.2c
+3rd party plugins for VCV Rack version 1.0.0
 
 ### Version
 
-0.6.15
+1.0 Beta
 
-    • [Update] Added input gain sensitivity and output saturation modes to Plateau.
-    • [Fix] Fixed DC offset switch save state bug in Amalgam.
+Beta version of new v1.0 modules.
 
 ### Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have 0.6.1 to run these modules.
+You must have 1.0.0 to run these modules.
 
 ### Modules
 
