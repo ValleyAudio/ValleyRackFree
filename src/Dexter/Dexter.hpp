@@ -393,7 +393,7 @@ struct Dexter : Module {
     void step() override;
     void makeChord(float chord, float invert);
     void onSampleRateChange() override;
-    void reset();
+    void onReset() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 };
@@ -405,16 +405,16 @@ int round_int( double r ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct AlgoGraphic : FramebufferWidget {
-    std::vector<std::shared_ptr<SVG>> frames;
-    SVGWidget *sw;
-    int* value;
+    std::vector<std::shared_ptr<Svg>> frames;
+    SvgWidget *sw;
+    int value;
     int* style;
     int styleOffset;
 
     AlgoGraphic() {
-        sw = new SVGWidget();
+        sw = new SvgWidget();
         addChild(sw);
-        value = nullptr;
+        value = 0;
         style = nullptr;
         styleOffset = 0;
         std::string algoGraphicFile;
@@ -425,16 +425,16 @@ struct AlgoGraphic : FramebufferWidget {
                     algoGraphicFile += "Dark";
                 }
                 algoGraphicFile += ".svg";
-                addFrame(SVG::load(asset::plugin(pluginInstance, algoGraphicFile)));
+                addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, algoGraphicFile)));
             }
         }
     }
 
-    void addFrame(std::shared_ptr<SVG> svg) {
+    void addFrame(std::shared_ptr<Svg> svg) {
         frames.push_back(svg);
-        // If this is our first frame, automatically set SVG and size
+        // If this is our first frame, automatically set Svg and size
         if (!sw->svg) {
-            sw->setSVG(svg);
+            sw->setSvg(svg);
             box.size = sw->box.size;
         }
     }
@@ -451,11 +451,12 @@ struct AlgoGraphic : FramebufferWidget {
                 styleOffset = kNumAlgorithms;
             }
         }
-        if(value != nullptr) {
-            int index = clamp(*value + styleOffset, 0, frames.size() - 1);
-            sw->setSVG(frames[index]);
-            dirty = true;
+        else {
+            styleOffset = 0;
         }
+        int index = clamp(value + styleOffset, 0, frames.size() - 1);
+        sw->setSvg(frames[index]);
+        dirty = true;
         FramebufferWidget::step();
     }
 };
@@ -560,6 +561,7 @@ struct DexterWidget : ModuleWidget {
     Vec syncChoiceRootPos = Vec(0.0, 0.0);
 
     SvgPanel* lightPanel;
+    AlgoGraphic* algo;
 };
 
 #endif

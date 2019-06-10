@@ -184,7 +184,6 @@ struct Plateau : Module {
     Plateau();
     void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
-    void reset();
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 };
@@ -219,7 +218,7 @@ struct PlateauOutputSaturationItem : MenuItem {
 
 struct PlateauWidget : ModuleWidget {
     PlateauWidget(Plateau *module);
-    void appendContextMenu(Menu *menu);
+    void appendContextMenu(Menu *menu) override;
     void step() override;
 
     // Control positions

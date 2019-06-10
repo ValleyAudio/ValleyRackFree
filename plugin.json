@@ -20,6 +20,14 @@
       ]
     },
     {
+      "slug": "uGraph",
+      "name": "uGraph",
+      "description": "",
+      "tags": [
+        "SEQUENCER"
+      ]
+    },
+    {
       "slug": "Dexter",
       "name": "Dexter",
       "description": "",
@@ -51,6 +59,14 @@
         "RING_MODULATOR",
         "EFFECT",
         "WAVESHAPER"
+      ]
+    },
+    {
+      "slug": "Feline",
+      "name": "Feline",
+      "description": "",
+      "tags": [
+        "FILTER"
       ]
     }
   ]

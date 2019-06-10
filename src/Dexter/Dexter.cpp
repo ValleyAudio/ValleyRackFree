@@ -2,65 +2,70 @@
 
 Dexter::Dexter() {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-    configParam(Dexter::OCTAVE_PARAM, 0.0, 6.0, 3.0);
-    configParam(Dexter::COARSE_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::FINE_PARAM, -0.05, 0.05, 0.0);
-    configParam(Dexter::CHORD_PARAM, 0.0, NUM_CHORDS - 1, 0.0);
-    configParam(Dexter::INVERT_PARAM, 0.0, 20.0, 10.0);
+    configParam(Dexter::OCTAVE_PARAM, 0.0, 6.0, 3.0, "Voice A Octave");
+    configParam(Dexter::COARSE_PARAM, -1.0, 1.0, 0.0, "Voice A Coarse");
+    configParam(Dexter::FINE_PARAM, -0.05, 0.05, 0.0, "Voice A Fine");
+    configParam(Dexter::CHORD_PARAM, 0.0, NUM_CHORDS - 1, 0.0, "Voice A Chord");
+    configParam(Dexter::INVERT_PARAM, 0.0, 20.0, 10.0, "Voice A Chord Invert");
+    configParam(Dexter::DETUNE_PARAM, 0.0, 1.0, 0.0, "Voice A Chord Detune");
+    configParam(Dexter::B_OCTAVE_PARAM, 0.0, 6.0, 3.0, "Voice B Octave");
+    configParam(Dexter::B_COARSE_PARAM, -1.0, 1.0, 0.0, "Voice B Coarse");
+    configParam(Dexter::B_FINE_PARAM, -0.05, 0.05, 0.0, "Voice B Fine");
 
-    configParam(Dexter::ALGORITHM_PARAM, 0, 22, 0.0, "Algorithm");
-    configParam(Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0);
-    configParam(Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0);
+    configParam(Dexter::ALGORITHM_PARAM, 0, 22, 0.0, "Algorithm", "", 0, 1, 1);
+    configParam(Dexter::BRIGHTNESS_PARAM, -1.0, 1.0, 0.0, "Brightness");
+    configParam(Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0, "Shape");
+    configParam(Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0, "Feedback");
 
-    configParam(Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0);
-    configParam(Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0);
+    configParam(Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord");
+    configParam(Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord Inversion");
+    configParam(Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord Detune");
+    configParam(Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0, "Algorithm Mod Depth");
+    configParam(Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0, "Feedback Mod Depth");
+    configParam(Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0, "Brightness Mod Depth");
+    configParam(Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0, "Shape Mod Depth");
 
-    configParam(Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0);
-    configParam(Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0);
-    configParam(Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0);
+    configParam(Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0, "Global LFO Enable");
+    configParam(Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0, "Reset Operator Phases");
+    configParam(Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0, "Full Chord Inversion Enable");
 
-    for(auto op = 0; op < kNumOperators; ++op) {
-        configParam(Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0, 26, 3, "Multiplier");
-        configParam(Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -1.0, 1.0, 0.0);
-        configParam(Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -0.25, 0.25, 0.0);
-        configParam(Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
-        configParam(Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
+    for(int op = 0; op < kNumOperators; ++op) {
+        std::string opStr = "Op. " + std::to_string(op + 1) + " ";
+        configParam(Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0, 26, 3, opStr + "Multiplier");
+        configParam(Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -1.0, 1.0, 0.0, opStr + "Coarse");
+        configParam(Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -0.25, 0.25, 0.0, opStr + "Fine");
+        configParam(Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Wave");
+        configParam(Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Phase Shape");
         if(op == 0) {
-            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 1.0);
+            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 1.0, opStr + "Level");
         }
         else {
-            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0);
+            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Level");
         }
-        configParam(opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0);
-        configParam(opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0);
-        configParam(opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0);
-        configParam(opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0);
-        configParam(opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0);
-        configParam(opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0);
+        configParam(opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0, opStr + "Indiv. Out Pre-fade");
+        configParam(opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0, opStr + "Settings");
+        configParam(opParams[op][Dexter::OP_POST_SHAPE_PARAM], 0.0, 1.0, 0.0, opStr + "Post FM Phase Shape");
+        configParam(opParams[op][Dexter::OP_WEAK_PARAM], 0.0, 1.0, 0.0, opStr + "Weak Sync");
+        configParam(opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0, opStr + "LFO Mode");
+        configParam(opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0, opStr + "Sync");
 
         configParam(Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                    0.0, 1.0, 0.0);
+                    0.0, 1.0, 0.0, opStr + "Wave Menu");
 
-        configParam(OP_1_MOD_1_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_MOD_2_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_MOD_3_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_MOD_4_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_MOD_1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 1 Depth");
+        configParam(OP_1_MOD_2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 2 Depth");
+        configParam(OP_1_MOD_3_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 3 Depth");
+        configParam(OP_1_MOD_4_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 4 Depth");
 
-        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Pitch CV 1 Depth");
+        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Wave CV 1 Depth");
+        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 1 Depth");
+        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 1 Depth");
 
-        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
-        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0);
+        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Pitch CV 2 Depth");
+        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Wave CV 2 Depth");
+        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 2 Depth");
+        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 2 Depth");
 
         configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_WAVEBANKS - 1), 0.0);
     }
@@ -558,8 +563,14 @@ void Dexter::onSampleRateChange() {
     }
 }
 
-void Dexter::reset() {
+void Dexter::onReset() {
     for(auto i = 0; i < kNumOperators; ++i) {
+        opButtonSync[i] = 0;
+        opButtonPostShape[i] = 0;
+        opButtonWeakSync[i] = 0;
+        opButtonLFO[i] = 0;
+        opButtonPreFade[i] = 0;
+
         opMenuSyncMode[i] = 0;
         opMenuShapeMode[i] = 0;
         opMod1Assign[i] = 0;
@@ -567,6 +578,7 @@ void Dexter::reset() {
         opMod3Assign[i] = 0;
         opMod4Assign[i] = 0;
     }
+    masterLFO = 0.f;
 }
 
 json_t *Dexter::dataToJson() {
@@ -743,7 +755,8 @@ void Dexter::dataFromJson(json_t *rootJ) {
 //////////////////////////////////////////////// UI ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
+DexterWidget::DexterWidget(Dexter *module) {
+    setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
 
     if(module) {
@@ -758,13 +771,12 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+    algo = new AlgoGraphic;
+    algo->box.pos = Vec(138.75, 88.245);
     if(module) {
-        AlgoGraphic* algo = new AlgoGraphic;
-        algo->box.pos = Vec(138.75, 88.245);
-        algo->value = &module->algo;
         algo->style = &module->panelStyle;
-        addChild(algo);
     }
+    addChild(algo);
 
     addParam(createParam<RoganMedBlueSnap>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM));
     addParam(createParam<RoganMedBlue>(CoarseKnobPos, module, Dexter::COARSE_PARAM));
@@ -834,28 +846,55 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
     }
     addChild(chordText);
 
-    DynamicFrameText* octaveText = new DynamicFrameText;
-    octaveText->size = 14;
-    octaveText->box.pos = Vec(35.61, 68.076);
-    octaveText->box.size = Vec(82, 14);
-    octaveText->visibility = nullptr;
-    octaveText->viewMode = ACTIVE_LOW_VIEW;
-    if(module) {
-        octaveText->colorHandle = &module->panelStyle;
-        octaveText->itemHandle = &module->octaveAKnob;
-        octaveText->addItem("-3");
-        octaveText->addItem("-2");
-        octaveText->addItem("-1");
-        octaveText->addItem("0");
-        octaveText->addItem("+1");
-        octaveText->addItem("+2");
-        octaveText->addItem("+3");
+    {
+        DynamicFrameText* octaveText = new DynamicFrameText;
+        octaveText->size = 14;
+        octaveText->box.pos = Vec(35.61, 68.076);
+        octaveText->box.size = Vec(82, 14);
+        octaveText->visibility = nullptr;
+        octaveText->viewMode = ACTIVE_LOW_VIEW;
+        if(module) {
+            octaveText->colorHandle = &module->panelStyle;
+            octaveText->itemHandle = &module->octaveAKnob;
+            octaveText->addItem("-3");
+            octaveText->addItem("-2");
+            octaveText->addItem("-1");
+            octaveText->addItem("0");
+            octaveText->addItem("+1");
+            octaveText->addItem("+2");
+            octaveText->addItem("+3");
+        }
+        else {
+            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
+            octaveText->addItem("0");
+        }
+        addChild(octaveText);
     }
-    else {
-        octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
-        octaveText->addItem("0");
+
+    {
+        DynamicFrameText* octaveText = new DynamicFrameText;
+        octaveText->size = 14;
+        octaveText->box.pos = Vec(35.61, 186.076);
+        octaveText->box.size = Vec(82, 14);
+        octaveText->visibility = nullptr;
+        octaveText->viewMode = ACTIVE_LOW_VIEW;
+        if(module) {
+            octaveText->colorHandle = &module->panelStyle;
+            octaveText->itemHandle = &module->octaveBKnob;
+            octaveText->addItem("-3");
+            octaveText->addItem("-2");
+            octaveText->addItem("-1");
+            octaveText->addItem("0");
+            octaveText->addItem("+1");
+            octaveText->addItem("+2");
+            octaveText->addItem("+3");
+        }
+        else {
+            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
+            octaveText->addItem("0");
+        }
+        addChild(octaveText);
     }
-    addChild(octaveText);
 
     // Operator Controls
     float operatorSpacing = 125.5275;
@@ -893,7 +932,7 @@ DexterWidget::DexterWidget(Dexter *module) : ModuleWidget(module) {
             }
         }
         else {
-            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
+            multText->customColor = nvgRGB(0xFF,0xFF,0xFF);
             multText->addItem("1");
         }
         addChild(multText);
@@ -1124,6 +1163,10 @@ void DexterWidget::step() {
             panel->visible = true;
             lightPanel->visible = false;
         }
+        algo->value = dynamic_cast<Dexter*>(module)->algo;
+    }
+    else {
+        algo->value = 0;
     }
     Widget::step();
 }

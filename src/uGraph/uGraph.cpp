@@ -1,10 +1,10 @@
 //
-// Topograph.cpp
+// UGraph.cpp
 // Author: Dale Johnson
 // Contact: valley.audio.soft@gmail.com
 // Date: 5/12/2017
 //
-// Topograph, a port of "Mutable Instruments Grids" for VCV Rack
+// UGraph, a port of "Mutable Instruments Grids" for VCV Rack
 // Original author: Olivier Gillet (ol.gillet@gmail.com)
 // https://github.com/pichenettes/eurorack/tree/master/grids
 // Copyright 2012 Olivier Gillet.
@@ -24,11 +24,11 @@
 #include "../ValleyComponents.hpp"
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
-#include "TopographPatternGenerator.hpp"
+#include "../Topograph/TopographPatternGenerator.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 
-struct Topograph : Module {
+struct UGraph : Module {
     enum ParamIds {
         RESET_BUTTON_PARAM,
         RUN_BUTTON_PARAM,
@@ -123,8 +123,12 @@ struct Topograph : Module {
         OLIVIER,
         EUCLIDEAN
     };
-    SequencerMode sequencerMode = HENRI;
+    SequencerMode sequencerMode = OLIVIER;
     int inEuclideanMode = 0;
+
+    unsigned long sequencerModeChoice = 0;
+    unsigned long prevClockResChoice = 0;
+    unsigned long clockResChoice = 0;
 
     enum TriggerOutputMode {
         PULSE,
@@ -145,6 +149,7 @@ struct Topograph : Module {
     };
     ExtClockResolution extClockResolution = EXTCLOCK_RES_24_PPQN;
 
+
     enum ChaosKnobMode {
         CHAOS,
         SWING
@@ -158,45 +163,49 @@ struct Topograph : Module {
     RunMode runMode = TOGGLE;
 
     int panelStyle;
+    std::string clockBPM;
+    std::string mapXText = "Map X";
+    std::string mapYText = "Map Y";
+    std::string chaosText = "Chaos";
     int textVisible = 1;
 
-    Topograph() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Topograph::TEMPO_PARAM, 0.0, 1.0, 0.406, "Tempo", "BPM", 0.f, 202.020202, 37.979797);
-        configParam(Topograph::MAPX_PARAM, 0.0, 1.0, 0.0, "Pattern Map X");
-        configParam(Topograph::MAPY_PARAM, 0.0, 1.0, 0.0, "Pattern Map Y");
-        configParam(Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0, "Pattern Chaos");
-        configParam(Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 1 Density");
-        configParam(Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 2 Density");
-        configParam(Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 3 Density");
-        configParam(Topograph::SWING_PARAM, 0.0, 0.9, 0.0, "Swing");
-        configParam(Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0, "Reset");
-        configParam(Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0, "Run");
+    UGraph() {
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(UGraph::TEMPO_PARAM, 0.0, 1.0, 0.406);
+        configParam(UGraph::MAPX_PARAM, 0.0, 1.0, 0.0);
+        configParam(UGraph::MAPY_PARAM, 0.0, 1.0, 0.0);
+        configParam(UGraph::CHAOS_PARAM, 0.0, 1.0, 0.0);
+        configParam(UGraph::BD_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(UGraph::SN_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(UGraph::HH_DENS_PARAM, 0.0, 1.0, 0.5);
+        configParam(UGraph::SWING_PARAM, 0.0, 0.9, 0.0);
+        configParam(UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0);
+        configParam(UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0);
 
-        metro = Metronome(120, APP->engine->getSampleRate(), 24.0, 0.0);
+        float sampleRate = APP->engine->getSampleRate();
+        metro = Metronome(120, sampleRate, 24.0, 0.0);
         numTicks = ticks_granularity[2];
         srand(time(NULL));
-        BDLed = Oneshot(0.1, APP->engine->getSampleRate());
-        SNLed = Oneshot(0.1, APP->engine->getSampleRate());
-        HHLed = Oneshot(0.1, APP->engine->getSampleRate());
-        resetLed = Oneshot(0.1, APP->engine->getSampleRate());
-
+        BDLed = Oneshot(0.1, sampleRate);
+        SNLed = Oneshot(0.1, sampleRate);
+        HHLed = Oneshot(0.1, sampleRate);
+        resetLed = Oneshot(0.1, sampleRate);
         for(int i = 0; i < 6; ++i) {
-            drumTriggers[i] = Oneshot(0.001, APP->engine->getSampleRate());
+            drumTriggers[i] = Oneshot(0.001, sampleRate);
             gateState[i] = false;
         }
         for(int i = 0; i < 3; ++i) {
-            drumLED[i] = Oneshot(0.1, APP->engine->getSampleRate());
+            drumLED[i] = Oneshot(0.1, sampleRate);
         }
         panelStyle = 0;
     }
 
     json_t *dataToJson() override {
         json_t *rootJ = json_object();
-        json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
+        json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerModeChoice));
         json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
         json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
-        json_object_set_new(rootJ, "extClockResolution", json_integer(extClockResolution));
+        json_object_set_new(rootJ, "extClockResolution", json_integer(clockResChoice));
         json_object_set_new(rootJ, "chaosKnobMode", json_integer(chaosKnobMode));
         json_object_set_new(rootJ, "runMode", json_integer(runMode));
         json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
@@ -207,30 +216,17 @@ struct Topograph : Module {
     void dataFromJson(json_t *rootJ) override {
         json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
         if (sequencerModeJ) {
-            sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
-            inEuclideanMode = 0;
-            switch(sequencerMode) {
-                case HENRI:
-                    grids.setPatternMode(PATTERN_HENRI);
-                    break;
-                case OLIVIER:
-                    grids.setPatternMode(PATTERN_OLIVIER);
-                    break;
-                case EUCLIDEAN:
-                    grids.setPatternMode(PATTERN_EUCLIDEAN);
-                    inEuclideanMode = 1;
-                    break;
-            }
+            sequencerModeChoice = json_integer_value(sequencerModeJ);
 		}
 
         json_t *triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
 		if (triggerOutputModeJ) {
-			triggerOutputMode = (Topograph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
+			triggerOutputMode = (UGraph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
 		}
 
         json_t *accOutputModeJ = json_object_get(rootJ, "accOutputMode");
 		if (accOutputModeJ) {
-			accOutputMode = (Topograph::AccOutputMode) json_integer_value(accOutputModeJ);
+			accOutputMode = (UGraph::AccOutputMode) json_integer_value(accOutputModeJ);
             switch(accOutputMode) {
                 case INDIVIDUAL_ACCENTS:
                     grids.setAccentAltMode(false);
@@ -242,18 +238,18 @@ struct Topograph : Module {
 
         json_t *extClockResolutionJ = json_object_get(rootJ, "extClockResolution");
 		if (extClockResolutionJ) {
-			extClockResolution = (Topograph::ExtClockResolution) json_integer_value(extClockResolutionJ);
+			clockResChoice = json_integer_value(extClockResolutionJ);
             grids.reset();
 		}
 
         json_t *chaosKnobModeJ = json_object_get(rootJ, "chaosKnobMode");
 		if (chaosKnobModeJ) {
-			chaosKnobMode = (Topograph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
+			chaosKnobMode = (UGraph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
 		}
 
         json_t *runModeJ = json_object_get(rootJ, "runMode");
 		if (runModeJ) {
-			runMode = (Topograph::RunMode) json_integer_value(runModeJ);
+			runMode = (UGraph::RunMode) json_integer_value(runModeJ);
 		}
 
         json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
@@ -267,14 +263,14 @@ struct Topograph : Module {
         }
 	}
 
-    void process(const ProcessArgs &args) override;
+    void step() override;
     void onSampleRateChange() override;
     void updateUI();
     void updateOutputs();
     void onReset() override;
 };
 
-void Topograph::process(const ProcessArgs &args) {
+void UGraph::step() {
     if(runMode == TOGGLE) {
         if (runButtonTrig.process(params[RUN_BUTTON_PARAM].getValue()) ||
             runInputTrig.process(inputs[RUN_INPUT].getVoltage())) {
@@ -300,9 +296,26 @@ void Topograph::process(const ProcessArgs &args) {
         elapsedTicks = 0;
     }
 
+
+    switch(sequencerModeChoice) {
+        case 0:
+            grids.setPatternMode(PATTERN_OLIVIER);
+            inEuclideanMode = 0;
+            break;
+        case 1:
+            grids.setPatternMode(PATTERN_HENRI);
+            inEuclideanMode = 0;
+            break;
+        case 2:
+            grids.setPatternMode(PATTERN_EUCLIDEAN);
+            inEuclideanMode = 1;
+            break;
+    }
+
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].getValue();
     *tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
+
     swing = clamp(params[SWING_PARAM].getValue() + inputs[SWING_CV].getVoltage() / 10.f, 0.f, 0.9f);
     swingHighTempo = *tempo / (1 - swing);
     swingLowTempo = *tempo / (1 + swing);
@@ -313,13 +326,19 @@ void Topograph::process(const ProcessArgs &args) {
         metro.setTempo(swingHighTempo);
     }
 
+    if(clockResChoice != prevClockResChoice) {
+        prevClockResChoice = clockResChoice;
+        grids.reset();
+    }
+
     // External clock select
     if(tempoParam < 0.01) {
+        clockBPM = "Ext.";
         if(initExtReset) {
             grids.reset();
             initExtReset = false;
         }
-        numTicks = ticks_granularity[extClockResolution];
+        numTicks = ticks_granularity[clockResChoice];
         extClock = true;
     }
     else {
@@ -390,8 +409,7 @@ void Topograph::process(const ProcessArgs &args) {
     updateUI();
 }
 
-void Topograph::updateUI() {
-
+void UGraph::updateUI() {
     resetLed.process();
     for(int i = 0; i < 3; ++i) {
         drumLED[i].process();
@@ -402,8 +420,6 @@ void Topograph::updateUI() {
             lights[drumLEDIds[i]].value = 0.0;
         }
     }
-
-
     if(resetLed.getState() == 1) {
         lights[RESET_LIGHT].value = 1.0;
     }
@@ -412,7 +428,7 @@ void Topograph::updateUI() {
     }
 }
 
-void Topograph::updateOutputs() {
+void UGraph::updateOutputs() {
     if(triggerOutputMode == PULSE) {
         for(int i = 0; i < 6; ++i) {
             drumTriggers[i].process();
@@ -448,18 +464,19 @@ void Topograph::updateOutputs() {
     }
 }
 
-void Topograph::onSampleRateChange() {
-    metro.setSampleRate(APP->engine->getSampleRate());
+void UGraph::onSampleRateChange() {
+    float sampleRate = APP->engine->getSampleRate();
+    metro.setSampleRate(sampleRate);
     for(int i = 0; i < 3; ++i) {
-        drumLED[i].setSampleRate(APP->engine->getSampleRate());
+        drumLED[i].setSampleRate(sampleRate);
     }
-    resetLed.setSampleRate(APP->engine->getSampleRate());
+    resetLed.setSampleRate(sampleRate);
     for(int i = 0; i < 6; ++i) {
-        drumTriggers[i].setSampleRate(APP->engine->getSampleRate());
+        drumTriggers[i].setSampleRate(sampleRate);
     }
 }
 
-void Topograph::onReset() {
+void UGraph::onReset() {
     running = false;
 }
 
@@ -476,24 +493,103 @@ struct PanelBorder : TransparentWidget {
 	}
 };
 
+struct UGraphDynamicText : TransparentWidget {
+    std::string oldText;
+    std::string* pText;
+    std::shared_ptr<Font> font;
+    int size;
+    NVGcolor drawColour;
+    int* visibility;
+    DynamicViewMode viewMode;
+
+    enum Colour {
+        COLOUR_WHITE,
+        COLOUR_BLACK
+    };
+    int* colourHandle;
+
+    UGraphDynamicText() {
+        font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        size = 16;
+        visibility = nullptr;
+        pText = nullptr;
+        viewMode = ACTIVE_HIGH_VIEW;
+    }
+
+    void draw(const DrawArgs &args) {
+        nvgFontSize(args.vg, size);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.f);
+        Vec textPos = Vec(0.f, 0.f);
+        if(colourHandle != nullptr) {
+            switch(*colourHandle) {
+                case COLOUR_BLACK : drawColour = nvgRGB(0x00,0x00,0x00); break;
+                case COLOUR_WHITE : drawColour = nvgRGB(0xFF,0xFF,0xFF); break;
+                default : drawColour = nvgRGB(0x00,0x00,0x00);
+            }
+        }
+        else {
+            drawColour = nvgRGB(0x00,0x00,0x00);
+        }
+
+        nvgFillColor(args.vg, drawColour);
+        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+        if(pText != nullptr) {
+            nvgText(args.vg, textPos.x, textPos.y, pText->c_str(), NULL);
+        }
+    }
+
+    void step() {
+        if(visibility != nullptr) {
+            if(*visibility) {
+                visible = true;
+            }
+            else {
+                visible = false;
+            }
+            if(viewMode == ACTIVE_LOW_VIEW) {
+                visible = !visible;
+            }
+        }
+        else {
+            visible = true;
+        }
+    }
+};
+
+UGraphDynamicText* createUGraphDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
+                                           int* visibilityHandle, DynamicViewMode viewMode) {
+    UGraphDynamicText* dynText = new UGraphDynamicText();
+    dynText->size = size;
+    dynText->colourHandle = colourHandle;
+    dynText->pText = pText;
+    dynText->box.pos = pos;
+    dynText->box.size = Vec(82,14);
+    dynText->visibility = visibilityHandle;
+    dynText->viewMode = viewMode;
+    return dynText;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// Context Menu ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct TopographWidget : ModuleWidget {
-    TopographWidget(Topograph *topograph);
+struct UGraphWidget : ModuleWidget {
+    const std::string seqModeItemText[3] = {"Olivier", "Henri", "Euclid"};
+    const std::string clockResText[3] = {"4 PPQN", "8 PPQN", "24 PPQN"};
+    SvgPanel* lightPanel;
+    UGraphWidget(UGraph *module);
     void appendContextMenu(Menu* menu) override;
     void step() override;
-    SvgPanel* lightPanel;
 };
 
-TopographWidget::TopographWidget(Topograph *module) {
+UGraphWidget::UGraphWidget(UGraph *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanel.svg")));
 
     if(module) {
         lightPanel = new SvgPanel;
-        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanelWhite.svg")));
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
@@ -520,7 +616,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     if(module) {
         std::shared_ptr<float> i = module->tempo;
         DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToTempoText);
-        vText->box.pos = Vec(69, 83);
+        vText->box.pos = Vec(53, 66.75);
         vText->size = 14;
         vText->viewMode = ACTIVE_HIGH_VIEW;
         vText->colorHandle = &module->panelStyle;
@@ -529,13 +625,11 @@ TopographWidget::TopographWidget(Topograph *module) {
 
     // Map X Text
     if(module) {
-        addChild(createDynamicText(Vec(27.1,208.5), 14, "Map X", &module->inEuclideanMode,
+        addChild(createDynamicText(Vec(53, 163), 14, "Map X", &module->inEuclideanMode,
                                  &module->panelStyle, ACTIVE_LOW_VIEW));
-        addChild(createDynamicText(Vec(22.1,208.5), 14, "Len:", &module->inEuclideanMode,
-                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
         std::shared_ptr<float> i = module->mapX;
         DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(42.1,208.5);
+        vText->box.pos = Vec(53, 163);
         vText->size = 14;
         vText->viewMode = ACTIVE_HIGH_VIEW;
         vText->visibility = &module->inEuclideanMode;
@@ -545,14 +639,12 @@ TopographWidget::TopographWidget(Topograph *module) {
 
     // Map Y Text
     if(module) {
-        addChild(createDynamicText(Vec(27.1,268.5), 14, "Map Y", &module->inEuclideanMode,
+        addChild(createDynamicText(Vec(89, 163), 14, "Map Y", &module->inEuclideanMode,
                                    &module->panelStyle, ACTIVE_LOW_VIEW));
-        addChild(createDynamicText(Vec(22.1,268.5), 14, "Len:", &module->inEuclideanMode,
-                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
 
         std::shared_ptr<float> i = module->mapY;
         DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(42.1,268.5);
+        vText->box.pos = Vec(89, 163);
         vText->size = 14;
         vText->viewMode = ACTIVE_HIGH_VIEW;
         vText->visibility = &module->inEuclideanMode;
@@ -562,14 +654,12 @@ TopographWidget::TopographWidget(Topograph *module) {
 
     // Chaos Text
     if(module) {
-        addChild(createDynamicText(Vec(27.1,329), 14, "Chaos", &module->inEuclideanMode,
+        addChild(createDynamicText(Vec(125, 163), 14, "Chaos", &module->inEuclideanMode,
                                  &module->panelStyle, ACTIVE_LOW_VIEW));
-        addChild(createDynamicText(Vec(22.1,329), 14, "Len:", &module->inEuclideanMode,
-                                   &module->panelStyle, ACTIVE_HIGH_VIEW));
 
         std::shared_ptr<float> i = module->chaos;
         DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(42.1,329);
+        vText->box.pos = Vec(125, 163);
         vText->size = 14;
         vText->viewMode = ACTIVE_HIGH_VIEW;
         vText->visibility = &module->inEuclideanMode;
@@ -577,45 +667,52 @@ TopographWidget::TopographWidget(Topograph *module) {
         addChild(vText);
     }
 
-    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM));
-    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM));
-    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM));
-    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(193, 40.15), module, Topograph::SWING_PARAM));
+    addParam(createParam<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM));
+    addParam(createParam<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM));
+    addParam(createParam<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM));
+    addParam(createParam<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM));
+    addParam(createParam<RoganSmallBrightRed>(Vec(43.5, 217.65), module, UGraph::BD_DENS_PARAM));
+    addParam(createParam<RoganSmallOrange>(Vec(79.5, 217.65), module, UGraph::SN_DENS_PARAM));
+    addParam(createParam<RoganSmallYellow>(Vec(115.5, 217.65), module, UGraph::HH_DENS_PARAM));
+    addParam(createParam<RoganMedWhite>(Vec(108.5, 30.15), module, UGraph::SWING_PARAM));
 
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, Topograph::CLOCK_INPUT));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 113.0), module, Topograph::RESET_INPUT));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, Topograph::MAPX_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, Topograph::MAPY_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, Topograph::CHAOS_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(131.0, 236.0), module, Topograph::BD_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 236.0), module, Topograph::SN_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, Topograph::HH_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 50.0), module, Topograph::SWING_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(74.5, 113.0), module, Topograph::RUN_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(8.0, 35.5), module, UGraph::CLOCK_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(8.0, 214), module, UGraph::RESET_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(42.5, 186), module, UGraph::MAPX_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(78.5, 186), module, UGraph::MAPY_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(114.5, 186), module, UGraph::CHAOS_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(42.5, 261.5), module, UGraph::BD_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(78.5, 261.5), module, UGraph::SN_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(114.5, 261.5), module, UGraph::HH_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(78.5, 35.5), module, UGraph::SWING_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(8.0, 133.35), module, UGraph::RUN_INPUT));
 
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.2, 272.536), module, Topograph::BD_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.2, 272.536), module, Topograph::SN_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.2, 272.536), module, Topograph::HH_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.2, 308.536), module, Topograph::BD_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.2, 308.536), module, Topograph::SN_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.2, 308.536), module, Topograph::HH_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(42.5, 299.736), module, UGraph::BD_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(78.5, 299.736), module, UGraph::SN_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(114.5, 299.736), module, UGraph::HH_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(42.5, 327.736), module, UGraph::BD_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(78.5, 327.736), module, UGraph::SN_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(114.5, 327.736), module, UGraph::HH_ACC_OUTPUT));
 
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(50.1, 247), module, UGraph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(86.1, 247), module, UGraph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(122.1, 247), module, UGraph::HH_LIGHT));
 
-    addParam(createParam<LightLEDButton>(Vec(55, 116), module, Topograph::RESET_BUTTON_PARAM));
-    addChild(createLight<MediumLight<RedLight>>(Vec(57.5, 118.5), module, Topograph::RESET_LIGHT));
-    addParam(createParam<LightLEDButton>(Vec(112, 116), module, Topograph::RUN_BUTTON_PARAM));
-    addChild(createLight<MediumLight<RedLight>>(Vec(114.5, 118.5), module, Topograph::RUNNING_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(12.1, 189.6), module, UGraph::RESET_BUTTON_PARAM));
+    addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 192), module, UGraph::RESET_LIGHT));
+    addParam(createParam<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM));
+    addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
+
+    if(module) {
+        std::vector<std::string> seqModeItems(seqModeItemText, seqModeItemText + 3);
+        addChild(createDynamicChoice(Vec(90, 88), 55.f, seqModeItems, &module->sequencerModeChoice, nullptr, ACTIVE_LOW_VIEW));
+        std::vector<std::string> clockResItems(clockResText, clockResText + 3);
+        addChild(createDynamicChoice(Vec(90, 111), 55.f, clockResItems, &module->clockResChoice, nullptr, ACTIVE_LOW_VIEW));
+    }
 }
 
-struct TopographPanelStyleItem : MenuItem {
-    Topograph* module;
+struct UGraphPanelStyleItem : MenuItem {
+    UGraph* module;
     int panelStyle;
     void onAction(const event::Action &e) override {
         module->panelStyle = panelStyle;
@@ -626,34 +723,9 @@ struct TopographPanelStyleItem : MenuItem {
     }
 };
 
-struct TopographSequencerModeItem : MenuItem {
-    Topograph* module;
-    Topograph::SequencerMode sequencerMode;
-    void onAction(const event::Action &e) override {
-        module->sequencerMode = sequencerMode;
-        module->inEuclideanMode = 0;
-        switch(sequencerMode) {
-            case Topograph::HENRI:
-                module->grids.setPatternMode(PATTERN_HENRI);
-                break;
-            case Topograph::OLIVIER:
-                module->grids.setPatternMode(PATTERN_OLIVIER);
-                break;
-            case Topograph::EUCLIDEAN:
-                module->grids.setPatternMode(PATTERN_EUCLIDEAN);
-                module->inEuclideanMode = 1;
-                break;
-        }
-    }
-    void step() override {
-        rightText = (module->sequencerMode == sequencerMode) ? "✔" : "";
-        MenuItem::step();
-    }
-};
-
-struct TopographTriggerOutputModeItem : MenuItem {
-    Topograph* module;
-    Topograph::TriggerOutputMode triggerOutputMode;
+struct UGraphTriggerOutputModeItem : MenuItem {
+    UGraph* module;
+    UGraph::TriggerOutputMode triggerOutputMode;
     void onAction(const event::Action &e) override {
         module->triggerOutputMode = triggerOutputMode;
     }
@@ -663,16 +735,16 @@ struct TopographTriggerOutputModeItem : MenuItem {
     }
 };
 
-struct TopographAccOutputModeItem : MenuItem {
-    Topograph* module;
-    Topograph::AccOutputMode accOutputMode;
+struct UGraphAccOutputModeItem : MenuItem {
+    UGraph* module;
+    UGraph::AccOutputMode accOutputMode;
     void onAction(const event::Action &e) override {
         module->accOutputMode = accOutputMode;
         switch(accOutputMode) {
-            case Topograph::INDIVIDUAL_ACCENTS:
+            case UGraph::INDIVIDUAL_ACCENTS:
                 module->grids.setAccentAltMode(false);
                 break;
-            case Topograph::ACC_CLK_RST:
+            case UGraph::ACC_CLK_RST:
                 module->grids.setAccentAltMode(true);
         }
     }
@@ -682,22 +754,9 @@ struct TopographAccOutputModeItem : MenuItem {
     }
 };
 
-struct TopographClockResolutionItem : MenuItem {
-    Topograph* module;
-    Topograph::ExtClockResolution extClockResolution;
-    void onAction(const event::Action &e) override {
-        module->extClockResolution = extClockResolution;
-        module->grids.reset();
-    }
-    void step() override {
-        rightText = (module->extClockResolution == extClockResolution) ? "✔" : "";
-        MenuItem::step();
-    }
-};
-
-struct TopographRunModeItem : MenuItem {
-    Topograph* module;
-    Topograph::RunMode runMode;
+struct UGraphRunModeItem : MenuItem {
+    UGraph* module;
+    UGraph::RunMode runMode;
     void onAction(const event::Action &e) override {
         module->runMode = runMode;
     }
@@ -707,66 +766,46 @@ struct TopographRunModeItem : MenuItem {
     }
 };
 
-void TopographWidget::appendContextMenu(Menu *menu) {
-    Topograph *module = dynamic_cast<Topograph*>(this->module);
+void UGraphWidget::appendContextMenu(Menu *menu) {
+    UGraph *module = dynamic_cast<UGraph*>(this->module);
     assert(module);
 
     // Panel style
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
-    menu->addChild(construct<TopographPanelStyleItem>(&MenuItem::text, "Dark", &TopographPanelStyleItem::module,
-                                                      module, &TopographPanelStyleItem::panelStyle, 0));
-    menu->addChild(construct<TopographPanelStyleItem>(&MenuItem::text, "Light", &TopographPanelStyleItem::module,
-                                                      module, &TopographPanelStyleItem::panelStyle, 1));
-
-    // Sequencer Modes
-    menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Sequencer Mode"));
-    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Henri", &TopographSequencerModeItem::module,
-                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::HENRI));
-    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Olivier", &TopographSequencerModeItem::module,
-                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::OLIVIER));
-    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Euclidean", &TopographSequencerModeItem::module,
-                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::EUCLIDEAN));
+    menu->addChild(construct<UGraphPanelStyleItem>(&MenuItem::text, "Dark", &UGraphPanelStyleItem::module,
+                                                      module, &UGraphPanelStyleItem::panelStyle, 0));
+    menu->addChild(construct<UGraphPanelStyleItem>(&MenuItem::text, "Light", &UGraphPanelStyleItem::module,
+                                                      module, &UGraphPanelStyleItem::panelStyle, 1));
 
     // Trigger Output Modes
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Trigger Output Mode"));
-    menu->addChild(construct<TopographTriggerOutputModeItem>(&MenuItem::text, "1ms Pulse", &TopographTriggerOutputModeItem::module,
-                                                             module, &TopographTriggerOutputModeItem::triggerOutputMode, Topograph::PULSE));
-    menu->addChild(construct<TopographTriggerOutputModeItem>(&MenuItem::text, "Gate", &TopographTriggerOutputModeItem::module,
-                                                             module, &TopographTriggerOutputModeItem::triggerOutputMode, Topograph::GATE));
+    menu->addChild(construct<UGraphTriggerOutputModeItem>(&MenuItem::text, "1ms Pulse", &UGraphTriggerOutputModeItem::module,
+                                                             module, &UGraphTriggerOutputModeItem::triggerOutputMode, UGraph::PULSE));
+    menu->addChild(construct<UGraphTriggerOutputModeItem>(&MenuItem::text, "Gate", &UGraphTriggerOutputModeItem::module,
+                                                             module, &UGraphTriggerOutputModeItem::triggerOutputMode, UGraph::GATE));
 
     // Acc Output Modes
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Accent Output Mode"));
-    menu->addChild(construct<TopographAccOutputModeItem>(&MenuItem::text, "Individual accents", &TopographAccOutputModeItem::module,
-                                                         module, &TopographAccOutputModeItem::accOutputMode, Topograph::INDIVIDUAL_ACCENTS));
-    menu->addChild(construct<TopographAccOutputModeItem>(&MenuItem::text, "Accent / Clock / Reset", &TopographAccOutputModeItem::module,
-                                                         module, &TopographAccOutputModeItem::accOutputMode, Topograph::ACC_CLK_RST));
+    menu->addChild(construct<UGraphAccOutputModeItem>(&MenuItem::text, "Individual accents", &UGraphAccOutputModeItem::module,
+                                                         module, &UGraphAccOutputModeItem::accOutputMode, UGraph::INDIVIDUAL_ACCENTS));
+    menu->addChild(construct<UGraphAccOutputModeItem>(&MenuItem::text, "Accent / Clock / Reset", &UGraphAccOutputModeItem::module,
+                                                         module, &UGraphAccOutputModeItem::accOutputMode, UGraph::ACC_CLK_RST));
 
-    // External clock resolution
-    menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Ext. Clock Resolution"));
-    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "4 PPQN", &TopographClockResolutionItem::module,
-                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_4_PPQN));
-    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "8 PPQN", &TopographClockResolutionItem::module,
-                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_8_PPQN));
-    menu->addChild(construct<TopographClockResolutionItem>(&MenuItem::text, "24 PPQN", &TopographClockResolutionItem::module,
-                                                           module, &TopographClockResolutionItem::extClockResolution, Topograph::EXTCLOCK_RES_24_PPQN));
-
-    // Acc Output Modes
+    // Run Mode
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Run Mode"));
-    menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Toggle", &TopographRunModeItem::module,
-                                                   module, &TopographRunModeItem::runMode, Topograph::RunMode::TOGGLE));
-    menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Momentary", &TopographRunModeItem::module,
-                                                   module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
+    menu->addChild(construct<UGraphRunModeItem>(&MenuItem::text, "Toggle", &UGraphRunModeItem::module,
+                                                   module, &UGraphRunModeItem::runMode, UGraph::RunMode::TOGGLE));
+    menu->addChild(construct<UGraphRunModeItem>(&MenuItem::text, "Momentary", &UGraphRunModeItem::module,
+                                                   module, &UGraphRunModeItem::runMode, UGraph::RunMode::MOMENTARY));
 }
 
-void TopographWidget::step() {
+void UGraphWidget::step() {
     if(module) {
-        if(dynamic_cast<Topograph*>(module)->panelStyle == 1) {
+        if(dynamic_cast<UGraph*>(module)->panelStyle == 1) {
             panel->visible = false;
             lightPanel->visible = true;
         }
@@ -778,4 +817,4 @@ void TopographWidget::step() {
     Widget::step();
 }
 
-Model *modelTopograph = createModel<Topograph, TopographWidget>("Topograph");
+Model *modelUGraph = createModel<UGraph, UGraphWidget>("uGraph");

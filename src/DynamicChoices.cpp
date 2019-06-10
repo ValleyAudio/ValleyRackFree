@@ -15,7 +15,8 @@ DynamicChoice::DynamicChoice() {
     _choice = nullptr;
     _visibility = nullptr;
     _viewMode = ACTIVE_HIGH_VIEW;
-    _font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    //_font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    _font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     _text = std::make_shared<std::string>("");
     _textSize = 14;
 }
@@ -53,38 +54,38 @@ void DynamicChoice::step() {
     }
 }
 
-void DynamicChoice::draw(NVGcontext *vg) {
-    nvgBeginPath(vg);
+void DynamicChoice::draw(const DrawArgs &args) {
+    nvgBeginPath(args.vg);
     NVGcolor bgColor = nvgRGB(0x1A, 0x1A, 0x1A);
-    nvgFillColor(vg, bgColor);
-    nvgStrokeWidth(vg, 0.f);
-    nvgRect(vg, 0, 0, this->box.size.x, this->box.size.y - 3);
-    nvgFill(vg);
-    nvgClosePath(vg);
+    nvgFillColor(args.vg, bgColor);
+    nvgStrokeWidth(args.vg, 0.f);
+    nvgRect(args.vg, 0, 0, this->box.size.x, this->box.size.y - 3);
+    nvgFill(args.vg);
+    nvgClosePath(args.vg);
 
-    nvgBeginPath(vg);
+    nvgBeginPath(args.vg);
     NVGcolor outlineColor = nvgRGB(0xF9, 0xF9, 0xF9);
-    nvgStrokeColor(vg, outlineColor);
-    nvgStrokeWidth(vg, 1.f);
-    nvgMoveTo(vg, 0.f, 0.f);
-    nvgLineTo(vg, this->box.size.x, 0.f);
-    nvgLineTo(vg, this->box.size.x, this->box.size.y - 3);
-    nvgLineTo(vg, 0.f, this->box.size.y -3);
-    nvgLineTo(vg, 0.f, 0.f);
-    nvgStroke(vg);
-    nvgClosePath(vg);
+    nvgStrokeColor(args.vg, outlineColor);
+    nvgStrokeWidth(args.vg, 1.f);
+    nvgMoveTo(args.vg, 0.f, 0.f);
+    nvgLineTo(args.vg, this->box.size.x, 0.f);
+    nvgLineTo(args.vg, this->box.size.x, this->box.size.y - 3);
+    nvgLineTo(args.vg, 0.f, this->box.size.y -3);
+    nvgLineTo(args.vg, 0.f, 0.f);
+    nvgStroke(args.vg);
+    nvgClosePath(args.vg);
 
     if(_choice != nullptr) {
         *_text = _items[*_choice];
     }
-    nvgFontSize(vg, _textSize);
-    nvgFontFaceId(vg, _font->handle);
-    nvgTextLetterSpacing(vg, 0.f);
+    nvgFontSize(args.vg, _textSize);
+    nvgFontFaceId(args.vg, _font->handle);
+    nvgTextLetterSpacing(args.vg, 0.f);
     Vec textPos = Vec(this->box.size.x / 2.f, this->box.size.y / 2.f - 2.f);
     NVGcolor textColor = nvgRGB(0xFF,0xFF,0xFF);
-    nvgFillColor(vg, textColor);
-    nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-    nvgText(vg, textPos.x, textPos.y, _text->c_str(), NULL);
+    nvgFillColor(args.vg, textColor);
+    nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+    nvgText(args.vg, textPos.x, textPos.y, _text->c_str(), NULL);
 }
 
 DynamicChoice* createDynamicChoice(const Vec& pos,

@@ -8,18 +8,18 @@
 // Dynamic Panel
 
 struct PanelBorderWidget : TransparentWidget {
-	void draw(NVGcontext *vg) override;
+	void draw(const DrawArgs &args) override;
 };
 
 struct DynamicPanelWidget : FramebufferWidget {
     int* mode;
     int oldMode;
-    std::vector<std::shared_ptr<SVG>> panels;
-    SVGWidget* visiblePanel;
+    std::vector<std::shared_ptr<Svg>> panels;
+    SvgWidget* visiblePanel;
     PanelBorderWidget* border;
 
     DynamicPanelWidget();
-    void addPanel(std::shared_ptr<SVG> svg);
+    void addPanel(std::shared_ptr<Svg> svg);
     void step() override;
 };
 
@@ -35,17 +35,12 @@ enum DynamicViewMode {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic Switch
 
-struct DynamicSwitchWidget : Switch {
-    std::vector<std::shared_ptr<SVG>> frames;
-    FramebufferWidget *fb;
-    SVGWidget* sw;
+struct DynamicSwitchWidget : SvgSwitch {
     int* _visibility;
     DynamicViewMode _viewMode;
 
     DynamicSwitchWidget();
-    void addFrame(std::shared_ptr<SVG> svg);
     void step() override;
-    void onChange(const event::Change &e) override;
 };
 
 template <class TDynamicSwitch>
@@ -54,10 +49,7 @@ DynamicSwitchWidget* createDynamicSwitchWidget(Vec pos, Module *module, int para
                                                int* visibilityHandle, DynamicViewMode viewMode) {
 	DynamicSwitchWidget *dynSwitch = new TDynamicSwitch();
 	dynSwitch->box.pos = pos;
-	//dynSwitch->module = module;
 	dynSwitch->paramQuantity->paramId = paramId;
-	//dynSwitch->setLimits(minValue, maxValue);
-	//dynSwitch->setDefaultValue(defaultValue);
     if (module) {
 		module->configParam(paramId, minValue, maxValue, defaultValue);
 	}
@@ -104,13 +96,13 @@ struct DynamicKnob : virtual Knob {
 	/** Not owned */
     FramebufferWidget *fb;
 	TransformWidget *tw;
-	SVGWidget *sw;
+	SvgWidget *sw;
     CircularShadow *shadow;
     int* _visibility;
     DynamicViewMode _viewMode;
 
 	DynamicKnob();
-	void setSvg(std::shared_ptr<SVG> svg);
+	void setSvg(std::shared_ptr<Svg> svg);
 };
 
 struct DynamicSvgKnob : SvgKnob {
@@ -155,7 +147,7 @@ TParamWidget *createDynamicParam(math::Vec pos, engine::Module *module,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct SVGStepSlider : app::SvgSlider {
+struct SvgStepSlider : app::SvgSlider {
 	void onChange(const event::Change& e) override;
 };
 
@@ -188,7 +180,7 @@ struct DynamicText : TransparentWidget {
     NVGalign vertAlignment;
 
     DynamicText();
-    virtual void draw(NVGcontext* vg) override;
+    virtual void draw(const DrawArgs &args) override;
     void step() override;
     void setFont(const FontMode& newFontMode);
 };
@@ -208,7 +200,7 @@ struct DynamicFrameText : DynamicText {
 
     DynamicFrameText();
     void addItem(const std::string& item);
-    void draw(NVGcontext* vg) override;
+    void draw(const DrawArgs &args) override;
 };
 
 template<class T>
@@ -227,7 +219,7 @@ public:
     NVGcolor textColor;
 
     DynamicValueText(std::shared_ptr<T> value, std::function<std::string(T)> valueToText)  {
-        font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         colorHandle = nullptr;
@@ -236,10 +228,10 @@ public:
         _valueToText = valueToText;
     }
 
-    void draw(NVGcontext* vg) override {
-        nvgFontSize(vg, size);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, 0.f);
+    void draw(const DrawArgs &args) override {
+        nvgFontSize(args.vg, size);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.f);
         Vec textPos = Vec(0.f, 0.f);
         if(colorHandle != nullptr) {
             switch((ColorMode)*colorHandle) {
@@ -252,9 +244,9 @@ public:
             textColor = nvgRGB(0xFF,0xFF,0xFF);
         }
 
-        nvgFillColor(vg, textColor);
-        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        nvgText(vg, textPos.x, textPos.y, _text.c_str(), NULL);
+        nvgFillColor(args.vg, textColor);
+        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+        nvgText(args.vg, textPos.x, textPos.y, _text.c_str(), NULL);
     }
 
     void step() override {
@@ -301,7 +293,7 @@ struct DynamicChoice : ChoiceButton {
     DynamicChoice();
     void step() override;
     void onAction(const event::Action &e) override;
-    void draw(NVGcontext* vg) override;
+    void draw(const DrawArgs &args) override;
 };
 
 DynamicChoice* createDynamicChoice(const Vec& pos,
@@ -311,12 +303,8 @@ DynamicChoice* createDynamicChoice(const Vec& pos,
                                    int* visibilityHandle,
                                    DynamicViewMode viewMode);
 
-template<class T = SVGKnob>
-T *createValleyKnob(Vec pos, Module *module, int paramId, float minValue, float maxValue,
-                    float defaultValue, float minAngle, float maxAngle, DynamicKnobMotion motion) {
-    if (module) {
-		module->configParam(paramId, minValue, maxValue, defaultValue);
-	}
+template<class T = SvgKnob>
+T *createValleyKnob(Vec pos, Module *module, int paramId, float minAngle, float maxAngle, DynamicKnobMotion motion) {
     T *o = createParam<T>(pos, module, paramId);
     o->minAngle = minAngle;
     o->maxAngle = maxAngle;

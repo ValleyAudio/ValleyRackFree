@@ -1,27 +1,27 @@
 #include "ValleyWidgets.hpp"
 
-void PanelBorderWidget::draw(NVGcontext *vg) {
+void PanelBorderWidget::draw(const DrawArgs &args) {
     NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
-    nvgBeginPath(vg);
-    nvgRect(vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
-    nvgStrokeColor(vg, borderColor);
-    nvgStrokeWidth(vg, 1.0);
-    nvgStroke(vg);
+    nvgBeginPath(args.vg);
+    nvgRect(args.vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
+    nvgStrokeColor(args.vg, borderColor);
+    nvgStrokeWidth(args.vg, 1.0);
+    nvgStroke(args.vg);
 }
 
 DynamicPanelWidget::DynamicPanelWidget() {
     mode = nullptr;
     oldMode = -1;
-    visiblePanel = new SVGWidget();
+    visiblePanel = new SvgWidget();
     addChild(visiblePanel);
     border = new PanelBorderWidget();
     addChild(border);
 }
 
-void DynamicPanelWidget::addPanel(std::shared_ptr<SVG> svg) {
+void DynamicPanelWidget::addPanel(std::shared_ptr<Svg> svg) {
     panels.push_back(svg);
     if(!visiblePanel->svg) {
-        visiblePanel->setSVG(svg);
+        visiblePanel->setSvg(svg);
         box.size = visiblePanel->box.size.div(RACK_GRID_SIZE).round().mult(RACK_GRID_SIZE);
         border->box.size = box.size;
     }
@@ -33,7 +33,7 @@ void DynamicPanelWidget::step() {
     }
     /*if(mode != nullptr){
         if(*mode != oldMode) {
-            visiblePanel->setSVG(panels[*mode]);
+            visiblePanel->setSvg(panels[*mode]);
             oldMode = *mode;
             dirty = true;
         }

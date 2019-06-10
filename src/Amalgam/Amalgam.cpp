@@ -2,20 +2,20 @@
 
 Amalgam::Amalgam() {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-    configParam(Amalgam::X_GAIN, 0.f, 4.f, 1.f);
-    configParam(Amalgam::Y_GAIN, 0.f, 4.f, 1.f);
-    configParam(Amalgam::A_PARAM, 0.0f, 1.f, 0.f);
-    configParam(Amalgam::B_PARAM, 0.0f, 1.f, 0.f);
-    configParam(Amalgam::TYPE_PARAM, 0.0f, VecAmalgam::NUM_MODES - 0.9f, 0.f);
-    configParam(Amalgam::TYPE_CV1_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::TYPE_CV2_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::X_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::Y_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::PARAM_A_CV1_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::PARAM_A_CV2_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::PARAM_B_CV1_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::PARAM_B_CV2_PARAM, -1.0f, 1.f, 0.0f);
-    configParam(Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f);
+    configParam(Amalgam::X_GAIN, 0.f, 4.f, 1.f, "X Gain");
+    configParam(Amalgam::Y_GAIN, 0.f, 4.f, 1.f, "Y Gain");
+    configParam(Amalgam::A_PARAM, 0.0f, 1.f, 0.f, "Parameter A");
+    configParam(Amalgam::B_PARAM, 0.0f, 1.f, 0.f, "Parameter B");
+    configParam(Amalgam::TYPE_PARAM, 0.0f, VecAmalgam::NUM_MODES - 0.9f, 0.f, "Combination Type");
+    configParam(Amalgam::TYPE_CV1_PARAM, -1.0f, 1.f, 0.0f, "Combination Type CV 1 Depth");
+    configParam(Amalgam::TYPE_CV2_PARAM, -1.0f, 1.f, 0.0f, "Combination Type CV 2 Depth");
+    configParam(Amalgam::X_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f, "X Gain CV Depth");
+    configParam(Amalgam::Y_GAIN_CV_PARAM, -1.0f, 1.f, 0.0f, "Y Gain CV Depth");
+    configParam(Amalgam::PARAM_A_CV1_PARAM, -1.0f, 1.f, 0.0f, "Param. A CV 1 Depth");
+    configParam(Amalgam::PARAM_A_CV2_PARAM, -1.0f, 1.f, 0.0f, "Param. A CV 1 Depth");
+    configParam(Amalgam::PARAM_B_CV1_PARAM, -1.0f, 1.f, 0.0f, "Param. B CV 1 Depth");
+    configParam(Amalgam::PARAM_B_CV2_PARAM, -1.0f, 1.f, 0.0f, "Param. B CV 1 Depth");
+    configParam(Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f, "DC Couple");
 
     amalgamType = 0;
     __zeros = _mm_set1_ps(0.f);
@@ -67,11 +67,12 @@ void Amalgam::process(const ProcessArgs &args) {
     paramB += inputs[PARAM_B_CV2_INPUT].getVoltage() * 0.1f * params[PARAM_B_CV2_PARAM].getValue();
     paramB = clamp(paramB, 0.f, 1.f);
 
-    dcCoupleButtonState = params[DC_COUPLE_PARAM].getValue() > 0.5f ? true : false;
+    /*dcCoupleButtonState = params[DC_COUPLE_PARAM].getValue() > 0.5f ? true : false;
     if(dcCoupleButtonState && !prevDcCoupleButtonState) {
         dcCoupled = dcCoupled ? false : true;
     }
-    prevDcCoupleButtonState = dcCoupleButtonState;
+    prevDcCoupleButtonState = dcCoupleButtonState;*/
+    dcCoupled = params[DC_COUPLE_PARAM].getValue() > 0.5f ? true : false;
     lights[DC_COUPLE_LIGHT].value = dcCoupled ? 10.f : 0.f;
 
     xyAndDCFilter.setBypass(dcCoupled);
@@ -201,7 +202,8 @@ void AmalgamPanelStyleItem::step() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
+AmalgamWidget::AmalgamWidget(Amalgam* module) {
+    setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
 
     if(module) {
@@ -414,7 +416,15 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) : ModuleWidget(module) {
         addChild(paramBBlurText);
     }
 
-    addParam(createParam<LightLEDButton>(DCCoupleLightPos, module, Amalgam::DC_COUPLE_PARAM));
+    {
+        LightLEDButton* button = new LightLEDButton;
+        button->box.pos = DCCoupleLightPos;
+        if(module) {
+            button->paramQuantity = module->paramQuantities[Amalgam::DC_COUPLE_PARAM];
+        }
+        button->momentary = false;
+        addParam(button);
+    }
     addChild(createLight<MediumLight<RedLight>>(DCCoupleLightPos.plus(Vec(2.5f, 2.5f)), module, Amalgam::DC_COUPLE_LIGHT));
 }
 

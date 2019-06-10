@@ -18,7 +18,7 @@ DynamicKnob::DynamicKnob() {
     _viewMode = ACTIVE_HIGH_VIEW;
 }
 
-void DynamicKnob::setSvg(std::shared_ptr<SVG> svg) {
+void DynamicKnob::setSvg(std::shared_ptr<Svg> svg) {
 	sw->svg = svg;
 	sw->wrap();
 	tw->box.size = sw->box.size;
@@ -57,7 +57,7 @@ void DynamicKnob::setSvg(std::shared_ptr<SVG> svg) {
 		}
 		angle = std::fmod(angle, 2*M_PI);
 		tw->identity();
-		// Rotate SVG
+		// Rotate Svg
 		math::Vec center = sw->box.getCenter();
 		tw->translate(center);
 		tw->rotate(angle);

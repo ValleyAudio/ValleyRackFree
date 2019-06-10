@@ -17,7 +17,7 @@ inline __m128 vecDriveSignal(const __m128& x, const __m128& drive) {
 }
 
 inline __m128 VecPolyTanh(const __m128& x) {
-    __m128 y;
+    __m128 y = _mm_set1_ps(0.0);
 
     // f(x) = p1*x^4 + p2*x^3 + p3*x^2 + p4*x + p5
     /* p1 =   -0.009007  (-0.009359, -0.008655)

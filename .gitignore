@@ -42,5 +42,5 @@
 **/*.ai
 
 **/*.DS_Store
-**/Feline
-*/ValleyRackFreeV1/*
+**/res/Feline
+**/ValleyRackFreeV1/*

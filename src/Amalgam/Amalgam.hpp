@@ -169,7 +169,7 @@ struct AmalgamPanelStyleItem : MenuItem {
 
 struct AmalgamWidget : ModuleWidget {
     AmalgamWidget(Amalgam *module);
-    void appendContextMenu(Menu *menu);
+    void appendContextMenu(Menu *menu) override;
     void step() override;
 
     // Control positions

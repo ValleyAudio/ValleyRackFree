@@ -65,7 +65,7 @@ struct RoganMedBlue : Rogan {
 
 struct RoganMedSmallBlue : Rogan {
     RoganMedSmallBlue() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMed.svg")));
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMedSmall.svg")));
     }
 };
 
@@ -215,7 +215,7 @@ struct DynRoganMedPurple : DynamicSvgKnob {
 
 struct LightLEDButton : DynamicSwitchWidget {
     LightLEDButton() {
-        //addFrame(SVG::load(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+        momentary = true;
         addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
     }
 };
@@ -239,7 +239,7 @@ struct PJ301MDarkPort : SvgPort {
 
 struct PJ301MDarkSmall : SvgPort {
 	PJ301MDarkSmall() {
-		/*background->svg = SVG::load(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg"));
+		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg"));
 		background->wrap();
 		box.size = background->box.size;
         shadow->box.size = background->box.size;
@@ -250,7 +250,7 @@ struct PJ301MDarkSmall : SvgPort {
 
 struct PJ301MDarkSmallOut : SvgPort {
 	PJ301MDarkSmallOut() {
-		/*background->svg = SVG::load(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg"));
+		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg"));
 		background->wrap();
 		box.size = background->box.size;
         shadow->box.size = background->box.size;
@@ -262,17 +262,17 @@ struct PJ301MDarkSmallOut : SvgPort {
 struct ValleySlider : SvgSlider {
     Vec margin = Vec(-1, -0.55);
     ValleySlider() {
-        background->svg = SVG::load(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
+        background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
 		background->wrap();
 		background->box.pos = margin;
 		box.size = background->box.size.plus(margin.mult(2));
     }
 };
 
-struct ValleyStepSlider : SVGStepSlider {
+struct ValleyStepSlider : SvgStepSlider {
     Vec margin = Vec(-1, -0.55);
     ValleyStepSlider() {
-        background->svg = SVG::load(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
+        background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
 		background->wrap();
 		background->box.pos = margin;
 		box.size = background->box.size.plus(margin.mult(2));
@@ -281,7 +281,7 @@ struct ValleyStepSlider : SVGStepSlider {
 
 struct RedSlider : ValleySlider {
 	RedSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderRed.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderRed.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
@@ -290,7 +290,7 @@ struct RedSlider : ValleySlider {
 
 struct OrangeSlider : ValleySlider {
 	OrangeSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderOrange.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderOrange.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
@@ -299,7 +299,7 @@ struct OrangeSlider : ValleySlider {
 
 struct YellowSlider : ValleySlider {
 	YellowSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
@@ -308,7 +308,7 @@ struct YellowSlider : ValleySlider {
 
 struct GreenSlider : ValleySlider {
 	GreenSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
@@ -317,7 +317,7 @@ struct GreenSlider : ValleySlider {
 
 struct BlueSlider : ValleySlider {
 	BlueSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderBlue.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderBlue.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
@@ -326,7 +326,7 @@ struct BlueSlider : ValleySlider {
 
 struct YellowStepSlider : ValleyStepSlider {
 	YellowStepSlider() {
-		handle->svg = SVG::load(asset::plugin(pluginInstance,"res/sliderYellow.svg"));
+		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderYellow.svg"));
 		handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 0.5).plus(margin);
 		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);

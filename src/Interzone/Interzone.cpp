@@ -2,52 +2,54 @@
 
 Interzone::Interzone() {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-    configParam(Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::PW_PARAM, 0.5f, 0.f, 0.5f);
-    configParam(Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f);
+    configParam(Interzone::GLIDE_PARAM, 0.f, 1.f, 0.f, "Glide");
+    configParam(Interzone::PITCH_MOD_PARAM, 0.f, 1.f, 0.f, "Pitch Mod Depth");
+    configParam(Interzone::PW_PARAM, 0.5f, 0.f, 0.5f, "Pulse Width");
+    configParam(Interzone::PW_MOD_PARAM, 0.f, 0.5f, 0.f, "PWM Depth");
+    configParam(Interzone::OCTAVE_PARAM, -2.f, 2.f, 0.f, "Octave");
 
-    configParam(Interzone::COARSE_PARAM, 0.f, 2.f, 1.f);
-    configParam(Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f);
-    configParam(Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f);
-    configParam(Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f);
-    configParam(Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f);
-    configParam(Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 3.f);
+    configParam(Interzone::COARSE_PARAM, 0.f, 2.f, 1.f, "Coarse Tune");
+    configParam(Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f, "Fine Tune");
+    configParam(Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f, "Pitch Mod Envelope Polarity");
+    configParam(Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f, "Pitch Mod Source");
+    configParam(Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f, "Pitch Mod Envelope Depth");
+    configParam(Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f, "Coarse Tune Quantisation");
+    configParam(Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f, "PWM Source");
+    configParam(Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 3.f, "Sub Wave Octave");
 
-    configParam(Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f);
-    configParam(Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::SUB_WAVE_PARAM, 0.0f, 2.f, 1.f);
-    configParam(Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f);
-    configParam(Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::SAW_LEVEL_PARAM, 0.f, 1.f, 0.8f, "Saw Wave Level");
+    configParam(Interzone::PULSE_LEVEL_PARAM, 0.f, 1.f, 0.f, "Pulse Wave Level");
+    configParam(Interzone::SUB_LEVEL_PARAM, 0.f, 1.f, 0.f, "Sub Wave Level");
+    configParam(Interzone::SUB_WAVE_PARAM, 0.0f, 2.f, 1.f, "Sub Wave Type");
+    configParam(Interzone::NOISE_TYPE_PARAM, 0.0f, 1.f, 0.0f, "Noise Type");
+    configParam(Interzone::NOISE_LEVEL_PARAM, 0.f, 1.f, 0.f, "Noise Level");
+    configParam(Interzone::EXT_LEVEL_PARAM, 0.f, 1.f, 0.f, "External Input Level");
 
-    configParam(Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f);
-    configParam(Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f);
-    configParam(Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f);
-    configParam(Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f);
-    configParam(Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f);
-    configParam(Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f);
-    configParam(Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f);
+    configParam(Interzone::FILTER_CUTOFF_PARAM, 0.f, 10.0f, 10.f, "Filter Cutoff", "V");
+    configParam(Interzone::FILTER_Q_PARAM, 0.f, 10.f, 0.f, "Filter Resonance");
+    configParam(Interzone::FILTER_HPF_PARAM, 0.f, 10.0f, 0.f, "High Pass Filter Cutoff");
+    configParam(Interzone::FILTER_POLES_PARAM, 0.f, 1.f, 1.f, "Filter Poles");
+    configParam(Interzone::FILTER_ENV_PARAM, 0.f, 1.f, 0.f, "Filter Envelope Depth");
+    configParam(Interzone::FILTER_MOD_PARAM, 0.f, 1.f, 0.f, "Filter LFO Mod Depth");
+    configParam(Interzone::FILTER_VOCT_PARAM, 0.f, 1.f, 0.f, "Filter V/Oct Tracking");
+    configParam(Interzone::FILTER_ENV_POL_PARAM, 0.f, 1.f, 1.f, "Filter Envelope Polarity");
+    configParam(Interzone::FILTER_CV_1_PARAM, -1.0f, 1.f, 0.f, "Filter Cutoff CV 1 Depth");
+    configParam(Interzone::FILTER_CV_2_PARAM, -1.0f, 1.f, 0.f, "Filter Cutoff CV 2 Depth");
 
-    configParam(Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f);
-    configParam(Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f);
-    configParam(Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f);
-    configParam(Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f);
+    configParam(Interzone::ENV_ATTACK_PARAM, 0.f, 1.f, 0.f, "Attack Time");
+    configParam(Interzone::ENV_DECAY_PARAM, 0.f, 1.f, 0.f, "Decay Time");
+    configParam(Interzone::ENV_SUSTAIN_PARAM, 0.f, 1.f, 1.f, "Sustain Level");
+    configParam(Interzone::ENV_RELEASE_PARAM, 0.f, 1.f, 0.f, "Release Time");
+    configParam(Interzone::ENV_LENGTH_PARAM, 0.0f, 1.f, 0.f, "Envelope Time Scale");
+    configParam(Interzone::ENV_CYCLE_PARAM, 0.0f, 1.f, 0.f, "Envelope Cycle Enable");
+    configParam(Interzone::ENV_MANUAL_PARAM, 0.f, 1.f, 0.f, "Envelope Manual Gate");
 
-    configParam(Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f);
-    configParam(Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f);
-    configParam(Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f);
-    configParam(Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f);
-    configParam(Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f);
+    configParam(Interzone::LFO_RATE_PARAM, 0.f, 11.f, 0.f, "LFO Rate");
+    configParam(Interzone::LFO_FINE_PARAM, -0.5f, 0.5f, 0.f, "LFO Fine Tune");
+    configParam(Interzone::LFO_SLEW_PARAM, 0.f, 1.f, 0.f, "LFO Slew");
+    configParam(Interzone::LFO_WAVE_PARAM, 0.f, 6.f, 0.f, "LFO Wave");
+    configParam(Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f, "VCA Source");
+    configParam(Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f, "VCA Level CV Depth");
 
     calcGTable(APP->engine->getSampleRate());
     filter.setSampleRate(APP->engine->getSampleRate());
@@ -227,9 +229,8 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM));
     addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM));
     addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM));
-    addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, -2.f,
-                                              2.f, 0.f, octaveMinAngle, octaveMaxAngle,
-                                              DynamicKnobMotion::SNAP_MOTION));
+    addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, octaveMinAngle,
+                                              octaveMaxAngle, DynamicKnobMotion::SNAP_MOTION));
 
     addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM));
     addParam(createParam<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM));
@@ -272,7 +273,7 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM));
     addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM));
     addParam(createValleyKnob<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM,
-                                              0.f, 6.f, 0.f, lfoWaveMinAngle, lfoWaveMaxAngle,
+                                              lfoWaveMinAngle, lfoWaveMaxAngle,
                                               DynamicKnobMotion::SNAP_MOTION));
 
     addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM));

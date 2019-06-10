@@ -179,7 +179,7 @@ struct InterzonePanelStyleItem : MenuItem {
 
 struct InterzoneWidget : ModuleWidget {
     InterzoneWidget(Interzone *module);
-    void appendContextMenu(Menu *menu);
+    void appendContextMenu(Menu *menu) override;
     void step() override;
 
     float octaveMinAngle = -0.222222f * M_PI;

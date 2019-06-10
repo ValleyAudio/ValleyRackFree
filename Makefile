@@ -2,7 +2,7 @@
 # VERSION = 0.6.16
 
 # FLAGS will be passed to both the C and C++ compiler
-FLAGS += -w
+FLAGS +=
 CFLAGS += -O3 -std=c99
 CXXFLAGS += -O3
 

@@ -12,10 +12,10 @@
     customColor = nvgRGB(0xFF,0xFF,0xFF);
 }
 
-void DynamicText::draw(NVGcontext* vg) {
-    nvgFontSize(vg, size);
-    nvgFontFaceId(vg, font->handle);
-    nvgTextLetterSpacing(vg, 0.f);
+void DynamicText::draw(const DrawArgs &args) {
+    nvgFontSize(args.vg, size);
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.f);
     Vec textPos = Vec(0.f, 0.f);
     if(colorHandle != nullptr) {
         switch((ColorMode)*colorHandle) {
@@ -29,10 +29,10 @@ void DynamicText::draw(NVGcontext* vg) {
         textColor = customColor;
     }
 
-    nvgFillColor(vg, textColor);
-    nvgTextAlign(vg, horzAlignment | vertAlignment);
-    nvgFontBlur(vg, blur);
-    nvgText(vg, textPos.x, textPos.y, text->c_str(), NULL);
+    nvgFillColor(args.vg, textColor);
+    nvgTextAlign(args.vg, horzAlignment | vertAlignment);
+    nvgFontBlur(args.vg, blur);
+    nvgText(args.vg, textPos.x, textPos.y, text->c_str(), NULL);
 }
 
 void DynamicText::step() {
@@ -52,13 +52,16 @@ void DynamicText::step() {
 void DynamicText::setFont(const FontMode& newFontMode) {
     switch(newFontMode) {
         case FONT_MODE_ALTEDIN:
-            font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            //font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
             break;
         case FONT_MODE_7SEG:
-            font = Font::load(asset::plugin(pluginInstance, "res/DSEG14Classic-Italic.ttf"));
+            //font = Font::load(asset::plugin(pluginInstance, "res/DSEG14Classic-Italic.ttf"));
+            font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14Classic-Italic.ttf"));
             break;
         default:
-            font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            //font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     }
 }
 
@@ -120,7 +123,7 @@ void DynamicFrameText::addItem(const std::string& item) {
     textItem.push_back(item);
 }
 
-void DynamicFrameText::draw(NVGcontext* vg) {
+void DynamicFrameText::draw(const DrawArgs &args) {
     int item = -1;
     if(itemHandle != nullptr) {
         item = *itemHandle;
@@ -129,9 +132,9 @@ void DynamicFrameText::draw(NVGcontext* vg) {
         item = 0;
     }
     if((int)textItem.size() && item >= 0 && item < (int)textItem.size()) {
-        nvgFontSize(vg, size);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, 0.f);
+        nvgFontSize(args.vg, size);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.f);
         Vec textPos = Vec(0.f, 0.f);
 
         if(colorHandle != nullptr) {
@@ -146,9 +149,9 @@ void DynamicFrameText::draw(NVGcontext* vg) {
             textColor = customColor;
         }
 
-        nvgFillColor(vg, textColor);
-        nvgTextAlign(vg, horzAlignment | vertAlignment);
-        nvgFontBlur(vg, blur);
-        nvgText(vg, textPos.x, textPos.y, textItem[item].c_str(), NULL);
+        nvgFillColor(args.vg, textColor);
+        nvgTextAlign(args.vg, horzAlignment | vertAlignment);
+        nvgFontBlur(args.vg, blur);
+        nvgText(args.vg, textPos.x, textPos.y, textItem[item].c_str(), NULL);
     }
 }
