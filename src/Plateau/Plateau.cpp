@@ -213,12 +213,12 @@ void Plateau::process(const ProcessArgs &args) {
     inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
     reverb.process(leftInput * 0.1f * inputSensitivity, rightInput * 0.1f * inputSensitivity);
 
-    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].value;
-    dry += params[DRY_PARAM].value;
+    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
+    dry += params[DRY_PARAM].getValue();
     dry = clamp(dry, 0.f, 1.f);
 
-    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].value;
-    wet += params[WET_PARAM].value;
+    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
+    wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
     outputs[LEFT_OUTPUT].setVoltage(leftInput * dry + reverb.leftOut * wet);

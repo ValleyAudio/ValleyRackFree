@@ -12,19 +12,12 @@ Feline::Feline() {
 
     long p = 0;
     long i = 0;
+    std::vector<std::string> cvNames = {"Cutoff", "Resonance", "Drive", "Spacing", "Spacing Target"};
     for(auto row = 0; row < 2; ++row) {
         for(auto col = 0; col < 5; ++col) {
             p = Feline::CV1_1_PARAM + row * 5 + col;
             i = Feline::CV1_1_INPUT + row * 5 + col;
-            if(col < 2) {
-                configParam(p, -1.f, 1.f, 0.f);
-            }
-            else if(col > 2) {
-                configParam(p, -1.f, 1.f, 0.f);
-            }
-            else {
-                configParam(p, -1.f, 1.f, 0.f);
-            }
+            configParam(p, -1.f, 1.f, 0.f, cvNames[col] + " CV " + std::to_string(row + 1));
         }
     }
 
