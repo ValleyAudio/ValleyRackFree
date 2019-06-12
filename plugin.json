@@ -7,9 +7,9 @@
   "authorEmail": "valley.audio.soft@gmail.com",
   "authorUrl": "https://valleyaudio.github.io",
   "pluginUrl": "",
-  "manualUrl": "",
-  "sourceUrl": "",
-  "donateUrl": "",
+  "manualUrl": "https://valleyaudio.github.io",
+  "sourceUrl": "https://github.com/ValleyAudio/ValleyRackFree",
+  "donateUrl": "https://paypal.me/valleyvcv",
   "modules": [
     {
       "slug": "Topograph",
