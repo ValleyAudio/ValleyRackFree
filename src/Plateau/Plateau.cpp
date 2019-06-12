@@ -25,7 +25,7 @@ Plateau::Plateau() {
     configParam(Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f, "Diffusion CV");
     configParam(Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f, "Decay CV");
     configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb Low Cut CV");
-    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, -1.f, 1.f, 0.f, "Reverb High Cut CV");
+    configParam(Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb High Cut CV");
     configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f, "Mod Speed CV");
     configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f, "Mod Shape CV");
     configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f, "Mod Depth CV");
@@ -156,7 +156,7 @@ void Plateau::process(const ProcessArgs &args) {
     decay = 1.f - decay * decay;
 
     inputDampLow = inputs[INPUT_LOW_DAMP_CV_INPUT].getVoltage() * params[INPUT_LOW_DAMP_CV_PARAM].getValue();
-    inputDampLow += params[INPUT_LOW_DAMP_PARAM].getValue();
+    inputDampLow += params[INPUT_LOW_DAMP_PARAM].value;
     inputDampLow = clamp(inputDampLow, 0.f, 10.f);
     inputDampLow = 10.f - inputDampLow;
 
@@ -213,22 +213,20 @@ void Plateau::process(const ProcessArgs &args) {
     inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
     reverb.process(leftInput * 0.1f * inputSensitivity, rightInput * 0.1f * inputSensitivity);
 
-    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
-    dry += params[DRY_PARAM].getValue();
+    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].value;
+    dry += params[DRY_PARAM].value;
     dry = clamp(dry, 0.f, 1.f);
 
-    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
-    wet += params[WET_PARAM].getValue();
+    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].value;
+    wet += params[WET_PARAM].value;
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry);
-    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry);
-    outputs[LEFT_OUTPUT].value += reverb.leftOut * wet;
-    outputs[RIGHT_OUTPUT].value += reverb.rightOut * wet;
+    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry + reverb.leftOut * wet);
+    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry + reverb.rightOut * wet);
 
     if(outputSaturationState) {
-        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(outputs[LEFT_OUTPUT].value * 0.111f, 0.95f) * 9.999f);
-        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(outputs[RIGHT_OUTPUT].value * 0.111f, 0.95f) * 9.999f);
+        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(outputs[LEFT_OUTPUT].getVoltage() * 0.111f, 0.95f) * 9.999f);
+        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(outputs[RIGHT_OUTPUT].getVoltage() * 0.111f, 0.95f) * 9.999f);
     }
 }
 
@@ -273,7 +271,6 @@ void Plateau::dataFromJson(json_t *rootJ) {
 
     json_t *outputSaturationJ = json_object_get(rootJ, "outputSaturation");
     outputSaturationState = json_integer_value(outputSaturationJ);
-    printf("Data from JSON\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
