@@ -6,7 +6,7 @@
   "author": "Valley",
   "authorEmail": "valley.audio.soft@gmail.com",
   "authorUrl": "https://valleyaudio.github.io",
-  "pluginUrl": "",
+  "pluginUrl": "https://valleyaudio.github.io",
   "manualUrl": "https://valleyaudio.github.io",
   "sourceUrl": "https://github.com/ValleyAudio/ValleyRackFree",
   "donateUrl": "https://paypal.me/valleyvcv",
@@ -16,7 +16,7 @@
       "name": "Topograph",
       "description": "",
       "tags": [
-        "SEQUENCER"
+        "Sequencer"
       ]
     },
     {
@@ -24,7 +24,7 @@
       "name": "uGraph",
       "description": "",
       "tags": [
-        "SEQUENCER"
+        "Sequencer"
       ]
     },
     {
@@ -32,7 +32,7 @@
       "name": "Dexter",
       "description": "",
       "tags": [
-        "OSCILLATOR"
+        "Oscillator"
       ]
     },
     {
@@ -40,7 +40,7 @@
       "name": "Plateau",
       "description": "",
       "tags": [
-        "REVERB"
+        "Reverb"
       ]
     },
     {
@@ -48,7 +48,7 @@
       "name": "Interzone",
       "description": "",
       "tags": [
-        "SYNTH_VOICE"
+        "Synth Voice"
       ]
     },
     {
@@ -56,9 +56,9 @@
       "name": "Amalgam",
       "description": "",
       "tags": [
-        "RING_MODULATOR",
-        "EFFECT",
-        "WAVESHAPER"
+        "Ring Modulator",
+        "Effect",
+        "Waveshaper"
       ]
     },
     {
@@ -66,7 +66,7 @@
       "name": "Feline",
       "description": "",
       "tags": [
-        "FILTER"
+        "Filter"
       ]
     }
   ]
