@@ -440,9 +440,9 @@ struct AlgoGraphic : FramebufferWidget {
     }
 
     void step() override {
-        if (isNear(APP->window->pixelRatio,1.f)) {
+        /*if (isNear(APP->window->pixelRatio,1.f)) {
             oversample = 2.f;
-        }
+        }*/
         if(style != nullptr) {
             if(*style == 0) {
                 styleOffset = 0;
