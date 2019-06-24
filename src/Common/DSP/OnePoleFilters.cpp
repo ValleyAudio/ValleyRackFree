@@ -2,7 +2,7 @@
 
 OnePoleLPFilter::OnePoleLPFilter() {
     setSampleRate(44100.0);
-    setCutoffFreq(_sampleRate / 2.0);
+    setCutoffFreq(_sampleRate / 2.0 - 1.0);
     clear();
 }
 
@@ -94,7 +94,7 @@ DCBlocker::DCBlocker() {
     id = i;
     i++;
     setSampleRate(44100.0);
-    setCutoffFreq(_sampleRate / 2.0);
+    setCutoffFreq(20.f);
     clear();
 }
 
@@ -123,7 +123,7 @@ void DCBlocker::setSampleRate(double sampleRate) {
 
 void DCBlocker::setCutoffFreq(double cutoffFreq) {
     _cutoffFreq = cutoffFreq;
-    _b = 0.999f;
+    _b = 0.999;
 }
 
 double DCBlocker::getMaxCutoffFreq() const {

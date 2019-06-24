@@ -32,6 +32,7 @@
 #include "../ValleyComponents.hpp"
 #include "Dattorro.hpp"
 #include "../Common/DSP/NonLinear.hpp"
+#include "../Common/DSP/LinearEnvelope.hpp"
 #include <vector>
 
 struct Plateau : Module {
@@ -171,15 +172,21 @@ struct Plateau : Module {
     int inputSensitivityState;
     int outputSaturationState;
 
-    int clear;
+    bool clear;
     bool cleared;
+    bool fadeOut, fadeIn;
 
     float leftInput, rightInput;
     Dattorro reverb;
+    LinearEnvelope envelope;
 
     int panelStyle = 0;
     int tuned;
     int diffuseInput;
+
+    bool printy = true;
+    int printLength = 512;
+    int printCount = 0;
 
     Plateau();
     void process(const ProcessArgs &args) override;

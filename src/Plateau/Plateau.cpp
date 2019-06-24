@@ -36,6 +36,10 @@ Plateau::Plateau() {
     configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
 
     reverb.setSampleRate(APP->engine->getSampleRate());
+    envelope.setSampleRate(APP->engine->getSampleRate());
+    envelope.setTime(0.004f);
+    envelope._value = 1.f;
+
     wet = 0.5f;
     dry = 1.f;
     preDelay = 0.f;
@@ -62,8 +66,10 @@ Plateau::Plateau() {
     inputSensitivityState = 0;
     outputSaturationState = 0;
 
-    clear = 0;
-    cleared = false;
+    clear = false;
+    cleared = true;
+    fadeOut = false;
+    fadeIn = false;
     tuned = 0;
     diffuseInput = 1;
 
@@ -97,29 +103,44 @@ void Plateau::process(const ProcessArgs &args) {
     }
     lights[FREEZE_LIGHT].value = freeze ? 10.f : 0.f;
 
-    // Clear
-    if(params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) {
-        clear = 1;
-    }
-    else if(params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) {
-        clear = 0;
-    }
-
     tuned = params[TUNED_MODE_PARAM].getValue() > 0.5f ? 1 : 0;
     lights[TUNED_MODE_LIGHT].value = tuned ? 10.f : 0.f;
 
     diffuseInput = params[DIFFUSE_INPUT_PARAM].getValue();
     lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
 
-    if(clear && !cleared) {
-        cleared = true;
-        reverb.clear();
-        lights[CLEAR_LIGHT].value = 10.f;
-    }
-    else if(!clear && cleared){
+    // Clear
+    if((params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) && !clear && cleared) {
         cleared = false;
-        lights[CLEAR_LIGHT].value = 0.f;
+        clear = true;
+        //clear = 1;
     }
+    else if((params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) && cleared) {
+        clear = false;
+    }
+    
+    if(clear) {
+        if(!cleared && !fadeOut && !fadeIn) {
+            fadeOut = true;
+            envelope.setStartEndPoints(1.f, 0.f);
+            envelope.trigger();
+            lights[CLEAR_LIGHT].value = 10.f;
+        }
+        if(fadeOut && envelope._justFinished) {
+            reverb.clear();
+            fadeOut = false;
+            fadeIn = true;
+            envelope.setStartEndPoints(0.f, 1.f);
+            envelope.trigger();
+        }
+        if(fadeIn && envelope._justFinished) {
+            fadeIn = false;
+            cleared = true;
+            lights[CLEAR_LIGHT].value = 0.f;
+            envelope._value = 1.f;
+        }
+    }
+    envelope.process();
 
     // CV
     switch(preDelayCVSensState) {
@@ -209,9 +230,12 @@ void Plateau::process(const ProcessArgs &args) {
     else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
         rightInput = inputs[LEFT_INPUT].getVoltage();
     }
+    leftInput = clamp(leftInput, -10.0, 10.0);
+    rightInput = clamp(rightInput, -10.0, 10.0);
 
     inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
-    reverb.process(leftInput * 0.1f * inputSensitivity, rightInput * 0.1f * inputSensitivity);
+    reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
+                   rightInput * 0.1f * inputSensitivity * envelope._value);
 
     dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
     dry += params[DRY_PARAM].getValue();
@@ -221,8 +245,8 @@ void Plateau::process(const ProcessArgs &args) {
     wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry + reverb.leftOut * wet);
-    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry + reverb.rightOut * wet);
+    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry + reverb.leftOut * wet * envelope._value);
+    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry + reverb.rightOut * wet * envelope._value);
 
     if(outputSaturationState) {
         outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(outputs[LEFT_OUTPUT].getVoltage() * 0.111f, 0.95f) * 9.999f);
@@ -232,6 +256,7 @@ void Plateau::process(const ProcessArgs &args) {
 
 void Plateau::onSampleRateChange() {
     reverb.setSampleRate(APP->engine->getSampleRate());
+    envelope.setSampleRate(APP->engine->getSampleRate());
 }
 
 json_t* Plateau::dataToJson()  {

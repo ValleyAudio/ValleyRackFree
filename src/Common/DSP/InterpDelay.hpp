@@ -23,11 +23,11 @@ public:
     }
 
     InterpDelay(long maxLength, long initDelay) {
-        input = 0;
-        output = 0;
+        input = 0.0;
+        output = 0.0;
         delayTime = initDelay;
         _length = maxLength;
-        _buffer.assign(_length, 0);
+        _buffer.assign(_length, 0.0);
         _readPos = maxLength - 1;
         _phasedPos = 0;
         _lowerReadPos = 0;
