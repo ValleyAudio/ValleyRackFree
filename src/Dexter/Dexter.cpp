@@ -67,7 +67,7 @@ Dexter::Dexter() {
         configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 2 Depth");
         configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 2 Depth");
 
-        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_WAVEBANKS - 1), 0.0, opStr + "Wave Bank");
+        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_VALLEY_WAVETABLES - 1), 0.0, opStr + "Wave Bank");
     }
 
     resetPhaseState = false;
@@ -389,7 +389,7 @@ void Dexter::step() {
 
         opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].getValue();
         opWaveBank[op] = opWaveBankKnob[op] + modMatrix[op].getDestinationValue(WAVE_BANK_DEST);
-        opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_WAVEBANKS - 1);
+        opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_VALLEY_WAVETABLES - 1);
 
         opWave[op] = params[opParams[op][OP_WAVE_PARAM]].getValue();
         opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
@@ -1032,7 +1032,7 @@ DexterWidget::DexterWidget(Dexter *module) {
                 tableText->visibility = &module->opWaveMenuVis[op];
                 tableText->viewMode = ACTIVE_HIGH_VIEW;
                 tableText->colorHandle = &module->panelStyle;
-                for(auto i = 0; i < NUM_WAVEBANKS; ++i) {
+                for(auto i = 0; i < NUM_VALLEY_WAVETABLES; ++i) {
                     tableText->addItem(waveTableNames[i]);
                 }
                 addChild(tableText);
