@@ -67,7 +67,7 @@ Dexter::Dexter() {
         configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 2 Depth");
         configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 2 Depth");
 
-        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, (float)(NUM_VALLEY_WAVETABLES - 1), 0.0, opStr + "Wave Bank");
+        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
     }
 
     resetPhaseState = false;
@@ -338,10 +338,10 @@ void Dexter::step() {
     coreB.setSyncSource(opSyncSource);
 
     for(auto op = 0; op < kNumOperators; ++op) {
-        modMatrix[op].setRowDestination(0, (RoutingMatrixDestination) opMod1Assign[op]);
-        modMatrix[op].setRowDestination(1, (RoutingMatrixDestination) opMod2Assign[op]);
-        modMatrix[op].setRowDestination(2, (RoutingMatrixDestination) opMod3Assign[op]);
-        modMatrix[op].setRowDestination(3, (RoutingMatrixDestination) opMod4Assign[op]);
+        modMatrix[op].setRowDestination(0, (DexterRoutingMatrixDestination) opMod1Assign[op]);
+        modMatrix[op].setRowDestination(1, (DexterRoutingMatrixDestination) opMod2Assign[op]);
+        modMatrix[op].setRowDestination(2, (DexterRoutingMatrixDestination) opMod3Assign[op]);
+        modMatrix[op].setRowDestination(3, (DexterRoutingMatrixDestination) opMod4Assign[op]);
 
         modMatrix[op].setRowSourceValue(0, inputs[opCVInputs[op][OP_MOD_CV_1]].getVoltage() * 0.1f);
         modMatrix[op].setRowSourceValue(1, inputs[opCVInputs[op][OP_MOD_CV_2]].getVoltage() * 0.1f);
@@ -395,7 +395,7 @@ void Dexter::step() {
         opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
         opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_2]].getValue();
         opWave[op] += modMatrix[op].getDestinationValue(WAVE_POS_DEST);
-        opWave[op] = clamp(opWave[op], 0.f, (float)NUM_OP_WAVES);
+        opWave[op] = clamp(opWave[op], 0.f, 1.f);
 
         opShape[op] = params[opParams[op][OP_SHAPE_PARAM]].getValue() + allShape;
         opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_1]].getValue();
@@ -1032,7 +1032,7 @@ DexterWidget::DexterWidget(Dexter *module) {
                 tableText->visibility = &module->opWaveMenuVis[op];
                 tableText->viewMode = ACTIVE_HIGH_VIEW;
                 tableText->colorHandle = &module->panelStyle;
-                for(auto i = 0; i < NUM_VALLEY_WAVETABLES; ++i) {
+                for(auto i = 0; i < NUM_DEXTER_WAVETABLES; ++i) {
                     tableText->addItem(waveTableNames[i]);
                 }
                 addChild(tableText);

@@ -1,0 +1,916 @@
+#include "Terrorform.hpp"
+
+Terrorform::Terrorform() {
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    configParam(Terrorform::OCTAVE_PARAM, -3.0, 3.0, 0.0, "Octave");
+    configParam(Terrorform::COARSE_PARAM, -1.0, 1.0, 0.0, "Coarse Tune");
+    configParam(Terrorform::FINE_PARAM, -0.041666, 0.041666, 0.0, "Fine Tune");
+    configParam(Terrorform::VOCT_1_CV_PARAM, -1.0, 1.0, 0.0, "VOct 1 Atten.");
+    configParam(Terrorform::VOCT_2_CV_PARAM, -1.0, 1.0, 0.0, "VOct 2 Atten.");
+
+    configParam(Terrorform::BANK_PARAM, 0.0, NUM_TERRORFORM_WAVETABLES - 1.f, 0.0, "Bank");
+    configParam(Terrorform::WAVE_PARAM, 0.0, 1.0, 0.0, "Wave");
+    configParam(Terrorform::BANK_CV_1_PARAM, -1.0, 1.0, 0.0, "Bank CV Atten. 1");
+    configParam(Terrorform::BANK_CV_2_PARAM, -1.0, 1.0, 0.0, "Bank CV Atten. 2");
+    configParam(Terrorform::WAVE_CV_1_PARAM, -1.0, 1.0, 0.0, "Wave CV Atten. 1");
+    configParam(Terrorform::WAVE_CV_2_PARAM, -1.0, 1.0, 0.0, "Wave CV Atten. 2");
+
+    configParam(Terrorform::SHAPE_TYPE_PARAM, 0.0, 11.0, 0.0, "Shape Type");
+    configParam(Terrorform::SHAPE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Shape Depth");
+    configParam(Terrorform::SHAPE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Shape Type CV Atten. 1");
+    configParam(Terrorform::SHAPE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Shape Type CV Atten. 2");
+    configParam(Terrorform::SHAPE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 1");
+    configParam(Terrorform::SHAPE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 2");
+
+    configParam(Terrorform::DEGRADE_TYPE_PARAM, 0.0, VecDegrader::VecDegraderModes::NUM_MODES - 1.f, 0.0, "Degrade Type");
+    configParam(Terrorform::DEGRADE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Degrade Depth");
+    configParam(Terrorform::DEGRADE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Degrade Type CV Atten. 1");
+    configParam(Terrorform::DEGRADE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Degrade Type CV Atten. 2");
+    configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Degrade Depth CV Atten. 1");
+    configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Degrade Depth CV Atten. 2");
+
+    configParam(Terrorform::PERC_DECAY_PARAM, 0.0, 1.0, 0.5, "Perc Decay");
+    configParam(Terrorform::PERC_VELOCITY_PARAM, 0.0, 1.0, 1.0, "Perc Velocity");
+    configParam(Terrorform::PERC_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Enable");
+    configParam(Terrorform::PERC_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV1 Atten.");
+    configParam(Terrorform::PERC_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV2 Atten.");
+    configParam(Terrorform::PERC_VELOCITY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV1 Atten.");
+    configParam(Terrorform::PERC_VELOCITY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV2 Atten.");
+
+    configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
+    configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
+    configParam(Terrorform::FM_B1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM B1 Level");
+    configParam(Terrorform::FM_B2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM B2 Level");
+    configParam(Terrorform::FM_A_VCA_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A VCA Gain");
+    configParam(Terrorform::FM_B_VCA_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM B VCA Gain");
+
+    configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves Switch");
+
+    for(int i = 0; i < kMaxNumGroups; ++i) {
+        osc[i].setWavebank(wavetables[kTable], wavetable_sizes[kTable], wavetable_lengths[kTable][0]);
+        osc[i].setScanPosition(0.f);
+        osc[i].setSampleRate(APP->engine->getSampleRate());
+        osc[i].setShape(0.0);
+        osc[i].setShapeMethod(0);
+        osc[i].enableSync(true);
+    }
+    bank = 0;
+    shapeType = 0;
+
+    rootWave = 0.f;
+    numWaves = 1.f;
+    rootShapeDepth = 0.f;
+    rootDegradeDepth = 0.f;
+
+    __zeros = _mm_set1_ps(0.f);
+    __ones = _mm_set1_ps(1.f);
+    __negOnes = _mm_set1_ps(-1.f);
+    __twos = _mm_set1_ps(2.f);
+    __negTwos = _mm_set1_ps(-2.f);
+    __fives = _mm_set1_ps(5.f);
+    __negFives = _mm_set1_ps(-5.f);
+    __tens = _mm_set1_ps(10.f);
+
+    __sync1 = __zeros;
+    __sync2 = __zeros;
+    __sync1Pls = __zeros;
+    __sync2Pls = __zeros;
+
+    freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    shapes = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    degrades = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+
+    percMode = false;
+
+    // Fill user wavetables
+    float userWaveTemplate[DSJ_CELL_USER_TABLE_LENGTH];
+    for(auto i = 0; i < DSJ_CELL_USER_TABLE_LENGTH; ++i) {
+        userWaveTemplate[i] = sinf(2.0 * M_PI * (float)i / DSJ_CELL_USER_TABLE_LENGTH);
+    }
+    userWaves = new float*[DSJ_CELL_NUM_USER_BANKS];
+    for(auto bank = 0; bank < DSJ_CELL_NUM_USER_BANKS; ++bank) {
+        userWaves[bank] = new float[DSJ_CELL_USER_TABLE_LENGTH];
+        for(auto i = 0; i < DSJ_CELL_USER_TABLE_LENGTH; ++i) {
+            userWaves[bank][i] = userWaveTemplate[i];
+        }
+    }
+    readFromUserWaves = false;
+    userWavesButtonState = false;
+    prevUserWavesButtonState = false;
+}
+
+Terrorform::~Terrorform() {
+    aligned_free_16(freqs);
+    aligned_free_16(waves);
+    aligned_free_16(shapes);
+    aligned_free_16(degrades);
+    for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
+        delete[] userWaves[i];
+    }
+    delete[] userWaves;
+}
+
+void Terrorform::process(const ProcessArgs &args) {
+    ++counter;
+    if(counter > 512) {
+        rootBank = (int)params[BANK_PARAM].getValue();
+        rootShapeType = (int)params[SHAPE_TYPE_PARAM].getValue();
+        rootDegradeType = (int)params[DEGRADE_TYPE_PARAM].getValue();
+
+        bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f);
+        shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f);
+        degradeType = rootDegradeType + (int)(inputs[DEGRADE_TYPE_INPUT_1].getVoltage() * params[DEGRADE_TYPE_CV_1_PARAM].getValue() * 0.2f);
+
+        bank = clamp(bank, 0, NUM_TERRORFORM_WAVETABLES - 1);
+        shapeType = clamp(shapeType, 0, 11);
+        degradeType = clamp(degradeType, 0, VecDegrader::VecDegraderModes::NUM_MODES - 1);
+
+        prevUserWavesButtonState = userWavesButtonState;
+        userWavesButtonState = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
+        if(prevUserWavesButtonState == false && userWavesButtonState == true) {
+            readFromUserWaves = !readFromUserWaves;
+        }
+
+        for(auto c = 0; c < kMaxNumGroups; ++c) {
+            if(readFromUserWaves) {
+                lights[USER_BANK_LIGHT].value = 1.f;
+                osc[c].setWavebank(userWaves, 1, DSJ_CELL_USER_TABLE_LENGTH);
+            }
+            else {
+                lights[USER_BANK_LIGHT].value = 0.f;
+                osc[c].setWavebank(wavetables[bank],
+                                   wavetable_sizes[bank],
+                                   wavetable_lengths[bank][0]);
+            }
+            osc[c].setShapeMethod(shapeType);
+            degrader[c].setMode(degradeType);
+            osc[c].setSyncMode(syncChoice);
+        }
+        percMode = params[PERC_SWITCH_PARAM].getValue() > 0.5f ? true : false;
+        lights[PERCUSSION_LIGHT].value = percMode ? 1.f : 0.f;
+
+        numWaves = osc[0].getNumwaves() - 1.f;
+        __numWaves = _mm_set1_ps(numWaves);
+
+        sync1IsMono = inputs[SYNC_1_INPUT].isMonophonic();
+        sync2IsMono = inputs[SYNC_2_INPUT].isMonophonic();
+        fmA1IsMono = inputs[FM_A1_INPUT].isMonophonic();
+        fmA2IsMono = inputs[FM_A2_INPUT].isMonophonic();
+        fmB1IsMono = inputs[FM_B1_INPUT].isMonophonic();
+        fmB2IsMono = inputs[FM_B2_INPUT].isMonophonic();
+        fmAVCAIsMono = inputs[FM_A_VCA_INPUT].isMonophonic();
+        fmBVCAIsMono = inputs[FM_B_VCA_INPUT].isMonophonic();
+        fmAVCAIsConnected = inputs[FM_A_VCA_INPUT].isConnected();
+        fmBVCAIsConnected = inputs[FM_B_VCA_INPUT].isConnected();
+
+        counter = 0;
+    }
+
+    rootPitch = (int)params[OCTAVE_PARAM].getValue();
+    rootPitch += params[COARSE_PARAM].getValue();
+    rootPitch += params[FINE_PARAM].getValue();
+    rootWave = params[WAVE_PARAM].getValue();
+    rootShapeDepth = params[SHAPE_DEPTH_PARAM].getValue();
+    rootDegradeDepth = params[DEGRADE_DEPTH_PARAM].getValue();
+
+    pitchCV1 = params[VOCT_1_CV_PARAM].getValue();
+    pitchCV2 = params[VOCT_2_CV_PARAM].getValue();
+    pitchCV1 *= pitchCV1;
+    pitchCV2 *= pitchCV2;
+    waveCV = params[WAVE_CV_1_PARAM].getValue();
+    shapeDepthCV = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
+    degradeDepthCV = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
+
+    for(auto i = 0; i < kMaxNumGroups * 4; ++i) {
+        freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
+                                        inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
+                                        rootPitch);
+        waves[i] = rootWave + inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV * 0.1f;
+        waves[i] *= numWaves;
+        shapes[i] = rootShapeDepth + inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV * 0.1f;
+        degrades[i] = rootDegradeDepth + inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV * 0.1f;
+    }
+
+    sync1 = inputs[SYNC_1_INPUT].getVoltages();
+    sync2 = inputs[SYNC_2_INPUT].getVoltages();
+    fmA1 = inputs[FM_A1_INPUT].getVoltages();
+    fmA2 = inputs[FM_A2_INPUT].getVoltages();
+    fmB1 = inputs[FM_B1_INPUT].getVoltages();
+    fmB2 = inputs[FM_B2_INPUT].getVoltages();
+    fmAVCA = inputs[FM_A_VCA_INPUT].getVoltages();
+    fmBVCA = inputs[FM_B_VCA_INPUT].getVoltages();
+
+    fmA1Level = params[FM_A1_ATTEN_PARAM].getValue() * 0.2f;
+    fmA2Level = params[FM_A2_ATTEN_PARAM].getValue() * 0.2f;
+    fmB1Level = params[FM_B1_ATTEN_PARAM].getValue() * 0.2f;
+    fmB2Level = params[FM_B2_ATTEN_PARAM].getValue() * 0.2f;
+    fmAVCACV = params[FM_A_VCA_ATTEN_PARAM].getValue() * 0.1f;
+    fmBVCACV = params[FM_B_VCA_ATTEN_PARAM].getValue() * 0.1f;
+    __fmA1Level = _mm_set1_ps(fmA1Level);
+    __fmA2Level = _mm_set1_ps(fmA2Level);
+    __fmB1Level = _mm_set1_ps(fmB1Level);
+    __fmB2Level = _mm_set1_ps(fmB2Level);
+    __fmAVCACV = _mm_set1_ps(fmAVCACV);
+    __fmBVCACV = _mm_set1_ps(fmBVCACV);
+
+    __decay = _mm_set1_ps(params[PERC_DECAY_PARAM].getValue());
+
+    // Tick the oscillator
+    int g = 0;
+    for(auto c = 0; c < kMaxNumGroups; ++c) {
+        g = c * 4;
+        __sync1 = sync1IsMono ? _mm_set1_ps(sync1[0]) : _mm_load_ps(sync1 + g);
+        __sync2 = sync2IsMono ? _mm_set1_ps(sync2[0]) : _mm_load_ps(sync2 + g);
+        __sync1Pls = _mm_and_ps(_mm_cmple_ps(__prevSync1, __zeros), _mm_cmpgt_ps(__sync1, __zeros));
+        __sync1Pls = _mm_and_ps(__ones, __sync1Pls);
+        __sync2Pls = _mm_and_ps(_mm_cmple_ps(__prevSync2, __zeros), _mm_cmpgt_ps(__sync2, __zeros));
+        __sync2Pls = _mm_and_ps(__ones, __sync2Pls);
+        __prevSync1 = __sync1;
+        __prevSync2 = __sync2;
+
+        __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
+        __fmA = _mm_mul_ps(__fmA, __fmA1Level);
+        __fmA = _mm_add_ps(__fmA, _mm_mul_ps(fmA2IsMono ? _mm_set1_ps(fmA2[0]) : _mm_load_ps(fmA2 + g), __fmA2Level));
+        __fmAVCA = fmAVCAIsMono ? _mm_set1_ps(fmAVCA[0]) : _mm_load_ps(fmAVCA + g);
+        __fmAVCA = _mm_mul_ps(__fmAVCA, __fmAVCACV);
+        __fmAVCA = fmAVCAIsConnected ? __fmAVCA : __ones;
+        __fmA = _mm_mul_ps(__fmA, __fmAVCA);
+
+        __fmB = fmB1IsMono ? _mm_set1_ps(fmB1[0]) : _mm_load_ps(fmB1 + g);
+        __fmB = _mm_mul_ps(__fmB, __fmB1Level);
+        __fmB = _mm_add_ps(__fmB, _mm_mul_ps(fmB2IsMono ? _mm_set1_ps(fmB2[0]) : _mm_load_ps(fmB2 + g), __fmB2Level));
+        __fmBVCA = fmBVCAIsMono ? _mm_set1_ps(fmBVCA[0]) : _mm_load_ps(fmBVCA + g);
+        __fmBVCA = _mm_mul_ps(__fmBVCA, __fmBVCACV);
+        __fmBVCA = fmBVCAIsConnected ? __fmBVCA : __ones;
+        __fmB = _mm_mul_ps(__fmB, __fmBVCA);
+
+        __fmSum = _mm_add_ps(__fmA, __fmB);
+
+        __freq = _mm_load_ps(freqs);
+        __wave = _mm_load_ps(waves);
+        __shape = _mm_load_ps(shapes);
+        __degrade = _mm_load_ps(degrades);
+
+        __wave = _mm_clamp_ps(__wave, __zeros, __numWaves);
+        __shape = _mm_clamp_ps(__shape, __zeros, __ones);
+        __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
+
+        lpg[c].setDecay(__decay);
+
+        osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
+        osc[c].setPhase(__fmSum);
+        osc[c].setFrequency(__freq);
+        osc[c].mm_setScanPosition(__wave);
+        osc[c].setShape(__shape);
+
+        osc[c].tick();
+
+        __phasorOutput[c] = osc[c].getPhasor();
+        __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
+        degrader[c].insertAuxSignal(__phasorOutput[c]);
+        __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
+        __preDegradeOutput[c] = osc[c].getOutput();
+
+        __mainOutput[c] = degrader[c].process(__preDegradeOutput[c], __degrade);
+        __preDegradeOutput[c] = _mm_mul_ps(__preDegradeOutput[c], __fives);
+        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+
+        _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preDegradeOutput[c]);
+        _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
+        _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
+        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), lpg[c].process(__mainOutput[c], __sync1Pls));
+
+        //_mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), lpg[c].process(__sync1Pls));
+    }
+    outputs[MAIN_OUTPUT].setChannels(kMaxNumGroups * 4);
+}
+
+void Terrorform::onSampleRateChange() {
+    for(auto i = 0; i < kMaxNumGroups; ++i) {
+        osc[i].setSampleRate(APP->engine->getSampleRate());
+        degrader[i].setSampleRate(APP->engine->getSampleRate());
+    }
+}
+
+json_t* Terrorform::dataToJson()  {
+    json_t *rootJ = json_object();
+    json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
+    json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
+
+    json_t* userWavesJ = json_array();
+    for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
+        json_t* waveJ = json_array();
+        for(auto j = 0; j < DSJ_CELL_USER_TABLE_LENGTH; ++j) {
+            json_t* valueJ = json_real(userWaves[i][j]);
+            json_array_append_new(waveJ, valueJ);
+        }
+        json_array_append_new(userWavesJ, waveJ);
+    }
+    json_object_set_new(rootJ, "userWaves", userWavesJ);
+    return rootJ;
+}
+
+void Terrorform::dataFromJson(json_t *rootJ) {
+    printf("Loading autosave\n");
+    json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
+    panelStyle = json_integer_value(panelStyleJ);
+    json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
+    displayStyle = json_integer_value(displayStyleJ);
+
+    json_t *userWaveJ = json_object_get(rootJ, "userWaves");
+    for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
+        json_t *waveJ = json_array_get(userWaveJ, i);
+        for(auto j = 0; j < DSJ_CELL_USER_TABLE_LENGTH; ++j) {
+            json_t *valueJ = json_array_get(waveJ, j);
+            userWaves[i][j] = json_real_value(valueJ);
+        }
+    }
+}
+
+void Terrorform::loadUserWaveTable(const char* path) {
+    // TODO : Add WAV file loader code here
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TerrorformPanelStyleItem::onAction(const event::Action &e) {
+    module->panelStyle = panelStyle;
+}
+
+void TerrorformPanelStyleItem::step() {
+    rightText = (module->panelStyle == panelStyle) ? "✔" : "";
+    MenuItem::step();
+}
+
+void TerrorformDisplayStyleItem::onAction(const event::Action &e) {
+    module->displayStyle = displayStyle;
+}
+
+void TerrorformDisplayStyleItem::step() {
+    rightText = (module->displayStyle == displayStyle) ? "✔" : "";
+    MenuItem::step();
+}
+
+TerrorformLoadButton::TerrorformLoadButton() {
+    momentary = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TerrorformLoadButton::onDragEnd(const event::DragEnd &e) {
+    Terrorform* module = dynamic_cast<Terrorform*>(paramQuantity->module);
+    if(module) {
+        if(module->readFromUserWaves == false) {
+            onReadOnlyError();
+            return;
+        }
+        const char FILE_FILTERS[] = "WAV File (.wav):wav";
+        std::string dir = asset::user("");
+        std::string filename;
+
+        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
+    	DEFER({
+    		osdialog_filters_free(filters);
+    	});
+        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
+        if(path) {
+            module->loadUserWaveTable(path);
+            DEFER({
+                std::free(path);
+            });
+        }
+    }
+}
+
+//printf("%s\n", path);
+/*
+drwav_uint64 totalSampleCount = 0;
+
+float *pSampleData = drwav_open_and_read_file_f32(path.c_str(), &channels_, &sampleRate_, &totalSampleCount);
+
+if (pSampleData == NULL) {
+    return;
+}
+
+left_channel_.clear();
+for (size_t i = 0; i < totalSampleCount; i += channels) {
+    left_channel_.push_back(pSampleData[i]);
+}
+sampleCount_ = left_channel_.size();
+drwav_free(pSampleData);
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TerrorformWidget::TerrorformWidget(Terrorform* module) {
+    setModule(module);
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, /*"res/Cell/CellDark2.svg"*/ "res/Cell/CellDarkInky2.svg")));
+
+    if(module) {
+        lightPanel = new SvgPanel;
+        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Cell/CellDarkInky2.svg")));
+        lightPanel->visible = false;
+        addChild(lightPanel);
+    }
+
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+
+    // Make jacks
+    addInput(createInputCentered<PJ301MDarkSmall>(vOct1InputPos, module, Terrorform::VOCT_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(vOct2InputPos, module, Terrorform::VOCT_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(bankInput1Pos, module, Terrorform::BANK_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(bankInput2Pos, module, Terrorform::BANK_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(waveInput1Pos, module, Terrorform::WAVE_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(waveInput2Pos, module, Terrorform::WAVE_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(shapeTypeInput1Pos, module, Terrorform::SHAPE_TYPE_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(shapeTypeInput2Pos, module, Terrorform::SHAPE_TYPE_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(shapeDepthInput1Pos, module, Terrorform::SHAPE_DEPTH_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(shapeDepthInput2Pos, module, Terrorform::SHAPE_DEPTH_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(degradeTypeInput1Pos, module, Terrorform::DEGRADE_TYPE_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(degradeTypeInput2Pos, module, Terrorform::DEGRADE_TYPE_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(degradeDepthInput1Pos, module, Terrorform::DEGRADE_DEPTH_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(degradeDepthInput2Pos, module, Terrorform::DEGRADE_DEPTH_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(vcaAInputPos, module, Terrorform::FM_A_VCA_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(fmA1InputPos, module, Terrorform::FM_A1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(fmA2InputPos, module, Terrorform::FM_A2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(vcaBInputPos, module, Terrorform::FM_B_VCA_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(fmB1InputPos, module, Terrorform::FM_B1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(fmB2InputPos, module, Terrorform::FM_B2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(syncInput1Pos, module, Terrorform::SYNC_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(syncInput2Pos, module, Terrorform::SYNC_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput1Pos, module, Terrorform::DECAY_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::DECAY_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(velocityInput1Pos, module, Terrorform::VELOCITY_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(velocityInput2Pos, module, Terrorform::VELOCITY_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(triggerInput1Pos, module, Terrorform::TRIGGER_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(triggerInput2Pos, module, Terrorform::TRIGGER_2_INPUT));
+
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(phasorOutPos, module, Terrorform::PHASOR_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(preDegradePos, module, Terrorform::PRE_DEGRADE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(subOutPos, module, Terrorform::SUB_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
+
+    // Knobs
+    addParam(createParamCentered<RoganMedBlueSnap>(octavePos, module, Terrorform::OCTAVE_PARAM));
+    addParam(createParamCentered<RoganMedBlue>(coarsePos, module, Terrorform::COARSE_PARAM));
+    addParam(createParamCentered<RoganMedBlue>(finePos, module, Terrorform::FINE_PARAM));
+
+    bankKnob = createParamCentered<RoganMedPurple>(bankPos, module, Terrorform::BANK_PARAM);
+    bankKnob->smooth = false;
+    addParam(bankKnob);
+    waveKnob = createParamCentered<RoganMedPurple>(wavePos, module, Terrorform::WAVE_PARAM);
+    addParam(waveKnob);
+
+    shapeTypeKnob = createParamCentered<RoganMedRed>(shapeTypePos, module, Terrorform::SHAPE_TYPE_PARAM);
+    shapeTypeKnob->smooth = false;
+    addParam(shapeTypeKnob);
+    shapeDepthKnob = createParamCentered<RoganMedRed>(shapeDepthPos, module, Terrorform::SHAPE_DEPTH_PARAM);
+    addParam(shapeDepthKnob);
+
+    degradeTypeKnob = createParamCentered<RoganMedGreen>(degradeTypePos, module, Terrorform::DEGRADE_TYPE_PARAM);
+    degradeTypeKnob->smooth = false;
+    addParam(degradeTypeKnob);
+    degradeDepthKnob = createParamCentered<RoganMedGreen>(degradeDepthPos, module, Terrorform::DEGRADE_DEPTH_PARAM);
+    addParam(degradeDepthKnob);
+
+    addParam(createParamCentered<RoganSmallMustard>(percDecayPos, module, Terrorform::PERC_DECAY_PARAM));
+    addParam(createParamCentered<RoganSmallMustard>(percVelocityPos, module, Terrorform::PERC_VELOCITY_PARAM));
+
+    addParam(createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM));
+    addParam(createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM));
+    addParam(createParamCentered<RoganSmallPurple>(bankCV1Pos, module, Terrorform::BANK_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallPurple>(bankCV2Pos, module, Terrorform::BANK_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallPurple>(waveCV1Pos, module, Terrorform::WAVE_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallPurple>(waveCV2Pos, module, Terrorform::WAVE_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallRed>(shapeTypeCV1Pos, module, Terrorform::SHAPE_TYPE_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallRed>(shapeTypeCV2Pos, module, Terrorform::SHAPE_TYPE_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallRed>(shapeDepthCV1Pos, module, Terrorform::SHAPE_DEPTH_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallRed>(shapeDepthCV2Pos, module, Terrorform::SHAPE_DEPTH_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallGreen>(degradeTypeCV1Pos, module, Terrorform::DEGRADE_TYPE_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallGreen>(degradeTypeCV2Pos, module, Terrorform::DEGRADE_TYPE_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallGreen>(degradeDepthCV1Pos, module, Terrorform::DEGRADE_DEPTH_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallGreen>(degradeDepthCV2Pos, module, Terrorform::DEGRADE_DEPTH_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM));
+    addParam(createParamCentered<RoganSmallMustard>(percVelocityCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM));
+    addParam(createParamCentered<RoganSmallMustard>(percVelocityCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM));
+
+    addParam(createParamCentered<RoganSmallWhite>(vcaAPos, module, Terrorform::FM_A_VCA_ATTEN_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(vcaBPos, module, Terrorform::FM_B_VCA_ATTEN_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(fmA1Pos, module, Terrorform::FM_A1_ATTEN_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(fmA2Pos, module, Terrorform::FM_A2_ATTEN_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(fmB1Pos, module, Terrorform::FM_B1_ATTEN_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(fmB2Pos, module, Terrorform::FM_B2_ATTEN_PARAM));
+
+    // Switches
+    {
+        LightLEDButton* button = new LightLEDButton;
+        button->box.pos = percSwitchPos;
+        if(module) {
+            button->paramQuantity = module->paramQuantities[Terrorform::PERC_SWITCH_PARAM];
+        }
+        button->momentary = false;
+        addParam(button);
+    }
+    addChild(createLight<MediumLight<RedLight>>(percSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::PERCUSSION_LIGHT));
+
+    {
+        LightLEDButton* button = new LightLEDButton;
+        button->box.pos = userBankSwitchPos;
+        if(module) {
+            button->paramQuantity = module->paramQuantities[Terrorform::USER_BANK_SWITCH_PARAM];
+        }
+        button->momentary = true;
+        addParam(button);
+    }
+    addChild(createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT));
+
+    {
+        TerrorformLoadButton* button = new TerrorformLoadButton;
+        button->box.pos = loadTableSwitchPos;
+        if(module) {
+            button->paramQuantity = module->paramQuantities[Terrorform::LOAD_TABLE_SWITCH_PARAM];
+        }
+        button->momentary = false;
+        button->onReadOnlyError = [=]() {
+            displayMode = DISPLAY_LOAD_ERROR;
+            elapsedErrorDisplayTime = 0;
+        };
+        addParam(button);
+    }
+    addChild(createLight<MediumLight<RedLight>>(loadTableSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::LOAD_TABLE_LIGHT));
+
+    // Back text
+    auto makeBackText = [=](const Vec& pos, int length, const NVGalign& align) {
+        DynamicText* t = new DynamicText;
+        t->size = 10;
+        t->box.pos = pos;
+        t->box.size = Vec(82, 14);
+        t->visibility = nullptr;
+        t->viewMode = ACTIVE_LOW_VIEW;
+        t->horzAlignment = align;
+        t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+        t->text = make_shared<std::string>(length, '~');
+        t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][0],
+                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][1],
+                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][2]);
+        return t;
+    };
+
+    auto setupFrontText = [=](DynamicText* t, DynamicText* tBlur1, DynamicText* tBlur2,
+                             std::shared_ptr<std::string> text, const Vec& pos,
+                             const NVGalign& align) {
+        tBlur1->size = 10;
+        tBlur1->box.pos = pos;
+        tBlur1->box.size = Vec(82, 14);
+        tBlur1->visibility = nullptr;
+        tBlur1->viewMode = ACTIVE_LOW_VIEW;
+        tBlur1->horzAlignment = align;
+        tBlur1->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+        tBlur1->text = text;
+        tBlur1->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][0],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][1],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][2],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][3]);
+        tBlur1->blur = 10.f;
+
+        tBlur2->size = 10;
+        tBlur2->box.pos = pos;
+        tBlur2->box.size = Vec(82, 14);
+        tBlur2->visibility = nullptr;
+        tBlur2->viewMode = ACTIVE_LOW_VIEW;
+        tBlur2->horzAlignment = align;
+        tBlur2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+        tBlur2->text = text;
+        tBlur2->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][0],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][1],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][2],
+                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][3]);
+        tBlur2->blur = 8.f;
+
+        t->size = 10;
+        t->box.pos = pos;
+        t->box.size = Vec(82, 14);
+        t->visibility = nullptr;
+        t->viewMode = ACTIVE_LOW_VIEW;
+        t->horzAlignment = align;
+        t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+        t->text = text;
+        t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][0],
+                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][1],
+                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][2]);
+    };
+
+
+    bool inBrowser = module == nullptr ? true : false;
+
+    // Back Text
+    bankBackText = makeBackText(bankTextPos, 13, NVG_ALIGN_LEFT);
+    addChild(bankBackText);
+    shapeBackText = makeBackText(shapeTextPos, 13, NVG_ALIGN_LEFT);
+    addChild(shapeBackText);
+    degradeBackText = makeBackText(degradeTextPos, 13, NVG_ALIGN_LEFT);
+    addChild(degradeBackText);
+    syncBackText = makeBackText(syncTextPos, 10, NVG_ALIGN_CENTER);
+    addChild(syncBackText);
+
+    // Wave Text
+    bankStr = std::make_shared<std::string>(inBrowser ? "NEVER" : bankNames[0]);
+    bankBlurText = new DynamicText;
+    bankBlurText2 = new DynamicText;
+    bankText = new DynamicText;
+    setupFrontText(bankText, bankBlurText, bankBlurText2, bankStr, bankTextPos, NVG_ALIGN_LEFT);
+    addChild(bankBlurText);
+    addChild(bankBlurText2);
+    addChild(bankText);
+
+    waveStr = std::make_shared<std::string>("0");
+    waveBlurText = new DynamicText;
+    waveBlurText2 = new DynamicText;
+    waveText = new DynamicText;
+    setupFrontText(waveText, waveBlurText, waveBlurText2, waveStr, waveTextPos, NVG_ALIGN_RIGHT);
+    addChild(waveBlurText);
+    addChild(waveBlurText2);
+    addChild(waveText);
+
+    // Shape Text
+    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
+    shapeBlurText = new DynamicText;
+    shapeBlurText2 = new DynamicText;
+    shapeText = new DynamicText;
+    setupFrontText(shapeText, shapeBlurText, shapeBlurText2, shapeTypeStr, shapeTextPos, NVG_ALIGN_LEFT);
+    addChild(shapeBlurText);
+    addChild(shapeBlurText2);
+    addChild(shapeText);
+
+    shapeDepthStr = std::make_shared<std::string>("0");
+    shapeDepthBlurText = new DynamicText;
+    shapeDepthBlurText2 = new DynamicText;
+    shapeDepthText = new DynamicText;
+    setupFrontText(shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2, shapeDepthStr, shapeDepthTextPos, NVG_ALIGN_RIGHT);
+    addChild(shapeDepthBlurText);
+    addChild(shapeDepthBlurText2);
+    addChild(shapeDepthText);
+
+    // Degrade Text
+
+    degradeTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : degradeNames[0]);
+    degradeBlurText = new DynamicText;
+    degradeBlurText2 = new DynamicText;
+    degradeText = new DynamicText;
+    setupFrontText(degradeText, degradeBlurText, degradeBlurText2, degradeTypeStr, degradeTextPos, NVG_ALIGN_LEFT);
+    addChild(degradeBlurText);
+    addChild(degradeBlurText2);
+    addChild(degradeText);
+
+    degradeDepthStr = std::make_shared<std::string>("0");
+    degradeDepthBlurText = new DynamicText;
+    degradeDepthBlurText2 = new DynamicText;
+    degradeDepthText = new DynamicText;
+    setupFrontText(degradeDepthText, degradeDepthBlurText, degradeDepthBlurText2, degradeDepthStr, degradeDepthTextPos, NVG_ALIGN_RIGHT);
+    addChild(degradeDepthBlurText);
+    addChild(degradeDepthBlurText2);
+    addChild(degradeDepthText);
+
+    // Sync Text
+    syncStr = make_shared<std::string>(inBrowser ? "DOWN" : syncNames[0]);
+    syncBlurText = new DynamicText;
+    syncBlurText2 = new DynamicText;
+    syncText = new DynamicText;
+    setupFrontText(syncText, syncBlurText, syncBlurText2, syncStr, syncTextPos, NVG_ALIGN_CENTER);
+    addChild(syncBlurText);
+    addChild(syncBlurText2);
+    addChild(syncText);
+
+    if(module) {
+        auto setOnHoverColour = [=](DynamicText* backText, DynamicText* frontText,
+                                    DynamicText* blurText1, DynamicText* blurText2) {
+            backText->customColor = nvgRGB(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][0],
+                                           cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][1],
+                                           cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][2]);
+            frontText->customColor = nvgRGB(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][0],
+                                            cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][1],
+                                            cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][2]);
+            blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][0],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][1],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][2],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][3]);
+            blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][0],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][1],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][2],
+                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][3]);
+        };
+
+        auto setOnLeaveColour = [=](DynamicText* backText, DynamicText* frontText,
+                                    DynamicText* blurText1, DynamicText* blurText2) {
+            backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
+                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
+                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
+            frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
+                                            cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
+                                            cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
+            blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
+            blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
+                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
+        };
+
+        bankMenu = createDynamicMenu(bankTextPos, bankText->box.size,
+                                     bankMenuItems, true, false);
+        bankMenu->onMouseEnter = [=]() {
+            setOnHoverColour(bankBackText, bankText, bankBlurText, bankBlurText2);
+        };
+
+        bankMenu->onMouseLeave = [=]() {
+            setOnLeaveColour(bankBackText, bankText, bankBlurText, bankBlurText2);
+        };
+
+        bankMenu->setChoice = [=](int i) {
+            bankKnob->paramQuantity->setValue((float)i);
+        };
+        addChild(bankMenu);
+
+        shapeMenu = createDynamicMenu(shapeTextPos, shapeText->box.size,
+                                      shapeMenuItems, true, false);
+        shapeMenu->onMouseEnter = [=]() {
+            setOnHoverColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
+        };
+
+        shapeMenu->onMouseLeave = [=]() {
+            setOnLeaveColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
+        };
+
+        shapeMenu->setChoice = [=](int i) {
+            shapeTypeKnob->paramQuantity->setValue((float)i);
+        };
+        addChild(shapeMenu);
+
+        degradeMenu = createDynamicMenu(degradeTextPos, degradeText->box.size,
+                                        degradeMenuItems, true, false);
+        degradeMenu->onMouseEnter = [=]() {
+            setOnHoverColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
+        };
+
+        degradeMenu->onMouseLeave = [=]() {
+            setOnLeaveColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
+        };
+
+        degradeMenu->setChoice = [=](int i) {
+            degradeTypeKnob->paramQuantity->setValue((float)i);
+        };
+        addChild(degradeMenu);
+
+        syncMenu = createDynamicMenu(syncTextPos.minus(Vec(syncText->box.size.x / 2.f, 0.f)), syncText->box.size,
+                                     syncMenuItems, true, true);
+        syncMenu->onMouseEnter = [=]() {
+            setOnHoverColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+        };
+
+        syncMenu->onMouseLeave = [=]() {
+            setOnLeaveColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+        };
+
+        syncMenu->setChoice = [=](int i) {
+            module->syncChoice = i;
+        };
+
+        addChild(syncMenu);
+    }
+}
+
+void TerrorformWidget::appendContextMenu(Menu *menu) {
+    Terrorform *module = dynamic_cast<Terrorform*>(this->module);
+    assert(module);
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
+    menu->addChild(construct<TerrorformPanelStyleItem>(&MenuItem::text, "Dark", &TerrorformPanelStyleItem::module,
+                                                    module, &TerrorformPanelStyleItem::panelStyle, 0));
+    menu->addChild(construct<TerrorformPanelStyleItem>(&MenuItem::text, "Light", &TerrorformPanelStyleItem::module,
+                                                      module, &TerrorformPanelStyleItem::panelStyle, 1));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Display style"));
+    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Red LED", &TerrorformDisplayStyleItem::module,
+                                                    module, &TerrorformDisplayStyleItem::displayStyle, 0));
+    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Yellow LED", &TerrorformDisplayStyleItem::module,
+                                                    module, &TerrorformDisplayStyleItem::displayStyle, 1));
+    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Green LED", &TerrorformDisplayStyleItem::module,
+                                                    module, &TerrorformDisplayStyleItem::displayStyle, 2));
+    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Blue VFD", &TerrorformDisplayStyleItem::module,
+                                                      module, &TerrorformDisplayStyleItem::displayStyle, 3));
+    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "White LED", &TerrorformDisplayStyleItem::module,
+                                                      module, &TerrorformDisplayStyleItem::displayStyle, 4));
+ }
+
+void TerrorformWidget::step() {
+    if(module) {
+        if(dynamic_cast<Terrorform*>(module)->panelStyle == 1) {
+            panel->visible = false;
+            lightPanel->visible = true;
+        }
+        else {
+            panel->visible = true;
+            lightPanel->visible = false;
+        }
+
+        displayStyle = (TerrorformDisplayColourModes)(dynamic_cast<Terrorform*>(module)->displayStyle * 2);
+        if(displayStyle != prevDisplayStyle) {
+            changeDisplayStyle();
+        }
+        prevDisplayStyle = displayStyle;
+
+        switch(displayMode) {
+            case DISPLAY_PARAMS:
+                onDisplayParams();
+                break;
+            case DISPLAY_LOAD_ERROR:
+                onDisplayLoadError();
+                break;
+        }
+
+        *syncStr = syncNames[(unsigned long)dynamic_cast<Terrorform*>(module)->syncChoice];
+    }
+    Widget::step();
+}
+
+void TerrorformWidget::onDisplayParams() {
+    bankChoice = (int)(bankKnob->paramQuantity->getValue());
+    *bankStr = bankNames[bankChoice];
+    wavePercent = (int)(waveKnob->paramQuantity->getValue() * 100.f);
+    *waveStr = std::to_string(wavePercent);
+
+    *shapeTypeStr = shapeNames[(int)(shapeTypeKnob->paramQuantity->getValue())];
+    shapeDepthPercent = (int)(shapeDepthKnob->paramQuantity->getValue() * 100.f);
+    *shapeDepthStr = std::to_string(shapeDepthPercent);
+
+    *degradeTypeStr = degradeNames[(int)(degradeTypeKnob->paramQuantity->getValue())];
+    degradeDepthPercent = (int)(degradeDepthKnob->paramQuantity->getValue() * 100.f);
+    *degradeDepthStr = std::to_string(degradeDepthPercent);
+
+    bankMenu->visible = true;
+    shapeMenu->visible = true;
+    degradeMenu->visible = true;
+}
+
+void TerrorformWidget::onDisplayLoadError() {
+    *bankStr = "CANT!OVRWRITE";
+    *waveStr = "";
+
+    *shapeTypeStr = "!!READ-ONLY!!";
+    *shapeDepthStr = "";
+
+    *degradeTypeStr = "!!WAVETABLE!!";
+    *degradeDepthStr = "";
+    bankMenu->visible = false;
+    shapeMenu->visible = false;
+    degradeMenu->visible = false;
+
+    elapsedErrorDisplayTime++;
+    if(elapsedErrorDisplayTime >= errorDisplayTime) {
+        displayMode = DISPLAY_PARAMS;
+    }
+}
+
+void TerrorformWidget::changeDisplayStyle() {
+    auto setNewColour = [=](DynamicText* backText, DynamicText* frontText,
+                            DynamicText* blurText1, DynamicText* blurText2) {
+        if(backText) {
+            backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
+                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
+                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
+        }
+
+        frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
+                                        cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
+                                        cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
+
+        blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
+
+        blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
+                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
+    };
+    setNewColour(bankBackText, bankText, bankBlurText, bankBlurText2);
+    setNewColour(nullptr, waveText, waveBlurText, waveBlurText2);
+    setNewColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
+    setNewColour(nullptr, shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2);
+    setNewColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
+    setNewColour(nullptr, degradeDepthText, degradeDepthBlurText, degradeDepthBlurText2);
+    setNewColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+}
+
+Model *modelTerrorform = createModel<Terrorform, TerrorformWidget>("Terrorform");

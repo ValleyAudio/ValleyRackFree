@@ -47,6 +47,10 @@
     }
 #endif
 
+inline __m128 _mm_high_ps() {
+    return _mm_castsi128_ps(_mm_set1_epi32(0xFFFFFFFF));
+}
+
 inline __m128 _mm_linterp_ps(const __m128& a, const __m128& b, const __m128& frac) {
     return _mm_add_ps(a, _mm_mul_ps(frac, _mm_sub_ps(b, a)));
 }
@@ -130,7 +134,7 @@ inline __m128 _mm_mirror_ps(const __m128& a, const __m128& f) {
     __m128 yIntF = _mm_cvtepi32_ps(yInt);
     __m128 z = _mm_sub_ps(y, yIntF);
 
-    return _mm_switch_ps(z, _mm_sub_ps(ones, z), _mm_cmpgt_ps(x, _mm_set1_ps(0.5f)));
+    return _mm_switch_ps(z, _mm_sub_ps(ones, z), _mm_cmpge_ps(x, _mm_set1_ps(0.5f)));
 }
 
 inline __m128 _mm_pinch_ps(const __m128& a, const __m128& f) {
@@ -191,6 +195,27 @@ inline __m128 _mm_wrap_ps(const __m128& a, const __m128& f) {
     return _mm_sub_ps(x, xIntF);
 }
 
+inline __m128 _mm_wrap_1_ps(const __m128& a) {
+    __m128i aInt = _mm_cvttps_epi32(a);
+    __m128 aIntF = _mm_cvtepi32_ps(aInt);
+    return _mm_sub_ps(a, aIntF);
+}
+
+inline __m128 _mm_circle_ps(const __m128& a) {
+    __m128 __pos = _mm_posRectify_ps(a);
+    __m128 __neg = _mm_negRectify_ps(a);
+    __m128 __shifts = _mm_add_ps(_mm_mul_ps(__pos, _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
+    __m128i __shiftsI = _mm_cvttps_epi32(__shifts);
+    __shifts = _mm_mul_ps(_mm_cvtepi32_ps(__shiftsI), _mm_set1_ps(2.f));
+    __pos = _mm_sub_ps(__pos, __shifts);
+
+    __shifts = _mm_add_ps(_mm_mul_ps(_mm_abs_ps(__neg), _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
+    __shiftsI = _mm_cvttps_epi32(__shifts);
+    __shifts = _mm_mul_ps(_mm_cvtepi32_ps(__shiftsI), _mm_set1_ps(2.f));
+    __neg = _mm_add_ps(__neg, __shifts);
+    return _mm_add_ps(__pos, __neg);
+}
+
 inline __m128 _mm_reflect_ps(const __m128& a, const __m128& f) {
     return _mm_switch_ps(a, _mm_sub_ps(_mm_set1_ps(1.f), a), _mm_cmpgt_ps(a, f));
 }
@@ -248,11 +273,43 @@ namespace valley {
         __m128 x5 = _mm_mul_ps(x2, x3);
         __m128 x7 = _mm_mul_ps(x2, x5);
         __m128 x9 = _mm_mul_ps(x2, x7);
-        __m128 x11 = _mm_mul_ps(x2, x9);
+        //__m128 x11 = _mm_mul_ps(x2, x9);
         __m128 out = _mm_sub_ps(x, _mm_mul_ps(x3, _mm_set1_ps((float)VALLEY_1F3)));
         out = _mm_add_ps(out, _mm_mul_ps(x5, _mm_set1_ps((float)VALLEY_1F5)));
         out = _mm_sub_ps(out, _mm_mul_ps(x7, _mm_set1_ps((float)VALLEY_1F7)));
-        out = _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
-        return _mm_sub_ps(out, _mm_mul_ps(x11, _mm_set1_ps((float)VALLEY_1F11)));
+        //out = _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
+        //return _mm_sub_ps(out, _mm_mul_ps(x11, _mm_set1_ps((float)VALLEY_1F11)));
+        return _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
+    }
+
+    inline __m128 _mm_cosine_ps(__m128 x) {
+        __m128 x2 = _mm_mul_ps(x, x);
+        __m128 x4 = _mm_mul_ps(x2, x2);
+        __m128 x6 = _mm_mul_ps(x4, x2);
+        __m128 x8 = _mm_mul_ps(x6, x2);
+        __m128 out = _mm_sub_ps(_mm_set1_ps(1.f), _mm_mul_ps(x2, _mm_set1_ps((float)VALLEY_1F2)));
+        out = _mm_add_ps(out, _mm_mul_ps(x4, _mm_set1_ps((float)VALLEY_1F4)));
+        out = _mm_sub_ps(out, _mm_mul_ps(x6, _mm_set1_ps((float)VALLEY_1F6)));
+        //out = _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
+        //return _mm_sub_ps(out, _mm_mul_ps(x11, _mm_set1_ps((float)VALLEY_1F11)));
+        return _mm_add_ps(out, _mm_mul_ps(x8, _mm_set1_ps((float)VALLEY_1F8)));
+    }
+
+    inline __m128 _mm_exp_ps(__m128 x) {
+        __m128 x2 = _mm_mul_ps(x, x);
+        __m128 x3 = _mm_mul_ps(x2, x);
+        __m128 x4 = _mm_mul_ps(x2, x2);
+        __m128 x5 = _mm_mul_ps(x2, x3);
+        __m128 x6 = _mm_mul_ps(x2, x4);
+        __m128 x7 = _mm_mul_ps(x2, x5);
+        __m128 x8 = _mm_mul_ps(x2, x6);
+        __m128 out = _mm_add_ps(_mm_set1_ps(1.f), x);
+        out = _mm_add_ps(out, _mm_mul_ps(x2, _mm_set1_ps((float)VALLEY_1F2)));
+        out = _mm_add_ps(out, _mm_mul_ps(x3, _mm_set1_ps((float)VALLEY_1F3)));
+        out = _mm_add_ps(out, _mm_mul_ps(x4, _mm_set1_ps((float)VALLEY_1F4)));
+        out = _mm_add_ps(out, _mm_mul_ps(x5, _mm_set1_ps((float)VALLEY_1F5)));
+        out = _mm_add_ps(out, _mm_mul_ps(x6, _mm_set1_ps((float)VALLEY_1F6)));
+        out = _mm_add_ps(out, _mm_mul_ps(x7, _mm_set1_ps((float)VALLEY_1F7)));
+        return _mm_add_ps(out, _mm_mul_ps(x8, _mm_set1_ps((float)VALLEY_1F8)));
     }
 }

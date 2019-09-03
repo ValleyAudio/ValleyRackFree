@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.4, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1"
+	 id="svg8" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 270 380"
+	 style="enable-background:new 0 0 270 380;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#282828;}
+	.st1{fill:none;stroke:#FFFFFF;}
+	.st2{fill:#FFFFFF;}
+	.st3{font-family:'AlteDIN1451Mittelschrift';}
+	.st4{font-size:18px;}
+	.st5{font-size:10px;}
+	.st6{font-size:8px;}
+	.st7{fill:none;stroke:#8759A4;stroke-miterlimit:10;}
+	.st8{fill:none;stroke:#DA4061;stroke-miterlimit:10;}
+	.st9{fill:#E1E1E2;stroke:#818181;stroke-width:0.25;}
+	.st10{fill:#F5F7F7;stroke:#343B3F;stroke-width:0.1323;}
+	.st11{fill:#929A9E;}
+	.st12{fill:#F5F7F7;}
+	.st13{fill:none;stroke:#BE974A;stroke-linecap:square;}
+	.st14{fill:#636466;stroke:#000000;stroke-width:0.25;}
+	.st15{fill:#D4D7D9;stroke:#343B3F;stroke-width:0.1323;}
+	.st16{fill:#DEE4E5;}
+	.st17{fill:#BE974A;fill-opacity:0.9922;}
+	.st18{fill:#3C3C3C;stroke:#000000;stroke-width:0.2;stroke-linecap:square;}
+	.st19{fill:#111111;stroke:#414042;stroke-miterlimit:10;}
+	.st20{fill:#400002;}
+	.st21{font-family:'DSEG14Classic-Italic';}
+	.st22{fill:#FF0000;}
+	.st23{fill:#DA4061;}
+	.st24{fill:none;stroke:#636363;stroke-width:0.3;stroke-miterlimit:10;}
+	.st25{fill:#8759A4;}
+	.st26{fill:none;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st27{fill:none;stroke:#307DEE;stroke-miterlimit:10;}
+	.st28{fill:#307DEE;}
+	.st29{fill:none;stroke:#00A1A7;stroke-miterlimit:10;}
+	.st30{fill:#00A1A7;}
+	.st31{fill:none;stroke:#C0C0C0;stroke-miterlimit:10;}
+	.st32{fill:#282828;stroke:#C0C0C0;stroke-miterlimit:10;}
+	.st33{fill:#FFFFFF;fill-opacity:0.9922;}
+</style>
+<defs>
+	
+	
+		<inkscape:path-effect  apply_no_weight="true" apply_with_weight="true" effect="bspline" helper_size="0" id="path-effect2273" is_visible="true" only_selected="false" steps="2" weight="33.333333">
+		</inkscape:path-effect>
+	
+		<inkscape:path-effect  apply_no_weight="true" apply_with_weight="true" effect="bspline" helper_size="0" id="path-effect2269" is_visible="true" only_selected="false" steps="2" weight="33.333333">
+		</inkscape:path-effect>
+</defs>
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1.0" id="base" inkscape:current-layer="layer1" inkscape:cx="76.012834" inkscape:cy="318.70973" inkscape:document-units="mm" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:snap-bbox="true" inkscape:snap-global="true" inkscape:window-height="1006" inkscape:window-maximized="0" inkscape:window-width="1276" inkscape:window-x="641" inkscape:window-y="0" inkscape:zoom="5.656854" pagecolor="#ffffff" showgrid="true" showguides="false" units="px">
+	<inkscape:grid  id="grid1092" type="xygrid"></inkscape:grid>
+</sodipodi:namedview>
+<g id="layer1" transform="translate(0,-196.45831)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<rect id="rect1047" y="196.5" class="st0" width="270" height="380"/>
+</g>
+<path id="line161" class="st1" d="M0,24.5h270"/>
+<path id="line163" class="st1" d="M0,356.5h270"/>
+<text transform="matrix(1 0 0 1 112.4914 373.5106)" class="st2 st3 st4">Valley</text>
+<text transform="matrix(1 0 0 1 120.8108 17.9062)" class="st2 st3 st4">Cell</text>
+<text transform="matrix(1 0 0 1 70.369 74.1336)" class="st2 st3 st5">Octave</text>
+<text transform="matrix(1 0 0 1 13.0637 60.9038)" class="st2 st3 st5">VOct</text>
+<text transform="matrix(1 0 0 1 238.1555 60.9038)" class="st2 st3 st5">VOct</text>
+<text transform="matrix(1 0 0 1 120.4882 74.1336)" class="st2 st3 st5">Coarse</text>
+<text transform="matrix(1 0 0 1 98.3603 117.0947)" class="st2 st3 st5">Bank</text>
+<text transform="matrix(1 0 0 1 38.1004 164.062)" class="st2 st3 st5">Shape</text>
+<text transform="matrix(1 0 0 1 41.3359 174.0621)" class="st2 st3 st5">Type</text>
+<text transform="matrix(1 0 0 1 237.4729 350.6366)" class="st2 st3 st5">Main</text>
+<text transform="matrix(1 0 0 1 211.9099 350.6366)" class="st2 st3 st5">Sub</text>
+<text transform="matrix(1 0 0 1 102.4856 350.6363)" class="st2 st3 st5">Aux Mod Inputs</text>
+<text transform="matrix(1 0 0 1 207.043 174.0621)" class="st2 st3 st5">Depth</text>
+<text transform="matrix(1 0 0 1 205.9655 164.062)" class="st2 st3 st5">Shape</text>
+<text transform="matrix(1 0 0 1 125.5298 226.0947)" class="st2 st3 st5">Perc</text>
+<text transform="matrix(1 0 0 1 116.9531 234.4495)" class="st2 st3 st6">Sync Mode</text>
+<text transform="matrix(1 0 0 1 122.6661 176.0736)" class="st2 st3 st5">Decay</text>
+<text transform="matrix(1 0 0 1 61.3001 224.0943)" class="st2 st3 st5">Type</text>
+<text transform="matrix(1 0 0 1 53.444 214.0942)" class="st2 st3 st5">Degrade</text>
+<text transform="matrix(1 0 0 1 149.6212 117.0947)" class="st2 st3 st5">Wave</text>
+<text transform="matrix(1 0 0 1 176.8832 74.1336)" class="st2 st3 st5">Fine</text>
+<path class="st7" d="M109.1,95c0,0-35.5,19,0,43.2"/>
+<path class="st8" d="M225,139c-10.7,4.5-37.5,4.5-37.5,4.5"/>
+<path class="st7" d="M159,95"/>
+<path class="st7" d="M216,74.8"/>
+<g id="layer1_22_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_6_" inkscape:connector-curvature="0" class="st9" d="M337.4,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3C347.7,456.2,343.1,460.8,337.4,460.8"/>
+	<path id="path7261_6_" inkscape:connector-curvature="0" class="st10" d="M337.4,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S341.9,458.5,337.4,458.5"/>
+	<path id="path1187_6_" inkscape:connector-curvature="0" class="st11" d="M337.4,458.3c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C345.2,455.1,341.7,458.3,337.4,458.3"/>
+	<path id="path861_6_" inkscape:connector-curvature="0" class="st12" d="M342.6,451.5c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C340.3,446.4,342.6,448.7,342.6,451.5"/>
+	<path id="path7265_6_" inkscape:connector-curvature="0" d="M342.6,450.5c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S342.6,447.7,342.6,450.5"/>
+</g>
+<line class="st13" x1="135.1" y1="332.4" x2="135.1" y2="265"/>
+<g id="layer1_24_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_8_" inkscape:connector-curvature="0" class="st14" d="M224.9,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S230.6,460.8,224.9,460.8"/>
+	<path id="path7261_8_" inkscape:connector-curvature="0" class="st15" d="M224.9,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C232.9,455,229.4,458.5,224.9,458.5"/>
+	<path id="path1187_8_" inkscape:connector-curvature="0" class="st11" d="M224.9,458.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S229.2,458.4,224.9,458.4"/>
+	<path id="path861_8_" inkscape:connector-curvature="0" class="st16" d="M230.1,451.6c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2S230.1,448.7,230.1,451.6"/>
+	<path id="path7265_8_" inkscape:connector-curvature="0" d="M230.1,450.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C227.8,445.4,230.1,447.7,230.1,450.6"/>
+</g>
+<g id="layer1_28_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_10_" inkscape:connector-curvature="0" d="M198.1,395.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S198.1,390,198.1,395.5"/>
+	<path id="path7707_11_" inkscape:connector-curvature="0" class="st17" d="M193.8,395.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S193.8,392.4,193.8,395.5"/>
+	<path id="path7711_11_" inkscape:connector-curvature="0" class="st17" d="M189.1,385.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V385.6z"/>
+</g>
+<g id="layer1_32_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path2706_1_" class="st18" d="M188.5,350.8c0,3.7-3,6.7-6.7,6.7l0,0c-3.7,0-6.7-3-6.7-6.7l0,0c0-3.7,3-6.7,6.7-6.7l0,0
+		C185.5,344.1,188.5,347.1,188.5,350.8L188.5,350.8z"/>
+</g>
+<path class="st13" d="M109,265.9c0,36.2-3.9,64.2-3.9,64.2"/>
+<path class="st13" d="M161,265.9c0,36.2,4.1,64.2,4.1,64.2"/>
+<path id="rect75_2_" inkscape:connector-curvature="0" class="st19" d="M82.6,237.9h105v32h-105C82.6,269.9,82.6,237.9,82.6,237.9z"
+	/>
+<text transform="matrix(1 0 0 1 86.0408 265.5047)" class="st20 st21 st5">~~~~~~~~~~~~</text>
+<text transform="matrix(1 0 0 1 86.0408 252.6516)" class="st20 st21 st5">~~~~~~~~~~~~</text>
+<text transform="matrix(1 0 0 1 94.1092 252.6516)" class="st22 st21 st5">!octave+1</text>
+<text transform="matrix(1 0 0 1 86.0405 265.5047)" class="st22 st21 st5">DEGRADE!DPTH</text>
+<g id="layer1_27_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_9_" inkscape:connector-curvature="0" d="M170.1,395.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S170.1,390,170.1,395.5"/>
+	<path id="path7707_9_" inkscape:connector-curvature="0" class="st17" d="M165.8,395.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S165.8,392.4,165.8,395.5"/>
+	<path id="path7711_9_" inkscape:connector-curvature="0" class="st17" d="M161.1,385.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V385.6z"/>
+</g>
+<g id="layer1_31_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path2706" class="st18" d="M162.5,350.8c0,3.7-3,6.7-6.7,6.7l0,0c-3.7,0-6.7-3-6.7-6.7l0,0c0-3.7,3-6.7,6.7-6.7l0,0
+		C159.5,344.1,162.5,347.1,162.5,350.8L162.5,350.8z"/>
+</g>
+<g id="layer1_29_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_11_" inkscape:connector-curvature="0" d="M226.2,395.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S226.2,390,226.2,395.5"/>
+	<path id="path7707_13_" inkscape:connector-curvature="0" class="st17" d="M221.9,395.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S221.9,392.4,221.9,395.5"/>
+	<path id="path7711_13_" inkscape:connector-curvature="0" class="st17" d="M217.2,385.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V385.6z"/>
+</g>
+<g id="layer1_33_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path2706_2_" class="st18" d="M214.5,350.8c0,3.7-3,6.7-6.7,6.7l0,0c-3.7,0-6.7-3-6.7-6.7l0,0c0-3.7,3-6.7,6.7-6.7l0,0
+		C211.5,344.1,214.5,347.1,214.5,350.8L214.5,350.8z"/>
+</g>
+<g id="layer1_23_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_7_" inkscape:connector-curvature="0" class="st14" d="M194.9,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S200.6,460.8,194.9,460.8"/>
+	<path id="path7261_7_" inkscape:connector-curvature="0" class="st15" d="M194.9,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C202.9,455,199.4,458.5,194.9,458.5"/>
+	<path id="path1187_7_" inkscape:connector-curvature="0" class="st11" d="M194.9,458.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S199.2,458.4,194.9,458.4"/>
+	<path id="path861_7_" inkscape:connector-curvature="0" class="st16" d="M200.1,451.6c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2S200.1,448.7,200.1,451.6"/>
+	<path id="path7265_7_" inkscape:connector-curvature="0" d="M200.1,450.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C197.8,445.4,200.1,447.7,200.1,450.6"/>
+</g>
+<g id="layer1_25_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_9_" inkscape:connector-curvature="0" class="st14" d="M254.9,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S260.6,460.8,254.9,460.8"/>
+	<path id="path7261_9_" inkscape:connector-curvature="0" class="st15" d="M254.9,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C262.9,455,259.4,458.5,254.9,458.5"/>
+	<path id="path1187_9_" inkscape:connector-curvature="0" class="st11" d="M254.9,458.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S259.2,458.4,254.9,458.4"/>
+	<path id="path861_9_" inkscape:connector-curvature="0" class="st16" d="M260.1,451.6c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C257.8,446.4,260.1,448.7,260.1,451.6"/>
+	<path id="path7265_9_" inkscape:connector-curvature="0" d="M260.1,450.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C257.8,445.4,260.1,447.7,260.1,450.6"/>
+</g>
+<text transform="matrix(1 0 0 1 107.0735 285.3407)" class="st2 st3 st5">1</text>
+<text transform="matrix(1 0 0 1 132.7458 285.3407)" class="st2 st3 st5">2</text>
+<text transform="matrix(1 0 0 1 158.7903 285.3408)" class="st2 st3 st5">3</text>
+<path class="st8" d="M44.9,139c0,0,21.5-6.1,23.1-25.1c0,0-12.2-14.9-45.5-6.9"/>
+<g id="layer1_16_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_5_" inkscape:connector-curvature="0" d="M131.1,204.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S131.1,199.1,131.1,204.5"/>
+	<path id="path7707_5_" inkscape:connector-curvature="0" class="st23" d="M126.8,204.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S126.8,201.4,126.8,204.5"/>
+	<path id="path7711_5_" inkscape:connector-curvature="0" class="st23" d="M122.1,194.7c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V194.7z"/>
+</g>
+<path class="st8" d="M248,107c-34-8-46,6.9-46,6.9c1.6,19,23,25.1,23,25.1"/>
+<g id="layer1_18_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_7_" inkscape:connector-curvature="0" d="M245.3,204.5c0-5.4,4.4-9.9,9.9-9.9c5.5,0,9.9,4.4,9.9,9.9
+		s-4.4,9.9-9.9,9.9C249.7,214.4,245.3,210,245.3,204.5"/>
+	<path id="path7707_7_" inkscape:connector-curvature="0" class="st23" d="M249.6,204.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S249.6,207.6,249.6,204.5"/>
+	<path id="path7711_7_" inkscape:connector-curvature="0" class="st23" d="M254.3,199.3h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0L254.3,199.3L254.3,199.3z"/>
+</g>
+<g id="layer1_14_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_2_" inkscape:connector-curvature="0" class="st14" d="M337.4,237.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S343.1,237.8,337.4,237.8"/>
+	<path id="path7261_2_" inkscape:connector-curvature="0" class="st15" d="M337.4,235.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C345.4,232,341.9,235.5,337.4,235.5"/>
+	<path id="path1187_2_" inkscape:connector-curvature="0" class="st11" d="M337.4,235.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S341.7,235.4,337.4,235.4"/>
+	<path id="path861_2_" inkscape:connector-curvature="0" class="st16" d="M342.6,228.6c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C340.3,223.4,342.6,225.7,342.6,228.6"/>
+	<path id="path7265_2_" inkscape:connector-curvature="0" d="M342.6,227.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1
+		C340.3,222.4,342.6,224.7,342.6,227.6"/>
+</g>
+<g id="layer1_5_" transform="translate(-46.557912,-86.649131)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7697_1_" inkscape:connector-curvature="0" d="M281.5,225.6c0,8.8-7.1,15.9-15.9,15.9s-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C274.4,209.8,281.5,216.9,281.5,225.6"/>
+	<path id="path7699_1_" inkscape:connector-curvature="0" class="st23" d="M274.6,225.6c0,4.9-4,9-9,9c-4.9,0-9-4-9-9c0-4.9,4-9,9-9
+		C270.6,216.7,274.6,220.7,274.6,225.6"/>
+	<path id="path7701_1_" inkscape:connector-curvature="0" class="st24" d="M278.2,225.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C272.6,213.1,278.2,218.7,278.2,225.6L278.2,225.6z"/>
+	<path id="path7703_1_" inkscape:connector-curvature="0" class="st23" d="M267.1,209.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
+		v7.2h3.2L267.1,209.8L267.1,209.8z"/>
+</g>
+<path class="st7" d="M109,92c0,0-45,10.4-86.5-14.7"/>
+<g id="layer1_13_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_4_" inkscape:connector-curvature="0" d="M101.3,180.5c0-5.4,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S101.3,186,101.3,180.5"/>
+	<path id="path7707_4_" inkscape:connector-curvature="0" class="st25" d="M105.6,180.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S105.6,183.6,105.6,180.5"/>
+	<path id="path7711_4_" inkscape:connector-curvature="0" class="st25" d="M110.3,175.3h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V175.3z"/>
+</g>
+<g id="layer1_6_" transform="translate(-47.888015,-88.626321)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7689" inkscape:connector-curvature="0" d="M172.8,180.6c0,8.8-7.1,15.9-15.9,15.9c-8.8,0-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C165.7,164.8,172.8,171.9,172.8,180.6"/>
+	<path id="path7691" inkscape:connector-curvature="0" class="st25" d="M165.8,180.6c0,4.9-4,9-9,9s-9-4-9-9c0-4.9,4-9,9-9
+		C161.8,171.7,165.8,175.7,165.8,180.6"/>
+	<path id="path7693" inkscape:connector-curvature="0" class="st24" d="M169.4,180.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C163.8,168.1,169.4,173.7,169.4,180.6L169.4,180.6z"/>
+	<path id="path7695" inkscape:connector-curvature="0" class="st25" d="M158.3,164.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1v7.2
+		h3.2V164.8z"/>
+</g>
+<text transform="matrix(1 0 0 1 238.8744 235.4495)" class="st2 st3 st5">VCA</text>
+<text transform="matrix(1 0 0 1 13.8282 235.4495)" class="st2 st3 st5">VCA</text>
+<text transform="matrix(1 0 0 1 16.0281 275.2752)" class="st2 st3 st5">FM</text>
+<path class="st26" d="M186.1,287.7"/>
+<text transform="matrix(1 0 0 1 71.0276 350.8199)" class="st2 st3 st5">FM</text>
+<text transform="matrix(1 0 0 1 186.0277 350.8199)" class="st2 st3 st5">FM</text>
+<text transform="matrix(1 0 0 1 9.5582 350.6366)" class="st2 st3 st5">Pre. D</text>
+<text transform="matrix(1 0 0 1 43.4472 350.6366)" class="st2 st3 st5">Pls</text>
+<text transform="matrix(1 0 0 1 12.5098 311.6735)" class="st2 st3 st5">Sync</text>
+<path class="st7" d="M247.5,77.8C204.8,102.9,160.8,92,160.8,92"/>
+<g id="layer1_12_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_3_" inkscape:connector-curvature="0" d="M275.1,180.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S275.1,175.1,275.1,180.5"/>
+	<path id="path7707_3_" inkscape:connector-curvature="0" class="st25" d="M270.8,180.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S270.8,177.4,270.8,180.5"/>
+	<path id="path7711_3_" inkscape:connector-curvature="0" class="st25" d="M266.1,170.7c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V170.7z"/>
+</g>
+<g id="layer1_8_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255" inkscape:connector-curvature="0" class="st14" d="M337.4,208c-5.7,0-10.3-4.6-10.3-10.3s4.6-10.3,10.3-10.3
+		c5.7,0,10.3,4.6,10.3,10.3S343.1,208,337.4,208"/>
+	<path id="path7261" inkscape:connector-curvature="0" class="st15" d="M337.4,205.7c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C345.4,202.2,341.9,205.7,337.4,205.7"/>
+	<path id="path1187" inkscape:connector-curvature="0" class="st11" d="M337.4,205.6c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S341.7,205.6,337.4,205.6"/>
+	<path id="path861" inkscape:connector-curvature="0" class="st16" d="M342.6,198.8c0,2.8-2.3,5.2-5.1,5.2c-2.8,0-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2S342.6,195.9,342.6,198.8"/>
+	<path id="path7265" inkscape:connector-curvature="0" d="M342.6,197.8c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1
+		C340.3,192.6,342.6,194.9,342.6,197.8"/>
+</g>
+<path class="st8" d="M82.4,143.5c0,0-26.8,0-37.5-4.5"/>
+<g id="layer1_9_" transform="translate(-46.557912,-86.649131)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7697" inkscape:connector-curvature="0" d="M113.5,225.6c0,8.8-7.1,15.9-15.9,15.9s-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C106.4,209.8,113.5,216.9,113.5,225.6"/>
+	<path id="path7699" inkscape:connector-curvature="0" class="st23" d="M106.6,225.6c0,4.9-4,9-9,9s-9-4-9-9c0-4.9,4-9,9-9
+		C102.6,216.7,106.6,220.7,106.6,225.6"/>
+	<path id="path7701" inkscape:connector-curvature="0" class="st24" d="M110.2,225.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C104.6,213.1,110.2,218.7,110.2,225.6L110.2,225.6z"/>
+	<path id="path7703" inkscape:connector-curvature="0" class="st23" d="M99.1,209.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1v7.2
+		h3.2C99.1,217,99.1,209.8,99.1,209.8z"/>
+</g>
+<path class="st27" d="M135,58c0,0-35-29-85,7.2c0,0,0-25.4-27.5-25.4"/>
+<g id="layer1_48_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_20_" inkscape:connector-curvature="0" class="st9" d="M112.4,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3C122.7,456.2,118.1,460.8,112.4,460.8"/>
+	<path id="path7261_20_" inkscape:connector-curvature="0" class="st10" d="M112.4,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S116.9,458.5,112.4,458.5"/>
+	<path id="path1187_20_" inkscape:connector-curvature="0" class="st11" d="M112.4,458.3c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C120.2,455.1,116.7,458.3,112.4,458.3"/>
+	<path id="path861_20_" inkscape:connector-curvature="0" class="st12" d="M117.6,451.5c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C115.3,446.4,117.6,448.7,117.6,451.5"/>
+	<path id="path7265_20_" inkscape:connector-curvature="0" d="M117.6,450.5c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S117.6,447.7,117.6,450.5"/>
+</g>
+<g id="layer1_21_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_15_" inkscape:connector-curvature="0" class="st9" d="M139.9,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3C150.2,456.2,145.6,460.8,139.9,460.8"/>
+	<path id="path7261_15_" inkscape:connector-curvature="0" class="st10" d="M139.9,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S144.4,458.5,139.9,458.5"/>
+	<path id="path1187_15_" inkscape:connector-curvature="0" class="st11" d="M139.9,458.3c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C147.7,455.1,144.2,458.3,139.9,458.3"/>
+	<path id="path861_15_" inkscape:connector-curvature="0" class="st12" d="M145.1,451.5c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C142.8,446.4,145.1,448.7,145.1,451.5"/>
+	<path id="path7265_15_" inkscape:connector-curvature="0" d="M145.1,450.5c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1
+		S145.1,447.7,145.1,450.5"/>
+</g>
+<g id="layer1_62_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_28_" inkscape:connector-curvature="0" class="st9" d="M309.9,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3C320.2,456.2,315.6,460.8,309.9,460.8"/>
+	<path id="path7261_28_" inkscape:connector-curvature="0" class="st10" d="M309.9,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S314.4,458.5,309.9,458.5"/>
+	<path id="path1187_28_" inkscape:connector-curvature="0" class="st11" d="M309.9,458.3c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C317.7,455.1,314.2,458.3,309.9,458.3"/>
+	<path id="path861_28_" inkscape:connector-curvature="0" class="st12" d="M315.1,451.5c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C312.8,446.4,315.1,448.7,315.1,451.5"/>
+	<path id="path7265_28_" inkscape:connector-curvature="0" d="M315.1,450.5c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1C312.8,445.4,315.1,447.7,315.1,450.5"/>
+</g>
+<text transform="matrix(1 0 0 1 238.9399 311.6735)" class="st2 st3 st5">EOC</text>
+<g id="layer1_49_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_10_" inkscape:connector-curvature="0" class="st9" d="M337.4,421.1c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3C347.7,416.5,343.1,421.1,337.4,421.1"/>
+	<path id="path7261_10_" inkscape:connector-curvature="0" class="st10" d="M337.4,418.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S341.9,418.8,337.4,418.8"/>
+	<path id="path1187_10_" inkscape:connector-curvature="0" class="st11" d="M337.4,418.6c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C345.2,415.4,341.7,418.6,337.4,418.6"/>
+	<path id="path861_10_" inkscape:connector-curvature="0" class="st12" d="M342.6,411.8c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C340.3,406.7,342.6,409,342.6,411.8"/>
+	<path id="path7265_10_" inkscape:connector-curvature="0" d="M342.6,410.8c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S342.6,408,342.6,410.8"/>
+</g>
+<text transform="matrix(1 0 0 1 207.796 311.6735)" class="st2 st3 st5">ZeroX</text>
+<g id="layer1_41_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_16_" inkscape:connector-curvature="0" class="st9" d="M309.9,421.1c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3C320.2,416.5,315.6,421.1,309.9,421.1"/>
+	<path id="path7261_16_" inkscape:connector-curvature="0" class="st10" d="M309.9,418.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		S314.4,418.8,309.9,418.8"/>
+	<path id="path1187_16_" inkscape:connector-curvature="0" class="st11" d="M309.9,418.6c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3C317.7,415.4,314.2,418.6,309.9,418.6"/>
+	<path id="path861_16_" inkscape:connector-curvature="0" class="st12" d="M315.1,411.8c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C312.8,406.7,315.1,409,315.1,411.8"/>
+	<path id="path7265_16_" inkscape:connector-curvature="0" d="M315.1,410.8c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S315.1,408,315.1,410.8"/>
+</g>
+<text transform="matrix(1 0 0 1 40.1686 311.6735)" class="st2 st3 st5">Sync</text>
+<g id="layer1_44_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_17_" inkscape:connector-curvature="0" class="st14" d="M112.4,237.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,237.8,112.4,237.8"/>
+	<path id="path7261_17_" inkscape:connector-curvature="0" class="st15" d="M112.4,235.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,232,116.9,235.5,112.4,235.5"/>
+	<path id="path1187_17_" inkscape:connector-curvature="0" class="st11" d="M112.4,235.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S116.7,235.4,112.4,235.4"/>
+	<path id="path861_17_" inkscape:connector-curvature="0" class="st16" d="M117.6,228.6c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C115.3,223.4,117.6,225.7,117.6,228.6"/>
+	<path id="path7265_17_" inkscape:connector-curvature="0" d="M117.6,227.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1
+		C115.3,222.4,117.6,224.7,117.6,227.6"/>
+</g>
+<text transform="matrix(1 0 0 1 241.1199 275.2752)" class="st2 st3 st5">FM</text>
+<g id="layer1_20_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_5_" inkscape:connector-curvature="0" class="st14" d="M337.4,385.5c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S343.1,385.5,337.4,385.5"/>
+	<path id="path7261_5_" inkscape:connector-curvature="0" class="st15" d="M337.4,383.2c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C345.4,379.7,341.9,383.2,337.4,383.2"/>
+	<path id="path1187_5_" inkscape:connector-curvature="0" class="st11" d="M337.4,383.1c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S341.7,383.1,337.4,383.1"/>
+	<path id="path861_5_" inkscape:connector-curvature="0" class="st16" d="M342.6,376.3c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C340.3,371.1,342.6,373.4,342.6,376.3"/>
+	<path id="path7265_5_" inkscape:connector-curvature="0" d="M342.6,375.3c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C340.3,370.1,342.6,372.4,342.6,375.3"/>
+</g>
+<g id="layer1_15_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_3_" inkscape:connector-curvature="0" class="st14" d="M112.4,207.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,207.8,112.4,207.8"/>
+	<path id="path7261_3_" inkscape:connector-curvature="0" class="st15" d="M112.4,205.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,202,116.9,205.5,112.4,205.5"/>
+	<path id="path1187_3_" inkscape:connector-curvature="0" class="st11" d="M112.4,205.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S116.7,205.4,112.4,205.4"/>
+	<path id="path861_3_" inkscape:connector-curvature="0" class="st16" d="M117.6,198.6c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2S117.6,195.7,117.6,198.6"/>
+	<path id="path7265_3_" inkscape:connector-curvature="0" d="M117.6,197.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1
+		C115.3,192.4,117.6,194.7,117.6,197.6"/>
+</g>
+<g id="layer1_11_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_1_" inkscape:connector-curvature="0" class="st14" d="M112.4,170.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S118.1,170.8,112.4,170.8"/>
+	<path id="path7261_1_" inkscape:connector-curvature="0" class="st15" d="M112.4,168.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,165,116.9,168.5,112.4,168.5"/>
+	<path id="path1187_1_" inkscape:connector-curvature="0" class="st11" d="M112.4,168.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3S116.7,168.4,112.4,168.4"/>
+	<path id="path861_1_" inkscape:connector-curvature="0" class="st16" d="M117.6,161.6c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2S117.6,158.7,117.6,161.6"/>
+	<path id="path7265_1_" inkscape:connector-curvature="0" d="M117.6,160.6c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S117.6,157.7,117.6,160.6"/>
+</g>
+<g id="layer1_51_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_20_" inkscape:connector-curvature="0" d="M93.3,155.5c0-5.4,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S93.3,161,93.3,155.5"/>
+	<path id="path7707_30_" inkscape:connector-curvature="0" class="st28" d="M97.6,155.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S97.6,158.6,97.6,155.5"/>
+	<path id="path7711_30_" inkscape:connector-curvature="0" class="st28" d="M102.3,150.3h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V150.3z"/>
+</g>
+<g id="layer1_1_" transform="translate(-50.235993,-87.554008)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705" inkscape:connector-curvature="0" d="M150.1,136.6c0,8.8-7.1,15.9-15.9,15.9s-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C143,120.7,150.1,127.8,150.1,136.6"/>
+	<path id="path7707" inkscape:connector-curvature="0" class="st28" d="M143.2,136.6c0,4.9-4,9-9,9c-4.9,0-9-4-9-9c0-4.9,4-9,9-9
+		S143.2,131.6,143.2,136.6"/>
+	<path id="path7709" inkscape:connector-curvature="0" class="st24" d="M146.8,136.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C141.2,124,146.8,129.6,146.8,136.6L146.8,136.6z"/>
+	<path id="path7711" inkscape:connector-curvature="0" class="st28" d="M135.7,120.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1v7.2
+		h3.2V120.8z"/>
+</g>
+<path class="st29" d="M22.4,156.3c14.5,79.1,85.6,10.2,85.6,10.2"/>
+<g id="layer1_46_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_17_" inkscape:connector-curvature="0" d="M99.1,277.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S99.1,272.1,99.1,277.5"/>
+	<path id="path7707_26_" inkscape:connector-curvature="0" class="st30" d="M94.8,277.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S94.8,274.4,94.8,277.5"/>
+	<path id="path7711_26_" inkscape:connector-curvature="0" class="st30" d="M90.1,267.7c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V267.7z"/>
+</g>
+<g id="layer1_7_" transform="translate(-47.888015,-88.626321)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7689_2_" inkscape:connector-curvature="0" d="M134.8,278.6c0,8.8-7.1,15.9-15.9,15.9s-15.9-7.1-15.9-15.9
+		s7.1-15.9,15.9-15.9C127.7,262.8,134.8,269.9,134.8,278.6"/>
+	<path id="path7691_2_" inkscape:connector-curvature="0" class="st30" d="M127.8,278.6c0,4.9-4,9-9,9s-9-4-9-9c0-4.9,4-9,9-9
+		C123.8,269.7,127.8,273.7,127.8,278.6"/>
+	<path id="path7693_2_" inkscape:connector-curvature="0" class="st24" d="M131.4,278.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C125.8,266.1,131.4,271.7,131.4,278.6L131.4,278.6z"/>
+	<path id="path7695_2_" inkscape:connector-curvature="0" class="st30" d="M120.3,262.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
+		v7.2h3.2C120.3,270,120.3,262.8,120.3,262.8z"/>
+</g>
+<g id="layer1_45_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_18_" inkscape:connector-curvature="0" class="st14" d="M112.4,287c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,287,112.4,287"/>
+	<path id="path7261_18_" inkscape:connector-curvature="0" class="st15" d="M112.4,284.7c-4.5,0-8-3.5-8-8c0-4.4,3.6-8,8-8
+		s8,3.6,8,8S116.8,284.7,112.4,284.7"/>
+	<path id="path1187_18_" inkscape:connector-curvature="0" class="st11" d="M112.4,284.6c-4.3,0-7.7-3.3-7.7-7.3s3.4-7.3,7.7-7.3
+		c4.2,0,7.7,3.3,7.7,7.3S116.7,284.6,112.4,284.6"/>
+	<path id="path861_18_" inkscape:connector-curvature="0" class="st16" d="M107.2,277.8c0-2.9,2.3-5.2,5.1-5.2
+		c2.8,0,5.1,2.4,5.1,5.2c0,2.9-2.3,5.2-5.1,5.2S107.2,280.6,107.2,277.8"/>
+	<path id="path7265_18_" inkscape:connector-curvature="0" d="M107.2,276.8c0-2.9,2.3-5.2,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1
+		c0,2.8-2.3,5.1-5.1,5.1S107.2,279.6,107.2,276.8"/>
+</g>
+<path class="st27" d="M247.5,40C220,40,220,65.4,220,65.4c-50-36.2-85-7.3-85-7.3"/>
+<g id="layer1_10_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_19_" inkscape:connector-curvature="0" d="M283.1,155.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S283.1,150.1,283.1,155.5"/>
+	<path id="path7707_16_" inkscape:connector-curvature="0" class="st28" d="M278.8,155.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S278.8,152.4,278.8,155.5"/>
+	<path id="path7711_16_" inkscape:connector-curvature="0" class="st28" d="M274.1,145.7c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V145.7z"/>
+</g>
+<g id="layer1_36_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_12_" inkscape:connector-curvature="0" class="st14" d="M337.4,170.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S343.1,170.8,337.4,170.8"/>
+	<path id="path7261_12_" inkscape:connector-curvature="0" class="st15" d="M337.4,168.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C345.4,165,341.9,168.5,337.4,168.5"/>
+	<path id="path1187_12_" inkscape:connector-curvature="0" class="st11" d="M337.4,168.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		s7.7,3.3,7.7,7.3S341.7,168.4,337.4,168.4"/>
+	<path id="path861_12_" inkscape:connector-curvature="0" class="st16" d="M342.6,161.6c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2S342.6,158.7,342.6,161.6"/>
+	<path id="path7265_12_" inkscape:connector-curvature="0" d="M342.6,160.6c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		s2.3-5.1,5.1-5.1S342.6,157.7,342.6,160.6"/>
+</g>
+<g id="layer1_2_" transform="translate(-50.235993,-87.554008)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_1_" inkscape:connector-curvature="0" d="M201.1,136.6c0,8.8-7.1,15.9-15.9,15.9c-8.8,0-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C194,120.7,201.1,127.8,201.1,136.6"/>
+	<path id="path7707_1_" inkscape:connector-curvature="0" class="st28" d="M194.2,136.6c0,4.9-4,9-9,9c-4.9,0-9-4-9-9c0-4.9,4-9,9-9
+		S194.2,131.6,194.2,136.6"/>
+	<path id="path7709_1_" inkscape:connector-curvature="0" class="st24" d="M197.8,136.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C192.2,124,197.8,129.6,197.8,136.6L197.8,136.6z"/>
+	<path id="path7711_1_" inkscape:connector-curvature="0" class="st28" d="M186.7,120.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
+		v7.2h3.2V120.8z"/>
+</g>
+<g id="layer1_3_" transform="translate(-50.235993,-87.554008)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_2_" inkscape:connector-curvature="0" d="M252.1,136.6c0,8.8-7.1,15.9-15.9,15.9c-8.8,0-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C245,120.7,252.1,127.8,252.1,136.6"/>
+	<path id="path7707_2_" inkscape:connector-curvature="0" class="st28" d="M245.2,136.6c0,4.9-4,9-9,9c-4.9,0-9-4-9-9c0-4.9,4-9,9-9
+		S245.2,131.6,245.2,136.6"/>
+	<path id="path7709_2_" inkscape:connector-curvature="0" class="st24" d="M248.8,136.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C243.2,124,248.8,129.6,248.8,136.6L248.8,136.6z"/>
+	<path id="path7711_2_" inkscape:connector-curvature="0" class="st28" d="M237.7,120.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
+		v7.2h3.2V120.8z"/>
+</g>
+<path class="st7" d="M160.9,138.1c35.5-24.2,0-43.2,0-43.2"/>
+<g id="layer1_4_" transform="translate(-47.888015,-88.626321)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7689_1_" inkscape:connector-curvature="0" d="M224.8,180.6c0,8.8-7.1,15.9-15.9,15.9c-8.8,0-15.9-7.1-15.9-15.9
+		c0-8.8,7.1-15.9,15.9-15.9C217.7,164.8,224.8,171.9,224.8,180.6"/>
+	<path id="path7691_1_" inkscape:connector-curvature="0" class="st25" d="M217.8,180.6c0,4.9-4,9-9,9c-4.9,0-9-4-9-9c0-4.9,4-9,9-9
+		C213.8,171.7,217.8,175.7,217.8,180.6"/>
+	<path id="path7693_1_" inkscape:connector-curvature="0" class="st24" d="M221.4,180.6c0,6.9-5.6,12.6-12.6,12.6
+		c-6.9,0-12.6-5.6-12.6-12.6c0-6.9,5.6-12.6,12.6-12.6C215.8,168.1,221.4,173.7,221.4,180.6L221.4,180.6z"/>
+	<path id="path7695_1_" inkscape:connector-curvature="0" class="st25" d="M210.3,164.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
+		v7.2h3.2V164.8z"/>
+</g>
+<g id="layer1_17_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_4_" inkscape:connector-curvature="0" class="st14" d="M337.4,287c-5.7,0-10.3-4.6-10.3-10.3s4.6-10.3,10.3-10.3
+		c5.7,0,10.3,4.6,10.3,10.3S343.1,287,337.4,287"/>
+	<path id="path7261_4_" inkscape:connector-curvature="0" class="st15" d="M337.4,284.7c-4.5,0-8-3.5-8-8c0-4.4,3.6-8,8-8s8,3.6,8,8
+		S341.8,284.7,337.4,284.7"/>
+	<path id="path1187_4_" inkscape:connector-curvature="0" class="st11" d="M337.4,284.6c-4.3,0-7.7-3.3-7.7-7.3s3.4-7.3,7.7-7.3
+		c4.2,0,7.7,3.3,7.7,7.3S341.7,284.6,337.4,284.6"/>
+	<path id="path861_4_" inkscape:connector-curvature="0" class="st16" d="M332.2,277.8c0-2.9,2.3-5.2,5.1-5.2c2.8,0,5.1,2.4,5.1,5.2
+		c0,2.9-2.3,5.2-5.1,5.2S332.2,280.6,332.2,277.8"/>
+	<path id="path7265_4_" inkscape:connector-curvature="0" d="M332.2,276.8c0-2.9,2.3-5.2,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1
+		c0,2.8-2.3,5.1-5.1,5.1S332.2,279.6,332.2,276.8"/>
+</g>
+<path class="st31" d="M22.6,212.9c24.8,26.2,49.3,40.6,49.3,40.6"/>
+<g>
+	<circle class="st32" cx="71.9" cy="253.5" r="5.5"/>
+	<line class="st31" x1="75.8" y1="257.4" x2="68" y2="249.6"/>
+	<line class="st31" x1="68" y1="257.4" x2="75.8" y2="249.6"/>
+</g>
+<g id="layer1_30_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_11_" inkscape:connector-curvature="0" class="st14" d="M112.4,343.1c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,343.1,112.4,343.1"/>
+	<path id="path7261_11_" inkscape:connector-curvature="0" class="st15" d="M112.4,340.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,337.3,116.9,340.8,112.4,340.8"/>
+	<path id="path1187_11_" inkscape:connector-curvature="0" class="st11" d="M112.4,340.7c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S116.7,340.7,112.4,340.7"/>
+	<path id="path861_11_" inkscape:connector-curvature="0" class="st16" d="M117.6,333.9c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C115.3,328.7,117.6,331,117.6,333.9"/>
+	<path id="path7265_11_" inkscape:connector-curvature="0" d="M117.6,332.9c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C115.3,327.7,117.6,330,117.6,332.9"/>
+</g>
+<g id="layer1_34_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_12_" inkscape:connector-curvature="0" d="M113.1,328.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S113.1,323,113.1,328.5"/>
+	<path id="path7707_22_" inkscape:connector-curvature="0" class="st33" d="M108.8,328.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S108.8,325.4,108.8,328.5"/>
+	<path id="path7711_22_" inkscape:connector-curvature="0" class="st33" d="M104.1,318.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V318.6z"/>
+</g>
+<path class="st31" d="M22.5,254.7C51,261.9,71.9,277,71.9,277"/>
+<g id="layer1_35_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_13_" inkscape:connector-curvature="0" class="st14" d="M112.4,385.5c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,385.5,112.4,385.5"/>
+	<path id="path7261_13_" inkscape:connector-curvature="0" class="st15" d="M112.4,383.2c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,379.7,116.9,383.2,112.4,383.2"/>
+	<path id="path1187_13_" inkscape:connector-curvature="0" class="st11" d="M112.4,383.1c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S116.7,383.1,112.4,383.1"/>
+	<path id="path861_13_" inkscape:connector-curvature="0" class="st16" d="M117.6,376.3c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C115.3,371.1,117.6,373.4,117.6,376.3"/>
+	<path id="path7265_13_" inkscape:connector-curvature="0" d="M117.6,375.3c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C115.3,370.1,117.6,372.4,117.6,375.3"/>
+</g>
+<g id="layer1_39_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_19_" inkscape:connector-curvature="0" class="st14" d="M112.4,421.1c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S118.1,421.1,112.4,421.1"/>
+	<path id="path7261_19_" inkscape:connector-curvature="0" class="st15" d="M112.4,418.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C120.4,415.3,116.9,418.8,112.4,418.8"/>
+	<path id="path1187_19_" inkscape:connector-curvature="0" class="st11" d="M112.4,418.7c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S116.7,418.7,112.4,418.7"/>
+	<path id="path861_19_" inkscape:connector-curvature="0" class="st16" d="M117.6,411.9c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C115.3,406.7,117.6,409,117.6,411.9"/>
+	<path id="path7265_19_" inkscape:connector-curvature="0" d="M117.6,410.9c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C115.3,405.7,117.6,408,117.6,410.9"/>
+</g>
+<g id="layer1_38_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_23_" inkscape:connector-curvature="0" class="st14" d="M139.9,421.1c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S145.6,421.1,139.9,421.1"/>
+	<path id="path7261_23_" inkscape:connector-curvature="0" class="st15" d="M139.9,418.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C147.9,415.3,144.4,418.8,139.9,418.8"/>
+	<path id="path1187_23_" inkscape:connector-curvature="0" class="st11" d="M139.9,418.7c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S144.2,418.7,139.9,418.7"/>
+	<path id="path861_23_" inkscape:connector-curvature="0" class="st16" d="M145.1,411.9c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C142.8,406.7,145.1,409,145.1,411.9"/>
+	<path id="path7265_23_" inkscape:connector-curvature="0" d="M145.1,410.9c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C142.8,405.7,145.1,408,145.1,410.9"/>
+</g>
+<g id="layer1_43_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_16_" inkscape:connector-curvature="0" d="M113.1,355.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		S113.1,350,113.1,355.5"/>
+	<path id="path7707_24_" inkscape:connector-curvature="0" class="st33" d="M108.8,355.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6S108.8,352.4,108.8,355.5"/>
+	<path id="path7711_24_" inkscape:connector-curvature="0" class="st33" d="M104.1,345.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V345.6z"/>
+</g>
+<path class="st31" d="M77.6,330c5-25.7-5.7-53-5.7-53"/>
+<g>
+	<circle class="st32" cx="71.9" cy="277" r="5.5"/>
+	<line class="st31" x1="71.9" y1="282.4" x2="71.9" y2="271.5"/>
+	<line class="st31" x1="66.4" y1="277" x2="77.4" y2="277"/>
+</g>
+<g id="layer1_26_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_8_" inkscape:connector-curvature="0" d="M141.1,395.5c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
+		C136.7,385.6,141.1,390,141.1,395.5"/>
+	<path id="path7707_8_" inkscape:connector-curvature="0" class="st33" d="M136.8,395.5c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
+		s2.5-5.6,5.6-5.6C134.3,389.9,136.8,392.4,136.8,395.5"/>
+	<path id="path7711_8_" inkscape:connector-curvature="0" class="st33" d="M132.1,385.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
+		v4.5h2V385.6z"/>
+</g>
+<g id="layer1_37_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_14_" inkscape:connector-curvature="0" class="st14" d="M167.4,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S173.1,460.8,167.4,460.8"/>
+	<path id="path7261_14_" inkscape:connector-curvature="0" class="st15" d="M167.4,458.5c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C175.4,455,171.9,458.5,167.4,458.5"/>
+	<path id="path1187_14_" inkscape:connector-curvature="0" class="st11" d="M167.4,458.4c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S171.7,458.4,167.4,458.4"/>
+	<path id="path861_14_" inkscape:connector-curvature="0" class="st16" d="M172.6,451.6c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2S172.6,448.7,172.6,451.6"/>
+	<path id="path7265_14_" inkscape:connector-curvature="0" d="M172.6,450.6c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C170.3,445.4,172.6,447.7,172.6,450.6"/>
+</g>
+<line class="st31" x1="71.9" y1="271.5" x2="71.9" y2="259"/>
+<text transform="matrix(1 0 0 1 186.5938 224.0943)" class="st2 st3 st5">Depth</text>
+<text transform="matrix(1 0 0 1 181.2408 214.0942)" class="st2 st3 st5">Degrade</text>
+<path class="st29" d="M162,166.5c0,0,71.1,68.9,85.6-10.2"/>
+<path id="rect75_1_" inkscape:connector-curvature="0" class="st19" d="M82.5,121.5h105v45h-105V121.5z"/>
+<text transform="matrix(1 0 0 1 85.9043 162.0648)" class="st20 st21 st5">~~~~~~~~~~~~</text>
+<text transform="matrix(1 0 0 1 85.9905 162.0649)" class="st22 st21 st5">BITCRUSH!!15</text>
+<text transform="matrix(1 0 0 1 85.9043 136.3584)" class="st20 st21 st5">~~~~~~~~~~~~</text>
+<text transform="matrix(1 0 0 1 86.0403 136.3584)" class="st22 st21 st5">VOICE_1!!100</text>
+<text transform="matrix(1 0 0 1 85.9043 149.2116)" class="st20 st21 st5">~~~~~~~~~~~~</text>
+<text transform="matrix(1 0 0 1 85.9905 149.2116)" class="st22 st21 st5">TWIST!!!!!47</text>
+<g id="layer1_42_" transform="translate(-47.888015,-88.626321)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7689_3_" inkscape:connector-curvature="0" d="M231,278.6c0-8.7,7.1-15.8,15.9-15.9c8.8,0,15.9,7.1,15.9,15.9
+		s-7.1,15.9-15.9,15.9S231,287.4,231,278.6"/>
+	<path id="path7691_3_" inkscape:connector-curvature="0" class="st30" d="M238,278.6c0-4.9,4-8.9,9-9c5,0,9,4.1,9,9c0,5-4,9-9,9
+		S238,283.5,238,278.6"/>
+	<path id="path7693_3_" inkscape:connector-curvature="0" class="st24" d="M234.4,278.6c0-6.9,5.6-12.5,12.6-12.6
+		c7,0,12.6,5.7,12.6,12.6c0,7-5.7,12.6-12.6,12.6C240,291.2,234.4,285.5,234.4,278.6L234.4,278.6z"/>
+	<path id="path7695_3_" inkscape:connector-curvature="0" class="st30" d="M245.5,270h3.2v-7.2c-0.6-0.1-1.2-0.1-1.8-0.1
+		c-0.4,0-0.9,0.1-1.4,0.1V270z"/>
+</g>
+<g id="layer1_47_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_6_" inkscape:connector-curvature="0" d="M277.3,277.5c0-5.4,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S277.3,283,277.3,277.5"/>
+	<path id="path7707_6_" inkscape:connector-curvature="0" class="st30" d="M281.6,277.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S281.6,280.6,281.6,277.5"/>
+	<path id="path7711_6_" inkscape:connector-curvature="0" class="st30" d="M286.3,272.3h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V272.3z"/>
+</g>
+<g id="layer1_40_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_24_" inkscape:connector-curvature="0" class="st14" d="M337.4,287c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S343.1,287,337.4,287"/>
+	<path id="path7261_24_" inkscape:connector-curvature="0" class="st15" d="M337.4,284.7c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C345.4,281.2,341.9,284.7,337.4,284.7"/>
+	<path id="path1187_24_" inkscape:connector-curvature="0" class="st11" d="M337.4,284.6c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S341.7,284.6,337.4,284.6"/>
+	<path id="path861_24_" inkscape:connector-curvature="0" class="st16" d="M342.6,277.8c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C340.3,272.6,342.6,274.9,342.6,277.8"/>
+	<path id="path7265_24_" inkscape:connector-curvature="0" d="M342.6,276.8c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C340.3,271.6,342.6,273.9,342.6,276.8"/>
+</g>
+<path class="st31" d="M198,253.5c0,0,24.5-14.4,49.3-40.6"/>
+<g>
+	<circle class="st32" cx="198" cy="253.5" r="5.5"/>
+	<line class="st31" x1="201.9" y1="249.6" x2="194.1" y2="257.4"/>
+	<line class="st31" x1="194.1" y1="249.6" x2="201.9" y2="257.4"/>
+</g>
+<g id="layer1_61_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_27_" inkscape:connector-curvature="0" class="st14" d="M337.4,343.1c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3C347.7,338.5,343.1,343.1,337.4,343.1"/>
+	<path id="path7261_27_" inkscape:connector-curvature="0" class="st15" d="M337.4,340.8c-4.5,0-8-3.5-8-8c0-4.4,3.6-8,8-8
+		s8,3.6,8,8S341.8,340.8,337.4,340.8"/>
+	<path id="path1187_27_" inkscape:connector-curvature="0" class="st11" d="M337.4,340.7c-4.3,0-7.7-3.3-7.7-7.3s3.4-7.3,7.7-7.3
+		c4.2,0,7.7,3.3,7.7,7.3S341.7,340.7,337.4,340.7"/>
+	<path id="path861_27_" inkscape:connector-curvature="0" class="st16" d="M332.2,333.9c0-2.9,2.3-5.2,5.1-5.2
+		c2.8,0,5.1,2.4,5.1,5.2c0,2.9-2.3,5.2-5.1,5.2S332.2,336.7,332.2,333.9"/>
+	<path id="path7265_27_" inkscape:connector-curvature="0" d="M332.2,332.9c0-2.9,2.3-5.2,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1
+		c0,2.8-2.3,5.1-5.1,5.1S332.2,335.7,332.2,332.9"/>
+</g>
+<g id="layer1_60_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_15_" inkscape:connector-curvature="0" d="M264.1,327.9c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S264.1,333.4,264.1,327.9"/>
+	<path id="path7707_32_" inkscape:connector-curvature="0" class="st33" d="M268.4,327.9c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S268.4,331,268.4,327.9"/>
+	<path id="path7711_32_" inkscape:connector-curvature="0" class="st33" d="M273.1,322.6h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V322.6z"/>
+</g>
+<path class="st31" d="M198,277c0,0,20.9-15,49.4-22.2"/>
+<g id="layer1_59_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_26_" inkscape:connector-curvature="0" class="st14" d="M337.4,385.5c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3C347.7,380.9,343.1,385.5,337.4,385.5"/>
+	<path id="path7261_26_" inkscape:connector-curvature="0" class="st15" d="M337.4,383.2c-4.5,0-8-3.5-8-8c0-4.4,3.6-8,8-8
+		s8,3.6,8,8S341.8,383.2,337.4,383.2"/>
+	<path id="path1187_26_" inkscape:connector-curvature="0" class="st11" d="M337.4,383.1c-4.3,0-7.7-3.3-7.7-7.3s3.4-7.3,7.7-7.3
+		c4.2,0,7.7,3.3,7.7,7.3S341.7,383.1,337.4,383.1"/>
+	<path id="path861_26_" inkscape:connector-curvature="0" class="st16" d="M332.2,376.3c0-2.9,2.3-5.2,5.1-5.2
+		c2.8,0,5.1,2.4,5.1,5.2c0,2.9-2.3,5.2-5.1,5.2S332.2,379.1,332.2,376.3"/>
+	<path id="path7265_26_" inkscape:connector-curvature="0" d="M332.2,375.3c0-2.9,2.3-5.2,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1
+		c0,2.8-2.3,5.1-5.1,5.1S332.2,378.1,332.2,375.3"/>
+</g>
+<g id="layer1_58_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_14_" inkscape:connector-curvature="0" d="M263.2,355.1c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S263.2,360.6,263.2,355.1"/>
+	<path id="path7707_29_" inkscape:connector-curvature="0" class="st33" d="M267.5,355.1c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S267.5,358.2,267.5,355.1"/>
+	<path id="path7711_29_" inkscape:connector-curvature="0" class="st33" d="M272.2,349.8h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V349.8z"/>
+</g>
+<line class="st31" x1="198" y1="259" x2="198" y2="271.5"/>
+<path class="st31" d="M198,277c0,0-10.6,27.3-5.7,53"/>
+<g>
+	<circle class="st32" cx="198" cy="277" r="5.5"/>
+	<line class="st31" x1="198" y1="271.5" x2="198" y2="282.4"/>
+	<line class="st31" x1="192.5" y1="277" x2="203.5" y2="277"/>
+</g>
+<g id="layer1_57_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_13_" inkscape:connector-curvature="0" d="M235.3,394.8c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S235.3,400.3,235.3,394.8"/>
+	<path id="path7707_12_" inkscape:connector-curvature="0" class="st33" d="M239.6,394.8c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S239.6,397.9,239.6,394.8"/>
+	<path id="path7711_12_" inkscape:connector-curvature="0" class="st33" d="M244.3,389.5h2V385c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V389.5z"/>
+</g>
+<g id="layer1_53_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_25_" inkscape:connector-curvature="0" class="st14" d="M282.4,460.8c-5.7,0-10.3-4.6-10.3-10.3
+		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3C292.7,456.2,288.1,460.8,282.4,460.8"/>
+	<path id="path7261_25_" inkscape:connector-curvature="0" class="st15" d="M282.4,458.5c-4.5,0-8-3.5-8-8c0-4.4,3.6-8,8-8
+		s8,3.6,8,8S286.8,458.5,282.4,458.5"/>
+	<path id="path1187_25_" inkscape:connector-curvature="0" class="st11" d="M282.4,458.4c-4.3,0-7.7-3.3-7.7-7.3s3.4-7.3,7.7-7.3
+		c4.2,0,7.7,3.3,7.7,7.3S286.7,458.4,282.4,458.4"/>
+	<path id="path861_25_" inkscape:connector-curvature="0" class="st16" d="M277.2,451.6c0-2.9,2.3-5.2,5.1-5.2
+		c2.8,0,5.1,2.4,5.1,5.2c0,2.9-2.3,5.2-5.1,5.2C279.5,456.8,277.2,454.4,277.2,451.6"/>
+	<path id="path7265_25_" inkscape:connector-curvature="0" d="M277.2,450.6c0-2.9,2.3-5.2,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1
+		c0,2.8-2.3,5.1-5.1,5.1S277.2,453.4,277.2,450.6"/>
+</g>
+<path class="st31" d="M135,188.9c0,0-43.2-9.9-33,31.9"/>
+<path class="st31" d="M135.1,209.7v-20.8c0,0,43.2-9.9,33,31.9"/>
+<g id="layer1_50_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_21_" inkscape:connector-curvature="0" class="st14" d="M191.9,351.5c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S197.6,351.5,191.9,351.5"/>
+	<path id="path7261_21_" inkscape:connector-curvature="0" class="st15" d="M191.9,349.2c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C199.9,345.7,196.4,349.2,191.9,349.2"/>
+	<path id="path1187_21_" inkscape:connector-curvature="0" class="st11" d="M191.9,349.1c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S196.2,349.1,191.9,349.1"/>
+	<path id="path861_21_" inkscape:connector-curvature="0" class="st16" d="M197.1,342.3c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
+		c0-2.8,2.3-5.2,5.1-5.2C194.8,337.1,197.1,339.4,197.1,342.3"/>
+	<path id="path7265_21_" inkscape:connector-curvature="0" d="M197.1,341.3c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C194.8,336.1,197.1,338.4,197.1,341.3"/>
+</g>
+<g id="layer1_54_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_21_" inkscape:connector-curvature="0" d="M150.3,284.5c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S150.3,290,150.3,284.5"/>
+	<path id="path7707_17_" inkscape:connector-curvature="0" class="st33" d="M154.6,284.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S154.6,287.6,154.6,284.5"/>
+	<path id="path7711_17_" inkscape:connector-curvature="0" class="st33" d="M159.3,279.2h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V279.2z"/>
+</g>
+<g id="layer1_52_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_18_" inkscape:connector-curvature="0" d="M178.3,279.5c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S178.3,285,178.3,279.5"/>
+	<path id="path7707_10_" inkscape:connector-curvature="0" class="st33" d="M182.6,279.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S182.6,282.6,182.6,279.5"/>
+	<path id="path7711_10_" inkscape:connector-curvature="0" class="st33" d="M187.3,274.2h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V274.2z"/>
+</g>
+<g id="layer1_55_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7705_22_" inkscape:connector-curvature="0" d="M206.3,284.5c0-5.5,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
+		S206.3,290,206.3,284.5"/>
+	<path id="path7707_33_" inkscape:connector-curvature="0" class="st33" d="M210.6,284.5c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+		s-2.5,5.6-5.6,5.6S210.6,287.6,210.6,284.5"/>
+	<path id="path7711_33_" inkscape:connector-curvature="0" class="st33" d="M215.3,279.2h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
+		c-0.3,0-0.6,0-0.9,0V279.2z"/>
+</g>
+<g id="layer1_19_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path2706_3_" class="st18" d="M188.5,278.8c0,3.7-3,6.7-6.7,6.7l0,0c-3.7,0-6.7-3-6.7-6.7l0,0c0-3.7,3-6.7,6.7-6.7l0,0
+		C185.5,272.1,188.5,275.1,188.5,278.8L188.5,278.8z"/>
+</g>
+<g id="layer1_56_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path7255_22_" inkscape:connector-curvature="0" class="st14" d="M257.9,351.5c-5.7,0-10.3-4.6-10.3-10.3
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S263.6,351.5,257.9,351.5"/>
+	<path id="path7261_22_" inkscape:connector-curvature="0" class="st15" d="M257.9,349.2c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
+		C265.9,345.7,262.4,349.2,257.9,349.2"/>
+	<path id="path1187_22_" inkscape:connector-curvature="0" class="st11" d="M257.9,349.1c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
+		c4.3,0,7.7,3.3,7.7,7.3S262.2,349.1,257.9,349.1"/>
+	<path id="path861_22_" inkscape:connector-curvature="0" class="st16" d="M263.1,342.3c0,2.8-2.3,5.2-5.1,5.2
+		c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.2,5.1-5.2C260.8,337.1,263.1,339.4,263.1,342.3"/>
+	<path id="path7265_22_" inkscape:connector-curvature="0" d="M263.1,341.3c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+		c0-2.8,2.3-5.1,5.1-5.1C260.8,336.1,263.1,338.4,263.1,341.3"/>
+</g>
+</svg>

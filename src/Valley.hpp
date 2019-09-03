@@ -18,3 +18,4 @@ extern Model *modelPlateau;
 extern Model *modelInterzone;
 extern Model *modelAmalgam;
 extern Model *modelFeline;
+extern Model *modelTerrorform;

@@ -278,22 +278,34 @@ private:
 struct DynamicItem : MenuItem {
     unsigned long _itemNumber;
     unsigned long* _choice;
+    std::function<void(int)> updateChoice;
     DynamicItem(unsigned long itemNumber);
     void onAction(const event::Action &e) override;
+    void step() override;
 };
 
 struct DynamicChoice : ChoiceButton {
-    unsigned long* _choice;
-    std::vector<std::string> _items;
-    std::shared_ptr<std::string> _text;
-    std::shared_ptr<Font> _font;
-    int* _visibility;
-    int _textSize;
     DynamicViewMode _viewMode;
     DynamicChoice();
     void step() override;
     void onAction(const event::Action &e) override;
+    void onEnter(const event::Enter &e) override;
+    void onLeave(const event::Leave &e) override;
     void draw(const DrawArgs &args) override;
+
+    unsigned long* _choice;
+    long _oldChoice;
+    std::vector<std::string> _items;
+    std::shared_ptr<std::string> _text;
+    std::shared_ptr<Font> _font;
+    bool _transparent;
+    int* _visibility;
+    int _textSize;
+
+    std::function<void()> onMouseEnter;
+    std::function<void()> onMouseLeave;
+    std::function<void()> onOpen;
+    std::function<void(int)> updateChoice;
 };
 
 DynamicChoice* createDynamicChoice(const Vec& pos,
@@ -313,5 +325,44 @@ T *createValleyKnob(Vec pos, Module *module, int paramId, float minAngle, float 
     }
 	return o;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Dynamic Menu (An improved dynamic choice)
+
+struct DynamicMenuItem : MenuItem {
+    DynamicMenuItem(int itemNumber);
+    void onAction(const event::Action &e) override;
+    int* _choice;
+    int _itemNumber;
+    bool _showTick;
+    void step() override;
+    std::function<void(int)> setChoice;
+};
+
+struct DynamicMenu : ChoiceButton {
+    DynamicMenu();
+    void step() override;
+    void onAction(const event::Action &e) override;
+    void onEnter(const event::Enter &e) override;
+    void onLeave(const event::Leave &e) override;
+    void draw(const DrawArgs &args) override;
+
+    int _choice;
+    std::vector<std::string> _items;
+    std::shared_ptr<std::string> _text;
+    std::shared_ptr<Font> _font;
+    bool _isTransparent;
+    bool _showTick;
+    int _textSize;
+
+    std::function<void()> onMouseEnter;
+    std::function<void()> onMouseLeave;
+    std::function<void()> onOpen;
+    std::function<void(int)> setChoice;
+};
+
+DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
+                               const std::vector<std::string>& items,
+                               bool isTransparent, bool showTick);
 
 #endif
