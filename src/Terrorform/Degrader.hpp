@@ -233,17 +233,13 @@ private:
     __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour;
     __m128 __halfs, __quarters, __eighths;
     __m128 __a, __b, __x, __y, __z;
-    __m128i __xInt, __yInt, __zInt, __aInt, __bInt;
+    __m128i __xInt, __yInt, __zInt, __aInt;
     __m128 __intMaxF, __invIntMaxF;
     __m128 __aux;
 
     __m128 __flipFlop, __prevX, __trig;
     VecOnePoleLPFilter __filter;
 
-    uint32_t _k32[4];
-    __m128i __cInt32;
     uint32_t _randZ[4];
     uint32_t _randW[4];
-    float _param[4];
-
 };

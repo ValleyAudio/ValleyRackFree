@@ -47,7 +47,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves Switch");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
-        osc[i].setWavebank(wavetables[kTable], wavetable_sizes[kTable], wavetable_lengths[kTable][0]);
+        osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
         osc[i].setScanPosition(0.f);
         osc[i].setSampleRate(APP->engine->getSampleRate());
         osc[i].setShape(0.0);
@@ -84,17 +84,25 @@ Terrorform::Terrorform() {
     percMode = false;
 
     // Fill user wavetables
-    float userWaveTemplate[DSJ_CELL_USER_TABLE_LENGTH];
-    for(auto i = 0; i < DSJ_CELL_USER_TABLE_LENGTH; ++i) {
-        userWaveTemplate[i] = sinf(2.0 * M_PI * (float)i / DSJ_CELL_USER_TABLE_LENGTH);
-    }
-    userWaves = new float*[DSJ_CELL_NUM_USER_BANKS];
+
+    /*float userWaveTemplate[DSJ_CELL_MAX_USER_WAVE_LENGTH];
+    for(auto i = 0; i < DSJ_CELL_MAX_USER_WAVE_LENGTH; ++i) {
+        userWaveTemplate[i] = sinf(2.0 * M_PI * (float)i / DSJ_CELL_MAX_USER_WAVE_LENGTH);
+    }*/
+
     for(auto bank = 0; bank < DSJ_CELL_NUM_USER_BANKS; ++bank) {
-        userWaves[bank] = new float[DSJ_CELL_USER_TABLE_LENGTH];
-        for(auto i = 0; i < DSJ_CELL_USER_TABLE_LENGTH; ++i) {
-            userWaves[bank][i] = userWaveTemplate[i];
+        userWaveTableData[bank] = new float*[DSJ_CELL_MAX_USER_TABLE_WAVES];
+        userWaveTableFilled[bank] = false;
+        userWaveTableSizes[bank] = 1;
+        for(auto wave = 0; wave < DSJ_CELL_MAX_USER_TABLE_WAVES; ++wave) {
+            userWaveTableLengths[bank] = DSJ_CELL_MAX_USER_WAVE_LENGTH;
+            userWaveTableData[bank][wave] = new float[DSJ_CELL_MAX_USER_WAVE_LENGTH];
+            for(auto i = 0; i < DSJ_CELL_MAX_USER_WAVE_LENGTH; ++i) {
+                userWaveTableData[bank][wave][i] = 0.f;
+            }
         }
     }
+
     readFromUserWaves = false;
     userWavesButtonState = false;
     prevUserWavesButtonState = false;
@@ -105,10 +113,13 @@ Terrorform::~Terrorform() {
     aligned_free_16(waves);
     aligned_free_16(shapes);
     aligned_free_16(degrades);
-    for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
-        delete[] userWaves[i];
+
+    for(auto bank = 0; bank < DSJ_CELL_NUM_USER_BANKS; ++bank) {
+        for(auto wave = 0; wave < DSJ_CELL_MAX_USER_TABLE_WAVES; ++wave) {
+            delete[] userWaveTableData[bank][wave];
+        }
+        delete[] userWaveTableData[bank];
     }
-    delete[] userWaves;
 }
 
 void Terrorform::process(const ProcessArgs &args) {
@@ -135,7 +146,9 @@ void Terrorform::process(const ProcessArgs &args) {
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             if(readFromUserWaves) {
                 lights[USER_BANK_LIGHT].value = 1.f;
-                osc[c].setWavebank(userWaves, 1, DSJ_CELL_USER_TABLE_LENGTH);
+                osc[c].setWavebank(userWaveTableData[0],
+                                   userWaveTableSizes[0],
+                                   DSJ_CELL_MAX_USER_WAVE_LENGTH);
             }
             else {
                 lights[USER_BANK_LIGHT].value = 0.f;
@@ -297,39 +310,87 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
+    json_object_set_new(rootJ, "numUserWaveTables", json_integer(numUserWaveTables));
 
+
+    char str[25];
     json_t* userWavesJ = json_array();
-    for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
-        json_t* waveJ = json_array();
-        for(auto j = 0; j < DSJ_CELL_USER_TABLE_LENGTH; ++j) {
-            json_t* valueJ = json_real(userWaves[i][j]);
-            json_array_append_new(waveJ, valueJ);
+    for(auto bank = 0; bank < DSJ_CELL_NUM_USER_BANKS; ++bank) {
+        if(userWaveTableFilled[bank] == false) {
+            continue;
         }
-        json_array_append_new(userWavesJ, waveJ);
+        json_t* userWaveJ = json_object();
+
+        json_object_set_new(userWaveJ, "bank", json_integer(bank));
+        json_object_set_new(userWaveJ, "numWaves", json_integer(userWaveTableSizes[bank]));
+        json_object_set_new(userWaveJ, "waveLength", json_integer(userWaveTableLengths[bank]));
+
+        json_t* tableJ = json_array();
+        for(auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
+            json_t* waveJ = json_array();
+            for(auto i = 0; i < userWaveTableLengths[bank]; ++i) {
+                sprintf(str, "%e", userWaveTableData[bank][wave][i]);
+                json_t* valueJ = json_string(str);
+                json_array_append_new(waveJ, valueJ);
+            }
+            json_array_append_new(tableJ, waveJ);
+        }
+        json_object_set_new(userWaveJ, "waveTableData", tableJ);
+        json_array_append_new(userWavesJ, userWaveJ);
     }
     json_object_set_new(rootJ, "userWaves", userWavesJ);
     return rootJ;
 }
 
 void Terrorform::dataFromJson(json_t *rootJ) {
-    printf("Loading autosave\n");
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     panelStyle = json_integer_value(panelStyleJ);
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
     displayStyle = json_integer_value(displayStyleJ);
 
-    json_t *userWaveJ = json_object_get(rootJ, "userWaves");
+    int destBank;
+    int numWaves;
+    int waveLength;
     for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
-        json_t *waveJ = json_array_get(userWaveJ, i);
-        for(auto j = 0; j < DSJ_CELL_USER_TABLE_LENGTH; ++j) {
-            json_t *valueJ = json_array_get(waveJ, j);
-            userWaves[i][j] = json_real_value(valueJ);
+        userWaveTableSizes[i] = 1;
+        userWaveTableLengths[i] = DSJ_CELL_MAX_USER_WAVE_LENGTH;
+        userWaveTableFilled[i] = false;
+        for(auto j = 0; j < DSJ_CELL_MAX_USER_TABLE_WAVES; ++j) {
+            for(auto k = 0; k < DSJ_CELL_MAX_USER_WAVE_LENGTH; ++k) {
+                userWaveTableData[i][j][k] = 0.f;
+            }
         }
     }
-}
 
-void Terrorform::loadUserWaveTable(const char* path) {
-    // TODO : Add WAV file loader code here
+    json_t *userWavesJ = json_object_get(rootJ, "userWaves");
+    json_t *numUserWaveTablesJ = json_object_get(rootJ, "numUserWaveTables");
+    numUserWaveTables = json_integer_value(numUserWaveTablesJ);
+
+    printf("%d\n", numUserWaveTables);
+
+    for(auto bank = 0; bank < numUserWaveTables; ++bank) {
+        json_t* userWaveJ = json_array_get(userWavesJ, bank);
+        json_t* destBankJ = json_object_get(userWaveJ, "bank");
+        json_t* numWavesJ = json_object_get(userWaveJ, "numWaves");
+        json_t* waveLengthJ = json_object_get(userWaveJ, "waveLength");
+        json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
+
+        destBank = json_integer_value(destBankJ);
+        numWaves = json_integer_value(numWavesJ);
+        waveLength = json_integer_value(waveLengthJ);
+
+        userWaveTableSizes[destBank] = numWaves;
+        userWaveTableLengths[destBank] = waveLength;
+        userWaveTableFilled[destBank] = true;
+
+        for(auto wave = 0; wave < numWaves; ++wave) {
+            json_t *waveJ = json_array_get(tableJ, wave);
+            for(auto i = 0; i < waveLength; ++i) {
+                json_t *valueJ = json_array_get(waveJ, i);
+                userWaveTableData[destBank][wave][i] = atof(json_string_value(valueJ));
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,67 +413,24 @@ void TerrorformDisplayStyleItem::step() {
     MenuItem::step();
 }
 
-TerrorformLoadButton::TerrorformLoadButton() {
-    momentary = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TerrorformLoadButton::onDragEnd(const event::DragEnd &e) {
-    Terrorform* module = dynamic_cast<Terrorform*>(paramQuantity->module);
-    if(module) {
-        if(module->readFromUserWaves == false) {
-            onReadOnlyError();
-            return;
-        }
-        const char FILE_FILTERS[] = "WAV File (.wav):wav";
-        std::string dir = asset::user("");
-        std::string filename;
-
-        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
-    	DEFER({
-    		osdialog_filters_free(filters);
-    	});
-        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
-        if(path) {
-            module->loadUserWaveTable(path);
-            DEFER({
-                std::free(path);
-            });
-        }
-    }
-}
-
-//printf("%s\n", path);
-/*
-drwav_uint64 totalSampleCount = 0;
-
-float *pSampleData = drwav_open_and_read_file_f32(path.c_str(), &channels_, &sampleRate_, &totalSampleCount);
-
-if (pSampleData == NULL) {
-    return;
-}
-
-left_channel_.clear();
-for (size_t i = 0; i < totalSampleCount; i += channels) {
-    left_channel_.push_back(pSampleData[i]);
-}
-sampleCount_ = left_channel_.size();
-drwav_free(pSampleData);
-*/
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
+    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/Cell/CellDarkInky3.svg",
+                                                            "res/Cell/CellDarkInky3.svg",
+                                                            "res/Cell/CellDarkLoader3.svg",
+                                                            "res/Cell/CellDarkLoader3.svg"};
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, /*"res/Cell/CellDark2.svg"*/ "res/Cell/CellDarkInky2.svg")));
-
-    if(module) {
-        lightPanel = new SvgPanel;
-        lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Cell/CellDarkInky2.svg")));
-        lightPanel->visible = false;
-        addChild(lightPanel);
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[TRRFORM_DARK_PANEL_NORMAL])));
+    for(auto i = 1; i < NUM_TRRFORM_PANELS; ++i) {
+        SvgPanel* newPanel = new SvgPanel;
+        newPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[i])));
+        newPanel->visible = false;
+        panels[i] = newPanel;
+        addChild(panels[i]);
     }
+    panels[0] = panel;
+
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -456,49 +474,80 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
 
     // Knobs
-    addParam(createParamCentered<RoganMedBlueSnap>(octavePos, module, Terrorform::OCTAVE_PARAM));
-    addParam(createParamCentered<RoganMedBlue>(coarsePos, module, Terrorform::COARSE_PARAM));
-    addParam(createParamCentered<RoganMedBlue>(finePos, module, Terrorform::FINE_PARAM));
+    octaveKnob = createParamCentered<RoganMedBlue>(octavePos, module, Terrorform::OCTAVE_PARAM);
+    octaveKnob->smooth = false;
+    octaveKnob->snap = true;
+    addParam(octaveKnob);
+    coarseKnob = createParamCentered<RoganMedBlue>(coarsePos, module, Terrorform::COARSE_PARAM);
+    addParam(coarseKnob);
+    fineKnob = createParamCentered<RoganMedBlue>(finePos, module, Terrorform::FINE_PARAM);
+    addParam(fineKnob);
 
     bankKnob = createParamCentered<RoganMedPurple>(bankPos, module, Terrorform::BANK_PARAM);
     bankKnob->smooth = false;
+    bankKnob->snap = true;
     addParam(bankKnob);
     waveKnob = createParamCentered<RoganMedPurple>(wavePos, module, Terrorform::WAVE_PARAM);
     addParam(waveKnob);
 
     shapeTypeKnob = createParamCentered<RoganMedRed>(shapeTypePos, module, Terrorform::SHAPE_TYPE_PARAM);
     shapeTypeKnob->smooth = false;
+    shapeTypeKnob->snap = true;
     addParam(shapeTypeKnob);
     shapeDepthKnob = createParamCentered<RoganMedRed>(shapeDepthPos, module, Terrorform::SHAPE_DEPTH_PARAM);
     addParam(shapeDepthKnob);
 
     degradeTypeKnob = createParamCentered<RoganMedGreen>(degradeTypePos, module, Terrorform::DEGRADE_TYPE_PARAM);
     degradeTypeKnob->smooth = false;
+    degradeTypeKnob->snap = true;
     addParam(degradeTypeKnob);
     degradeDepthKnob = createParamCentered<RoganMedGreen>(degradeDepthPos, module, Terrorform::DEGRADE_DEPTH_PARAM);
     addParam(degradeDepthKnob);
 
-    addParam(createParamCentered<RoganSmallMustard>(percDecayPos, module, Terrorform::PERC_DECAY_PARAM));
-    addParam(createParamCentered<RoganSmallMustard>(percVelocityPos, module, Terrorform::PERC_VELOCITY_PARAM));
+    decayKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::PERC_DECAY_PARAM);
+    addParam(decayKnob);
+    velocityKnob = createParamCentered<RoganMedMustard>(percVelocityPos, module, Terrorform::PERC_VELOCITY_PARAM);
+    addParam(velocityKnob);
 
-    addParam(createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM));
-    addParam(createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM));
-    addParam(createParamCentered<RoganSmallPurple>(bankCV1Pos, module, Terrorform::BANK_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallPurple>(bankCV2Pos, module, Terrorform::BANK_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallPurple>(waveCV1Pos, module, Terrorform::WAVE_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallPurple>(waveCV2Pos, module, Terrorform::WAVE_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallRed>(shapeTypeCV1Pos, module, Terrorform::SHAPE_TYPE_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallRed>(shapeTypeCV2Pos, module, Terrorform::SHAPE_TYPE_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallRed>(shapeDepthCV1Pos, module, Terrorform::SHAPE_DEPTH_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallRed>(shapeDepthCV2Pos, module, Terrorform::SHAPE_DEPTH_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallGreen>(degradeTypeCV1Pos, module, Terrorform::DEGRADE_TYPE_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallGreen>(degradeTypeCV2Pos, module, Terrorform::DEGRADE_TYPE_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallGreen>(degradeDepthCV1Pos, module, Terrorform::DEGRADE_DEPTH_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallGreen>(degradeDepthCV2Pos, module, Terrorform::DEGRADE_DEPTH_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM));
-    addParam(createParamCentered<RoganSmallMustard>(percVelocityCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM));
-    addParam(createParamCentered<RoganSmallMustard>(percVelocityCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM));
+    vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
+    vOct2CV = createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM);
+    addParam(vOct1CV);
+    addParam(vOct2CV);
+    bankCV1 = createParamCentered<RoganSmallPurple>(bankCV1Pos, module, Terrorform::BANK_CV_1_PARAM);
+    bankCV2 = createParamCentered<RoganSmallPurple>(bankCV2Pos, module, Terrorform::BANK_CV_2_PARAM);
+    waveCV1 = createParamCentered<RoganSmallPurple>(waveCV1Pos, module, Terrorform::WAVE_CV_1_PARAM);
+    waveCV2 = createParamCentered<RoganSmallPurple>(waveCV2Pos, module, Terrorform::WAVE_CV_2_PARAM);
+    addParam(bankCV1);
+    addParam(bankCV2);
+    addParam(waveCV1);
+    addParam(waveCV2);
+
+    shapeTypeCV1 = createParamCentered<RoganSmallRed>(shapeTypeCV1Pos, module, Terrorform::SHAPE_TYPE_CV_1_PARAM);
+    shapeTypeCV2 = createParamCentered<RoganSmallRed>(shapeTypeCV2Pos, module, Terrorform::SHAPE_TYPE_CV_2_PARAM);
+    shapeDepthCV1 = createParamCentered<RoganSmallRed>(shapeDepthCV1Pos, module, Terrorform::SHAPE_DEPTH_CV_1_PARAM);
+    shapeDepthCV2 = createParamCentered<RoganSmallRed>(shapeDepthCV2Pos, module, Terrorform::SHAPE_DEPTH_CV_2_PARAM);
+    addParam(shapeTypeCV1);
+    addParam(shapeTypeCV2);
+    addParam(shapeDepthCV1);
+    addParam(shapeDepthCV2);
+
+    degradeTypeCV1 = createParamCentered<RoganSmallGreen>(degradeTypeCV1Pos, module, Terrorform::DEGRADE_TYPE_CV_1_PARAM);
+    degradeTypeCV2 = createParamCentered<RoganSmallGreen>(degradeTypeCV2Pos, module, Terrorform::DEGRADE_TYPE_CV_2_PARAM);
+    degradeDepthCV1 = createParamCentered<RoganSmallGreen>(degradeDepthCV1Pos, module, Terrorform::DEGRADE_DEPTH_CV_1_PARAM);
+    degradeDepthCV2 = createParamCentered<RoganSmallGreen>(degradeDepthCV2Pos, module, Terrorform::DEGRADE_DEPTH_CV_2_PARAM);
+    addParam(degradeTypeCV1);
+    addParam(degradeTypeCV2);
+    addParam(degradeDepthCV1);
+    addParam(degradeDepthCV2);
+
+    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM);
+    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM);
+    percVelocityCV1 = createParamCentered<RoganSmallMustard>(percVelocityCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM);
+    percVelocityCV2 = createParamCentered<RoganSmallMustard>(percVelocityCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM);
+    addParam(percDecayCV1);
+    addParam(percDecayCV2);
+    addParam(percVelocityCV1);
+    addParam(percVelocityCV2);
 
     addParam(createParamCentered<RoganSmallWhite>(vcaAPos, module, Terrorform::FM_A_VCA_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(vcaBPos, module, Terrorform::FM_B_VCA_ATTEN_PARAM));
@@ -506,44 +555,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(createParamCentered<RoganSmallWhite>(fmA2Pos, module, Terrorform::FM_A2_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(fmB1Pos, module, Terrorform::FM_B1_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(fmB2Pos, module, Terrorform::FM_B2_ATTEN_PARAM));
-
-    // Switches
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = percSwitchPos;
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Terrorform::PERC_SWITCH_PARAM];
-        }
-        button->momentary = false;
-        addParam(button);
-    }
-    addChild(createLight<MediumLight<RedLight>>(percSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::PERCUSSION_LIGHT));
-
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = userBankSwitchPos;
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Terrorform::USER_BANK_SWITCH_PARAM];
-        }
-        button->momentary = true;
-        addParam(button);
-    }
-    addChild(createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT));
-
-    {
-        TerrorformLoadButton* button = new TerrorformLoadButton;
-        button->box.pos = loadTableSwitchPos;
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Terrorform::LOAD_TABLE_SWITCH_PARAM];
-        }
-        button->momentary = false;
-        button->onReadOnlyError = [=]() {
-            displayMode = DISPLAY_LOAD_ERROR;
-            elapsedErrorDisplayTime = 0;
-        };
-        addParam(button);
-    }
-    addChild(createLight<MediumLight<RedLight>>(loadTableSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::LOAD_TABLE_LIGHT));
 
     // Back text
     auto makeBackText = [=](const Vec& pos, int length, const NVGalign& align) {
@@ -785,6 +796,222 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
         addChild(syncMenu);
     }
+
+    // Switches
+    percButton = createParam<LightLEDButton2>(percSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
+    percButton->momentary = false;
+    addParam(percButton);
+
+    percButtonLight = createLight<MediumLight<RedLight>>(percSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::PERCUSSION_LIGHT);
+    addChild(percButtonLight);
+
+    lfoButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
+    lfoButton->momentary = true;
+    addParam(lfoButton);
+
+    lfoButtonLight = createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT);
+    addChild(lfoButtonLight);
+
+    loadButton = createParam<LightLEDButton2>(loadTableSwitchPos, module, Terrorform::LOAD_TABLE_SWITCH_PARAM);
+    loadButton->momentary = true;
+
+    loadButton->onClick = [=]() {
+        octaveKnob->visible = false;
+        coarseKnob->visible = false;
+        fineKnob->visible = false;
+        bankKnob->visible = false;
+        waveKnob->visible = false;
+        shapeTypeKnob->visible = false;
+        shapeDepthKnob->visible = false;
+        degradeTypeKnob->visible = false;
+        degradeDepthKnob->visible = false;
+        decayKnob->visible = false;
+        velocityKnob->visible = false;
+
+        bankBackText->visible = false;
+        shapeBackText->visible = false;
+        degradeBackText->visible = false;
+
+        bankText->visible = false;
+        shapeText->visible = false;
+        degradeText->visible = false;
+        waveText->visible = false;
+        shapeDepthText->visible = false;
+        degradeDepthText->visible = false;
+
+        bankBlurText->visible = false;
+        bankBlurText2->visible = false;
+        waveBlurText->visible = false;
+        waveBlurText2->visible = false;
+        shapeBlurText->visible = false;
+        shapeBlurText2->visible = false;
+        shapeDepthBlurText->visible = false;
+        shapeDepthBlurText2->visible = false;
+        degradeBlurText->visible = false;
+        degradeBlurText2->visible = false;
+        degradeDepthBlurText->visible = false;
+        degradeDepthBlurText2->visible = false;
+
+        vOct1CV->visible = false;
+        vOct2CV->visible = false;
+        bankCV1->visible = false;
+        bankCV2->visible = false;
+        waveCV1->visible = false;
+        waveCV2->visible = false;
+        shapeTypeCV1->visible = false;
+        shapeTypeCV2->visible = false;
+        shapeDepthCV1->visible = false;
+        shapeDepthCV2->visible = false;
+        degradeTypeCV1->visible = false;
+        degradeTypeCV2->visible = false;
+        degradeDepthCV1->visible = false;
+        degradeDepthCV2->visible = false;
+        percDecayCV1->visible = false;
+        percDecayCV2->visible = false;
+        percVelocityCV1->visible = false;
+        percVelocityCV2->visible = false;
+
+        lfoButton->visible = false;
+        loadButton->visible = false;
+        percButton->visible = false;
+
+        percButtonLight->visible = false;
+        lfoButtonLight->visible = false;
+
+        editor->visible = true;
+        inEditorMode = true;
+    };
+    addParam(loadButton);
+
+    auto onExitEditor = [=]() {
+        octaveKnob->visible = true;
+        coarseKnob->visible = true;
+        fineKnob->visible = true;
+        bankKnob->visible = true;
+        waveKnob->visible = true;
+        shapeTypeKnob->visible = true;
+        shapeDepthKnob->visible = true;
+        degradeTypeKnob->visible = true;
+        degradeDepthKnob->visible = true;
+        decayKnob->visible = true;
+        velocityKnob->visible = true;
+
+        bankBackText->visible = true;
+        shapeBackText->visible = true;
+        degradeBackText->visible = true;
+
+        bankText->visible = true;
+        shapeText->visible = true;
+        degradeText->visible = true;
+        waveText->visible = true;
+        shapeDepthText->visible = true;
+        degradeDepthText->visible = true;
+
+        bankBlurText->visible = true;
+        bankBlurText2->visible = true;
+        waveBlurText->visible = true;
+        waveBlurText2->visible = true;
+        shapeBlurText->visible = true;
+        shapeBlurText2->visible = true;
+        shapeDepthBlurText->visible = true;
+        shapeDepthBlurText2->visible = true;
+        degradeBlurText->visible = true;
+        degradeBlurText2->visible = true;
+        degradeDepthBlurText->visible = true;
+        degradeDepthBlurText2->visible = true;
+
+        vOct1CV->visible = true;
+        vOct2CV->visible = true;
+        bankCV1->visible = true;
+        bankCV2->visible = true;
+        waveCV1->visible = true;
+        waveCV2->visible = true;
+        shapeTypeCV1->visible = true;
+        shapeTypeCV2->visible = true;
+        shapeDepthCV1->visible = true;
+        shapeDepthCV2->visible = true;
+        degradeTypeCV1->visible = true;
+        degradeTypeCV2->visible = true;
+        degradeDepthCV1->visible = true;
+        degradeDepthCV2->visible = true;
+        percDecayCV1->visible = true;
+        percDecayCV2->visible = true;
+        percVelocityCV1->visible = true;
+        percVelocityCV2->visible = true;
+
+        lfoButton->visible = true;
+        loadButton->visible = true;
+        percButton->visible = true;
+
+        percButtonLight->visible = true;
+        lfoButtonLight->visible = true;
+
+        editor->visible = false;
+        inEditorMode = false;
+    };
+
+    auto loadWAVFile = [=]() {
+        const char FILE_FILTERS[] = "WAV File (.wav):wav";
+        std::string dir = asset::user("");
+        std::string filename;
+
+        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
+        DEFER({
+            osdialog_filters_free(filters);
+        });
+
+        drwav_uint64 numSamples = 0;
+        unsigned int channels = 1;
+        unsigned int sampleRate = 44100;
+        newTable = NULL;
+
+        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
+        if(path) {
+            newTable = drwav_open_file_and_read_f32(path, &channels, &sampleRate, &numSamples);
+            DEFER({
+                std::free(path);
+            });
+        }
+        if(newTable == NULL) {
+            return 0;
+        }
+
+        auto overflow = numSamples % DSJ_CELL_MAX_USER_WAVE_LENGTH;
+        numSamples -= overflow;
+        numSamples = numSamples > DSJ_CELL_MAX_TABLE_SIZE ? DSJ_CELL_MAX_TABLE_SIZE : numSamples;
+
+        int numBlocks = (int)numSamples / DSJ_CELL_MAX_USER_WAVE_LENGTH;
+        return numBlocks;
+    };
+
+    auto ingestNewTable = [=](int bank, int startWave, int endWave) {
+        int numWaves = (endWave - startWave) + 1;
+        int tableLength = numWaves * DSJ_CELL_MAX_USER_WAVE_LENGTH;
+        int readPos = 0;
+        int startPos = startWave * DSJ_CELL_MAX_USER_WAVE_LENGTH;
+        int writePos = 0;
+        int wave = 0;
+
+        for(int i = 0; i < tableLength; ++i) {
+            readPos = startPos + i;
+            wave = i / DSJ_CELL_MAX_USER_WAVE_LENGTH;
+            writePos = i % DSJ_CELL_MAX_USER_WAVE_LENGTH;
+
+            module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
+        }
+        module->userWaveTableSizes[bank] = numWaves;
+        module->userWaveTableFilled[bank] = true;
+        module->numUserWaveTables++;
+    };
+
+    editor = createWidget<TFormEditor>(Vec(31, 30));
+    editor->box.size.x = 238;
+    editor->box.size.y = 195;
+    editor->visible = false;
+    editor->addOnExitCallback(onExitEditor);
+    editor->addLoadWAVCallback(loadWAVFile);
+    editor->addIngestTableCallback(ingestNewTable);
+    addChild(editor);
 }
 
 void TerrorformWidget::appendContextMenu(Menu *menu) {
@@ -814,13 +1041,15 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
 
 void TerrorformWidget::step() {
     if(module) {
-        if(dynamic_cast<Terrorform*>(module)->panelStyle == 1) {
-            panel->visible = false;
-            lightPanel->visible = true;
+        int panelStyleOffset = dynamic_cast<Terrorform*>(module)->panelStyle;
+        for(auto i = 0; i < NUM_TRRFORM_PANELS; ++i) {
+            panels[i]->visible = false;
+        }
+        if(inEditorMode) {
+            panels[TRRFORM_DARK_PANEL_EDITOR + panelStyleOffset]->visible = true;
         }
         else {
-            panel->visible = true;
-            lightPanel->visible = false;
+            panels[TRRFORM_DARK_PANEL_NORMAL + panelStyleOffset]->visible = true;
         }
 
         displayStyle = (TerrorformDisplayColourModes)(dynamic_cast<Terrorform*>(module)->displayStyle * 2);
@@ -836,6 +1065,10 @@ void TerrorformWidget::step() {
             case DISPLAY_LOAD_ERROR:
                 onDisplayLoadError();
                 break;
+        }
+
+        for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
+            editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
         }
 
         *syncStr = syncNames[(unsigned long)dynamic_cast<Terrorform*>(module)->syncChoice];
@@ -912,5 +1145,28 @@ void TerrorformWidget::changeDisplayStyle() {
     setNewColour(nullptr, degradeDepthText, degradeDepthBlurText, degradeDepthBlurText2);
     setNewColour(syncBackText, syncText, syncBlurText, syncBlurText2);
 }
+
+    /*Terrorform* module = dynamic_cast<Terrorform*>(paramQuantity->module);
+    if(module) {
+        if(module->readFromUserWaves == false) {
+            onReadOnlyError();
+            return;
+        }
+        const char FILE_FILTERS[] = "WAV File (.wav):wav";
+        std::string dir = asset::user("");
+        std::string filename;
+
+        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
+    	DEFER({
+    		osdialog_filters_free(filters);
+    	});
+        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
+        if(path) {
+            module->loadUserWaveTable(path);
+            DEFER({
+                std::free(path);
+            });
+        }
+    }*/
 
 Model *modelTerrorform = createModel<Terrorform, TerrorformWidget>("Terrorform");

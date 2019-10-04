@@ -25,7 +25,10 @@
 #ifndef DSJ_CELL_HPP
 #define DSJ_CELL_HPP
 #define DSJ_CELL_NUM_USER_BANKS 64
-#define DSJ_CELL_USER_TABLE_LENGTH 256
+#define DSJ_CELL_MAX_USER_TABLE_WAVES 64
+#define DSJ_CELL_DEFAULT_USER_TABLE_WAVES 8
+#define DSJ_CELL_MAX_USER_WAVE_LENGTH 256
+#define DSJ_CELL_MAX_TABLE_SIZE DSJ_CELL_MAX_USER_TABLE_WAVES * DSJ_CELL_MAX_USER_WAVE_LENGTH
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
@@ -34,9 +37,12 @@
 #include "../Common/FreqLUT.hpp"
 #include "../../dep/dr_wav.h"
 #include "TerrorformWavetableROM.hpp"
+#include "TerrorformWaveTableEditor.hpp"
 #include "Degrader.hpp"
 #include "osdialog.h"
 #include <cstdio>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -138,10 +144,16 @@ struct Terrorform : Module {
     int panelStyle = 0;
     int displayStyle = 0;
 
-    static const int kTable = 10;
     static const int kMaxNumGroups = 1;
     ScanningQuadOsc osc[kMaxNumGroups];
-    float** userWaves;
+
+    float** userWaveTableData[DSJ_CELL_NUM_USER_BANKS];
+    int32_t userWaveTableSizes[DSJ_CELL_NUM_USER_BANKS];
+    long userWaveTableLengths[DSJ_CELL_NUM_USER_BANKS];
+    bool userWaveTableFilled[DSJ_CELL_NUM_USER_BANKS];
+
+    int numUserWaveTables = 0;
+
     bool userWavesButtonState, prevUserWavesButtonState;
     bool readFromUserWaves;
 
@@ -223,7 +235,6 @@ struct Terrorform : Module {
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
-    void loadUserWaveTable(const char* path);
 };
 
 struct TerrorformPanelStyleItem : MenuItem {
@@ -239,13 +250,6 @@ struct TerrorformDisplayStyleItem : MenuItem {
     void onAction(const event::Action &e) override;
     void step() override;
 };
-
-struct TerrorformLoadButton : LightLEDButton {
-    TerrorformLoadButton();
-    void onDragEnd(const event::DragEnd &e) override;
-    std::function<void()> onReadOnlyError;
-};
-
 
 struct TerrorformWidget : ModuleWidget {
     TerrorformWidget(Terrorform *module);
@@ -288,6 +292,14 @@ struct TerrorformWidget : ModuleWidget {
         NUM_CELL_COLOURS
     };
 
+    enum TerrorformPanels {
+        TRRFORM_DARK_PANEL_NORMAL = 0,
+        TRRFORM_LIGHT_PANEL_NORMAL,
+        TRRFORM_DARK_PANEL_EDITOR,
+        TRRFORM_LIGHT_PANEL_EDITOR,
+        NUM_TRRFORM_PANELS
+    };
+
     const unsigned char cellDisplayColours[NUM_CELL_COLOURS][NUM_DISPLAY_LAYERS][4] {
         {{0x3F,0x00,0x00,0xFF}, {0xFF,0x5F,0x5F,0xBF}, {0xFF,0x2F,0x2F,0xBF}, {0xFF,0x00,0x00,0xFF}},
         {{0x6F,0x00,0x00,0xFF}, {0xFF,0x7F,0xFF,0xEF}, {0xFF,0x5F,0xFF,0xEF}, {0xFF,0x4F,0x6F,0xFF}},
@@ -315,22 +327,20 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthPos = Vec(230, 138);
     Vec degradeTypePos = Vec(79, 182);
     Vec degradeDepthPos = Vec(221, 182);
-    Vec percDecayPos = Vec(125, 196);
-    Vec percVelocityPos = Vec(175, 196);
+    Vec percDecayPos = Vec(125, 200);
+    Vec percVelocityPos = Vec(175, 200);
 
+    RoganMedBlue* octaveKnob;
+    RoganMedBlue* coarseKnob;
+    RoganMedBlue* fineKnob;
     RoganMedPurple* bankKnob;
     RoganMedPurple* waveKnob;
     RoganMedRed* shapeTypeKnob;
     RoganMedRed* shapeDepthKnob;
     RoganMedGreen* degradeTypeKnob;
     RoganMedGreen* degradeDepthKnob;
-
-    // Switches
-    Vec percSwitchPos = Vec(143.3, 178.3);
-    Vec trigSwitch1Pos = Vec(117.3, 269.3);
-    Vec trigSwitch2Pos = Vec(169.3, 269.3);
-    Vec userBankSwitchPos = Vec(143.3, 77.3);
-    Vec loadTableSwitchPos = Vec(143.3, 102.3);
+    RoganMedMustard* decayKnob;
+    RoganMedMustard* velocityKnob;
 
     // Attenuators
     Vec vOct1CVPos = Vec(53, 43);
@@ -347,10 +357,43 @@ struct TerrorformWidget : ModuleWidget {
     Vec degradeTypeCV2Pos = Vec(75, 224);
     Vec degradeDepthCV1Pos = Vec(263, 198);
     Vec degradeDepthCV2Pos = Vec(225, 224);
-    Vec percDecayCV1Pos = Vec(100, 209);
-    Vec percDecayCV2Pos = Vec(117, 234);
-    Vec percVelocityCV1Pos = Vec(200, 209);
-    Vec percVelocityCV2Pos = Vec(183, 234);
+    Vec percDecayCV1Pos = Vec(99, 215);
+    Vec percDecayCV2Pos = Vec(123, 234);
+    Vec percVelocityCV1Pos = Vec(178, 234);
+    Vec percVelocityCV2Pos = Vec(201, 215);
+
+    RoganSmallBlue* vOct1CV;
+    RoganSmallBlue* vOct2CV;
+    RoganSmallPurple* bankCV1;
+    RoganSmallPurple* bankCV2;
+    RoganSmallPurple* waveCV1;
+    RoganSmallPurple* waveCV2;
+    RoganSmallRed* shapeTypeCV1;
+    RoganSmallRed* shapeTypeCV2;
+    RoganSmallRed* shapeDepthCV1;
+    RoganSmallRed* shapeDepthCV2;
+    RoganSmallGreen* degradeTypeCV1;
+    RoganSmallGreen* degradeTypeCV2;
+    RoganSmallGreen* degradeDepthCV1;
+    RoganSmallGreen* degradeDepthCV2;
+    RoganSmallMustard* percDecayCV1;
+    RoganSmallMustard* percDecayCV2;
+    RoganSmallMustard* percVelocityCV1;
+    RoganSmallMustard* percVelocityCV2;
+
+    // Switches
+    LightLEDButton2* lfoButton;
+    LightLEDButton2* loadButton;
+    LightLEDButton2* percButton;
+
+    MediumLight<RedLight>* lfoButtonLight;
+    MediumLight<RedLight>* percButtonLight;
+
+    Vec percSwitchPos = Vec(143.3, 178.3);
+    Vec trigSwitch1Pos = Vec(117.3, 269.3);
+    Vec trigSwitch2Pos = Vec(169.3, 269.3);
+    Vec userBankSwitchPos = Vec(143.3, 77.3);
+    Vec loadTableSwitchPos = Vec(143.3, 102.3);
 
     Vec vcaAPos = Vec(44, 278);
     Vec fmA1Pos = Vec(44, 303);
@@ -360,42 +403,44 @@ struct TerrorformWidget : ModuleWidget {
     Vec fmB1Pos = Vec(256, 303);
     Vec fmB2Pos = Vec(256, 328);
 
-    // Inputs
-    Vec vOct1InputPos = Vec(18.5, 40);
-    Vec vOct2InputPos = Vec(281.5, 40);
+    // Jacks
+    float col1X = 15.0;
+    float col2X = 285.0;
+    Vec vOct1InputPos = Vec(col1X, 40);
+    Vec vOct2InputPos = Vec(col2X, 40);
 
-    Vec bankInput1Pos = Vec(18.5, 75);
-    Vec bankInput2Pos = Vec(18.5, 101);
+    Vec bankInput1Pos = Vec(col1X, 75);
+    Vec bankInput2Pos = Vec(col1X, 101);
 
-    Vec waveInput1Pos = Vec(281.5, 75);
-    Vec waveInput2Pos = Vec(281.5, 101);
+    Vec waveInput1Pos = Vec(col2X, 75);
+    Vec waveInput2Pos = Vec(col2X, 101);
 
-    Vec shapeTypeInput1Pos = Vec(18.5, 133);
-    Vec shapeTypeInput2Pos = Vec(18.5, 171);
+    Vec shapeTypeInput1Pos = Vec(col1X, 133);
+    Vec shapeTypeInput2Pos = Vec(col1X, 171);
 
-    Vec shapeDepthInput1Pos = Vec(281.5, 133);
-    Vec shapeDepthInput2Pos = Vec(281.5, 171);
+    Vec shapeDepthInput1Pos = Vec(col2X, 133);
+    Vec shapeDepthInput2Pos = Vec(col2X, 171);
 
-    Vec degradeTypeInput1Pos = Vec(18.5, 227);
-    Vec degradeTypeInput2Pos = Vec(39, 245);
+    Vec degradeTypeInput1Pos = Vec(col1X, 227);
+    Vec degradeTypeInput2Pos = Vec(39, 249);
 
-    Vec degradeDepthInput1Pos = Vec(281.5, 227);
-    Vec degradeDepthInput2Pos = Vec(261, 245);
+    Vec degradeDepthInput1Pos = Vec(col2X, 227);
+    Vec degradeDepthInput2Pos = Vec(261, 249);
 
-    Vec vcaAInputPos = Vec(18.5, 271);
-    Vec fmA1InputPos = Vec(18.5, 307);
-    Vec fmA2InputPos = Vec(18.5, 339);
-    Vec vcaBInputPos = Vec(281.5, 271);
-    Vec fmB1InputPos = Vec(281.5, 307);
-    Vec fmB2InputPos = Vec(281.5, 339);
+    Vec vcaAInputPos = Vec(col1X, 271);
+    Vec fmA1InputPos = Vec(col1X, 307);
+    Vec fmA2InputPos = Vec(col1X, 339);
+    Vec vcaBInputPos = Vec(col2X, 271);
+    Vec fmB1InputPos = Vec(col2X, 307);
+    Vec fmB2InputPos = Vec(col2X, 339);
 
-    Vec syncInput1Pos = Vec(90, 292);
-    Vec syncInput2Pos = Vec(210, 292);
+    Vec syncInput1Pos = Vec(87, 264);
+    Vec syncInput2Pos = Vec(213, 264);
 
-    Vec decayInput1Pos = Vec(87, 245);
-    Vec decayInput2Pos = Vec(103, 268);
-    Vec velocityInput1Pos = Vec(213, 245);
-    Vec velocityInput2Pos = Vec(197, 268);
+    Vec decayInput1Pos = Vec(93, 240);
+    Vec decayInput2Pos = Vec(111, 258);
+    Vec velocityInput1Pos = Vec(207, 240);
+    Vec velocityInput2Pos = Vec(189, 258);
     Vec triggerInput1Pos = Vec(135, 254);
     Vec triggerInput2Pos = Vec(165, 254);
 
@@ -417,7 +462,8 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec syncTextPos = Vec(149.829, 300);
 
-    SvgPanel* lightPanel;
+    widget::Widget* panels[NUM_TRRFORM_PANELS];
+    bool inEditorMode = false;
     DynamicText* bankBackText;
     DynamicText* shapeBackText;
     DynamicText* degradeBackText;
@@ -469,6 +515,9 @@ struct TerrorformWidget : ModuleWidget {
     unsigned long menuBankChoice = 0;
     bool bankMenuIsOpen = false;
 
+    TFormEditor* editor;
+    float *newTable;
+
     TerrorformDisplayColourModes displayStyle = CELL_RED_LED_COLOUR;
     TerrorformDisplayColourModes prevDisplayStyle = CELL_RED_LED_COLOUR;
 
@@ -479,7 +528,8 @@ struct TerrorformWidget : ModuleWidget {
         "OVERTONE1", "OVERTONE2", "SYMMETRY", "CHIP_1", "CHIP_2", "BITCRUSH1", "BITCRUSH2",
         "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
         "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
-        "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1"
+        "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
+        "PLAITS_3", "PLAITS_4"
     };
 
     std::vector<std::string> bankMenuItems = {
@@ -490,7 +540,8 @@ struct TerrorformWidget : ModuleWidget {
         "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2", "Grit", "Voice 1", "Voice 2",
         "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM", "Bi Pulse", "Saw Gap 1",
         "Saw Gap 2", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
-        "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1"
+        "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
+        "Plaits 3", "Plaits 4"
     };
 
     std::vector<std::string> shapeNames = {

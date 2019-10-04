@@ -125,6 +125,12 @@ struct Rogan1PSMustard : Rogan {
     }
 };
 
+struct RoganMedMustard : Rogan {
+    RoganMedMustard() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustardMed.svg")));
+    }
+};
+
 struct RoganSmallMustard : Rogan {
     RoganSmallMustard() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustardSmall.svg")));
@@ -217,6 +223,20 @@ struct LightLEDButton : DynamicSwitchWidget {
     LightLEDButton() {
         momentary = true;
         addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+    }
+};
+
+struct LightLEDButton2 : SvgSwitch {
+    std::function<void()> onClick;
+    LightLEDButton2() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+    }
+    void onDragEnd(const event::DragEnd& e) override {
+        if(onClick) {
+            onClick();
+        }
+        SvgSwitch::onDragEnd(e);
     }
 };
 

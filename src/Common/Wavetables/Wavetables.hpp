@@ -54,5 +54,8 @@
 #include "twoOpFMBank_waveTable/twoOpFMBank_waveTable.h"
 #include "machine_waveTable/machine_waveTable.h"
 #include "linear1_waveTable/linear1_waveTable.h"
+#include "plaits2_waveTable/plaits2_waveTable.h"
+#include "plaits3_waveTable/plaits3_waveTable.h"
+#include "plaits4_waveTable/plaits4_waveTable.h"
 
-#define NUM_VALLEY_WAVETABLES 54
+#define NUM_VALLEY_WAVETABLES 57

@@ -1,4 +1,5 @@
 #include "rack.hpp"
+#define DR_WAV_IMPLEMENTATION
 using namespace rack;
 
 #include <iomanip> // setprecision

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Common/Wavetables/Wavetables.hpp"
-#define NUM_TERRORFORM_WAVETABLES 54
+#define NUM_TERRORFORM_WAVETABLES 57
 
 static float** wavetables[NUM_TERRORFORM_WAVETABLES] = {
     wavetable_opal, wavetable_basic, wavetable_TeeEks, wavetable_sineHarmonics, wavetable_additiveSine, wavetable_amHarmonic,
@@ -14,7 +14,8 @@ static float** wavetables[NUM_TERRORFORM_WAVETABLES] = {
     wavetable_voice3, wavetable_voice4, wavetable_voice5, wavetable_voice6, wavetable_pwm,
     wavetable_biPulse, wavetable_sawGap, wavetable_sawGap2, wavetable_vgame, wavetable_foldSine,
     wavetable_fm1, wavetable_fm2, wavetable_fm3, wavetable_fm4, wavetable_fm5, wavetable_fm6,
-    wavetable_twoOpFM1, wavetable_twoOpFM2, wavetable_twoOpFMBank, wavetable_machine, wavetable_linear1
+    wavetable_twoOpFM1, wavetable_twoOpFM2, wavetable_twoOpFMBank, wavetable_machine, wavetable_linear1,
+    wavetable_plaits2, wavetable_plaits3, wavetable_plaits4
 };
 
 static long* wavetable_lengths[NUM_TERRORFORM_WAVETABLES] = {
@@ -28,7 +29,8 @@ static long* wavetable_lengths[NUM_TERRORFORM_WAVETABLES] = {
     wavetable_voice3_lengths, wavetable_voice4_lengths, wavetable_voice5_lengths, wavetable_voice6_lengths, wavetable_pwm_lengths,
     wavetable_biPulse_lengths, wavetable_sawGap_lengths, wavetable_sawGap2_lengths, wavetable_vgame_lengths, wavetable_foldSine_lengths,
     wavetable_fm1_lengths, wavetable_fm2_lengths, wavetable_fm3_lengths, wavetable_fm4_lengths, wavetable_fm5_lengths, wavetable_fm6_lengths,
-    wavetable_twoOpFM1_lengths, wavetable_twoOpFM2_lengths, wavetable_twoOpFMBank_lengths, wavetable_machine_lengths, wavetable_linear1_lengths
+    wavetable_twoOpFM1_lengths, wavetable_twoOpFM2_lengths, wavetable_twoOpFMBank_lengths, wavetable_machine_lengths, wavetable_linear1_lengths,
+    wavetable_plaits2_lengths, wavetable_plaits3_lengths, wavetable_plaits4_lengths
 };
 
 static int32_t wavetable_sizes[NUM_TERRORFORM_WAVETABLES] = {
@@ -42,5 +44,6 @@ static int32_t wavetable_sizes[NUM_TERRORFORM_WAVETABLES] = {
     WAVETABLE_VOICE3_NUM, WAVETABLE_VOICE4_NUM, WAVETABLE_VOICE5_NUM, WAVETABLE_VOICE6_NUM, WAVETABLE_PWM_NUM,
     WAVETABLE_BIPULSE_NUM, WAVETABLE_SAWGAP_NUM, WAVETABLE_SAWGAP2_NUM, WAVETABLE_VGAME_NUM, WAVETABLE_FOLDSINE_NUM,
     WAVETABLE_FM1_NUM, WAVETABLE_FM2_NUM, WAVETABLE_FM3_NUM, WAVETABLE_FM4_NUM, WAVETABLE_FM5_NUM, WAVETABLE_FM6_NUM,
-    WAVETABLE_TWOOPFM1_NUM, WAVETABLE_TWOOPFM2_NUM, WAVETABLE_TWOOPFMBANK_NUM, WAVETABLE_MACHINE_NUM, WAVETABLE_LINEAR1_NUM
+    WAVETABLE_TWOOPFM1_NUM, WAVETABLE_TWOOPFM2_NUM, WAVETABLE_TWOOPFMBANK_NUM, WAVETABLE_MACHINE_NUM, WAVETABLE_LINEAR1_NUM,
+    WAVETABLE_PLAITS2_NUM, WAVETABLE_PLAITS3_NUM, WAVETABLE_PLAITS4_NUM
 };
