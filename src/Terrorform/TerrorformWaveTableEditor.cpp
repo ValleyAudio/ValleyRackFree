@@ -16,6 +16,7 @@ TFormEditorButtonStyle::TFormEditorButtonStyle(const NVGcolor& newTextColor,
 TFormEditorButton::TFormEditorButton() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     mode = IDLE_MODE;
+    modeOffset = IDLE_MODE;
     buttonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF),
                                                     nvgRGB(0x17, 0x17, 0x17),
                                                     nvgRGB(0x7F, 0x7F, 0x7F));
