@@ -240,6 +240,14 @@ struct LightLEDButton2 : SvgSwitch {
     }
 };
 
+struct LightLEDButton3 : SvgSwitch {
+    std::function<void()> onClick;
+    LightLEDButton3() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton.svg")));
+    }
+};
+
 struct RedDynamicLight : DynamicModuleLightWidget {
 	RedDynamicLight() {
 		addBaseColor(SCHEME_RED);
