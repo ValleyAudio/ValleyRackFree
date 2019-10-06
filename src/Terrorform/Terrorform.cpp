@@ -36,6 +36,8 @@ Terrorform::Terrorform() {
     configParam(Terrorform::PERC_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV2 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV1 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV2 Atten.");
+    configParam(Terrorform::TRIGGER_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 1");
+    configParam(Terrorform::TRIGGER_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 2");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -289,6 +291,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __preDegradeOutput[c] = _mm_mul_ps(__preDegradeOutput[c], __fives);
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
 
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), lpg[c].getEnvelope());
         _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preDegradeOutput[c]);
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
@@ -469,6 +472,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(phasorOutPos, module, Terrorform::PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(preDegradePos, module, Terrorform::PRE_DEGRADE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(subOutPos, module, Terrorform::SUB_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
@@ -798,12 +802,17 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     // Switches
-    percButton = createParam<LightLEDButton2>(percSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
+    percButton = createParamCentered<LightLEDButton3>(percSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
     percButton->momentary = false;
     addParam(percButton);
 
-    percButtonLight = createLight<MediumLight<RedLight>>(percSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::PERCUSSION_LIGHT);
+    percButtonLight = createLightCentered<LargeLight<RedLight>>(percSwitchPos, module, Terrorform::PERCUSSION_LIGHT);
     addChild(percButtonLight);
+
+    addChild(createParamCentered<LightLEDButton3>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_SWITCH_PARAM));
+    addChild(createParamCentered<LightLEDButton3>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_SWITCH_PARAM));
+    addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_LIGHT));
+    addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_LIGHT));
 
     lfoButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     lfoButton->momentary = true;

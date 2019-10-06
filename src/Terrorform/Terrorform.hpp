@@ -131,6 +131,9 @@ struct Terrorform : Module {
 
         USER_BANK_SWITCH_PARAM,
         LOAD_TABLE_SWITCH_PARAM,
+
+        TRIGGER_1_SWITCH_PARAM,
+        TRIGGER_2_SWITCH_PARAM,
         NUM_PARAMS
     };
 
@@ -138,6 +141,8 @@ struct Terrorform : Module {
         PERCUSSION_LIGHT,
         USER_BANK_LIGHT,
         LOAD_TABLE_LIGHT,
+        TRIGGER_1_LIGHT,
+        TRIGGER_2_LIGHT,
         NUM_LIGHTS
     };
 
@@ -384,14 +389,14 @@ struct TerrorformWidget : ModuleWidget {
     // Switches
     LightLEDButton2* lfoButton;
     LightLEDButton2* loadButton;
-    LightLEDButton2* percButton;
+    LightLEDButton3* percButton;
 
     MediumLight<RedLight>* lfoButtonLight;
-    MediumLight<RedLight>* percButtonLight;
+    LargeLight<RedLight>* percButtonLight;
 
-    Vec percSwitchPos = Vec(143.3, 178.3);
-    Vec trigSwitch1Pos = Vec(117.3, 269.3);
-    Vec trigSwitch2Pos = Vec(169.3, 269.3);
+    Vec percSwitchPos = Vec(150, 219);
+    Vec trigSwitch1Pos = Vec(118, 282);
+    Vec trigSwitch2Pos = Vec(182, 282);
     Vec userBankSwitchPos = Vec(143.3, 77.3);
     Vec loadTableSwitchPos = Vec(143.3, 102.3);
 
@@ -445,11 +450,12 @@ struct TerrorformWidget : ModuleWidget {
     Vec triggerInput2Pos = Vec(165, 254);
 
     // Outputs
-    Vec phasorOutPos = Vec(90, 330);
-    Vec eocOutPos = Vec(120, 330);
-    Vec preDegradePos = Vec(150, 330);
-    Vec subOutPos = Vec(180, 330);
-    Vec mainOutPos = Vec(210, 330);
+    Vec phasorOutPos = Vec(70, 330);
+    Vec eocOutPos = Vec(102, 330);
+    Vec envOutPos = Vec(134, 330);
+    Vec preDegradePos = Vec(166, 330);
+    Vec subOutPos = Vec(198, 330);
+    Vec mainOutPos = Vec(230, 330);
 
     // Text
     Vec bankTextPos = Vec(97.46, 130.358);
