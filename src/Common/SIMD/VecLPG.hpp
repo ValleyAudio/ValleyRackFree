@@ -16,9 +16,8 @@ struct VecLPG {
     __m128 process(const __m128& x, const __m128& trigger) {
         __y = _mm_switch_ps(__y, trigger, _mm_cmpgt_ps(trigger, __zeros));
         __y = _mm_mul_ps(__y, __decay);
-        __cutoff = _mm_switch_ps(__maxCutoff,
-                                 _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__y, __y), __y), __maxCutoff),
-                                 __filterSwitch);
+        __cutoff = _mm_switch_ps(__maxCutoff, _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__y, __y), __y),
+                                 __maxCutoff), __filterSwitch);
         _lpf1.setCutoffFreq(__cutoff);
         _lpf2._a = _lpf1._a;
         _lpf2._b = _lpf1._b;
