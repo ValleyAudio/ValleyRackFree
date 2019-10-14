@@ -41,7 +41,7 @@
 #include "Degrader.hpp"
 #include "osdialog.h"
 #include <cstdio>
-#include <sstream>
+#include <fstream>
 #include <iostream>
 
 using namespace std;
@@ -134,6 +134,8 @@ struct Terrorform : Module {
 
         TRIGGER_1_SWITCH_PARAM,
         TRIGGER_2_SWITCH_PARAM,
+        WEAK_SYNC_1_SWITCH_PARAM,
+        WEAK_SYNC_2_SWITCH_PARAM,
         NUM_PARAMS
     };
 
@@ -143,6 +145,8 @@ struct Terrorform : Module {
         LOAD_TABLE_LIGHT,
         TRIGGER_1_LIGHT,
         TRIGGER_2_LIGHT,
+        WEAK_SYNC_1_LIGHT,
+        WEAK_SYNC_2_LIGHT,
         NUM_LIGHTS
     };
 
@@ -210,6 +214,13 @@ struct Terrorform : Module {
     __m128 __sync1Pls, __sync2Pls;
     unsigned long syncChoice = 0;
 
+    // Percussion
+    bool trig1State, trig2State;
+    float trig1, trig2;
+    __m128 __trig1, __trig2;
+    dsp::PulseGenerator trig1LightPulse, trig2LightPulse;
+    float trigLightDurationTime = 0.125f;
+    float trigLightDurationSamples = trigLightDurationTime * 44100.f;
     VecLPG lpg[kMaxNumGroups];
     __m128 __decay;
 
@@ -257,13 +268,6 @@ struct TerrorformDisplayStyleItem : MenuItem {
 };
 
 struct TerrorformWidget : ModuleWidget {
-    TerrorformWidget(Terrorform *module);
-    void appendContextMenu(Menu *menu) override;
-    void step() override;
-    void onDisplayParams();
-    void onDisplayLoadError();
-    void changeDisplayStyle();
-
     int errorDisplayTime = 30 * 5;
     int elapsedErrorDisplayTime = 0;
     int displayBlankTime = 2;
@@ -399,6 +403,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec trigSwitch2Pos = Vec(182, 282);
     Vec userBankSwitchPos = Vec(143.3, 77.3);
     Vec loadTableSwitchPos = Vec(143.3, 102.3);
+    Vec weakSyncSwitch1Pos = Vec(87, 299);
+    Vec weakSyncSwitch2Pos = Vec(213, 299);
 
     Vec vcaAPos = Vec(44, 278);
     Vec fmA1Pos = Vec(44, 303);
@@ -591,6 +597,14 @@ struct TerrorformWidget : ModuleWidget {
         "Pitch", "Wave Bank", "Wave Position", "Shape Type", "Shape Depth", "Degrade Type",
         "Degrade Depth", "FM In", "FM Depth", "Sync In", "Percussion Trig", "Percussion Decay"
     };
+
+    TerrorformWidget(Terrorform *module);
+    void appendContextMenu(Menu *menu) override;
+    void step() override;
+    void onDisplayParams();
+    void onDisplayLoadError();
+    void changeDisplayStyle();
+    void exportWavetables();
 };
 
 #endif

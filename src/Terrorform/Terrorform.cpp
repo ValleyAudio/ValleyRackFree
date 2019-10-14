@@ -46,6 +46,9 @@ Terrorform::Terrorform() {
     configParam(Terrorform::FM_A_VCA_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A VCA Gain");
     configParam(Terrorform::FM_B_VCA_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM B VCA Gain");
 
+    configParam(Terrorform::WEAK_SYNC_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Weak Sync 1");
+    configParam(Terrorform::WEAK_SYNC_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Weak Sync 2");
+
     configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves Switch");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
@@ -108,6 +111,8 @@ Terrorform::Terrorform() {
     readFromUserWaves = false;
     userWavesButtonState = false;
     prevUserWavesButtonState = false;
+
+    trigLightDurationSamples = trigLightDurationTime * APP->engine->getSampleRate();
 }
 
 Terrorform::~Terrorform() {
@@ -181,6 +186,29 @@ void Terrorform::process(const ProcessArgs &args) {
 
         counter = 0;
     }
+
+    trig1 = 0.f;
+    if(params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1State == false) {
+        trig1State = true;
+        trig1 = 1.f;
+        trig1LightPulse.trigger(trigLightDurationSamples);
+    }
+    if(params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1State == true) {
+        trig1State = false;
+    }
+
+    trig2 = 0.f;
+    if(params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2State == false) {
+        trig2State = true;
+        trig2 = 1.f;
+        trig2LightPulse.trigger(trigLightDurationSamples);
+    }
+    if(params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2State == true) {
+        trig2State = false;
+    }
+
+    lights[TRIGGER_1_LIGHT].value = trig1LightPulse.process(1.f) ? 10.f : 0.f;
+    lights[TRIGGER_2_LIGHT].value = trig2LightPulse.process(1.f) ? 10.f : 0.f;
 
     rootPitch = (int)params[OCTAVE_PARAM].getValue();
     rootPitch += params[COARSE_PARAM].getValue();
@@ -307,6 +335,7 @@ void Terrorform::onSampleRateChange() {
         osc[i].setSampleRate(APP->engine->getSampleRate());
         degrader[i].setSampleRate(APP->engine->getSampleRate());
     }
+    trigLightDurationSamples = trigLightDurationTime * APP->engine->getSampleRate();
 }
 
 json_t* Terrorform::dataToJson()  {
@@ -368,8 +397,6 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *userWavesJ = json_object_get(rootJ, "userWaves");
     json_t *numUserWaveTablesJ = json_object_get(rootJ, "numUserWaveTables");
     numUserWaveTables = json_integer_value(numUserWaveTablesJ);
-
-    printf("%d\n", numUserWaveTables);
 
     for(auto bank = 0; bank < numUserWaveTables; ++bank) {
         json_t* userWaveJ = json_array_get(userWavesJ, bank);
@@ -813,6 +840,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(createParamCentered<LightLEDButton3>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_SWITCH_PARAM));
     addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_LIGHT));
     addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_LIGHT));
+    addChild(createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM));
+    addChild(createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM));
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
 
     lfoButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     lfoButton->momentary = true;
@@ -1020,6 +1051,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addOnExitCallback(onExitEditor);
     editor->addLoadWAVCallback(loadWAVFile);
     editor->addIngestTableCallback(ingestNewTable);
+    editor->addExportCallback(std::bind(&TerrorformWidget::exportWavetables, this));
     addChild(editor);
 }
 
@@ -1155,27 +1187,20 @@ void TerrorformWidget::changeDisplayStyle() {
     setNewColour(syncBackText, syncText, syncBlurText, syncBlurText2);
 }
 
-    /*Terrorform* module = dynamic_cast<Terrorform*>(paramQuantity->module);
-    if(module) {
-        if(module->readFromUserWaves == false) {
-            onReadOnlyError();
-            return;
+void TerrorformWidget::exportWavetables() {
+    Terrorform* tform = dynamic_cast<Terrorform*>(module);
+    std::fstream outFile;
+    outFile.open("test.bin", std::ios::out | std::ios::binary);
+    if(outFile.is_open()) {
+        outFile.seekp(0);
+        for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
+            for(auto j = 0; j < DSJ_CELL_MAX_USER_TABLE_WAVES; ++j) {
+                outFile.write((char*) tform->userWaveTableData[i][i],
+                              sizeof(float) * DSJ_CELL_MAX_USER_WAVE_LENGTH);
+            }
         }
-        const char FILE_FILTERS[] = "WAV File (.wav):wav";
-        std::string dir = asset::user("");
-        std::string filename;
-
-        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
-    	DEFER({
-    		osdialog_filters_free(filters);
-    	});
-        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
-        if(path) {
-            module->loadUserWaveTable(path);
-            DEFER({
-                std::free(path);
-            });
-        }
-    }*/
+    }
+    outFile.close();
+}
 
 Model *modelTerrorform = createModel<Terrorform, TerrorformWidget>("Terrorform");
