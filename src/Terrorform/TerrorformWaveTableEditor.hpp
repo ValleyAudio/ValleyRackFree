@@ -154,12 +154,12 @@ struct TFormEditorEditMenu : OpaqueWidget {
 struct TFormEditor : OpaqueWidget {
     TFormEditorMainMenu* mainMenu;
     TFormEditorEditMenu* editMenu;
-    TFormEditorButton* exitButton;
 
     TFormEditor();
     void addOnExitCallback(const std::function<void()>& onExitCallback);
     void addLoadWAVCallback(const std::function<int()>& onLoadWAVCallback);
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
+    void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
     void setStyle(const TFormEditorStyles& newStyle);
     void setSlotFilledFlag(int slot, bool isFilled);
 };
