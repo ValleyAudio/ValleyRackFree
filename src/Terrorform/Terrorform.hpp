@@ -189,9 +189,9 @@ struct Terrorform : Module {
 
     float rootWave;
     float* waves;
-    float numWaves;
+    float numWavesInTable;
     __m128 __wave;
-    __m128 __numWaves;
+    __m128 __numWavesInTable;
     float waveCV;
 
     float rootShapeDepth;
@@ -605,6 +605,7 @@ struct TerrorformWidget : ModuleWidget {
     void onDisplayLoadError();
     void changeDisplayStyle();
     void exportWavetables();
+    void importWavetables();
 };
 
 #endif

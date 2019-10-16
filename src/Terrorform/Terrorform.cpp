@@ -63,7 +63,7 @@ Terrorform::Terrorform() {
     shapeType = 0;
 
     rootWave = 0.f;
-    numWaves = 1.f;
+    numWavesInTable = 1.f;
     rootShapeDepth = 0.f;
     rootDegradeDepth = 0.f;
 
@@ -170,8 +170,8 @@ void Terrorform::process(const ProcessArgs &args) {
         percMode = params[PERC_SWITCH_PARAM].getValue() > 0.5f ? true : false;
         lights[PERCUSSION_LIGHT].value = percMode ? 1.f : 0.f;
 
-        numWaves = osc[0].getNumwaves() - 1.f;
-        __numWaves = _mm_set1_ps(numWaves);
+        numWavesInTable = osc[0].getNumwaves() - 1.f;
+        __numWavesInTable = _mm_set1_ps(numWavesInTable);
 
         sync1IsMono = inputs[SYNC_1_INPUT].isMonophonic();
         sync2IsMono = inputs[SYNC_2_INPUT].isMonophonic();
@@ -230,7 +230,7 @@ void Terrorform::process(const ProcessArgs &args) {
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
                                         rootPitch);
         waves[i] = rootWave + inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV * 0.1f;
-        waves[i] *= numWaves;
+        waves[i] *= numWavesInTable;
         shapes[i] = rootShapeDepth + inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV * 0.1f;
         degrades[i] = rootDegradeDepth + inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV * 0.1f;
     }
@@ -295,7 +295,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __shape = _mm_load_ps(shapes);
         __degrade = _mm_load_ps(degrades);
 
-        __wave = _mm_clamp_ps(__wave, __zeros, __numWaves);
+        __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
 
@@ -343,7 +343,6 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
     json_object_set_new(rootJ, "numUserWaveTables", json_integer(numUserWaveTables));
-
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -1190,9 +1189,35 @@ void TerrorformWidget::changeDisplayStyle() {
 void TerrorformWidget::exportWavetables() {
     Terrorform* tform = dynamic_cast<Terrorform*>(module);
     std::fstream outFile;
-    outFile.open("test.bin", std::ios::out | std::ios::binary);
+
+    const char FILE_FILTERS[] = "Valley Wavetable (.vwt):vwt";
+    std::string dir = asset::user("");
+    std::string filename;
+    std::string filepath;
+
+    osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
+    DEFER({
+        osdialog_filters_free(filters);
+    });
+
+    char* path = osdialog_file(OSDIALOG_SAVE, dir.c_str(), filename.c_str(), filters);
+    if(path) {
+        filepath = std::string(path);
+        DEFER({
+            std::free(path);
+        });
+    }
+    else {
+        printf("Returned\n");
+        return;
+    }
+    printf("%s\n", filepath.c_str());
+
+    outFile.open(filepath, std::ios::out | std::ios::binary);
     if(outFile.is_open()) {
         outFile.seekp(0);
+        outFile.write("T401", sizeof(char) * 4);
+        outFile.write((char*)&tform->numUserWaveTables, sizeof(int));
         for(auto i = 0; i < DSJ_CELL_NUM_USER_BANKS; ++i) {
             for(auto j = 0; j < DSJ_CELL_MAX_USER_TABLE_WAVES; ++j) {
                 outFile.write((char*) tform->userWaveTableData[i][i],
