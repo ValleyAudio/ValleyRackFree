@@ -24,11 +24,10 @@
 
 #ifndef DSJ_CELL_HPP
 #define DSJ_CELL_HPP
-#define DSJ_CELL_NUM_USER_BANKS 64
-#define DSJ_CELL_MAX_USER_TABLE_WAVES 64
-#define DSJ_CELL_DEFAULT_USER_TABLE_WAVES 8
-#define DSJ_CELL_MAX_USER_WAVE_LENGTH 256
-#define DSJ_CELL_MAX_TABLE_SIZE DSJ_CELL_MAX_USER_TABLE_WAVES * DSJ_CELL_MAX_USER_WAVE_LENGTH
+#define TFORM_MAX_BANKS 64
+#define TFORM_MAX_NUM_WAVES 64
+#define TFORM_MAX_WAVELENGTH 256
+#define TFORM_MAX_TABLE_SIZE TFORM_MAX_NUM_WAVES * TFORM_MAX_WAVELENGTH
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
@@ -156,12 +155,10 @@ struct Terrorform : Module {
     static const int kMaxNumGroups = 1;
     ScanningQuadOsc osc[kMaxNumGroups];
 
-    float** userWaveTableData[DSJ_CELL_NUM_USER_BANKS];
-    int32_t userWaveTableSizes[DSJ_CELL_NUM_USER_BANKS];
-    long userWaveTableLengths[DSJ_CELL_NUM_USER_BANKS];
-    bool userWaveTableFilled[DSJ_CELL_NUM_USER_BANKS];
-
-    int numUserWaveTables = 0;
+    float** userWaveTableData[TFORM_MAX_BANKS];
+    char userWaveTableSizes[TFORM_MAX_BANKS];
+    bool userWaveTableFilled[TFORM_MAX_BANKS];
+    char numUserWaveTables = 0;
 
     bool userWavesButtonState, prevUserWavesButtonState;
     bool readFromUserWaves;
@@ -243,6 +240,8 @@ struct Terrorform : Module {
     __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
 
     int counter = 512;
+
+    bool romIsLoading = false;
 
     Terrorform();
     ~Terrorform();
