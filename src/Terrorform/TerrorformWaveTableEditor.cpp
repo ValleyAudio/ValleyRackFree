@@ -274,24 +274,6 @@ TFormEditorEditMenu::TFormEditorEditMenu() {
     float menuButtonWidth = 44;
     float menuButtonHeight = 15;
 
-    /*gridButtonStyles[RED_EDITOR_STYLE][IDLE_MODE] =       TFormEditorButtonStyle(nvgRGB(0xFF, 0x00, 0x00),
-                                                                                       nvgRGB(0x00, 0x00, 0x00));
-    gridButtonStyles[RED_EDITOR_STYLE][HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
-                                                                                       nvgRGB(0x7F, 0x00, 0x00));
-    gridButtonStyles[RED_EDITOR_STYLE][HIGHLIGHT_MODE] =        TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
-                                                                                       nvgRGB(0xFF, 0x00, 0x00));
-    gridButtonStyles[RED_EDITOR_STYLE][HIGHLIGHT_HOVER_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                                       nvgRGB(0xFF, 0x00, 0x00));
-
-    gridButtonStyles[YELLOW_EDITOR_STYLE][BUTTON_MODE] =       TFormEditorButtonStyle(nvgRGB(0xFF, 0xB0, 0x00),
-                                                                                          nvgRGB(0x4F, 0x10, 0x00));
-    gridButtonStyles[YELLOW_EDITOR_STYLE][HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
-                                                                                          nvgRGB(0x7F, 0x50, 0x00));
-    gridButtonStyles[YELLOW_EDITOR_STYLE][HIGHLIGHT_MODE] =        TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
-                                                                                          nvgRGB(0xFF, 0xB0, 0x00));
-    gridButtonStyles[YELLOW_EDITOR_STYLE][HIGHLIGHT_HOVER_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                                          nvgRGB(0xFF, 0xB0, 0x00));*/
-
     emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF),
                                                               nvgRGB(0x17, 0x17, 0x17),
                                                               nvgRGBA(0x00, 0x00, 0x00, 0x00));
@@ -636,6 +618,10 @@ void TFormEditor::addLoadWAVCallback(const std::function<int()>& onLoadWAVCallba
 
 void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback) {
     editMenu->onIngestTableCallback = onIngestTableCallback;
+}
+
+void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {
+    mainMenu->importButton->onClick = onImportWaveTableCallback;
 }
 
 void TFormEditor::addExportCallback(const std::function<void()>& onExportWaveTableCallback) {
