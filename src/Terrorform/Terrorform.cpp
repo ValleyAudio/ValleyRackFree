@@ -1209,7 +1209,7 @@ void TerrorformWidget::exportWavetables() {
     outFile.open(filepath, std::ios::out | std::ios::binary);
     if(outFile.is_open()) {
         outFile.seekp(0);
-        outFile.write("T401", sizeof(char) * 4);
+        outFile.write("T401VWT", sizeof(char) * 7);
         outFile.write(&tform->numUserWaveTables, sizeof(char));
         outFile.write((char*) &tform->userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
         for (auto b = 0; b < TFORM_MAX_BANKS; ++b) {
@@ -1248,7 +1248,7 @@ void TerrorformWidget::importWavetables() {
         return;
     }
 
-    char header[5];
+    char header[8];
     int pos = 0;
     inFile.open(filepath, std::ios::in | std::ios::binary);
 
@@ -1258,8 +1258,8 @@ void TerrorformWidget::importWavetables() {
     }
 
     inFile.read((char*) &header, sizeof(char) * 4);
-    header[4] = '\0';
-    if(std::string(header) != "T401") {
+    header[7] = '\0';
+    if(std::string(header) != "T401VWT") {
         printf("Not a valid Valley Wavetable file\n");
         return;
     }
