@@ -6,6 +6,11 @@ using namespace rack;
 #include <sstream> // stringstream
 #define VALLEY_NAME "ValleyDev"
 
+#define TFORM_MAX_BANKS 64
+#define TFORM_MAX_NUM_WAVES 64
+#define TFORM_MAX_WAVELENGTH 256
+#define TFORM_MAX_TABLE_SIZE TFORM_MAX_NUM_WAVES * TFORM_MAX_WAVELENGTH
+
 extern Plugin *pluginInstance;
 
 ////////////////////

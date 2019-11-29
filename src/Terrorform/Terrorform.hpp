@@ -24,10 +24,6 @@
 
 #ifndef DSJ_CELL_HPP
 #define DSJ_CELL_HPP
-#define TFORM_MAX_BANKS 64
-#define TFORM_MAX_NUM_WAVES 64
-#define TFORM_MAX_WAVELENGTH 256
-#define TFORM_MAX_TABLE_SIZE TFORM_MAX_NUM_WAVES * TFORM_MAX_WAVELENGTH
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
@@ -250,6 +246,10 @@ struct Terrorform : Module {
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
+    void clearBank(int bankNum);
+    void clearUserWaveTables();
+    void cloneBank(int sourceBank, int destBank);
+
 };
 
 struct TerrorformPanelStyleItem : MenuItem {

@@ -151,6 +151,18 @@ struct SvgStepSlider : app::SvgSlider {
 	void onChange(const event::Change& e) override;
 };
 
+struct PlainText : TransparentWidget {
+    std::string text;
+    std::shared_ptr<Font> font;
+    NVGcolor textColor;
+    NVGalign horzAlignment;
+    NVGalign vertAlignment;
+    int size;
+
+    PlainText();
+    void draw(const DrawArgs &args) override;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic text
 

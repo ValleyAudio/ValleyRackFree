@@ -89,12 +89,6 @@ Terrorform::Terrorform() {
     percMode = false;
 
     // Fill user wavetables
-
-    /*float userWaveTemplate[TFORM_MAX_WAVELENGTH];
-    for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-        userWaveTemplate[i] = sinf(2.0 * M_PI * (float)i / TFORM_MAX_WAVELENGTH);
-    }*/
-
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
         userWaveTableData[bank] = new float*[TFORM_MAX_NUM_WAVES];
         userWaveTableFilled[bank] = false;
@@ -346,19 +340,19 @@ json_t* Terrorform::dataToJson()  {
 
     char str[25];
     json_t* userWavesJ = json_array();
-    for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
+    for (auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
+        json_t* userWaveJ = json_object();
+        json_object_set_new(userWaveJ, "bank", json_integer(bank));
         if(userWaveTableFilled[bank] == false) {
+            json_object_set_new(userWaveJ, "numWaves", json_integer(0));
             continue;
         }
-        json_t* userWaveJ = json_object();
-
-        json_object_set_new(userWaveJ, "bank", json_integer(bank));
         json_object_set_new(userWaveJ, "numWaves", json_integer(userWaveTableSizes[bank]));
 
         json_t* tableJ = json_array();
-        for(auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
+        for (auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
             json_t* waveJ = json_array();
-            for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+            for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
                 sprintf(str, "%e", userWaveTableData[bank][wave][i]);
                 json_t* valueJ = json_string(str);
                 json_array_append_new(waveJ, valueJ);
@@ -380,21 +374,13 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
     int destBank;
     int numWaves;
-    for(auto i = 0; i < TFORM_MAX_BANKS; ++i) {
-        userWaveTableSizes[i] = 1;
-        userWaveTableFilled[i] = false;
-        for(auto j = 0; j < TFORM_MAX_NUM_WAVES; ++j) {
-            for(auto k = 0; k < TFORM_MAX_WAVELENGTH; ++k) {
-                userWaveTableData[i][j][k] = 0.f;
-            }
-        }
-    }
+    clearUserWaveTables();
 
     json_t *userWavesJ = json_object_get(rootJ, "userWaves");
     json_t *numUserWaveTablesJ = json_object_get(rootJ, "numUserWaveTables");
     numUserWaveTables = json_integer_value(numUserWaveTablesJ);
 
-    for(auto bank = 0; bank < numUserWaveTables; ++bank) {
+    for (auto bank = 0; bank < numUserWaveTables; ++bank) {
         json_t* userWaveJ = json_array_get(userWavesJ, bank);
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
         json_t* numWavesJ = json_object_get(userWaveJ, "numWaves");
@@ -402,17 +388,37 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
         destBank = json_integer_value(destBankJ);
         numWaves = json_integer_value(numWavesJ);
+        if (numWaves) {
+            userWaveTableSizes[destBank] = numWaves;
+            userWaveTableFilled[destBank] = true;
+        }
+        else {
+            userWaveTableSizes[destBank] = 1;
+        }
 
-        userWaveTableSizes[destBank] = numWaves;
-        userWaveTableFilled[destBank] = true;
-
-        for(auto wave = 0; wave < numWaves; ++wave) {
+        for (auto wave = 0; wave < numWaves; ++wave) {
             json_t *waveJ = json_array_get(tableJ, wave);
             for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
                 json_t *valueJ = json_array_get(waveJ, i);
                 userWaveTableData[destBank][wave][i] = atof(json_string_value(valueJ));
             }
         }
+    }
+}
+
+void Terrorform::clearBank(int bankNum) {
+    for (int wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
+        for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+            userWaveTableData[bankNum][wave][i] = 0.0;
+        }
+    }
+    userWaveTableFilled[bankNum] = false;
+    userWaveTableSizes[bankNum] = 1;
+}
+
+void Terrorform::clearUserWaveTables() {
+    for (int i = 0; i < TFORM_MAX_BANKS; ++i) {
+        clearBank(i);
     }
 }
 
@@ -722,7 +728,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(syncBlurText2);
     addChild(syncText);
 
-    if(module) {
+    if (module) {
         auto setOnHoverColour = [=](DynamicText* backText, DynamicText* frontText,
                                     DynamicText* blurText1, DynamicText* blurText2) {
             backText->customColor = nvgRGB(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][0],
@@ -999,13 +1005,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         newTable = NULL;
 
         char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
-        if(path) {
+        if (path) {
             newTable = drwav_open_file_and_read_f32(path, &channels, &sampleRate, &numSamples);
             DEFER({
                 std::free(path);
             });
         }
-        if(newTable == NULL) {
+        if (newTable == NULL) {
             return 0;
         }
 
@@ -1025,7 +1031,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int writePos = 0;
         int wave = 0;
 
-        for(int i = 0; i < tableLength; ++i) {
+        for (int i = 0; i < tableLength; ++i) {
             readPos = startPos + i;
             wave = i / TFORM_MAX_WAVELENGTH;
             writePos = i % TFORM_MAX_WAVELENGTH;
@@ -1046,6 +1052,15 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addIngestTableCallback(ingestNewTable);
     editor->addExportCallback(std::bind(&TerrorformWidget::exportWavetables, this));
     editor->addImportCallback(std::bind(&TerrorformWidget::importWavetables, this));
+    editor->addClearBankCallback([=](int bankNum){
+        module->clearBank(bankNum);
+    });
+    for (int i = 0; i < 64; ++i) {
+        for (int j = 0; j < 256; ++j) {
+            editor->waveDisplay->waveData[i][j] = wavetable_sawGap[i][j * 4];
+        }
+    }
+
     addChild(editor);
 }
 
@@ -1075,12 +1090,12 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
  }
 
 void TerrorformWidget::step() {
-    if(module) {
+    if (module) {
         int panelStyleOffset = dynamic_cast<Terrorform*>(module)->panelStyle;
-        for(auto i = 0; i < NUM_TRRFORM_PANELS; ++i) {
+        for (auto i = 0; i < NUM_TRRFORM_PANELS; ++i) {
             panels[i]->visible = false;
         }
-        if(inEditorMode) {
+        if (inEditorMode) {
             panels[TRRFORM_DARK_PANEL_EDITOR + panelStyleOffset]->visible = true;
         }
         else {
@@ -1088,12 +1103,12 @@ void TerrorformWidget::step() {
         }
 
         displayStyle = (TerrorformDisplayColourModes)(dynamic_cast<Terrorform*>(module)->displayStyle * 2);
-        if(displayStyle != prevDisplayStyle) {
+        if (displayStyle != prevDisplayStyle) {
             changeDisplayStyle();
         }
         prevDisplayStyle = displayStyle;
 
-        switch(displayMode) {
+        switch (displayMode) {
             case DISPLAY_PARAMS:
                 onDisplayParams();
                 break;
@@ -1102,10 +1117,14 @@ void TerrorformWidget::step() {
                 break;
         }
 
-        for(auto i = 0; i < TFORM_MAX_BANKS; ++i) {
+        for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
             editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
         }
 
+        editor->waveDisplay->selectedWave++;
+        if (editor->waveDisplay->selectedWave >= 64) {
+            editor->waveDisplay->selectedWave = 0;
+        }
         *syncStr = syncNames[(unsigned long)dynamic_cast<Terrorform*>(module)->syncChoice];
     }
     Widget::step();
@@ -1144,7 +1163,7 @@ void TerrorformWidget::onDisplayLoadError() {
     degradeMenu->visible = false;
 
     elapsedErrorDisplayTime++;
-    if(elapsedErrorDisplayTime >= errorDisplayTime) {
+    if (elapsedErrorDisplayTime >= errorDisplayTime) {
         displayMode = DISPLAY_PARAMS;
     }
 }
@@ -1152,7 +1171,7 @@ void TerrorformWidget::onDisplayLoadError() {
 void TerrorformWidget::changeDisplayStyle() {
     auto setNewColour = [=](DynamicText* backText, DynamicText* frontText,
                             DynamicText* blurText1, DynamicText* blurText2) {
-        if(backText) {
+        if (backText) {
             backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
                                            cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
                                            cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
@@ -1196,7 +1215,7 @@ void TerrorformWidget::exportWavetables() {
     });
 
     char* path = osdialog_file(OSDIALOG_SAVE, dir.c_str(), filename.c_str(), filters);
-    if(path) {
+    if (path) {
         filepath = std::string(path);
         DEFER({
             std::free(path);
@@ -1206,15 +1225,22 @@ void TerrorformWidget::exportWavetables() {
         return;
     }
 
+    // Mark empty banks in new table sizes array
+    char userWaveTableSizes[TFORM_MAX_BANKS];
+    memcpy(&userWaveTableSizes, &tform->userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
+    for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+        userWaveTableSizes[b] = tform->userWaveTableFilled[b] ? userWaveTableSizes[b] : 0;
+    }
+
     outFile.open(filepath, std::ios::out | std::ios::binary);
-    if(outFile.is_open()) {
+    if (outFile.is_open()) {
         outFile.seekp(0);
         outFile.write("T401VWT", sizeof(char) * 7);
         outFile.write(&tform->numUserWaveTables, sizeof(char));
-        outFile.write((char*) &tform->userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
-        for (auto b = 0; b < TFORM_MAX_BANKS; ++b) {
-            for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
-                for (auto j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        outFile.write((char*) &userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
+        for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+            for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
+                for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                     outFile.write(reinterpret_cast<char*>(&tform->userWaveTableData[b][w][j]), sizeof(float));
                 }
             }
@@ -1238,7 +1264,7 @@ void TerrorformWidget::importWavetables() {
     });
 
     char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
-    if(path) {
+    if (path) {
         filepath = std::string(path);
         DEFER({
             std::free(path);
@@ -1252,18 +1278,18 @@ void TerrorformWidget::importWavetables() {
     int pos = 0;
     inFile.open(filepath, std::ios::in | std::ios::binary);
 
-    if(!inFile.is_open()) {
+    if (!inFile.is_open()) {
         printf("Error opening wavetable file\n");
         return;
     }
 
-    inFile.read((char*) &header, sizeof(char) * 4);
+    inFile.read((char*) &header, sizeof(char) * 7);
     header[7] = '\0';
-    if(std::string(header) != "T401VWT") {
+    if (std::string(header) != "T401VWT") {
         printf("Not a valid Valley Wavetable file\n");
         return;
     }
-    pos += sizeof(char) * 4;
+    pos += sizeof(char) * 7;
 
     inFile.seekg(pos);
     inFile.read(&tform->numUserWaveTables, sizeof(char));
@@ -1271,8 +1297,16 @@ void TerrorformWidget::importWavetables() {
     pos += sizeof(char) * TFORM_MAX_BANKS;
 
     for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
-        for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
-            for (auto j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        tform->userWaveTableFilled[b] = true;
+        if (tform->userWaveTableSizes[b] == 0) {
+            tform->userWaveTableSizes[b] = 1;
+            tform->userWaveTableFilled[b] = false;
+        }
+    }
+
+    for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+        for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
+            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 inFile.read(reinterpret_cast<char*>(&tform->userWaveTableData[b][w][j]), sizeof(float));
             }
         }

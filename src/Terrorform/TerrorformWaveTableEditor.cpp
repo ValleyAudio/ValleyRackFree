@@ -24,10 +24,10 @@ TFormEditorButton::TFormEditorButton() {
                                                       nvgRGB(0x32, 0x32, 0x7F),
                                                       nvgRGB(0x7F, 0x7F, 0x7F));
     buttonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
-                                                          nvgRGB(0xFF, 0x00, 0x00),
+                                                          nvgRGB(0xDF, 0x00, 0x00),
                                                           nvgRGB(0x7F, 0x7F, 0x7F));
     buttonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                nvgRGB(0xFF, 0x00, 0x00),
+                                                                nvgRGB(0xDF, 0x00, 0x00),
                                                                 nvgRGB(0x7F, 0x7F, 0x7F));
     fontSize = 12;
     enabled = true;
@@ -80,6 +80,17 @@ void TFormEditorButton::setHighlight(bool highlight) {
     }
 }
 
+TFormEditorButton* createNewMenuButton(const std::string& text,
+                                       const std::function<void()>& onClickCallback,
+                                       int x, int y, int width, int height) {
+    TFormEditorButton* newButton = createWidget<TFormEditorButton>(Vec(x, y));
+    newButton->text = text;
+    newButton->box.size.x = width;
+    newButton->box.size.y = height;
+    newButton->onClick = onClickCallback;
+    return newButton;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TFormEditorGrid::TFormEditorGrid() {
@@ -113,28 +124,6 @@ void TFormEditorGrid::draw(const DrawArgs& args) {
     for(int i = 0; i < TRRFORM_EDITOR_ROWS; ++i) {
         drawHSeparator(i * gridHeight / TRRFORM_EDITOR_ROWS);
     }
-
-    /*auto drawSlotFilledMarker = [=](int row, int col) {
-        float x = col * box.size.x / TRRFORM_EDITOR_COLS;
-        float y = row * gridHeight / TRRFORM_EDITOR_ROWS;
-        nvgBeginPath(args.vg);
-        nvgStrokeColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
-        nvgStrokeWidth(args.vg, 2.0);
-        nvgMoveTo(args.vg, x + 2, y + 5);
-        nvgLineTo(args.vg, x + 5, y + 8);
-        nvgLineTo(args.vg, x + 11, y + 2);
-        nvgStroke(args.vg);
-    };
-
-    int row = 0;
-    int col = 0;
-    for(int i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
-        row = i / TRRFORM_EDITOR_ROWS;
-        col = i % TRRFORM_EDITOR_COLS;
-        if(slotFilled[i]) {
-            drawSlotFilledMarker(row, col);
-        }
-    }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,81 +219,155 @@ void TFormEditorNumberChoice::draw(const DrawArgs& args) {
 // Main menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TFormEditorMainMenu::TFormEditorMainMenu() {
-    Vec buttonSize = Vec(92, 42);
-    float spacing = 8;
-    float buttonFontSize = 18;
-    editButton = createWidget<TFormEditorButton>(Vec(0, 0));
-    exitButton = createWidget<TFormEditorButton>(Vec(0, buttonSize.y + spacing));
-    importButton = createWidget<TFormEditorButton>(Vec(buttonSize.x + spacing, 0));
-    exportButton = createWidget<TFormEditorButton>(Vec(buttonSize.x + spacing, buttonSize.y + spacing));
+TFormBankEditMainRow::TFormBankEditMainRow() {
+    box.size = Vec(238, 40);
+    loadButton = createNewMenuButton("Load", NULL, buttonOffset, 21, buttonWidth, buttonHeight);
+    addChild(loadButton);
+    copyButton = createNewMenuButton("Copy", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
+    addChild(copyButton);
+    pasteButton = createNewMenuButton("Paste", NULL, buttonWidth * 2 + buttonOffset * 3, 21, buttonWidth, buttonHeight);
+    addChild(pasteButton);
+    clearButton = createNewMenuButton("Clear", NULL, buttonWidth * 3 + buttonOffset * 4, 21, buttonWidth, buttonHeight);
+    addChild(clearButton);
+    purgeButton = createNewMenuButton("Purge", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
+    addChild(purgeButton);
+    backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
+    addChild(backButton);
+    selectedBank = 0;
+    selectedBankIsFilled = false;
 
-    editButton->box.size = buttonSize;
-    exitButton->box.size = buttonSize;
-    importButton->box.size = buttonSize;
-    exportButton->box.size = buttonSize;
-
-    editButton->text = "Edit";
-    exitButton->text = "Exit";
-    importButton->text = "Import";
-    exportButton->text = "Export";
-
-    editButton->fontSize = buttonFontSize;
-    exitButton->fontSize = buttonFontSize;
-    importButton->fontSize = buttonFontSize;
-    exportButton->fontSize = buttonFontSize;
-
-    addChild(editButton);
-    addChild(exitButton);
-    addChild(importButton);
-    addChild(exportButton);
-
-    box.size.x = buttonSize.x * 2 + spacing;
-    box.size.y = buttonSize.y * 2 + spacing;
-
-    //header = "User Wavetables";
+    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
+
+void TFormBankEditMainRow::draw(const DrawArgs& args) {
+    std::string strSelectedBank = "Bank: " + std::to_string(selectedBank + 1);
+    std::string strFilled = "Filled";
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
+
+    if(selectedBankIsFilled) {
+        nvgFillColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.0);
+        nvgFontSize(args.vg, 12);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(args.vg, 55, 5, strFilled.c_str(), NULL);
+    }
+
+    Widget::draw(args);
+}
+
+TFormBankEditLoadRow::TFormBankEditLoadRow() {
+    box.size = Vec(238, 40);
+    startWave = createWidget<TFormEditorNumberChoice>(Vec(45, 20));
+    startWave->range = 64;
+    startWave->box.size.x = 28;
+    startWave->box.size.y = 15;
+    addChild(startWave);
+
+    endWave = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
+    endWave->range = 64;
+    endWave->box.size.x = 28;
+    endWave->box.size.y = 15;
+    addChild(endWave);
+
+    auto triggerIngest = [=]() {
+        ingestNewTable(*startWave->choice, *endWave->choice);
+    };
+
+    cancelButton = createNewMenuButton("Cancel", NULL, buttonWidth * 3 + buttonOffset * 4, 21, buttonWidth, buttonHeight);
+    addChild(cancelButton);
+    confirmButton = createNewMenuButton("Okay", triggerIngest, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
+    addChild(confirmButton);
+
+    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+}
+
+void TFormBankEditLoadRow::draw(const DrawArgs& args) {
+    std::string strDetectedWaves = "Found " + std::to_string(detectedWaves) + " waves";
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    nvgText(args.vg, 5, 5, strDetectedWaves.c_str(), NULL);
+
+    nvgText(args.vg, 5, 21, "Start:", NULL);
+    nvgText(args.vg, 80, 21, "End:", NULL);
+    Widget::draw(args);
+}
+
+TFormBankEditClearRow::TFormBankEditClearRow() {
+    box.size = Vec(238, 40);
+    yesButton = createNewMenuButton("Yes", NULL, box.size.x / 2 - buttonWidth - 1.5, 21, buttonWidth, buttonHeight);
+    addChild(yesButton);
+    noButton = createNewMenuButton("No", NULL, box.size.x / 2 + 1.5, 21, buttonWidth, buttonHeight);
+    addChild(noButton);
+
+    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+}
+
+void TFormBankEditClearRow::draw(const DrawArgs& args) {
+    std::string strQuestion = "Do you really want to clear bank " + std::to_string(selectedBank + 1) + "?";
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+    nvgText(args.vg, box.size.x / 2, 5, strQuestion.c_str(), NULL);
+    Widget::draw(args);
+}
+
+TFormBankEditPurgeRow::TFormBankEditPurgeRow() {
+    box.size = Vec(238, 40);
+    yesButton = createNewMenuButton("Yes", NULL, box.size.x / 2 - buttonWidth - 1.5, 21, buttonWidth, buttonHeight);
+    addChild(yesButton);
+    noButton = createNewMenuButton("No", NULL, box.size.x / 2 + 1.5, 21, buttonWidth, buttonHeight);
+    addChild(noButton);
+
+    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+}
+
+void TFormBankEditPurgeRow::draw(const DrawArgs& args) {
+    std::string strQuestion = "Do you really want to purge ALL banks?";
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+    nvgText(args.vg, box.size.x / 2, 5, strQuestion.c_str(), NULL);
+    Widget::draw(args);
+}
+
+TFormBankEditCopyRow::TFormBankEditCopyRow() {
+
+}
+
+void TFormBankEditCopyRow::draw(const DrawArgs& args) {
+    Widget::draw(args);
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Edit menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TFormEditorEditMenu::TFormEditorEditMenu() {
+TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     box.size = Vec(238, 195);
-    float menuButtonWidth = 44;
-    float menuButtonHeight = 15;
 
-    emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF),
-                                                              nvgRGB(0x17, 0x17, 0x17),
-                                                              nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                               nvgRGB(0x32, 0x32, 0x7F),
-                                                               nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                    nvgRGB(0x6F, 0x6F, 0xEF),
-                                                                    nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                         nvgRGB(0x6F, 0x6F, 0xEF),
-                                                                         nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF),
-                                                               nvgRGB(0xAF, 0x00, 0x00),
-                                                               nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                nvgRGB(0xAF, 0x00, 0x00),
-                                                                nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                    nvgRGB(0xFF, 0x00, 0x00),
-                                                                    nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                                          nvgRGB(0xFF, 0x00, 0x00),
-                                                                          nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
     selectedBank = 0;
 
@@ -344,229 +407,84 @@ TFormEditorEditMenu::TFormEditorEditMenu() {
         slotFilled[i] = false;
     }
 
-    // Menu buttons
-    auto loadWAVFile = [=]() {
-        detectedWaves = -1;
-        if(onLoadWAVCallback == NULL) {
-            return;
-        }
-        detectedWaves = onLoadWAVCallback();
-        if(detectedWaves > 0) {
-            loadButton->visible = false;
-            cloneButton->visible = false;
-            clearButton->visible = false;
-            purgeButton->visible = false;
-            backButton->visible = false;
+    // Button Rows
 
-            cancelButton->visible = true;
-            confirmButton->visible = true;
-            startWave->visible = true;
-            endWave->visible = true;
-            *endWave->choice = detectedWaves - 1;
-
-            state = LOAD_WAVE_STATE;
+    mainButtonRow = createWidget<TFormBankEditMainRow>(Vec(0, 0));
+    mainButtonRow->loadButton->onClick = [=]() {
+        int detectedWaves = -1;
+        if(onLoadWAVCallback) {
+            detectedWaves = onLoadWAVCallback();
+            if (detectedWaves > 0) {
+                *loadButtonRow->endWave->choice = detectedWaves - 1;
+                loadButtonRow->detectedWaves = detectedWaves;
+                changeState(LOAD_WAVE_STATE);
+            }
         }
     };
-
-    loadButton = createWidget<TFormEditorButton>(Vec(3, 21));
-    loadButton->text = "Load";
-    loadButton->box.size.x = menuButtonWidth;
-    loadButton->box.size.y = menuButtonHeight;
-    loadButton->onClick = loadWAVFile;
-    addChild(loadButton);
-
-    cloneButton = createWidget<TFormEditorButton>(Vec(menuButtonWidth + 6, 21));
-    cloneButton->text = "Clone";
-    cloneButton->box.size.x = menuButtonWidth;
-    cloneButton->box.size.y = menuButtonHeight;
-    addChild(cloneButton);
-
-    // Clear button
-    auto clearBank = [=]() {
-        loadButton->visible = false;
-        cloneButton->visible = false;
-        clearButton->visible = false;
-        purgeButton->visible = false;
-        backButton->visible = false;
-
-        clearYesButton->visible = true;
-        clearNoButton->visible = true;
-        state = CLEAR_BANK_STATE;
+    mainButtonRow->clearButton->onClick = [=]() {
+        changeState(CLEAR_BANK_STATE);
     };
-
-    auto clearYes = [=]() {
-
+    mainButtonRow->purgeButton->onClick = [=]() {
+        changeState(PURGE_STATE);
     };
+    addChild(mainButtonRow);
 
-    auto clearNo = [=]() {
-        loadButton->visible = true;
-        cloneButton->visible = true;
-        clearButton->visible = true;
-        purgeButton->visible = true;
-        backButton->visible = true;
-
-        clearYesButton->visible = false;
-        clearNoButton->visible = false;
-        state = SELECT_BANK_STATE;
-    };
-
-    clearButton = createWidget<TFormEditorButton>(Vec(menuButtonWidth * 2 + 9, 21));
-    clearButton->text = "Clear";
-    clearButton->box.size.x = menuButtonWidth;
-    clearButton->box.size.y = menuButtonHeight;
-    clearButton->onClick = clearBank;
-    addChild(clearButton);
-
-    clearYesButton = createWidget<TFormEditorButton>(Vec(box.size.x / 2 - menuButtonWidth - 1.5, 21));
-    clearYesButton->text = "Yes";
-    clearYesButton->box.size.x = menuButtonWidth;
-    clearYesButton->box.size.y = menuButtonHeight;
-    clearYesButton->onClick = clearYes;
-    clearYesButton->visible = false;
-    addChild(clearYesButton);
-
-    clearNoButton = createWidget<TFormEditorButton>(Vec(box.size.x / 2 + 1.5, 21));
-    clearNoButton->text = "No";
-    clearNoButton->box.size.x = menuButtonWidth;
-    clearNoButton->box.size.y = menuButtonHeight;
-    clearNoButton->onClick = clearNo;
-    clearNoButton->visible = false;
-    addChild(clearNoButton);
-
-    //Purge button
-    purgeButton = createWidget<TFormEditorButton>(Vec(menuButtonWidth * 3 + 12, 21));
-    purgeButton->text = "Purge";
-    purgeButton->box.size.x = menuButtonWidth;
-    purgeButton->box.size.y = menuButtonHeight;
-    addChild(purgeButton);
-
-    backButton = createWidget<TFormEditorButton>(Vec(box.size.x - menuButtonWidth - 3, 21));
-    backButton->text = "Back";
-    backButton->box.size.x = menuButtonWidth;
-    backButton->box.size.y = menuButtonHeight;
-    addChild(backButton);
-
-    // Table load buttons
-    auto cancelLoadWAV = [=]() {
-        loadButton->visible = true;
-        cloneButton->visible = true;
-        clearButton->visible = true;
-        purgeButton->visible = true;
-        backButton->visible = true;
-
-        cancelButton->visible = false;
-        confirmButton->visible = false;
-        startWave->visible = false;
-        endWave->visible = false;
-
-        state = SELECT_BANK_STATE;
-    };
-
-    cancelButton = createWidget<TFormEditorButton>(Vec(menuButtonWidth  * 3 + 12, 21));
-    cancelButton->text = "Cancel";
-    cancelButton->box.size.x = menuButtonWidth;
-    cancelButton->box.size.y = menuButtonHeight;
-    cancelButton->onClick = cancelLoadWAV;
-    cancelButton->visible = false;
-    addChild(cancelButton);
-
-    auto ingestNewTable = [=]() {
-        int row = selectedBank / TRRFORM_EDITOR_ROWS;
-        int col = selectedBank % TRRFORM_EDITOR_COLS;
-        onIngestTableCallback(selectedBank, *startWave->choice, *endWave->choice);
+    loadButtonRow = createWidget<TFormBankEditLoadRow>(Vec(0, 0));
+    loadButtonRow->ingestNewTable = [=](int startWave, int endWave) {
+        onIngestTableCallback(selectedBank, startWave, endWave);
         slotFilled[selectedBank] = true;
-        loadButton->visible = true;
-        cloneButton->visible = true;
-        clearButton->visible = true;
-        purgeButton->visible = true;
-        backButton->visible = true;
-
-        cancelButton->visible = false;
-        confirmButton->visible = false;
-        startWave->visible = false;
-        endWave->visible = false;
-
-        state = SELECT_BANK_STATE;
+        changeState(SELECT_BANK_STATE);
     };
+    loadButtonRow->cancelButton->onClick = [=]() {
+        changeState(SELECT_BANK_STATE);
+    };
+    addChild(loadButtonRow);
 
-    confirmButton = createWidget<TFormEditorButton>(Vec(box.size.x - menuButtonWidth - 3, 21));
-    confirmButton->text = "Okay";
-    confirmButton->box.size.x = menuButtonWidth;
-    confirmButton->box.size.y = menuButtonHeight;
-    confirmButton->onClick = ingestNewTable;
-    confirmButton->visible = false;
-    addChild(confirmButton);
+    clearButtonRow = createWidget<TFormBankEditClearRow>(Vec(0, 0));
+    clearButtonRow->yesButton->onClick = [=]() {
+        onClearBankCallback(selectedBank);
+        changeState(SELECT_BANK_STATE);
+    };
+    clearButtonRow->noButton->onClick = [=]() {
+        changeState(SELECT_BANK_STATE);
+    };
+    addChild(clearButtonRow);
 
-    startWave = createWidget<TFormEditorNumberChoice>(Vec(45, 20));
-    startWave->range = 64;
-    startWave->box.size.x = 28;
-    startWave->box.size.y = 15;
-    startWave->visible = false;
-    addChild(startWave);
-
-    endWave = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
-    endWave->range = 64;
-    endWave->box.size.x = 28;
-    endWave->box.size.y = 15;
-    endWave->visible = false;
-    addChild(endWave);
+    purgeButtonRow = createWidget<TFormBankEditPurgeRow>(Vec(0, 0));
+    purgeButtonRow->yesButton->onClick = [=]() {
+        for (int i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
+            onClearBankCallback(i);
+        }
+        changeState(SELECT_BANK_STATE);
+    };
+    purgeButtonRow->noButton->onClick = [=]() {
+        changeState(SELECT_BANK_STATE);
+    };
+    addChild(purgeButtonRow);
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
-    state = SELECT_BANK_STATE;
+    changeState(SELECT_BANK_STATE);
 }
 
-void TFormEditorEditMenu::step() {
+void TFormEditorBankEditMenu::step() {
     int row = 0;
     int col = 0;
+
     for(auto i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
         row = i / TRRFORM_EDITOR_ROWS;
         col = i % TRRFORM_EDITOR_COLS;
         slotButton[row][col]->setHighlight(i == selectedBank);
     }
+    mainButtonRow->selectedBankIsFilled = slotFilled[selectedBank];
+    mainButtonRow->selectedBank = selectedBank;
     Widget::step();
 }
 
-void TFormEditorEditMenu::draw(const DrawArgs& args) {
-    if(state == SELECT_BANK_STATE) {
-        std::string strSelectedBank = "Selected bank: " + std::to_string(selectedBank + 1);
-        nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.0);
-        nvgFontSize(args.vg, 12);
-        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-        nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
-    }
-    if(state == LOAD_WAVE_STATE) {
-        strDetectedWaves = "Found " + std::to_string(detectedWaves) + " waves";
-        nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.0);
-
-        nvgFontSize(args.vg, 12);
-        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-        nvgText(args.vg, 5, 5, strDetectedWaves.c_str(), NULL);
-
-        nvgText(args.vg, 5, 21, "Start:", NULL);
-        nvgText(args.vg, 80, 21, "End:", NULL);
-    }
-    if(state == CLEAR_BANK_STATE) {
-        std::string strQuestion = "Do you really want to clear bank " + std::to_string(selectedBank + 1) + "?";
-        nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.0);
-        nvgFontSize(args.vg, 12);
-        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        nvgText(args.vg, box.size.x / 2, 5, strQuestion.c_str(), NULL);
-    }
-
-    Widget::draw(args);
-}
-
-void TFormEditorEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
+void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
     if(slot >= 0 && slot < TRRFORM_EDITOR_SLOTS) {
         int row = slot / TRRFORM_EDITOR_ROWS;
         int col = slot % TRRFORM_EDITOR_COLS;
-
+        slotFilled[slot] = isFilled;
         for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
             if(isFilled) {
                 slotButton[row][col]->buttonStyles[m] = filledSlotButtonStyles[m];
@@ -577,6 +495,60 @@ void TFormEditorEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
         }
     }
 }
+
+void TFormEditorBankEditMenu::changeState(const State newState) {
+    mainButtonRow->visible = false;
+    loadButtonRow->visible = false;
+    clearButtonRow->visible = false;
+    purgeButtonRow->visible = false;
+    switch (newState) {
+        case SELECT_BANK_STATE: mainButtonRow->visible = true; break;
+        case LOAD_WAVE_STATE: loadButtonRow->visible = true; break;
+        case CLEAR_BANK_STATE: clearButtonRow->visible = true; break;
+        case PURGE_STATE: purgeButtonRow->visible = true; break;
+    }
+}
+
+TFormEditorMainMenu::TFormEditorMainMenu() {
+    Vec buttonSize = Vec(92, 42);
+    float spacing = 8;
+    float yOffset = 20.f;
+    float buttonFontSize = 18;
+    box.size.x = buttonSize.x * 2 + spacing;
+    box.size.y = buttonSize.y * 2 + spacing + 20.f;
+
+    editButton = createWidget<TFormEditorButton>(Vec(0, yOffset));
+    exitButton = createWidget<TFormEditorButton>(Vec(0, buttonSize.y + spacing + yOffset));
+    importButton = createWidget<TFormEditorButton>(Vec(buttonSize.x + spacing, yOffset));
+    exportButton = createWidget<TFormEditorButton>(Vec(buttonSize.x + spacing, buttonSize.y + spacing + yOffset));
+    title = createWidget<PlainText>(Vec(box.size.x / 2.f, 0));
+
+    title->box.size = buttonSize;
+    editButton->box.size = buttonSize;
+    exitButton->box.size = buttonSize;
+    importButton->box.size = buttonSize;
+    exportButton->box.size = buttonSize;
+
+    title->text = "Main Menu";
+    editButton->text = "Edit";
+    exitButton->text = "Exit";
+    importButton->text = "Import";
+    exportButton->text = "Export";
+
+    editButton->fontSize = buttonFontSize;
+    exitButton->fontSize = buttonFontSize;
+    importButton->fontSize = buttonFontSize;
+    exportButton->fontSize = buttonFontSize;
+
+    addChild(editButton);
+    addChild(exitButton);
+    addChild(importButton);
+    addChild(exportButton);
+    addChild(title);
+
+    //header = "User Wavetables";
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -593,19 +565,30 @@ TFormEditor::TFormEditor() {
         editMenu->visible = true;
     };
 
+    auto showWaveDisplay = [=] {
+        mainMenu->visible = false;
+        editMenu->visible = false;
+        waveDisplay->visible = true;
+    };
+
     // Menu buttons
     mainMenu = new TFormEditorMainMenu;
     mainMenu->box.pos.x = box.getCenter().x - mainMenu->box.getCenter().x;
-    mainMenu->box.pos.y = box.getCenter().y - mainMenu->box.getCenter().y;
+    mainMenu->box.pos.y = box.getCenter().y - mainMenu->box.getCenter().y - 10.f;
     mainMenu->editButton->onClick = gotoEditMenu;
     addChild(mainMenu);
 
-    editMenu = createWidget<TFormEditorEditMenu>(Vec(0,0));
-    editMenu->backButton->onClick = gotoMainMenu;
+    editMenu = createWidget<TFormEditorBankEditMenu>(Vec(0,0));
+    editMenu->mainButtonRow->backButton->onClick = gotoMainMenu;
     addChild(editMenu);
 
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(20,20));
+    waveDisplay->box.size.x = box.size.x;
+    waveDisplay->box.size.y = box.size.y;
+    addChild(waveDisplay);
+
     //gotoMainMenu();
-    gotoEditMenu();
+    showWaveDisplay();
 }
 
 void TFormEditor::addOnExitCallback(const std::function<void()>& onExitCallback) {
@@ -618,6 +601,14 @@ void TFormEditor::addLoadWAVCallback(const std::function<int()>& onLoadWAVCallba
 
 void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback) {
     editMenu->onIngestTableCallback = onIngestTableCallback;
+}
+
+void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearBankCallback) {
+    editMenu->onClearBankCallback = onClearBankCallback;
+}
+
+void TFormEditor::addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback) {
+    editMenu->onCloneBankCallback = onCloneBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {

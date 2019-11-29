@@ -1,6 +1,7 @@
 #pragma once
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
+#include "TerrorformEditorWaveDisplay.hpp"
 
 #define TRRFORM_EDITOR_COLS 8
 #define TRRFORM_EDITOR_ROWS 8
@@ -58,6 +59,10 @@ struct TFormEditorButton : public OpaqueWidget {
     void setHighlight(bool highlight);
 };
 
+TFormEditorButton* createNewMenuButton(const std::string& text,
+                                       const std::function<void()>& onClickCallback,
+                                       int x, int y, int width, int height);
+
 struct TFormEditorGrid : TransparentWidget {
     NVGcolor color;
     TFormEditorStyles style;
@@ -67,15 +72,6 @@ struct TFormEditorGrid : TransparentWidget {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct TFormEditorMainMenu : OpaqueWidget {
-    TFormEditorButton* editButton;
-    TFormEditorButton* exitButton;
-    TFormEditorButton* importButton;
-    TFormEditorButton* exportButton;
-
-    TFormEditorMainMenu();
-};
 
 struct TFormEditorNumberItem : MenuItem {
     unsigned long _itemNumber;
@@ -106,62 +102,154 @@ struct TFormEditorNumberChoice : ChoiceButton {
     void draw(const DrawArgs& args) override;
 };
 
-
-struct TFormEditorEditMenu : OpaqueWidget {
-    enum TFormEditorEditMenuState {
-        SELECT_BANK_STATE = 0,
-        LOAD_WAVE_STATE,
-        CLEAR_BANK_STATE
-    };
-
-    TFormEditorEditMenuState state;
-
+struct TFormBankEditMainRow : OpaqueWidget {
     TFormEditorButton* loadButton;
-    TFormEditorButton* cloneButton;
+    TFormEditorButton* copyButton;
+    TFormEditorButton* pasteButton;
     TFormEditorButton* clearButton;
     TFormEditorButton* purgeButton;
     TFormEditorButton* backButton;
+    int selectedBank;
+    bool selectedBankIsFilled;
 
-    TFormEditorButton* clearYesButton;
-    TFormEditorButton* clearNoButton;
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
 
+    std::shared_ptr<Font> font;
+
+    TFormBankEditMainRow();
+    void draw(const DrawArgs& args) override;
+};
+
+struct TFormBankEditLoadRow : OpaqueWidget {
     TFormEditorButton* cancelButton;
     TFormEditorButton* confirmButton;
+    TFormEditorButton* yesButton;
+    TFormEditorButton* noButton;
     TFormEditorNumberChoice* startWave;
     TFormEditorNumberChoice* endWave;
+    int detectedWaves;
+
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
+
+    std::function<void(int, int)> ingestNewTable;
+
+    std::shared_ptr<Font> font;
+
+    TFormBankEditLoadRow();
+    void draw(const DrawArgs& args) override;
+};
+
+struct TFormBankEditClearRow : OpaqueWidget {
+    TFormEditorButton* yesButton;
+    TFormEditorButton* noButton;
+    int selectedBank;
+
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
+
+    std::shared_ptr<Font> font;
+
+    TFormBankEditClearRow();
+    void draw(const DrawArgs& args) override;
+};
+
+struct TFormBankEditPurgeRow : OpaqueWidget {
+    TFormEditorButton* yesButton;
+    TFormEditorButton* noButton;
+    int selectedBank;
+
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
+
+    std::shared_ptr<Font> font;
+
+    TFormBankEditPurgeRow();
+    void draw(const DrawArgs& args) override;
+};
+
+struct TFormBankEditCopyRow : OpaqueWidget {
+    TFormEditorButton* cancelButton;
+    TFormEditorButton* pasteButton;
+    TFormEditorNumberChoice* startWave;
+    TFormEditorNumberChoice* endWave;
+    int destBank;
+
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
+
+    std::shared_ptr<Font> font;
+
+    TFormBankEditCopyRow();
+    void draw(const DrawArgs& args) override;
+};
+
+struct TFormEditorBankEditMenu : OpaqueWidget {
+    enum State {
+        SELECT_BANK_STATE = 0,
+        LOAD_WAVE_STATE,
+        CLEAR_BANK_STATE,
+        PURGE_STATE
+    };
+
+    State state;
+    TFormBankEditMainRow* mainButtonRow;
+    TFormBankEditLoadRow* loadButtonRow;
+    TFormBankEditClearRow* clearButtonRow;
+    TFormBankEditPurgeRow* purgeButtonRow;
+    int selectedBank;
 
     TFormEditorGrid* grid;
     TFormEditorButton* slotButton[TRRFORM_EDITOR_ROWS][TRRFORM_EDITOR_COLS];
     TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
     TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
 
-    int detectedWaves;
-    std::string strDetectedWaves;
-    int selectedBank;
     bool slotFilled[TRRFORM_EDITOR_SLOTS];
 
     std::function<int()> onLoadWAVCallback;
     std::function<void(int, int, int)> onIngestTableCallback;
+    std::function<void(int)> onClearBankCallback;
+    std::function<void(int)> onCloneBankCallback;
 
     std::shared_ptr<Font> font;
 
-    TFormEditorEditMenu();
+    TFormEditorBankEditMenu();
     void step() override;
-    void draw(const DrawArgs& args) override;
     void setSlotFilledFlag(int slot, bool isFilled);
+    void changeState(const State newState);
+};
+
+struct TFormEditorMainMenu : OpaqueWidget {
+    TFormEditorButton* editButton;
+    TFormEditorButton* exitButton;
+    TFormEditorButton* importButton;
+    TFormEditorButton* exportButton;
+    PlainText* title;
+    int selectedBank;
+
+    TFormEditorMainMenu();
 };
 
 struct TFormEditor : OpaqueWidget {
     TFormEditorMainMenu* mainMenu;
-    TFormEditorEditMenu* editMenu;
+    TFormEditorBankEditMenu* editMenu;
+    TFormEditorWaveDisplay* waveDisplay;
 
     TFormEditor();
     void addOnExitCallback(const std::function<void()>& onExitCallback);
     void addLoadWAVCallback(const std::function<int()>& onLoadWAVCallback);
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
+    void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
+    void addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback);
+
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
 
-    void setStyle(const TFormEditorStyles& newStyle);
     void setSlotFilledFlag(int slot, bool isFilled);
 };
