@@ -989,7 +989,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         inEditorMode = false;
     };
 
-    auto loadWAVFile = [=]() {
+    auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<std::vector<float>>> {
         const char FILE_FILTERS[] = "WAV File (.wav):wav";
         std::string dir = asset::user("");
         std::string filename;
@@ -1011,16 +1011,27 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
                 std::free(path);
             });
         }
+
+        std::shared_ptr<std::vector<std::vector<float>>> waves = std::make_shared<std::vector<std::vector<float>>>();
         if (newTable == NULL) {
-            return 0;
+            return waves;
         }
 
         auto overflow = numSamples % TFORM_MAX_WAVELENGTH;
         numSamples -= overflow;
         numSamples = numSamples > TFORM_MAX_TABLE_SIZE ? TFORM_MAX_TABLE_SIZE : numSamples;
 
-        int numBlocks = (int)numSamples / TFORM_MAX_WAVELENGTH;
-        return numBlocks;
+        int numBlocks = (int) numSamples / TFORM_MAX_WAVELENGTH;
+        int readPos = 0;
+        waves->resize(64);
+        for (int i = 0; i < numBlocks; ++i) {
+            (*waves)[i].assign(64, 0.f);
+            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+                (*waves)[i][j] = newTable[readPos];
+                ++readPos;
+            }
+        }
+        return waves;
     };
 
     auto ingestNewTable = [=](int bank, int startWave, int endWave) {
@@ -1035,7 +1046,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             readPos = startPos + i;
             wave = i / TFORM_MAX_WAVELENGTH;
             writePos = i % TFORM_MAX_WAVELENGTH;
-
             module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
         }
         module->userWaveTableSizes[bank] = numWaves;
@@ -1055,9 +1065,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addClearBankCallback([=](int bankNum){
         module->clearBank(bankNum);
     });
-    for (int i = 0; i < 64; ++i) {
+
+    for(int i = 0; i < 64; ++i) {
         for (int j = 0; j < 256; ++j) {
-            editor->waveDisplay->waveData[i][j] = wavetable_sawGap[i][j * 4];
+            editor->editMenu->viewPane->waveData[i][j] = wavetable_sweepHarmonic[i][j * 8];
         }
     }
 
@@ -1121,10 +1132,6 @@ void TerrorformWidget::step() {
             editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
         }
 
-        editor->waveDisplay->selectedWave++;
-        if (editor->waveDisplay->selectedWave >= 64) {
-            editor->waveDisplay->selectedWave = 0;
-        }
         *syncStr = syncNames[(unsigned long)dynamic_cast<Terrorform*>(module)->syncChoice];
     }
     Widget::step();
