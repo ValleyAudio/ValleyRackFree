@@ -1,12 +1,14 @@
 #pragma once
-#include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
+#include "../../Valley.hpp"
+#include "../../ValleyComponents.hpp"
 
-struct TFormEditorWaveDisplay : OpaqueWidget {
+struct TFormEditorWaveDisplay : TransparentWidget {
     NVGcolor offColor;
     NVGcolor onColor;
     NVGcolor bgColor;
+    int numWaves;
     int selectedWave;
+
     float waveData[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH];
 
     TFormEditorWaveDisplay();

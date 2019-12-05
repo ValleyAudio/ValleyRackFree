@@ -1,9 +1,9 @@
-#include "TerrorformEditorWaveDisplay.hpp"
+#include "WaveDisplay.hpp"
 
 TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
-    // offColor = nvgRGBA(0x00, 0x7F, 0x3F, 0x6F);
-    // onColor = nvgRGBA(0x00, 0xFF, 0x9F, 0xFF);
-    // bgColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
+    offColor = nvgRGBA(0x00, 0x7F, 0x3F, 0x6F);
+    onColor = nvgRGBA(0x00, 0xFF, 0x9F, 0xFF);
+    bgColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
 
     // offColor = nvgRGBA(0x70, 0x40, 0x00, 0x6F);
     // onColor = nvgRGBA(0xFF, 0xC0, 0x00, 0xFF);
@@ -13,11 +13,12 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
     // onColor = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
     // bgColor = nvgRGBA(0xFF, 0x00, 0x00, 0x4F);
 
-    offColor = nvgRGBA(0x00, 0x4C, 0xDF, 0x6F);
-    onColor = nvgRGBA(0x00, 0xC0, 0xFF, 0xFF);
-    bgColor = nvgRGBA(0x00, 0xC0, 0xFF, 0x4F);
+    // offColor = nvgRGBA(0x00, 0x4C, 0xDF, 0x6F);
+    // onColor = nvgRGBA(0x00, 0xC0, 0xFF, 0xFF);
+    // bgColor = nvgRGBA(0x00, 0xC0, 0xFF, 0x4F);
 
     selectedWave = 0;
+    numWaves = 64;
 
     for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
         for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -27,6 +28,10 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
 }
 
 void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
+    if (numWaves < 1) {
+        return;
+    }
+
     auto dimetricProject = [](float x, float y, float z) -> Vec {
         const float cos7 = 0.992546;
         const float cos42 = 0.743145;
@@ -35,14 +40,13 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         return Vec(x * cos7 + 0.5 * (z * cos42), y + 0.5 * (z * sin42) - x * sin7);
     };
 
-    const float dZ = (float) TFORM_MAX_WAVELENGTH / (float) TFORM_MAX_BANKS;
+    float dZ = (float) TFORM_MAX_WAVELENGTH / (float) TFORM_MAX_NUM_WAVES;
     const float xScale = (box.size.x - 10.f) / dimetricProject(255.f, 0.f, 64.f * dZ * 2.f).x;
 
     auto scalePoint = [=](const Vec& p, float xScale) -> Vec {
         Vec newP = p;
         newP.x *= xScale;
         newP.y *= 0.5;
-        newP.x -= box.pos.x;
         newP.y -= box.pos.y + box.size.y * 0.5f;
         return newP;
     };
@@ -54,6 +58,8 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         nvgBeginPath(args.vg);
         nvgStrokeWidth(args.vg, 1.0);
         nvgStrokeColor(args.vg, color);
+        nvgLineCap(args.vg, NVG_ROUND);
+        nvgLineJoin(args.vg, NVG_ROUND);
         pW = dimetricProject(0, 0.f, z);
         pW = scalePoint(pW, xScale);
 
@@ -68,6 +74,8 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         pW = scalePoint(pW, xScale);
         nvgLineTo(args.vg, pW.x + 6.f, -pW.y);
         nvgStroke(args.vg);
+        nvgLineCap(args.vg, NVG_BUTT);
+        nvgLineJoin(args.vg, NVG_MITER);
     };
 
     auto drawWave = [=](int w, const NVGcolor& color) {
@@ -92,7 +100,7 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
     };
 
     drawWave(selectedWave, bgColor);
-    for (int w = TFORM_MAX_NUM_WAVES - 1; w >= 0; --w) {
+    for (int w = numWaves - 1; w >= 0; --w) {
         if (w == selectedWave) {
             continue;
         }
