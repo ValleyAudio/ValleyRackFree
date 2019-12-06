@@ -63,6 +63,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
         changeState(PURGE_STATE);
     };
     mainButtonRow->viewButton->onClick = [=]() {
+        onViewBankCallback(selectedBank, viewPane->waveData);
         changeState(VIEW_BANK_STATE);
     };
     addChild(mainButtonRow);
@@ -263,6 +264,10 @@ void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearB
 
 void TFormEditor::addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback) {
     editMenu->onCloneBankCallback = onCloneBankCallback;
+}
+
+void TFormEditor::addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback) {
+    editMenu->onViewBankCallback = onViewBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {

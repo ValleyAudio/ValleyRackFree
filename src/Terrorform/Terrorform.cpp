@@ -1053,6 +1053,12 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->numUserWaveTables++;
     };
 
+    auto viewBank = [=](int bank, float data[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH]) {
+        for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+            memcpy(data[i], module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
+        }
+    };
+
     editor = createWidget<TFormEditor>(Vec(31, 30));
     editor->box.size.x = 238;
     editor->box.size.y = 195;
@@ -1065,18 +1071,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addClearBankCallback([=](int bankNum){
         module->clearBank(bankNum);
     });
-
-    // for(int i = 0; i < 64; ++i) {
-    //     for (int j = 0; j < 256; ++j) {
-    //         editor->editMenu->viewPane->waveData[i][j] = wavetable_sweepHarmonic[i][j * 8];
-    //     }
-    // }
-
-    for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
-            editor->editMenu->viewPane->waveData[i][j] = (j % 32) > 15 ? 1.f : -1.f;
-        }
-    }
+    editor->addViewBankCallback(viewBank);
 
     addChild(editor);
 }

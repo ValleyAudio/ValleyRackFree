@@ -105,6 +105,12 @@ TFormWaveViewPane::TFormWaveViewPane() {
 
     waveLineColor = nvgRGB(0x00, 0xFF, 0x9F);
     waveFillColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
+
+    for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            waveData[i][j] = 0.f;
+        }
+    }
 }
 
 void TFormWaveViewPane::draw(const DrawArgs& args) {

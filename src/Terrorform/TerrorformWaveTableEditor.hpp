@@ -37,6 +37,7 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     std::function<void(int, int, int)> onIngestTableCallback;
     std::function<void(int)> onClearBankCallback;
     std::function<void(int)> onCloneBankCallback;
+    std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])> onViewBankCallback;
 
     std::shared_ptr<Font> font;
 
@@ -71,6 +72,7 @@ struct TFormEditor : OpaqueWidget {
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback);
+    void addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback);
 
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
