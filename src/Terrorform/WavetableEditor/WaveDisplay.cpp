@@ -37,42 +37,47 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         const float cos42 = 0.743145;
         const float sin7 = 0.121869;
         const float sin42 = 0.669131;
-        return Vec(x * cos7 + 0.5 * (z * cos42), y + 0.5 * (z * sin42) - x * sin7);
+        return Vec(x * cos7 + 0.5 * (z * 2.f * cos42), y + (z * sin42) - x * sin7);
     };
 
-    float dZ = (float) TFORM_MAX_WAVELENGTH / (float) TFORM_MAX_NUM_WAVES;
-    const float xScale = (box.size.x - 10.f) / dimetricProject(255.f, 0.f, 64.f * dZ * 2.f).x;
+    float dX = dimetricProject(1.f, 0.f, 1.f).x;
+    float dY = dimetricProject(0.f, 1.f, 1.f).y - dimetricProject(1.f, -1.f, 0.f).y;
+    float dZ = 1.f / (TFORM_MAX_NUM_WAVES - 1.f);
 
-    auto scalePoint = [=](const Vec& p, float xScale) -> Vec {
+    float mX = box.size.x / dX;
+    float mY = box.size.y / dY;
+
+    auto scalePoint = [=](const Vec& p) -> Vec {
         Vec newP = p;
-        newP.x *= xScale;
-        newP.y *= 0.5;
-        newP.y -= box.pos.y + box.size.y * 0.5f;
+        newP.x *= mX;
+        newP.y += 1.2127;
+        newP.y *= mY;
+        newP.x = box.size.x - newP.x;
         return newP;
     };
 
     auto drawWaveLine = [=](int w, const NVGcolor& color) -> void {
         Vec pW;
-        float z = (float) w * dZ * 2.f;
+        float z = 1.f - w * dZ;
 
         nvgBeginPath(args.vg);
         nvgStrokeWidth(args.vg, 1.0);
         nvgStrokeColor(args.vg, color);
         nvgLineCap(args.vg, NVG_ROUND);
         nvgLineJoin(args.vg, NVG_ROUND);
-        pW = dimetricProject(0, 0.f, z);
-        pW = scalePoint(pW, xScale);
+        pW = dimetricProject(1.f, 0.f, z);
+        pW = scalePoint(pW);
 
-        nvgMoveTo(args.vg, pW.x + 6.f, -pW.y);
+        nvgMoveTo(args.vg, pW.x, pW.y);
         for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-            pW = dimetricProject((float) i, waveData[w][i] * 32.f, z);
-            pW = scalePoint(pW, xScale);
-            nvgLineTo(args.vg, pW.x + 6.f, -pW.y);
+            pW = dimetricProject(1.f - (float) i / (TFORM_MAX_WAVELENGTH - 1.f), -waveData[w][i] * 0.75f, z);
+            pW = scalePoint(pW);
+            nvgLineTo(args.vg, pW.x, pW.y);
         }
 
-        pW = dimetricProject(TFORM_MAX_WAVELENGTH, 0.f, z);
-        pW = scalePoint(pW, xScale);
-        nvgLineTo(args.vg, pW.x + 6.f, -pW.y);
+        pW = dimetricProject(0.f, 0.f, z);
+        pW = scalePoint(pW);
+        nvgLineTo(args.vg, pW.x, pW.y);
         nvgStroke(args.vg);
         nvgLineCap(args.vg, NVG_BUTT);
         nvgLineJoin(args.vg, NVG_MITER);
@@ -80,22 +85,23 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
 
     auto drawWave = [=](int w, const NVGcolor& color) {
         Vec pW;
-        float z = (float) w * dZ * 2.f;
+        float z = 1.f - w * dZ;
+
         nvgBeginPath(args.vg);
         nvgFillColor(args.vg, color);
-        pW = dimetricProject(0, 0.f, z);
-        pW = scalePoint(pW, xScale);
+        pW = dimetricProject(1.f, 0.f, z);
+        pW = scalePoint(pW);
 
-        nvgMoveTo(args.vg, pW.x + 6.f, -pW.y);
+        nvgMoveTo(args.vg, pW.x, pW.y);
         for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-            pW = dimetricProject((float) i, waveData[w][i] * 32.f, z);
-            pW = scalePoint(pW, xScale);
-            nvgLineTo(args.vg, pW.x + 6.f, -pW.y);
+            pW = dimetricProject(1.f - (float) i / (TFORM_MAX_WAVELENGTH - 1.f), -waveData[w][i] * 0.75f, z);
+            pW = scalePoint(pW);
+            nvgLineTo(args.vg, pW.x, pW.y);
         }
 
-        pW = dimetricProject(TFORM_MAX_WAVELENGTH, 0.f, z);
-        pW = scalePoint(pW, xScale);
-        nvgLineTo(args.vg, pW.x + 6.f, -pW.y);
+        pW = dimetricProject(0.f, 0.f, z);
+        pW = scalePoint(pW);
+        nvgLineTo(args.vg, pW.x, pW.y);
         nvgFill(args.vg);
     };
 

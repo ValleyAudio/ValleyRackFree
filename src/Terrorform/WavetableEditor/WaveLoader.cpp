@@ -23,10 +23,16 @@ TFormBankEditLoadRow::TFormBankEditLoadRow() {
     confirmButton = createNewMenuButton("Okay", triggerIngest, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
     addChild(confirmButton);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,23));
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,27));
     waveDisplay->box.size.x = box.size.x - 10.f;
-    waveDisplay->box.size.y = box.size.y - 30.f;
+    waveDisplay->box.size.y = box.size.y - 55.f;
     addChild(waveDisplay);
+    waveSliderPos = 0.f;
+    selectedWave = 0;
+
+    waveLineColor = nvgRGB(0x00, 0xFF, 0x9F);
+    waveFillColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
+
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
@@ -39,18 +45,60 @@ void TFormBankEditLoadRow::draw(const DrawArgs& args) {
     nvgFontSize(args.vg, 12);
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     nvgText(args.vg, 5, 5, strDetectedWaves.c_str(), NULL);
-
     nvgText(args.vg, 5, 21, "Start:", NULL);
     nvgText(args.vg, 80, 21, "End:", NULL);
 
+    float startX = 3;
+    float endX = box.size.x - 3;
+    float xScale = (endX - startX) / 255.f;
+    float yOffset =  box.size.y - 18;
+    float yScale = 15.f;
+
+    float boxWidth = box.size.x - 6;
+    float boxHeight = 30.f;
+    float boxX = 3;
+    float boxY = box.size.y - boxHeight - 3.f;
+
+    // Waveform fill
+    nvgBeginPath(args.vg);
+    nvgMoveTo(args.vg, startX, yOffset);
+    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+        nvgLineTo(args.vg, startX + (float) i * xScale, -waveDisplay->waveData[selectedWave][i] * yScale + yOffset);
+    }
+    nvgLineTo(args.vg, endX, yOffset);
+    nvgFillColor(args.vg, waveFillColor);
+    nvgFill(args.vg);
+    nvgClosePath(args.vg);
+
+    // Waveform stroke
+    nvgBeginPath(args.vg);
+    nvgLineCap(args.vg, NVG_ROUND);
+    nvgLineJoin(args.vg, NVG_ROUND);
+    nvgMoveTo(args.vg, startX, yOffset);
+    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+        nvgLineTo(args.vg, startX + (float) i * xScale, -waveDisplay->waveData[selectedWave][i] * yScale + yOffset);
+    }
+    nvgLineTo(args.vg, endX, yOffset);
+    nvgStrokeWidth(args.vg, 1.0);
+    nvgStrokeColor(args.vg, waveLineColor);
+    nvgStroke(args.vg);
+    nvgLineCap(args.vg, NVG_BUTT);
+    nvgLineJoin(args.vg, NVG_MITER);
+
+    // Waveform box outline
+    nvgBeginPath(args.vg);
+    nvgRect(args.vg, boxX, boxY, boxWidth, boxHeight);
+    nvgStrokeColor(args.vg, waveLineColor);
+    nvgStroke(args.vg);
+
     // Horizontal bar
     nvgBeginPath(args.vg);
-    nvgMoveTo(args.vg, 0, box.pos.y + 20);
-    nvgLineTo(args.vg, box.size.x, box.pos.y + 20);
+    nvgMoveTo(args.vg, 0, box.pos.y + 40);
+    nvgLineTo(args.vg, box.size.x, box.pos.y + 40);
     nvgStrokeWidth(args.vg, 1.0);
     nvgStrokeColor(args.vg, nvgRGB(0xAF, 0xAF, 0xAF));
     nvgStroke(args.vg);
-    
+
     Widget::draw(args);
 }
 
@@ -62,6 +110,17 @@ void TFormBankEditLoadRow::step() {
             }
         }
     }
-    //waveDisplay->selectedWave = selectedWave;
+    waveDisplay->selectedWave = selectedWave;
     Widget::step();
+}
+
+void TFormBankEditLoadRow::onDragMove(const event::DragMove& e) {
+    waveSliderPos -= e.mouseDelta.y;
+    if(waveSliderPos < 0) {
+        waveSliderPos = 0;
+    }
+    if(waveSliderPos > waveDisplay->box.size.y) {
+        waveSliderPos = waveDisplay->box.size.y;
+    }
+    selectedWave = (waveSliderPos / waveDisplay->box.size.y) * 63;
 }

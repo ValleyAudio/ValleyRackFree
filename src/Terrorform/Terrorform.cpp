@@ -1025,7 +1025,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int readPos = 0;
         waves->resize(64);
         for (int i = 0; i < numBlocks; ++i) {
-            (*waves)[i].assign(64, 0.f);
+            (*waves)[i].assign(256, 0.f);
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 (*waves)[i][j] = newTable[readPos];
                 ++readPos;
@@ -1066,9 +1066,15 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->clearBank(bankNum);
     });
 
-    for(int i = 0; i < 64; ++i) {
-        for (int j = 0; j < 256; ++j) {
-            editor->editMenu->viewPane->waveData[i][j] = wavetable_sweepHarmonic[i][j * 8];
+    // for(int i = 0; i < 64; ++i) {
+    //     for (int j = 0; j < 256; ++j) {
+    //         editor->editMenu->viewPane->waveData[i][j] = wavetable_sweepHarmonic[i][j * 8];
+    //     }
+    // }
+
+    for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            editor->editMenu->viewPane->waveData[i][j] = (j % 32) > 15 ? 1.f : -1.f;
         }
     }
 

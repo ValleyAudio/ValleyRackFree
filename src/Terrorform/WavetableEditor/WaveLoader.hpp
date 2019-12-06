@@ -15,6 +15,10 @@ struct TFormBankEditLoadRow : OpaqueWidget {
     TFormEditorNumberChoice* startWave;
     TFormEditorNumberChoice* endWave;
     std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
+    NVGcolor waveLineColor;
+    NVGcolor waveFillColor;
+    float waveSliderPos;
+    int selectedWave;
 
     int buttonWidth = 44;
     int buttonHeight = 15;
@@ -26,6 +30,7 @@ struct TFormBankEditLoadRow : OpaqueWidget {
     TFormBankEditLoadRow();
     void draw(const DrawArgs& args) override;
     void step() override;
+    void onDragMove(const event::DragMove& e) override;
 };
 
 #endif

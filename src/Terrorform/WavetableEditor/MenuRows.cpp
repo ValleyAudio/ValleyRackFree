@@ -98,9 +98,9 @@ TFormWaveViewPane::TFormWaveViewPane() {
     backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
     addChild(backButton);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,23));
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,8));
     waveDisplay->box.size.x = box.size.x - 10.f;
-    waveDisplay->box.size.y = box.size.y - 30.f;
+    waveDisplay->box.size.y = box.size.y - 40.f;
     addChild(waveDisplay);
 
     waveLineColor = nvgRGB(0x00, 0xFF, 0x9F);
@@ -133,6 +133,7 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
     for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
         nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[selectedWave][i] * yScale + yOffset);
     }
+    nvgLineTo(args.vg, endX, yOffset);
     nvgFillColor(args.vg, waveFillColor);
     nvgFill(args.vg);
     nvgClosePath(args.vg);
@@ -145,6 +146,7 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
     for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
         nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[selectedWave][i] * yScale + yOffset);
     }
+    nvgLineTo(args.vg, endX, yOffset);
     nvgStrokeWidth(args.vg, 1.0);
     nvgStrokeColor(args.vg, waveLineColor);
     nvgStroke(args.vg);
