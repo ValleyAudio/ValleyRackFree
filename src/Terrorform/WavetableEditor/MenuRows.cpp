@@ -103,8 +103,8 @@ TFormWaveViewPane::TFormWaveViewPane() {
     waveDisplay->box.size.y = box.size.y - 40.f;
     addChild(waveDisplay);
 
-    waveLineColor = nvgRGB(0x00, 0xFF, 0x9F);
-    waveFillColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
+    waveLineColor = nvgRGB(0xCF, 0x00, 0x00);
+    waveFillColor = nvgRGBA(0xCF, 0x00, 0x00, 0x4F);
 
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
         for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
@@ -192,5 +192,5 @@ void TFormWaveViewPane::onDragMove(const event::DragMove& e) {
     if(waveSliderPos > waveDisplay->box.size.y) {
         waveSliderPos = waveDisplay->box.size.y;
     }
-    selectedWave = (waveSliderPos / waveDisplay->box.size.y) * 63;
+    selectedWave = (waveSliderPos / waveDisplay->box.size.y) * (waveDisplay->numWaves - 1);
 }

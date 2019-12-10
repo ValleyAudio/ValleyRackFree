@@ -1,6 +1,10 @@
 #include "WaveDisplay.hpp"
 
 TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
+    offColor = nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F);
+    onColor = nvgRGBA(0xDF, 0x00, 0x00, 0xFF);
+    bgColor = nvgRGBA(0xDF, 0x00, 0x00, 0x7F);
+
     // offColor = nvgRGBA(0x00, 0x7F, 0x3F, 0x6F);
     // onColor = nvgRGBA(0x00, 0xFF, 0x9F, 0xFF);
     // bgColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
@@ -18,7 +22,7 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
     // bgColor = nvgRGBA(0x00, 0xC0, 0xFF, 0x4F);
 
     selectedWave = 0;
-    numWaves = 64;
+    numWaves = 16;
 
     for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
         for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -42,7 +46,7 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
 
     float dX = dimetricProject(1.f, 0.f, 1.f).x;
     float dY = dimetricProject(0.f, 1.f, 1.f).y - dimetricProject(1.f, -1.f, 0.f).y;
-    float dZ = 1.f / (TFORM_MAX_NUM_WAVES - 1.f);
+    float dZ = 1.f / (numWaves - 1.f);
 
     float mX = box.size.x / dX;
     float mY = box.size.y / dY;
@@ -58,7 +62,7 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
 
     auto drawWaveLine = [=](int w, const NVGcolor& color) -> void {
         Vec pW;
-        float z = 1.f - w * dZ;
+        float z = numWaves > 1 ? (1.f - w * dZ) : 0.5f;
 
         nvgBeginPath(args.vg);
         nvgStrokeWidth(args.vg, 1.0);
@@ -85,7 +89,7 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
 
     auto drawWave = [=](int w, const NVGcolor& color) {
         Vec pW;
-        float z = 1.f - w * dZ;
+        float z = numWaves > 1 ? (1.f - w * dZ) : 0.5f;
 
         nvgBeginPath(args.vg);
         nvgFillColor(args.vg, color);
@@ -105,13 +109,15 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         nvgFill(args.vg);
     };
 
-    drawWave(selectedWave, bgColor);
     for (int w = numWaves - 1; w >= 0; --w) {
         if (w == selectedWave) {
-            continue;
+            drawWave(selectedWave, bgColor);
+            drawWaveLine(selectedWave, onColor);
         }
-        drawWaveLine(w, offColor);
+        else {
+            drawWaveLine(w, offColor);
+        }
     }
-    drawWaveLine(selectedWave, onColor);
+
     Widget::draw(args);
 }

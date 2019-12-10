@@ -30,8 +30,8 @@ TFormBankEditLoadRow::TFormBankEditLoadRow() {
     waveSliderPos = 0.f;
     selectedWave = 0;
 
-    waveLineColor = nvgRGB(0x00, 0xFF, 0x9F);
-    waveFillColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
+    waveLineColor = nvgRGB(0xAF, 0xAF, 0xAF);
+    waveFillColor = nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F);
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
