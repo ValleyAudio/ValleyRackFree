@@ -22,7 +22,9 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
     // bgColor = nvgRGBA(0x00, 0xC0, 0xFF, 0x4F);
 
     selectedWave = 0;
-    numWaves = 16;
+    waveSliderPos = 0.f;
+    normSliderPos = 0.f;
+    numWaves = 64;
 
     for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
         for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -69,9 +71,9 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         nvgStrokeColor(args.vg, color);
         nvgLineCap(args.vg, NVG_ROUND);
         nvgLineJoin(args.vg, NVG_ROUND);
+
         pW = dimetricProject(1.f, 0.f, z);
         pW = scalePoint(pW);
-
         nvgMoveTo(args.vg, pW.x, pW.y);
         for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
             pW = dimetricProject(1.f - (float) i / (TFORM_MAX_WAVELENGTH - 1.f), -waveData[w][i] * 0.75f, z);
@@ -87,7 +89,7 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         nvgLineJoin(args.vg, NVG_MITER);
     };
 
-    auto drawWave = [=](int w, const NVGcolor& color) {
+    auto drawWaveFilled = [=](int w, const NVGcolor& color) {
         Vec pW;
         float z = numWaves > 1 ? (1.f - w * dZ) : 0.5f;
 
@@ -109,9 +111,20 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         nvgFill(args.vg);
     };
 
+    Vec triPos = dimetricProject(1.f, 0.f, (1.f - normSliderPos * dZ));
+    triPos = scalePoint(triPos);
+    triPos.x -= 4.f;
+    nvgBeginPath(args.vg);
+    nvgMoveTo(args.vg, triPos.x, triPos.y);
+    nvgLineTo(args.vg, triPos.x - 4.3301, triPos.y + 2.5);
+    nvgLineTo(args.vg, triPos.x - 4.3301, triPos.y - 2.5);
+    nvgLineTo(args.vg, triPos.x, triPos.y);
+    nvgFillColor(args.vg, onColor);
+    nvgFill(args.vg);
+
     for (int w = numWaves - 1; w >= 0; --w) {
         if (w == selectedWave) {
-            drawWave(selectedWave, bgColor);
+            drawWaveFilled(selectedWave, bgColor);
             drawWaveLine(selectedWave, onColor);
         }
         else {
@@ -119,5 +132,28 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
         }
     }
 
+    triPos = dimetricProject(0.f, 0.f, (1.f - normSliderPos * dZ));
+    triPos = scalePoint(triPos);
+    triPos.x += 4.f;
+    nvgBeginPath(args.vg);
+    nvgMoveTo(args.vg, triPos.x, triPos.y);
+    nvgLineTo(args.vg, triPos.x + 4.3301, triPos.y - 2.5);
+    nvgLineTo(args.vg, triPos.x + 4.3301, triPos.y + 2.5);
+    nvgLineTo(args.vg, triPos.x, triPos.y);
+    nvgFillColor(args.vg, onColor);
+    nvgFill(args.vg);
+
     Widget::draw(args);
+}
+
+void TFormEditorWaveDisplay::moveSliderPos(float sliderDelta) {
+    waveSliderPos -= sliderDelta;
+    if(waveSliderPos < 0.f) {
+        waveSliderPos = 0.f;
+    }
+    if(waveSliderPos > box.size.y) {
+        waveSliderPos = box.size.y;
+    }
+    normSliderPos = (waveSliderPos / box.size.y) * (float)(numWaves - 1);
+    selectedWave = (int) (normSliderPos + 0.5f);
 }

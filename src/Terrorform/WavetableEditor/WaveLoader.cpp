@@ -23,8 +23,8 @@ TFormBankEditLoadRow::TFormBankEditLoadRow() {
     confirmButton = createNewMenuButton("Okay", triggerIngest, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
     addChild(confirmButton);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,27));
-    waveDisplay->box.size.x = box.size.x - 10.f;
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(10,27));
+    waveDisplay->box.size.x = box.size.x - 20.f;
     waveDisplay->box.size.y = box.size.y - 55.f;
     addChild(waveDisplay);
     waveSliderPos = 0.f;
@@ -88,7 +88,7 @@ void TFormBankEditLoadRow::draw(const DrawArgs& args) {
     // Waveform box outline
     nvgBeginPath(args.vg);
     nvgRect(args.vg, boxX, boxY, boxWidth, boxHeight);
-    nvgStrokeColor(args.vg, waveLineColor);
+    nvgStrokeColor(args.vg, nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F));
     nvgStroke(args.vg);
 
     // Horizontal bar
@@ -104,23 +104,26 @@ void TFormBankEditLoadRow::draw(const DrawArgs& args) {
 
 void TFormBankEditLoadRow::step() {
     if(detectedWaves) {
-        for (int i = 0; i < detectedWaves->size(); ++i) {
+        for (unsigned long i = 0; i < (*detectedWaves).size(); ++i) {
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
-                waveDisplay->waveData[i][j] = (*detectedWaves)[i][j];
+                waveDisplay->waveData[i][j] = 0.f;
             }
         }
+
+        unsigned long k = 0;
+        for (unsigned long i = *startWave->choice; i <= *endWave->choice; ++i) {
+            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+                waveDisplay->waveData[k][j] = (*detectedWaves)[i][j];
+            }
+            ++k;
+        }
     }
-    waveDisplay->selectedWave = selectedWave;
+
+    waveDisplay->numWaves = *endWave->choice - *startWave->choice + 1;
+    selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
 void TFormBankEditLoadRow::onDragMove(const event::DragMove& e) {
-    waveSliderPos -= e.mouseDelta.y;
-    if(waveSliderPos < 0) {
-        waveSliderPos = 0;
-    }
-    if(waveSliderPos > waveDisplay->box.size.y) {
-        waveSliderPos = waveDisplay->box.size.y;
-    }
-    selectedWave = (waveSliderPos / waveDisplay->box.size.y) * 63;
+    waveDisplay->moveSliderPos(e.mouseDelta.y);
 }

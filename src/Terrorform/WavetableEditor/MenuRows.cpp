@@ -98,8 +98,8 @@ TFormWaveViewPane::TFormWaveViewPane() {
     backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
     addChild(backButton);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(5,8));
-    waveDisplay->box.size.x = box.size.x - 10.f;
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(10,8));
+    waveDisplay->box.size.x = box.size.x - 20.f;
     waveDisplay->box.size.y = box.size.y - 40.f;
     addChild(waveDisplay);
 
@@ -162,7 +162,7 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
     // Waveform box outline
     nvgBeginPath(args.vg);
     nvgRect(args.vg, boxX, boxY, boxWidth, boxHeight);
-    nvgStrokeColor(args.vg, waveLineColor);
+    nvgStrokeColor(args.vg, nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F));
     nvgStroke(args.vg);
 
     // Horizontal bar
@@ -180,17 +180,10 @@ void TFormWaveViewPane::step() {
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
         memcpy(&waveDisplay->waveData[i], &waveData[i], sizeof(float) * TFORM_MAX_WAVELENGTH);
     }
-    waveDisplay->selectedWave = selectedWave;
+    selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
 void TFormWaveViewPane::onDragMove(const event::DragMove& e) {
-    waveSliderPos -= e.mouseDelta.y;
-    if(waveSliderPos < 0) {
-        waveSliderPos = 0;
-    }
-    if(waveSliderPos > waveDisplay->box.size.y) {
-        waveSliderPos = waveDisplay->box.size.y;
-    }
-    selectedWave = (waveSliderPos / waveDisplay->box.size.y) * (waveDisplay->numWaves - 1);
+    waveDisplay->moveSliderPos(e.mouseDelta.y);
 }
