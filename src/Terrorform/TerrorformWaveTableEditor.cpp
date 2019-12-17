@@ -7,47 +7,18 @@
 TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     box.size = Vec(238, 195);
 
-    emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    selectedBank = 0;
-
-    // Slots grid
-    Vec offset = Vec(0, 40);
-    grid = createWidget<TFormEditorGrid<TRRFORM_EDITOR_ROWS, TRRFORM_EDITOR_COLS>>(box.pos.plus(offset));
-    grid->box.size.x = box.size.x;
-    grid->box.size.y = box.size.y - offset.y;
-
-    int id = 0;
-    for(int row = 0; row < TRRFORM_EDITOR_ROWS; ++row) {
-        for(int col = 0; col < TRRFORM_EDITOR_COLS; ++col) {
-            auto selectBank = [=]() {
-                selectedBank = id;
-            };
-            grid->slotButton[row][col]->onClick = selectBank;
-            grid->slotButton[row][col]->text = std::to_string(id + 1);
-            ++id;
-        }
-    }
-    addChild(grid);
-
-    for(int i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
-        slotFilled[i] = false;
-    }
+    slotFilled = std::make_shared<std::vector<bool>>(TFORM_EDITOR_SLOTS, false);
+    selectedBank = std::make_shared<int>(0);
 
     // Main button row
     mainButtonRow = createWidget<TFormBankEditMainRow>(Vec(0, 0));
+    mainButtonRow->slotFilled = slotFilled;
+    mainButtonRow->selectedBank = selectedBank;
+
     mainButtonRow->loadButton->onClick = [=]() {
         //int detectedWaves = -1;
         std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
-        if(onLoadWAVCallback) {
+        if (onLoadWAVCallback) {
             detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
                 *loadButtonRow->endWave->choice = detectedWaves->size() - 1;
@@ -56,23 +27,27 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
             }
         }
     };
+
     mainButtonRow->clearButton->onClick = [=]() {
         changeState(CLEAR_BANK_STATE);
     };
+
     mainButtonRow->purgeButton->onClick = [=]() {
         changeState(PURGE_STATE);
     };
+
     mainButtonRow->viewButton->onClick = [=]() {
-        onViewBankCallback(selectedBank, viewPane->waveData);
+        onViewBankCallback(*selectedBank, viewPane->waveData);
         changeState(VIEW_BANK_STATE);
     };
+
     addChild(mainButtonRow);
 
     // Load row
     loadButtonRow = createWidget<TFormBankEditLoadRow>(Vec(0, 0));
     loadButtonRow->ingestNewTable = [=](int startWave, int endWave) {
-        onIngestTableCallback(selectedBank, startWave, endWave);
-        slotFilled[selectedBank] = true;
+        onIngestTableCallback(*selectedBank, startWave, endWave);
+        (*slotFilled)[*selectedBank] = true;
         changeState(SELECT_BANK_STATE);
     };
     loadButtonRow->cancelButton->onClick = [=]() {
@@ -82,8 +57,9 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
 
     // Clear row
     clearButtonRow = createWidget<TFormClearRow>(Vec(0, 0));
+    clearButtonRow->selectedBank = selectedBank;
     clearButtonRow->yesButton->onClick = [=]() {
-        onClearBankCallback(selectedBank);
+        onClearBankCallback(*selectedBank);
         changeState(SELECT_BANK_STATE);
     };
     clearButtonRow->noButton->onClick = [=]() {
@@ -94,7 +70,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     // Purge row
     purgeButtonRow = createWidget<TFormBankEditPurgeRow>(Vec(0, 0));
     purgeButtonRow->yesButton->onClick = [=]() {
-        for (int i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
+        for (int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
             onClearBankCallback(i);
         }
         changeState(SELECT_BANK_STATE);
@@ -106,6 +82,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
 
     // View row
     viewPane = createWidget<TFormWaveViewPane>(Vec(0, 0));
+    viewPane->selectedBank = selectedBank;
     viewPane->backButton->onClick = [=]() {
         changeState(SELECT_BANK_STATE);
     };
@@ -115,34 +92,8 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     changeState(SELECT_BANK_STATE);
 }
 
-void TFormEditorBankEditMenu::step() {
-    int row = 0;
-    int col = 0;
-
-    for(auto i = 0; i < TRRFORM_EDITOR_SLOTS; ++i) {
-        row = i / TRRFORM_EDITOR_ROWS;
-        col = i % TRRFORM_EDITOR_COLS;
-        grid->slotButton[row][col]->setHighlight(i == selectedBank);
-    }
-    mainButtonRow->selectedBankIsFilled = slotFilled[selectedBank];
-    mainButtonRow->selectedBank = selectedBank;
-    Widget::step();
-}
-
 void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
-    if(slot >= 0 && slot < TRRFORM_EDITOR_SLOTS) {
-        int row = slot / TRRFORM_EDITOR_ROWS;
-        int col = slot % TRRFORM_EDITOR_COLS;
-        slotFilled[slot] = isFilled;
-        for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
-            if(isFilled) {
-                grid->slotButton[row][col]->buttonStyles[m] = filledSlotButtonStyles[m];
-            }
-            else {
-                grid->slotButton[row][col]->buttonStyles[m] = emptySlotButtonStyles[m];
-            }
-        }
-    }
+    mainButtonRow->setSlotFilledFlag(slot, isFilled);
 }
 
 void TFormEditorBankEditMenu::changeState(const State newState) {
@@ -151,11 +102,9 @@ void TFormEditorBankEditMenu::changeState(const State newState) {
     clearButtonRow->visible = false;
     purgeButtonRow->visible = false;
     viewPane->visible = false;
-    grid->visible = false;
     switch (newState) {
         case SELECT_BANK_STATE:
             mainButtonRow->visible = true;
-            grid->visible = true;
             break;
         case LOAD_WAVE_STATE:
             loadButtonRow->visible = true;
@@ -266,7 +215,7 @@ void TFormEditor::addCloneBankCallback(const std::function<void(int)>& onCloneBa
     editMenu->onCloneBankCallback = onCloneBankCallback;
 }
 
-void TFormEditor::addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback) {
+void TFormEditor::addViewBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onViewBankCallback) {
     editMenu->onViewBankCallback = onViewBankCallback;
 }
 
@@ -279,7 +228,7 @@ void TFormEditor::addExportCallback(const std::function<void()>& onExportWaveTab
 }
 
 void TFormEditor::setSlotFilledFlag(int slot, bool isFilled) {
-    if(slot >= 0 && slot < TRRFORM_EDITOR_SLOTS) {
+    if(slot >= 0 && slot < TFORM_EDITOR_SLOTS) {
         editMenu->setSlotFilledFlag(slot, isFilled);
     }
 }

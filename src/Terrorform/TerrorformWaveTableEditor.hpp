@@ -6,10 +6,6 @@
 #include "WavetableEditor/WaveLoader.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"
 
-#define TRRFORM_EDITOR_COLS 8
-#define TRRFORM_EDITOR_ROWS 8
-#define TRRFORM_EDITOR_SLOTS TRRFORM_EDITOR_ROWS * TRRFORM_EDITOR_COLS
-
 struct TFormEditorBankEditMenu : OpaqueWidget {
     enum State {
         SELECT_BANK_STATE = 0,
@@ -25,24 +21,20 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     TFormClearRow* clearButtonRow;
     TFormBankEditPurgeRow* purgeButtonRow;
     TFormWaveViewPane* viewPane;
-    int selectedBank;
 
-    TFormEditorGrid<TRRFORM_EDITOR_ROWS, TRRFORM_EDITOR_COLS>* grid;
-    TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
-    TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
-
-    bool slotFilled[TRRFORM_EDITOR_SLOTS];
+    std::shared_ptr<std::vector<bool>> slotFilled;
+    std::shared_ptr<int> selectedBank;
+    std::shared_ptr<bool> selectedBankIsFilled;
 
     std::function<std::shared_ptr<std::vector<std::vector<float>>>()> onLoadWAVCallback;
     std::function<void(int, int, int)> onIngestTableCallback;
     std::function<void(int)> onClearBankCallback;
     std::function<void(int)> onCloneBankCallback;
-    std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])> onViewBankCallback;
+    std::function<void(int, std::vector<std::vector<float>>&)> onViewBankCallback;
 
     std::shared_ptr<Font> font;
 
     TFormEditorBankEditMenu();
-    void step() override;
     void setSlotFilledFlag(int slot, bool isFilled);
     void changeState(const State newState);
 };
@@ -72,7 +64,8 @@ struct TFormEditor : OpaqueWidget {
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback);
-    void addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback);
+    //void addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback);
+    void addViewBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onViewBankCallback);
 
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);

@@ -1053,9 +1053,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->numUserWaveTables++;
     };
 
-    auto viewBank = [=](int bank, float data[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH]) {
-        for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-            memcpy(data[i], module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
+    auto viewBank = [=](int bank, std::vector<std::vector<float>>& data) {
+        data.resize(module->userWaveTableSizes[bank]);
+        for (int i = 0; i < data.size(); ++i) {
+            data[i].resize(TFORM_MAX_WAVELENGTH);
+            memcpy(data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
         }
     };
 

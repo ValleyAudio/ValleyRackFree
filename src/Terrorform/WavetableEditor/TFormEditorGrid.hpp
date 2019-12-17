@@ -14,7 +14,7 @@ struct TFormEditorGrid : OpaqueWidget {
 
     TFormEditorGrid() {
         color = nvgRGB(0xAF, 0xAF, 0xAF);
-        box.size = Vec(238, 195);
+        box.size = Vec(238, 155);
 
         buttonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
         buttonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
