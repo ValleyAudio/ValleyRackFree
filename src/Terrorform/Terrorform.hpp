@@ -539,7 +539,7 @@ struct TerrorformWidget : ModuleWidget {
         "SAXOPHONE", "REED", "CELLO_1", "CELLO_2", "VIOLIN", "PIANO", "THEREMIN", "PLUCK",
         "OVERTONE1", "OVERTONE2", "SYMMETRY", "CHIP_1", "CHIP_2", "BITCRUSH1", "BITCRUSH2",
         "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
-        "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
+        "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
         "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
         "PLAITS_3", "PLAITS_4"
     };
@@ -551,7 +551,7 @@ struct TerrorformWidget : ModuleWidget {
         "Violin", "Piano", "Theremin", "Pluck", "Overtone 1", "Overtone 2", "Symmetry",
         "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2", "Grit", "Voice 1", "Voice 2",
         "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM", "Bi Pulse", "Saw Gap 1",
-        "Saw Gap 2", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
+        "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
         "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
         "Plaits 3", "Plaits 4"
     };

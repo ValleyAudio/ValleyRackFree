@@ -41,6 +41,7 @@
 #include "biPulse_wavetable/biPulse_wavetable.h"
 #include "sawGap_wavetable/sawGap_wavetable.h"
 #include "sawGap2_wavetable/sawGap2_wavetable.h"
+#include "sawPhase_waveTable/sawPhase_waveTable.h"
 #include "vgame_wavetable/vgame_wavetable.h"
 #include "foldSine_waveTable/foldSine_waveTable.h"
 #include "fm1_waveTable/fm1_waveTable.h"
