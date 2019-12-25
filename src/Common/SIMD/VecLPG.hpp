@@ -21,7 +21,8 @@ struct VecLPG {
         _lpf1.setCutoffFreq(__cutoff);
         _lpf2._a = _lpf1._a;
         _lpf2._b = _lpf1._b;
-        return _lpf2.process(_lpf1.process(x));;
+        __output = _lpf2.process(_lpf1.process(x));;
+        return __output;
     }
 
     __m128 getEnvelope() const {
@@ -62,5 +63,6 @@ struct VecLPG {
     __m128 __zeros, __ones;
     __m128 __cutoff, __maxCutoff;
     __m128 __filterSwitch;
+    __m128 __output;
     VecOnePoleLPFilter _lpf1, _lpf2;
 };
