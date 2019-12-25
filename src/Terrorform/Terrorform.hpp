@@ -198,6 +198,7 @@ struct Terrorform : Module {
     float degradeDepthCV;
 
     bool percMode;
+    __m128 __percMode;
     int modBusTarget = 0;
 
     bool sync1IsMono, sync2IsMono;

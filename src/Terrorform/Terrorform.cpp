@@ -80,6 +80,7 @@ Terrorform::Terrorform() {
     __sync2 = __zeros;
     __sync1Pls = __zeros;
     __sync2Pls = __zeros;
+    __percMode = __zeros;
 
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
@@ -294,6 +295,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
 
         lpg[c].setDecay(__decay);
+        //lpg[c].process()
 
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
         osc[c].setPhase(__fmSum);
@@ -312,6 +314,8 @@ void Terrorform::process(const ProcessArgs &args) {
         __mainOutput[c] = degrader[c].process(__preDegradeOutput[c], __degrade);
         __preDegradeOutput[c] = _mm_mul_ps(__preDegradeOutput[c], __fives);
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+
+        __mainOutput[c] = _mm_switch_ps(__mainOutput[c], _mm_mul_ps(__mainOutput[c], lpg[c].__output), __percMode);
 
         _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), lpg[c].getEnvelope());
         _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preDegradeOutput[c]);
@@ -336,7 +340,7 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
-    json_object_set_new(rootJ, "numUserWaveTables", json_integer((int)numUserWaveTables));
+    // json_object_set_new(rootJ, "numUserWaveTables", json_integer((int)numUserWaveTables));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -377,14 +381,14 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     clearUserWaveTables();
 
     json_t *userWavesJ = json_object_get(rootJ, "userWaves");
-    json_t *numUserWaveTablesJ = json_object_get(rootJ, "numUserWaveTables");
-    numUserWaveTables = json_integer_value(numUserWaveTablesJ);
+    numUserWaveTables = (int) json_array_size(userWavesJ);
 
     for (auto bank = 0; bank < numUserWaveTables; ++bank) {
         json_t* userWaveJ = json_array_get(userWavesJ, bank);
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
         json_t* numWavesJ = json_object_get(userWaveJ, "numWaves");
         json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
+        printf("Num waves in bank %d : %d\n", bank, (int) json_array_size(tableJ));
 
         destBank = json_integer_value(destBankJ);
         numWaves = json_integer_value(numWavesJ);
