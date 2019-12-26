@@ -66,6 +66,7 @@ struct TFormBankEditCopyRow : TFormMenuRow {
     TFormEditorNumberChoice* startWave;
     TFormEditorNumberChoice* endWave;
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
+    int sourceBank;
     int destBank;
 
     TFormBankEditCopyRow();
