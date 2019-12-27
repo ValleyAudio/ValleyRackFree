@@ -6,7 +6,7 @@ struct TFormEditorWaveDisplay : TransparentWidget {
     NVGcolor offColor;
     NVGcolor onColor;
     NVGcolor bgColor;
-    float dX, dY, dZ, mX, mY;
+    float dX, dY, dZ, mX, mY, xOffset;
     Vec pW, triPos;
 
     int numWaves;
