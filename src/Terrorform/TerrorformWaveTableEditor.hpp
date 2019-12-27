@@ -10,17 +10,19 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     enum State {
         SELECT_BANK_STATE = 0,
         LOAD_WAVE_STATE,
-        CLEAR_BANK_STATE,
         VIEW_BANK_STATE,
+        CLONE_BANK_STATE,
+        CLEAR_BANK_STATE,
         PURGE_STATE
     };
 
     State state;
     TFormBankEditMainRow* mainButtonRow;
     TFormBankEditLoadRow* loadButtonRow;
-    TFormClearRow* clearButtonRow;
-    TFormBankEditPurgeRow* purgeButtonRow;
     TFormWaveViewPane* viewPane;
+    TFormCloneRow* cloneMenu;
+    TFormClearRow* clearButtonRow;
+    TFormPurgeRow* purgeButtonRow;
 
     std::shared_ptr<std::vector<bool>> slotFilled;
     std::shared_ptr<int> selectedBank;
@@ -29,7 +31,6 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     std::function<std::shared_ptr<std::vector<std::vector<float>>>()> onLoadWAVCallback;
     std::function<void(int, int, int)> onIngestTableCallback;
     std::function<void(int)> onClearBankCallback;
-    std::function<void(int)> onCloneBankCallback;
     std::function<void(int, std::vector<std::vector<float>>&)> onViewBankCallback;
 
     std::shared_ptr<Font> font;
@@ -63,8 +64,7 @@ struct TFormEditor : OpaqueWidget {
     void addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<std::vector<float>>>()>& onLoadWAVCallback);
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
-    void addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback);
-    //void addViewBankCallback(const std::function<void(int, float[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH])>& onViewBankCallback);
+    void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
     void addViewBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onViewBankCallback);
 
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);

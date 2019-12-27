@@ -41,6 +41,10 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
         changeState(VIEW_BANK_STATE);
     };
 
+    mainButtonRow->cloneButton->onClick = [=]() {
+        changeState(CLONE_BANK_STATE);
+    };
+
     addChild(mainButtonRow);
 
     // Load row
@@ -68,7 +72,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     addChild(clearButtonRow);
 
     // Purge row
-    purgeButtonRow = createWidget<TFormBankEditPurgeRow>(Vec(0, 0));
+    purgeButtonRow = createWidget<TFormPurgeRow>(Vec(0, 0));
     purgeButtonRow->yesButton->onClick = [=]() {
         for (int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
             onClearBankCallback(i);
@@ -88,12 +92,22 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
     addChild(viewPane);
 
+    // Clone menu
+    cloneMenu = createWidget<TFormCloneRow>(Vec(0, 0));
+    cloneMenu->slotFilled = slotFilled;
+    cloneMenu->sourceBank = selectedBank;
+    cloneMenu->backButton->onClick = [=]() {
+        changeState(SELECT_BANK_STATE);
+    };
+    addChild(cloneMenu);
+
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     changeState(SELECT_BANK_STATE);
 }
 
 void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
     mainButtonRow->setSlotFilledFlag(slot, isFilled);
+    cloneMenu->setSlotFilledFlag(slot, isFilled);
 }
 
 void TFormEditorBankEditMenu::changeState(const State newState) {
@@ -102,6 +116,7 @@ void TFormEditorBankEditMenu::changeState(const State newState) {
     clearButtonRow->visible = false;
     purgeButtonRow->visible = false;
     viewPane->visible = false;
+    cloneMenu->visible = false;
     switch (newState) {
         case SELECT_BANK_STATE:
             mainButtonRow->visible = true;
@@ -109,14 +124,17 @@ void TFormEditorBankEditMenu::changeState(const State newState) {
         case LOAD_WAVE_STATE:
             loadButtonRow->visible = true;
             break;
+        case VIEW_BANK_STATE:
+            viewPane->visible = true;
+            break;
+        case CLONE_BANK_STATE:
+            cloneMenu->visible = true;
+            break;
         case CLEAR_BANK_STATE:
             clearButtonRow->visible = true;
             break;
         case PURGE_STATE:
             purgeButtonRow->visible = true;
-            break;
-        case VIEW_BANK_STATE:
-            viewPane->visible = true;
             break;
     }
 }
@@ -211,8 +229,8 @@ void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearB
     editMenu->onClearBankCallback = onClearBankCallback;
 }
 
-void TFormEditor::addCloneBankCallback(const std::function<void(int)>& onCloneBankCallback) {
-    editMenu->onCloneBankCallback = onCloneBankCallback;
+void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {
+    editMenu->cloneMenu->onCloneBankCallback = onCloneBankCallback;
 }
 
 void TFormEditor::addViewBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onViewBankCallback) {

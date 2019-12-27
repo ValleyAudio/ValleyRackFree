@@ -22,11 +22,10 @@ struct TFormMenuRow : OpaqueWidget {
 
 struct TFormBankEditMainRow : TFormMenuRow {
     TFormEditorButton* loadButton;
-    TFormEditorButton* copyButton;
-    TFormEditorButton* pasteButton;
+    TFormEditorButton* viewButton;
+    TFormEditorButton* cloneButton;
     TFormEditorButton* clearButton;
     TFormEditorButton* purgeButton;
-    TFormEditorButton* viewButton;
     TFormEditorButton* backButton;
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
     TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
@@ -51,26 +50,45 @@ struct TFormClearRow : TFormMenuRow {
     void draw(const DrawArgs& args) override;
 };
 
-struct TFormBankEditPurgeRow : TFormMenuRow {
+struct TFormPurgeRow : TFormMenuRow {
     TFormEditorButton* yesButton;
     TFormEditorButton* noButton;
     std::shared_ptr<int> selectedBank;
 
-    TFormBankEditPurgeRow();
+    TFormPurgeRow();
     void draw(const DrawArgs& args) override;
 };
 
-struct TFormBankEditCopyRow : TFormMenuRow {
+struct TFormCloneRow : TFormMenuRow {
+    TFormEditorWaveDisplay* waveDisplay;
+    TFormEditorButton* backButton;
+    TFormEditorButton* nextButton;
     TFormEditorButton* cancelButton;
     TFormEditorButton* pasteButton;
     TFormEditorNumberChoice* startWave;
     TFormEditorNumberChoice* endWave;
+    TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
+    TFormEditorButtonStyle sourceSlotButtonStyles[NUM_BUTTON_MODES];
+    TFormEditorButtonStyle destSlotButtonStyles[NUM_BUTTON_MODES];
+    TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
-    int sourceBank;
+    NVGcolor waveLineColor;
+    NVGcolor waveFillColor;
+    float waveSliderPos;
+    int selectedWave;
+
+    std::vector<std::vector<float>> waveData;
+    std::shared_ptr<std::vector<bool>> slotFilled;
+    std::shared_ptr<int> sourceBank;
     int destBank;
 
-    TFormBankEditCopyRow();
+    std::function<void(int, int)> onCloneBankCallback;
+
+    TFormCloneRow();
+    void step() override;
     void draw(const DrawArgs& args) override;
+    void onDragMove(const event::DragMove& e) override;
+    void setSlotFilledFlag(int slot, bool isFilled);
 };
 
 struct TFormWaveViewPane : TFormMenuRow {
