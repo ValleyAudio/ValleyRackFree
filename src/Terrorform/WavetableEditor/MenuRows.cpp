@@ -4,6 +4,22 @@ TFormMenuRow::TFormMenuRow() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
+void TFormMenuRow::view() {
+    visible = true;
+    if(onView) {
+        onView();
+    }
+}
+
+void TFormMenuRow::hide() {
+    visible = false;
+    if(onHide) {
+        onHide();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TFormBankEditMainRow::TFormBankEditMainRow() {
     box.size = Vec(238, 195);
     loadButton = createNewMenuButton("Load", NULL, buttonOffset, 21, buttonWidth, buttonHeight);
@@ -161,9 +177,22 @@ TFormCloneRow::TFormCloneRow() {
     endWave->box.size.y = 15;
     addChild(endWave);
 
-    backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
-    addChild(backButton);
+    selectSourceBackButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
+    selectSourceBackButton->onClick = [=] {
+        hide();
+    };
+    addChild(selectSourceBackButton);
+
+    selectDestBackButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
+    selectDestBackButton->onClick = [=] {
+        changeState(SELECT_SOURCE_STATE);
+    };
+    addChild(selectDestBackButton);
+
     nextButton = createNewMenuButton("Next", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
+    nextButton->onClick = [=]() {
+        changeState(SELECT_DEST_STATE);
+    };
     addChild(nextButton);
 
     emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
@@ -202,12 +231,13 @@ TFormCloneRow::TFormCloneRow() {
             ++id;
         }
     }
+
     grid->visible = false;
     addChild(grid);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(10,27));
-    waveDisplay->box.size.x = box.size.x - 20.f;
-    waveDisplay->box.size.y = box.size.y - 55.f;
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5,27));
+    waveDisplay->box.size.x = box.size.x - 3.f;
+    waveDisplay->box.size.y = box.size.y - 27.f;
     addChild(waveDisplay);
 
     waveSliderPos = 0.f;
@@ -225,6 +255,7 @@ TFormCloneRow::TFormCloneRow() {
     }
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    changeState(SELECT_SOURCE_STATE);
 }
 
 void TFormCloneRow::step() {
@@ -237,14 +268,22 @@ void TFormCloneRow::step() {
         grid->slotButton[row][col]->setHighlight(i == *sourceBank || i == destBank);
     }
 
-    waveDisplay->numWaves = waveData.size();
-    for (int i = 0; i < waveData.size(); ++i) {
-        memcpy(&waveDisplay->waveData[i], waveData[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+    int j = 0;
+    for (unsigned long i = *startWave->choice; i <= *endWave->choice; ++i) {
+        memcpy(&waveDisplay->waveData[j], waveData[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+        ++j;
     }
+    waveDisplay->numWaves = *endWave->choice - *startWave->choice + 1;
     selectedWave = waveDisplay->selectedWave;
 }
 
 void TFormCloneRow::draw(const DrawArgs& args) {
+    switch(state) {
+        case SELECT_SOURCE_STATE: displaySourceSelection(args); break;
+        case SELECT_DEST_STATE: displayDestinationSelection(args); break;
+        case CONFIRM_OVERWRITE_STATE: break;
+    }
+
     // Horizontal bar
     nvgBeginPath(args.vg);
     nvgMoveTo(args.vg, 0, box.pos.y + 40);
@@ -254,6 +293,54 @@ void TFormCloneRow::draw(const DrawArgs& args) {
     nvgStroke(args.vg);
 
     Widget::draw(args);
+}
+
+void TFormCloneRow::displaySourceSelection(const DrawArgs& args) {
+    std::string strCloningFrom = "Cloning from bank " + std::to_string(*sourceBank);
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    nvgText(args.vg, 5, 5, strCloningFrom.c_str(), NULL);
+    nvgText(args.vg, 5, 21, "Start:", NULL);
+    nvgText(args.vg, 80, 21, "End:", NULL);
+}
+
+void TFormCloneRow::displayDestinationSelection(const DrawArgs& args) {
+
+}
+
+void TFormCloneRow::changeState(TFormCloneRowState newState) {
+    state = newState;
+
+    grid->visible = false;
+    waveDisplay->visible = false;
+    selectSourceBackButton->visible = false;
+    selectDestBackButton->visible = false;
+    nextButton->visible = false;
+    // cancelButton->visible = false;
+    // pasteButton->visible = false;
+    startWave->visible = false;
+    endWave->visible = false;
+    switch(state) {
+        case SELECT_SOURCE_STATE:
+            waveDisplay->visible = true;
+            selectSourceBackButton->visible = true;
+            nextButton->visible = true;
+            startWave->visible = true;
+            endWave->visible = true;
+            *startWave->choice = 0;
+            *endWave->choice = waveData.size() - 1;
+            break;
+        case SELECT_DEST_STATE:
+            selectDestBackButton->visible = true;
+            grid->visible = true;
+            break;
+        case CONFIRM_OVERWRITE_STATE:
+            break;
+    }
 }
 
 void TFormCloneRow::onDragMove(const event::DragMove& e) {

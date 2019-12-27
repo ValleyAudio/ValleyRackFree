@@ -17,7 +17,12 @@ struct TFormMenuRow : OpaqueWidget {
     const int buttonOffset = 3;
     std::shared_ptr<Font> font;
 
+    std::function<void()> onView;
+    std::function<void()> onHide;
+
     TFormMenuRow();
+    void view();
+    void hide();
 };
 
 struct TFormBankEditMainRow : TFormMenuRow {
@@ -60,8 +65,16 @@ struct TFormPurgeRow : TFormMenuRow {
 };
 
 struct TFormCloneRow : TFormMenuRow {
+    enum TFormCloneRowState {
+        SELECT_SOURCE_STATE,
+        SELECT_DEST_STATE,
+        CONFIRM_OVERWRITE_STATE
+    };
+    TFormCloneRowState state;
+
     TFormEditorWaveDisplay* waveDisplay;
-    TFormEditorButton* backButton;
+    TFormEditorButton* selectSourceBackButton;
+    TFormEditorButton* selectDestBackButton;
     TFormEditorButton* nextButton;
     TFormEditorButton* cancelButton;
     TFormEditorButton* pasteButton;
@@ -87,6 +100,10 @@ struct TFormCloneRow : TFormMenuRow {
     TFormCloneRow();
     void step() override;
     void draw(const DrawArgs& args) override;
+    void displaySourceSelection(const DrawArgs& args);
+    void displayDestinationSelection(const DrawArgs& args);
+    void changeState(TFormCloneRowState newState);
+
     void onDragMove(const event::DragMove& e) override;
     void setSlotFilledFlag(int slot, bool isFilled);
 };

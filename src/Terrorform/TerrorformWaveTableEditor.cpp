@@ -37,11 +37,13 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
 
     mainButtonRow->viewButton->onClick = [=]() {
-        onViewBankCallback(*selectedBank, viewPane->waveData);
+        onGetBankCallback(*selectedBank, viewPane->waveData);
         changeState(VIEW_BANK_STATE);
     };
 
     mainButtonRow->cloneButton->onClick = [=]() {
+        onGetBankCallback(*selectedBank, cloneMenu->waveData);
+        cloneMenu->changeState(TFormCloneRow::TFormCloneRowState::SELECT_SOURCE_STATE);
         changeState(CLONE_BANK_STATE);
     };
 
@@ -96,9 +98,10 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     cloneMenu = createWidget<TFormCloneRow>(Vec(0, 0));
     cloneMenu->slotFilled = slotFilled;
     cloneMenu->sourceBank = selectedBank;
-    cloneMenu->backButton->onClick = [=]() {
+    cloneMenu->onHide = [=]() {
         changeState(SELECT_BANK_STATE);
     };
+    cloneMenu->hide();
     addChild(cloneMenu);
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
@@ -116,7 +119,6 @@ void TFormEditorBankEditMenu::changeState(const State newState) {
     clearButtonRow->visible = false;
     purgeButtonRow->visible = false;
     viewPane->visible = false;
-    cloneMenu->visible = false;
     switch (newState) {
         case SELECT_BANK_STATE:
             mainButtonRow->visible = true;
@@ -128,7 +130,7 @@ void TFormEditorBankEditMenu::changeState(const State newState) {
             viewPane->visible = true;
             break;
         case CLONE_BANK_STATE:
-            cloneMenu->visible = true;
+            cloneMenu->view();
             break;
         case CLEAR_BANK_STATE:
             clearButtonRow->visible = true;
@@ -233,8 +235,8 @@ void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCl
     editMenu->cloneMenu->onCloneBankCallback = onCloneBankCallback;
 }
 
-void TFormEditor::addViewBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onViewBankCallback) {
-    editMenu->onViewBankCallback = onViewBankCallback;
+void TFormEditor::addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback) {
+    editMenu->onGetBankCallback = onGetBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {

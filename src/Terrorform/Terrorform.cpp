@@ -1057,7 +1057,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->numUserWaveTables++;
     };
 
-    auto viewBank = [=](int bank, std::vector<std::vector<float>>& data) {
+    auto getBank = [=](int bank, std::vector<std::vector<float>>& data) {
         data.resize(module->userWaveTableSizes[bank]);
         for (int i = 0; i < data.size(); ++i) {
             data[i].resize(TFORM_MAX_WAVELENGTH);
@@ -1077,7 +1077,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addClearBankCallback([=](int bankNum){
         module->clearBank(bankNum);
     });
-    editor->addViewBankCallback(viewBank);
+    editor->addGetBankCallback(getBank);
 
     addChild(editor);
 }
