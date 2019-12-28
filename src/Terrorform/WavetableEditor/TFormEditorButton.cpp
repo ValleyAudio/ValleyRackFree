@@ -22,7 +22,7 @@ TFormEditorButton::TFormEditorButton() {
                                                      nvgRGB(0x00, 0x00, 0x00),
                                                      nvgRGB(0x7F, 0x7F, 0x7F));
     buttonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF),
-                                                      nvgRGB(0x32, 0x7F, 0x32),
+                                                      nvgRGB(0x2F, 0x2F, 0xAF),
                                                       nvgRGB(0x7F, 0x7F, 0x7F));
     buttonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00),
                                                           nvgRGB(0xDF, 0x00, 0x00),

@@ -15,9 +15,8 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     mainButtonRow->slotFilled = slotFilled;
     mainButtonRow->selectedBank = selectedBank;
     mainButtonRow->loadButton->onClick = [=]() {
-        std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
         if (onLoadWAVCallback) {
-            detectedWaves = onLoadWAVCallback();
+            std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
                 *loadButtonRow->endWave->choice = detectedWaves->size() - 1;
                 loadButtonRow->detectedWaves = detectedWaves;

@@ -37,9 +37,9 @@ TFormBankEditMainRow::TFormBankEditMainRow() {
 
     // Slots grid
     emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x7F, 0x32), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
     filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
     filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
@@ -308,20 +308,25 @@ TFormCloneRow::TFormCloneRow() {
     };
     addChild(nextButton);
 
+    okayButton = createNewMenuButton("Okay", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
+    okayButton->onClick = [=]() {
+    };
+    addChild(okayButton);
+
     emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x7F, 0x32), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
     sourceSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x7F, 0x32), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0xCF, 0x2F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    sourceSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    sourceSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    sourceSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
     destSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    destSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    destSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    destSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
     filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
     filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
@@ -369,6 +374,8 @@ TFormCloneRow::TFormCloneRow() {
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     onView = [=] {
+        *startWave->choice = 0;
+        *endWave->choice = waveData.size() - 1;
         changeState(SELECT_SOURCE_STATE);
     };
 }
@@ -411,7 +418,7 @@ void TFormCloneRow::draw(const DrawArgs& args) {
 }
 
 void TFormCloneRow::displaySourceSelection(const DrawArgs& args) {
-    std::string strCloningFrom = "Cloning from bank " + std::to_string(*sourceBank);
+    std::string strCloningFrom = "Cloning bank " + std::to_string(*sourceBank);
     nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
     nvgFontFaceId(args.vg, font->handle);
     nvgTextLetterSpacing(args.vg, 0.0);
@@ -424,7 +431,13 @@ void TFormCloneRow::displaySourceSelection(const DrawArgs& args) {
 }
 
 void TFormCloneRow::displayDestinationSelection(const DrawArgs& args) {
-
+    std::string strCloningInto = "Cloning bank " + std::to_string(*sourceBank) + " into bank " + std::to_string(destBank);
+    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+    nvgFontFaceId(args.vg, font->handle);
+    nvgTextLetterSpacing(args.vg, 0.0);
+    nvgFontSize(args.vg, 12);
+    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    nvgText(args.vg, 5, 5, strCloningInto.c_str(), NULL);
 }
 
 void TFormCloneRow::changeState(TFormCloneRowState newState) {
@@ -435,8 +448,7 @@ void TFormCloneRow::changeState(TFormCloneRowState newState) {
     selectSourceBackButton->visible = false;
     selectDestBackButton->visible = false;
     nextButton->visible = false;
-    // cancelButton->visible = false;
-    // pasteButton->visible = false;
+    okayButton->visible = false;
     startWave->visible = false;
     endWave->visible = false;
     switch(state) {
@@ -446,11 +458,10 @@ void TFormCloneRow::changeState(TFormCloneRowState newState) {
             nextButton->visible = true;
             startWave->visible = true;
             endWave->visible = true;
-            *startWave->choice = 0;
-            *endWave->choice = waveData.size() - 1;
             break;
         case SELECT_DEST_STATE:
             selectDestBackButton->visible = true;
+            okayButton->visible = true;
             grid->visible = true;
             break;
         case CONFIRM_OVERWRITE_STATE:

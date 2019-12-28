@@ -62,10 +62,6 @@ struct TFormBankEditLoadRow : TFormMenuRow {
     float waveSliderPos;
     int selectedWave;
 
-    int buttonWidth = 44;
-    int buttonHeight = 15;
-    int buttonOffset = 3;
-
     std::function<void(int, int)> ingestNewTable;
     std::function<void(int, int, int)> onIngestTableCallback;
 
@@ -108,8 +104,7 @@ struct TFormCloneRow : TFormMenuRow {
     TFormEditorButton* selectSourceBackButton;
     TFormEditorButton* selectDestBackButton;
     TFormEditorButton* nextButton;
-    TFormEditorButton* cancelButton;
-    TFormEditorButton* pasteButton;
+    TFormEditorButton* okayButton;
     TFormEditorNumberChoice* startWave;
     TFormEditorNumberChoice* endWave;
     TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
@@ -149,7 +144,6 @@ struct TFormWaveViewPane : TFormMenuRow {
     std::shared_ptr<int> selectedBank;
     int selectedWave = 0;
 
-    //float waveData[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH];
     std::vector<std::vector<float>> waveData;
 
     TFormWaveViewPane();
