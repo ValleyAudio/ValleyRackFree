@@ -46,10 +46,41 @@ struct TFormBankEditMainRow : TFormMenuRow {
     void setSlotFilledFlag(int slot, bool isFilled);
 };
 
+struct TFormBankEditLoadRow : TFormMenuRow {
+    TFormEditorWaveDisplay* waveDisplay;
+    TFormEditorButton* cancelButton;
+    TFormEditorButton* confirmButton;
+    TFormEditorButton* yesButton;
+    TFormEditorButton* noButton;
+    TFormEditorNumberChoice* startWave;
+    TFormEditorNumberChoice* endWave;
+    std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
+    std::shared_ptr<std::vector<bool>> slotFilled;
+    std::shared_ptr<int> selectedBank;
+    NVGcolor waveLineColor;
+    NVGcolor waveFillColor;
+    float waveSliderPos;
+    int selectedWave;
+
+    int buttonWidth = 44;
+    int buttonHeight = 15;
+    int buttonOffset = 3;
+
+    std::function<void(int, int)> ingestNewTable;
+    std::function<void(int, int, int)> onIngestTableCallback;
+
+    TFormBankEditLoadRow();
+    void draw(const DrawArgs& args) override;
+    void step() override;
+    void onDragMove(const event::DragMove& e) override;
+};
+
 struct TFormClearRow : TFormMenuRow {
     TFormEditorButton* yesButton;
     TFormEditorButton* noButton;
     std::shared_ptr<int> selectedBank;
+
+    std::function<void(int)> onClearBankCallback;
 
     TFormClearRow();
     void draw(const DrawArgs& args) override;
@@ -58,7 +89,8 @@ struct TFormClearRow : TFormMenuRow {
 struct TFormPurgeRow : TFormMenuRow {
     TFormEditorButton* yesButton;
     TFormEditorButton* noButton;
-    std::shared_ptr<int> selectedBank;
+
+    std::function<void(int)> onClearBankCallback;
 
     TFormPurgeRow();
     void draw(const DrawArgs& args) override;

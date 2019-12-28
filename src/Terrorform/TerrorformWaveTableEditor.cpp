@@ -14,84 +14,77 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     mainButtonRow = createWidget<TFormBankEditMainRow>(Vec(0, 0));
     mainButtonRow->slotFilled = slotFilled;
     mainButtonRow->selectedBank = selectedBank;
-
     mainButtonRow->loadButton->onClick = [=]() {
-        //int detectedWaves = -1;
         std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
         if (onLoadWAVCallback) {
             detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
                 *loadButtonRow->endWave->choice = detectedWaves->size() - 1;
                 loadButtonRow->detectedWaves = detectedWaves;
-                changeState(LOAD_WAVE_STATE);
+                mainButtonRow->hide();
+                loadButtonRow->view();
             }
         }
     };
 
     mainButtonRow->clearButton->onClick = [=]() {
-        changeState(CLEAR_BANK_STATE);
+        mainButtonRow->hide();
+        clearButtonRow->view();
     };
 
     mainButtonRow->purgeButton->onClick = [=]() {
-        changeState(PURGE_STATE);
+        mainButtonRow->hide();
+        purgeButtonRow->view();
     };
 
     mainButtonRow->viewButton->onClick = [=]() {
         onGetBankCallback(*selectedBank, viewPane->waveData);
-        changeState(VIEW_BANK_STATE);
+        mainButtonRow->hide();
+        viewPane->view();
     };
 
     mainButtonRow->cloneButton->onClick = [=]() {
         onGetBankCallback(*selectedBank, cloneMenu->waveData);
-        cloneMenu->changeState(TFormCloneRow::TFormCloneRowState::SELECT_SOURCE_STATE);
-        changeState(CLONE_BANK_STATE);
+        mainButtonRow->hide();
+        cloneMenu->view();
     };
 
     addChild(mainButtonRow);
 
     // Load row
     loadButtonRow = createWidget<TFormBankEditLoadRow>(Vec(0, 0));
-    loadButtonRow->ingestNewTable = [=](int startWave, int endWave) {
-        onIngestTableCallback(*selectedBank, startWave, endWave);
-        (*slotFilled)[*selectedBank] = true;
-        changeState(SELECT_BANK_STATE);
+    loadButtonRow->selectedBank = selectedBank;
+    loadButtonRow->slotFilled = slotFilled;
+    loadButtonRow->onHide = [=]() {
+        mainButtonRow->view();
     };
-    loadButtonRow->cancelButton->onClick = [=]() {
-        changeState(SELECT_BANK_STATE);
-    };
+    loadButtonRow->visible = false;
     addChild(loadButtonRow);
 
     // Clear row
     clearButtonRow = createWidget<TFormClearRow>(Vec(0, 0));
     clearButtonRow->selectedBank = selectedBank;
-    clearButtonRow->yesButton->onClick = [=]() {
-        onClearBankCallback(*selectedBank);
-        changeState(SELECT_BANK_STATE);
+    clearButtonRow->onHide = [=]() {
+        mainButtonRow->view();
     };
-    clearButtonRow->noButton->onClick = [=]() {
-        changeState(SELECT_BANK_STATE);
-    };
+    clearButtonRow->visible = false;
     addChild(clearButtonRow);
 
     // Purge row
     purgeButtonRow = createWidget<TFormPurgeRow>(Vec(0, 0));
-    purgeButtonRow->yesButton->onClick = [=]() {
-        for (int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
-            onClearBankCallback(i);
-        }
-        changeState(SELECT_BANK_STATE);
+    purgeButtonRow->onHide = [=]() {
+        mainButtonRow->view();
     };
-    purgeButtonRow->noButton->onClick = [=]() {
-        changeState(SELECT_BANK_STATE);
-    };
+    purgeButtonRow->visible = false;
     addChild(purgeButtonRow);
 
     // View row
     viewPane = createWidget<TFormWaveViewPane>(Vec(0, 0));
     viewPane->selectedBank = selectedBank;
-    viewPane->backButton->onClick = [=]() {
-        changeState(SELECT_BANK_STATE);
+    viewPane->onHide = [=]() {
+        mainButtonRow->view();
     };
+    viewPane->visible = false;
     addChild(viewPane);
 
     // Clone menu
@@ -99,46 +92,17 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     cloneMenu->slotFilled = slotFilled;
     cloneMenu->sourceBank = selectedBank;
     cloneMenu->onHide = [=]() {
-        changeState(SELECT_BANK_STATE);
+        mainButtonRow->view();
     };
-    cloneMenu->hide();
+    cloneMenu->visible = false;
     addChild(cloneMenu);
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
-    changeState(SELECT_BANK_STATE);
 }
 
 void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
     mainButtonRow->setSlotFilledFlag(slot, isFilled);
     cloneMenu->setSlotFilledFlag(slot, isFilled);
-}
-
-void TFormEditorBankEditMenu::changeState(const State newState) {
-    mainButtonRow->visible = false;
-    loadButtonRow->visible = false;
-    clearButtonRow->visible = false;
-    purgeButtonRow->visible = false;
-    viewPane->visible = false;
-    switch (newState) {
-        case SELECT_BANK_STATE:
-            mainButtonRow->visible = true;
-            break;
-        case LOAD_WAVE_STATE:
-            loadButtonRow->visible = true;
-            break;
-        case VIEW_BANK_STATE:
-            viewPane->visible = true;
-            break;
-        case CLONE_BANK_STATE:
-            cloneMenu->view();
-            break;
-        case CLEAR_BANK_STATE:
-            clearButtonRow->visible = true;
-            break;
-        case PURGE_STATE:
-            purgeButtonRow->visible = true;
-            break;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,11 +188,11 @@ void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::ve
 }
 
 void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback) {
-    editMenu->onIngestTableCallback = onIngestTableCallback;
+    editMenu->loadButtonRow->onIngestTableCallback = onIngestTableCallback;
 }
 
 void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearBankCallback) {
-    editMenu->onClearBankCallback = onClearBankCallback;
+    editMenu->clearButtonRow->onClearBankCallback = onClearBankCallback;
 }
 
 void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {

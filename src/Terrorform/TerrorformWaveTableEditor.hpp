@@ -3,7 +3,6 @@
 #include "../ValleyComponents.hpp"
 #include "WavetableEditor/MenuRows.hpp"
 #include "WavetableEditor/TFormEditorButton.hpp"
-#include "WavetableEditor/WaveLoader.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"
 
 struct TFormEditorBankEditMenu : OpaqueWidget {
@@ -29,15 +28,12 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     std::shared_ptr<bool> selectedBankIsFilled;
 
     std::function<std::shared_ptr<std::vector<std::vector<float>>>()> onLoadWAVCallback;
-    std::function<void(int, int, int)> onIngestTableCallback;
-    std::function<void(int)> onClearBankCallback;
     std::function<void(int, std::vector<std::vector<float>>&)> onGetBankCallback;
 
     std::shared_ptr<Font> font;
 
     TFormEditorBankEditMenu();
     void setSlotFilledFlag(int slot, bool isFilled);
-    void changeState(const State newState);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
