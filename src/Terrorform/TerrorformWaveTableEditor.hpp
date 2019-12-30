@@ -4,6 +4,11 @@
 #include "WavetableEditor/MenuRows.hpp"
 #include "WavetableEditor/TFormEditorButton.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"
+#include "WavetableEditor/CloneMenu.hpp"
+#include "WavetableEditor/ClearMenu.hpp"
+#include "WavetableEditor/ViewPane.hpp"
+#include "WavetableEditor/LoadMenu.hpp"
+#include "WavetableEditor/MainMenu.hpp"
 
 struct TFormEditorBankEditMenu : OpaqueWidget {
     enum State {
@@ -16,14 +21,12 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     };
 
     State state;
-    TFormBankEditMainRow* mainButtonRow;
-    TFormBankEditLoadRow* loadButtonRow;
+    TFormEditMainMenu* mainButtonRow;
+    TFormLoadMenu* loadButtonRow;
     TFormWaveViewPane* viewPane;
-    TFormCloneRow* cloneMenu;
-    TFormClearRow* clearButtonRow;
-    TFormPurgeRow* purgeButtonRow;
-
-    std::shared_ptr<std::vector<bool>> slotFilled;
+    TFormCloneMenu* cloneMenu;
+    TFormClearMenu* clearButtonRow;
+    TFormPurgeMenu* purgeButtonRow;
     std::shared_ptr<int> selectedBank;
     std::shared_ptr<bool> selectedBankIsFilled;
 
@@ -62,7 +65,6 @@ struct TFormEditor : OpaqueWidget {
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
     void addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback);
-
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
 

@@ -7,18 +7,16 @@
 TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     box.size = Vec(238, 195);
 
-    slotFilled = std::make_shared<std::vector<bool>>(TFORM_EDITOR_SLOTS, false);
     selectedBank = std::make_shared<int>(0);
 
     // Main button row
-    mainButtonRow = createWidget<TFormBankEditMainRow>(Vec(0, 0));
-    mainButtonRow->slotFilled = slotFilled;
+    mainButtonRow = createWidget<TFormEditMainMenu>(Vec(0, 0));
     mainButtonRow->selectedBank = selectedBank;
     mainButtonRow->loadButton->onClick = [=]() {
         if (onLoadWAVCallback) {
             std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
-                *loadButtonRow->endWave->choice = detectedWaves->size() - 1;
+                *loadButtonRow->endWaveChoice->choice = detectedWaves->size() - 1;
                 loadButtonRow->detectedWaves = detectedWaves;
                 mainButtonRow->hide();
                 loadButtonRow->view();
@@ -43,7 +41,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
 
     mainButtonRow->cloneButton->onClick = [=]() {
-        onGetBankCallback(*selectedBank, cloneMenu->waveData);
+        onGetBankCallback(*selectedBank, cloneMenu->sourcePage->waveData);
         mainButtonRow->hide();
         cloneMenu->view();
     };
@@ -51,9 +49,8 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     addChild(mainButtonRow);
 
     // Load row
-    loadButtonRow = createWidget<TFormBankEditLoadRow>(Vec(0, 0));
+    loadButtonRow = createWidget<TFormLoadMenu>(Vec(0, 0));
     loadButtonRow->selectedBank = selectedBank;
-    loadButtonRow->slotFilled = slotFilled;
     loadButtonRow->onHide = [=]() {
         mainButtonRow->view();
     };
@@ -61,36 +58,36 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     addChild(loadButtonRow);
 
     // Clear row
-    clearButtonRow = createWidget<TFormClearRow>(Vec(0, 0));
+    clearButtonRow = createWidget<TFormClearMenu>(Vec(0, 0));
     clearButtonRow->selectedBank = selectedBank;
-    clearButtonRow->onHide = [=]() {
+    clearButtonRow->onExit = [=]() {
         mainButtonRow->view();
     };
-    clearButtonRow->visible = false;
+    clearButtonRow->hide();
     addChild(clearButtonRow);
 
     // Purge row
-    purgeButtonRow = createWidget<TFormPurgeRow>(Vec(0, 0));
-    purgeButtonRow->onHide = [=]() {
+    purgeButtonRow = createWidget<TFormPurgeMenu>(Vec(0, 0));
+    purgeButtonRow->onExit = [=]() {
         mainButtonRow->view();
     };
-    purgeButtonRow->visible = false;
+    purgeButtonRow->hide();
     addChild(purgeButtonRow);
 
     // View row
     viewPane = createWidget<TFormWaveViewPane>(Vec(0, 0));
     viewPane->selectedBank = selectedBank;
-    viewPane->onHide = [=]() {
+    viewPane->onExit = [=]() {
         mainButtonRow->view();
     };
+    viewPane->hide();
     viewPane->visible = false;
     addChild(viewPane);
 
     // Clone menu
-    cloneMenu = createWidget<TFormCloneRow>(Vec(0, 0));
-    cloneMenu->slotFilled = slotFilled;
+    cloneMenu = createWidget<TFormCloneMenu>(Vec(0, 0));
     cloneMenu->sourceBank = selectedBank;
-    cloneMenu->onHide = [=]() {
+    cloneMenu->onExit = [=]() {
         mainButtonRow->view();
     };
     cloneMenu->visible = false;
@@ -192,10 +189,11 @@ void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)
 
 void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearBankCallback) {
     editMenu->clearButtonRow->onClearBankCallback = onClearBankCallback;
+    editMenu->purgeButtonRow->onClearBankCallback = onClearBankCallback;
 }
 
 void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {
-    editMenu->cloneMenu->onCloneBankCallback = onCloneBankCallback;
+    editMenu->cloneMenu->addCloneBankCallback(onCloneBankCallback);
 }
 
 void TFormEditor::addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback) {

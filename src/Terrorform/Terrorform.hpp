@@ -250,7 +250,7 @@ struct Terrorform : Module {
     void clearBank(int bankNum);
     void clearUserWaveTables();
     void cloneBank(int sourceBank, int destBank);
-
+    void compressTables();
 };
 
 struct TerrorformPanelStyleItem : MenuItem {

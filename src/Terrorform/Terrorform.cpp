@@ -426,6 +426,21 @@ void Terrorform::clearUserWaveTables() {
     }
 }
 
+void Terrorform::cloneBank(int sourceBank, int destBank) {
+    for (int wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
+        memcpy(userWaveTableData[destBank][wave],
+               userWaveTableData[sourceBank][wave],
+               sizeof(float) * TFORM_MAX_WAVELENGTH);
+    }
+    userWaveTableFilled[destBank] = true;
+    userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
+}
+
+void Terrorform::compressTables() {
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TerrorformPanelStyleItem::onAction(const event::Action &e) {
@@ -1057,14 +1072,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->numUserWaveTables++;
     };
 
-    auto getBank = [=](int bank, std::vector<std::vector<float>>& data) {
-        data.resize(module->userWaveTableSizes[bank]);
-        for (int i = 0; i < data.size(); ++i) {
-            data[i].resize(TFORM_MAX_WAVELENGTH);
-            memcpy(data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
-        }
-    };
-
     editor = createWidget<TFormEditor>(Vec(31, 30));
     editor->box.size.x = 238;
     editor->box.size.y = 195;
@@ -1074,10 +1081,22 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addIngestTableCallback(ingestNewTable);
     editor->addExportCallback(std::bind(&TerrorformWidget::exportWavetables, this));
     editor->addImportCallback(std::bind(&TerrorformWidget::importWavetables, this));
+
     editor->addClearBankCallback([=](int bankNum){
         module->clearBank(bankNum);
     });
-    editor->addGetBankCallback(getBank);
+
+    editor->addGetBankCallback([=](int bank, std::vector<std::vector<float>>& data) {
+        data.resize(module->userWaveTableSizes[bank]);
+        for (int i = 0; i < data.size(); ++i) {
+            data[i].resize(TFORM_MAX_WAVELENGTH);
+            memcpy(data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
+        }
+    });
+
+    editor->addCloneBankCallback([=](int sourceBank, int destBank) {
+        module->cloneBank(sourceBank, destBank);
+    });
 
     addChild(editor);
 }

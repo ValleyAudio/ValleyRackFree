@@ -154,7 +154,7 @@ struct SvgStepSlider : app::SvgSlider {
 struct PlainText : TransparentWidget {
     std::string text;
     std::shared_ptr<Font> font;
-    NVGcolor textColor;
+    NVGcolor color;
     NVGalign horzAlignment;
     NVGalign vertAlignment;
     int size;

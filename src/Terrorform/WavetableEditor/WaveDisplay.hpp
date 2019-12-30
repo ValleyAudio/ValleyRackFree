@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TFORM_EDITOR_WAVE_DISPLAY_HPP
+#define TFORM_EDITOR_WAVE_DISPLAY_HPP
 #include "../../Valley.hpp"
 #include "../../ValleyComponents.hpp"
 
@@ -25,3 +26,5 @@ struct TFormEditorWaveDisplay : TransparentWidget {
     Vec scalePoint(const Vec& p) const;
     void moveSliderPos(float sliderDelta);
 };
+
+#endif
