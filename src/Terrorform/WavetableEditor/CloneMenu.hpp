@@ -49,11 +49,13 @@ struct TFormCloneMenuDestPage : TFormMenuRow {
 };
 
 struct TFormCloneMenu : TFormMenuRow {
-    std::shared_ptr<std::vector<bool>> slotFilled;
-    std::shared_ptr<int> sourceBank;
-
     TFormCloneMenuSourcePage* sourcePage;
     TFormCloneMenuDestPage* destPage;
+    PlainText* cloneDoneText;
+    int counter;
+
+    std::shared_ptr<std::vector<bool>> slotFilled;
+    std::shared_ptr<int> sourceBank;
 
     TFormCloneMenu();
     void step() override;

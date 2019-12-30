@@ -237,6 +237,13 @@ TFormCloneMenu::TFormCloneMenu() {
     box.size = Vec(238, 195);
 
     slotFilled = std::make_shared<std::vector<bool>>(TFORM_EDITOR_SLOTS, false);
+    cloneDoneText = createWidget<PlainText>(Vec(119, 97.5));
+    cloneDoneText->box.size.x = 238;
+    cloneDoneText->size = 16;
+    cloneDoneText->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    cloneDoneText->vertAlignment = NVG_ALIGN_MIDDLE;
+    cloneDoneText->visible = false;
+    addChild(cloneDoneText);
 
     sourcePage = createWidget<TFormCloneMenuSourcePage>(Vec(0,0));
     sourcePage->onExit = [=]() {
@@ -256,7 +263,9 @@ TFormCloneMenu::TFormCloneMenu() {
         sourcePage->view();
     };
     destPage->onExit = [=]() {
-        exit();
+        counter = 35;
+        cloneDoneText->text = "Bank " + std::to_string(*sourceBank + 1) + " cloned";
+        cloneDoneText->visible = true;
     };
     addChild(destPage);
 
@@ -269,6 +278,15 @@ TFormCloneMenu::TFormCloneMenu() {
 void TFormCloneMenu::step() {
     sourcePage->sourceBank = *sourceBank;
     destPage->sourceBank = *sourceBank;
+
+    if(counter == 0 && cloneDoneText->visible) {
+        cloneDoneText->visible = false;
+        exit();
+    }
+    else {
+        --counter;
+    }
+
     Widget::step();
 }
 
