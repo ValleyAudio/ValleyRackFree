@@ -197,10 +197,9 @@ struct Terrorform : Module {
     __m128 __degrade;
     float degradeDepthCV;
 
-    bool percMode;
-    __m128 __percMode;
     int modBusTarget = 0;
 
+    // Sync
     bool sync1IsMono, sync2IsMono;
     float* sync1;
     float* sync2;
@@ -209,6 +208,8 @@ struct Terrorform : Module {
     unsigned long syncChoice = 0;
 
     // Percussion
+    bool percMode;
+    __m128 __percMode;
     bool trig1State, trig2State;
     float trig1, trig2;
     __m128 __trig1, __trig2;
@@ -218,6 +219,7 @@ struct Terrorform : Module {
     VecLPG lpg[kMaxNumGroups];
     __m128 __decay;
 
+    // FM
     bool fmA1IsMono, fmA2IsMono;
     bool fmB1IsMono, fmB2IsMono;
     bool fmAVCAIsMono, fmBVCAIsMono;
@@ -250,7 +252,7 @@ struct Terrorform : Module {
     void clearBank(int bankNum);
     void clearUserWaveTables();
     void cloneBank(int sourceBank, int destBank);
-    void compressTables();
+    void defragmentBanks();
 };
 
 struct TerrorformPanelStyleItem : MenuItem {

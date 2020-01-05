@@ -46,8 +46,13 @@ struct TFormEditorMainMenu : OpaqueWidget {
     TFormEditorButton* exitButton;
     TFormEditorButton* importButton;
     TFormEditorButton* exportButton;
+    TFormEditorButton* defragButton;
+    TFormEditorButton* purgeButton;
     PlainText* title;
+    PlainText* defragDoneMessage;
     int selectedBank;
+
+    std::function<void(int)> onClearBankCallback;
 
     TFormEditorMainMenu();
 };
@@ -67,6 +72,7 @@ struct TFormEditor : OpaqueWidget {
     void addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback);
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
+    void addDefragmentCallback(const std::function<void()>& onDefragmentCallback);
 
     void setSlotFilledFlag(int slot, bool isFilled);
 };

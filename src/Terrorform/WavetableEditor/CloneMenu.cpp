@@ -87,7 +87,7 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
 
     okayButton = createNewMenuButton("Okay", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
     okayButton->onClick = [=]() {
-        if((*slotFilled)[destBank]) {
+        if ((*slotFilled)[destBank]) {
             instructionText->visible = false;
             sourceDestText->visible = false;
             filledText->visible = false;
@@ -279,7 +279,7 @@ void TFormCloneMenu::step() {
     sourcePage->sourceBank = *sourceBank;
     destPage->sourceBank = *sourceBank;
 
-    if(counter == 0 && cloneDoneText->visible) {
+    if (counter == 0 && cloneDoneText->visible) {
         cloneDoneText->visible = false;
         exit();
     }
@@ -291,12 +291,14 @@ void TFormCloneMenu::step() {
 }
 
 void TFormCloneMenu::draw(const DrawArgs& args) {
-    nvgBeginPath(args.vg);
-    nvgMoveTo(args.vg, 0, box.pos.y + 40);
-    nvgLineTo(args.vg, box.size.x, box.pos.y + 40);
-    nvgStrokeWidth(args.vg, 1.0);
-    nvgStrokeColor(args.vg, nvgRGB(0xAF, 0xAF, 0xAF));
-    nvgStroke(args.vg);
+    if (cloneDoneText->visible) {
+        nvgBeginPath(args.vg);
+        nvgMoveTo(args.vg, 0, box.pos.y + 40);
+        nvgLineTo(args.vg, box.size.x, box.pos.y + 40);
+        nvgStrokeWidth(args.vg, 1.0);
+        nvgStrokeColor(args.vg, nvgRGB(0xAF, 0xAF, 0xAF));
+        nvgStroke(args.vg);
+    }
 
     Widget::draw(args);
 }

@@ -388,7 +388,7 @@ void Terrorform::dataFromJson(json_t *rootJ) {
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
         json_t* numWavesJ = json_object_get(userWaveJ, "numWaves");
         json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
-        printf("Num waves in bank %d : %d\n", bank, (int) json_array_size(tableJ));
+        // printf("Num waves in bank %d : %d\n", bank, (int) json_array_size(tableJ));
 
         destBank = json_integer_value(destBankJ);
         numWaves = json_integer_value(numWavesJ);
@@ -436,8 +436,30 @@ void Terrorform::cloneBank(int sourceBank, int destBank) {
     userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
 }
 
-void Terrorform::compressTables() {
+void Terrorform::defragmentBanks() {
+    auto moveBank = [=](int s, int d) -> void {
+        for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+                userWaveTableData[d][i][j] = userWaveTableData[s][i][j];
+                userWaveTableData[s][i][j] = 0.f;
+            }
+        }
+        userWaveTableSizes[d] = userWaveTableSizes[s];
+        userWaveTableFilled[d] = userWaveTableFilled[s];
+        userWaveTableSizes[s] = 1;
+        userWaveTableFilled[s] = false;
+    };
 
+    for (int i = 0; i < TFORM_MAX_BANKS; ++i) {
+        if (!userWaveTableFilled[i]) {
+            for(int j = i; j < TFORM_MAX_BANKS; ++j) {
+                if(userWaveTableFilled[j]) {
+                    moveBank(j, i);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
@@ -478,7 +500,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(panels[i]);
     }
     panels[0] = panel;
-
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -1096,6 +1117,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     editor->addCloneBankCallback([=](int sourceBank, int destBank) {
         module->cloneBank(sourceBank, destBank);
+    });
+
+    editor->addDefragmentCallback([=]() {
+        module->defragmentBanks();
     });
 
     addChild(editor);
