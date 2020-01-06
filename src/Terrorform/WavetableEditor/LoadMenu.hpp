@@ -1,8 +1,8 @@
 #ifndef TFORM_EDITOR_LOAD_MENU_HPP
 #define TFORM_EDITOR_LOAD_MENU_HPP
-#include "MenuRows.hpp"
+#include "MenuBase.hpp"
 
-struct TFormLoadMenu : TFormMenuRow {
+struct TFormLoadMenu : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
     TFormEditorButton* cancelButton;
     TFormEditorButton* confirmButton;

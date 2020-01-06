@@ -436,20 +436,20 @@ void Terrorform::cloneBank(int sourceBank, int destBank) {
     userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
 }
 
-void Terrorform::defragmentBanks() {
-    auto moveBank = [=](int s, int d) -> void {
-        for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
-                userWaveTableData[d][i][j] = userWaveTableData[s][i][j];
-                userWaveTableData[s][i][j] = 0.f;
-            }
+void Terrorform::moveBank(int sourceBank, int destBank) {
+    for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            userWaveTableData[destBank][i][j] = userWaveTableData[sourceBank][i][j];
+            userWaveTableData[sourceBank][i][j] = 0.f;
         }
-        userWaveTableSizes[d] = userWaveTableSizes[s];
-        userWaveTableFilled[d] = userWaveTableFilled[s];
-        userWaveTableSizes[s] = 1;
-        userWaveTableFilled[s] = false;
-    };
+    }
+    userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
+    userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
+    userWaveTableSizes[sourceBank] = 1;
+    userWaveTableFilled[sourceBank] = false;
+}
 
+void Terrorform::defragmentBanks() {
     for (int i = 0; i < TFORM_MAX_BANKS; ++i) {
         if (!userWaveTableFilled[i]) {
             for(int j = i; j < TFORM_MAX_BANKS; ++j) {
@@ -1117,6 +1117,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     editor->addCloneBankCallback([=](int sourceBank, int destBank) {
         module->cloneBank(sourceBank, destBank);
+    });
+
+    editor->addMoveBankCallback([=](int sourceBank, int destBank) {
+        module->moveBank(sourceBank, destBank);
     });
 
     editor->addDefragmentCallback([=]() {

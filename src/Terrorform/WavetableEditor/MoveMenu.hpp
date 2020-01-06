@@ -1,28 +1,8 @@
-#ifndef TFORM_EDITOR_CLONE_MENU_HPP
-#define TFORM_EDITOR_CLONE_MENU_HPP
+#ifndef TFORM_EDITOR_MOVE_MENU_HPP
+#define TFORM_EDITOR_MOVE_MENU_HPP
 #include "MenuBase.hpp"
 
-struct TFormCloneMenuSourcePage : TFormMenu {
-    TFormEditorWaveDisplay* waveDisplay;
-    TFormEditorButton* backButton;
-    TFormEditorButton* nextButton;
-    TFormEditorNumberChoice* startWave;
-    TFormEditorNumberChoice* endWave;
-    NVGcolor waveLineColor;
-    NVGcolor waveFillColor;
-    float waveSliderPos;
-    int selectedWave;
-
-    std::vector<std::vector<float>> waveData;
-    int sourceBank;
-
-    TFormCloneMenuSourcePage();
-    void step() override;
-    void draw(const DrawArgs& args) override;
-    void onDragMove(const event::DragMove& e) override;
-};
-
-struct TFormCloneMenuDestPage : TFormMenu {
+struct TFormMoveMenuDestPage : TFormMenu {
     TFormEditorButton* backButton;
     TFormEditorButton* okayButton;
     TFormEditorButton* yesButton;
@@ -41,27 +21,26 @@ struct TFormCloneMenuDestPage : TFormMenu {
     int sourceBank;
     int destBank;
 
-    std::function<void(int, int)> onCloneBankCallback;
+    std::function<void(int, int)> onMoveBankCallback;
 
-    TFormCloneMenuDestPage();
+    TFormMoveMenuDestPage();
     void step() override;
     void setSlotFilledFlag(int slot, bool isFilled);
 };
 
-struct TFormCloneMenu : TFormMenu {
-    TFormCloneMenuSourcePage* sourcePage;
-    TFormCloneMenuDestPage* destPage;
-    PlainText* cloneDoneText;
+struct TFormMoveMenu : TFormMenu {
+    TFormMoveMenuDestPage* destPage;
+    PlainText* moveDoneText;
     int counter;
 
     std::shared_ptr<std::vector<bool>> slotFilled;
     std::shared_ptr<int> sourceBank;
 
-    TFormCloneMenu();
+    TFormMoveMenu();
     void step() override;
     void draw(const DrawArgs& args) override;
     void setSlotFilledFlag(int slot, bool isFilled);
-    void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
+    void addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback);
 };
 
 #endif

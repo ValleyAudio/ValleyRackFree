@@ -252,8 +252,11 @@ struct Terrorform : Module {
     void clearBank(int bankNum);
     void clearUserWaveTables();
     void cloneBank(int sourceBank, int destBank);
+    void moveBank(int sourceBank, int destBank);
     void defragmentBanks();
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct TerrorformPanelStyleItem : MenuItem {
     Terrorform* module;

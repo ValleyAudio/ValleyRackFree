@@ -11,7 +11,7 @@
 #define TFORM_EDITOR_ROWS 8
 #define TFORM_EDITOR_SLOTS TFORM_EDITOR_ROWS * TFORM_EDITOR_COLS
 
-class TFormMenuRow : public OpaqueWidget {
+class TFormMenu : public OpaqueWidget {
 public:
     const int buttonWidth = 44;
     const int buttonHeight = 15;
@@ -22,7 +22,7 @@ public:
     std::function<void()> onHide;
     std::function<void()> onExit;
 
-    TFormMenuRow();
+    TFormMenu();
     void view();
     void hide();
 

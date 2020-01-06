@@ -1,32 +1,23 @@
 #pragma once
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
-#include "WavetableEditor/MenuRows.hpp"
+#include "WavetableEditor/MenuBase.hpp"
 #include "WavetableEditor/TFormEditorButton.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"
 #include "WavetableEditor/CloneMenu.hpp"
+#include "WavetableEditor/MoveMenu.hpp"
 #include "WavetableEditor/ClearMenu.hpp"
 #include "WavetableEditor/ViewPane.hpp"
 #include "WavetableEditor/LoadMenu.hpp"
 #include "WavetableEditor/MainMenu.hpp"
 
 struct TFormEditorBankEditMenu : OpaqueWidget {
-    enum State {
-        SELECT_BANK_STATE = 0,
-        LOAD_WAVE_STATE,
-        VIEW_BANK_STATE,
-        CLONE_BANK_STATE,
-        CLEAR_BANK_STATE,
-        PURGE_STATE
-    };
-
-    State state;
-    TFormEditMainMenu* mainButtonRow;
-    TFormLoadMenu* loadButtonRow;
+    TFormEditMainMenu* mainMenu;
+    TFormLoadMenu* loadMenu;
     TFormWaveViewPane* viewPane;
     TFormCloneMenu* cloneMenu;
-    TFormClearMenu* clearButtonRow;
-    TFormPurgeMenu* purgeButtonRow;
+    TFormMoveMenu* moveMenu;
+    TFormClearMenu* clearMenu;
     std::shared_ptr<int> selectedBank;
     std::shared_ptr<bool> selectedBankIsFilled;
 
@@ -41,18 +32,43 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct TFormEditorMainMenu : OpaqueWidget {
+struct TFormEditorDefragMenu : TFormMenu {
+    PlainText* defragDoneMessage;
+    const int viewCounterMax = 40;
+    int viewCounter;
+
+    TFormEditorDefragMenu();
+    void step() override;
+};
+
+struct TFormPurgeMenu : TFormMenu {
+    TFormEditorButton* yesButton;
+    TFormEditorButton* noButton;
+    PlainText* questionText;
+    PlainText* clearedText;
+    int counter;
+
+    std::function<void(int)> onClearBankCallback;
+
+    TFormPurgeMenu();
+    void step() override;
+};
+
+struct TFormEditorMainMenu : TFormMenu {
     TFormEditorButton* editButton;
     TFormEditorButton* exitButton;
     TFormEditorButton* importButton;
     TFormEditorButton* exportButton;
     TFormEditorButton* defragButton;
     TFormEditorButton* purgeButton;
+
+    TFormEditorDefragMenu* defragMenu;
+    TFormPurgeMenu* purgeMenu;
+
     PlainText* title;
-    PlainText* defragDoneMessage;
     int selectedBank;
 
-    std::function<void(int)> onClearBankCallback;
+    std::function<void()> onDefragmentCallback;
 
     TFormEditorMainMenu();
 };
@@ -69,6 +85,7 @@ struct TFormEditor : OpaqueWidget {
     void addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
+    void addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback);
     void addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback);
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);

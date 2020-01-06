@@ -1,13 +1,13 @@
 #ifndef TFORM_EDITOR_MAIN_MENU_HPP
 #define TFORM_EDITOR_MAIN_MENU_HPP
-#include "MenuRows.hpp"
+#include "MenuBase.hpp"
 
-struct TFormEditMainMenu : TFormMenuRow {
+struct TFormEditMainMenu : TFormMenu {
     TFormEditorButton* loadButton;
     TFormEditorButton* viewButton;
-    TFormEditorButton* cloneButton;
     TFormEditorButton* clearButton;
-    TFormEditorButton* purgeButton;
+    TFormEditorButton* cloneButton;
+    TFormEditorButton* moveButton;
     TFormEditorButton* backButton;
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
     TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];

@@ -1,8 +1,8 @@
 #ifndef TFORM_EDITOR_VIEW_PANE_HPP
 #define TFORM_EDITOR_VIEW_PANE_HPP
-#include "MenuRows.hpp"
+#include "MenuBase.hpp"
 
-struct TFormWaveViewPane : TFormMenuRow {
+struct TFormWaveViewPane : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
     TFormEditorButton* backButton;
     PlainText* selectedBankText;

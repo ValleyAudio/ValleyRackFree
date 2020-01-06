@@ -1,24 +1,24 @@
-#include "MenuRows.hpp"
+#include "MenuBase.hpp"
 
-TFormMenuRow::TFormMenuRow() {
+TFormMenu::TFormMenu() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
-void TFormMenuRow::view() {
+void TFormMenu::view() {
     visible = true;
     if(onView) {
         onView();
     }
 }
 
-void TFormMenuRow::hide() {
+void TFormMenu::hide() {
     visible = false;
     if(onHide) {
         onHide();
     }
 }
 
-void TFormMenuRow::exit() {
+void TFormMenu::exit() {
     visible = false;
     if(onExit) {
         onExit();

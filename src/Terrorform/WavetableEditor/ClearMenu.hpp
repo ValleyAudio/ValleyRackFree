@@ -1,8 +1,8 @@
 #ifndef TFORM_EDITOR_CLEAR_MENU_HPP
 #define TFORM_EDITOR_CLEAR_MENU_HPP
-#include "MenuRows.hpp"
+#include "MenuBase.hpp"
 
-struct TFormClearMenu : TFormMenuRow {
+struct TFormClearMenu : TFormMenu {
     TFormEditorButton* yesButton;
     TFormEditorButton* noButton;
     PlainText* questionText;
@@ -14,19 +14,6 @@ struct TFormClearMenu : TFormMenuRow {
     std::function<void(int)> onClearBankCallback;
 
     TFormClearMenu();
-    void step() override;
-};
-
-struct TFormPurgeMenu : TFormMenuRow {
-    TFormEditorButton* yesButton;
-    TFormEditorButton* noButton;
-    PlainText* questionText;
-    PlainText* clearedText;
-    int counter;
-
-    std::function<void(int)> onClearBankCallback;
-
-    TFormPurgeMenu();
     void step() override;
 };
 

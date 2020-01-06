@@ -10,75 +10,67 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     selectedBank = std::make_shared<int>(0);
 
     // Main button row
-    mainButtonRow = createWidget<TFormEditMainMenu>(Vec(0, 0));
-    mainButtonRow->selectedBank = selectedBank;
-    mainButtonRow->loadButton->onClick = [=]() {
+    mainMenu = createWidget<TFormEditMainMenu>(Vec(0, 0));
+    mainMenu->selectedBank = selectedBank;
+    mainMenu->loadButton->onClick = [=]() {
         if (onLoadWAVCallback) {
             std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
-                *loadButtonRow->endWaveChoice->choice = detectedWaves->size() - 1;
-                loadButtonRow->detectedWaves = detectedWaves;
-                mainButtonRow->hide();
-                loadButtonRow->view();
+                *loadMenu->endWaveChoice->choice = detectedWaves->size() - 1;
+                loadMenu->detectedWaves = detectedWaves;
+                mainMenu->hide();
+                loadMenu->view();
             }
         }
     };
 
-    mainButtonRow->clearButton->onClick = [=]() {
-        mainButtonRow->hide();
-        clearButtonRow->view();
+    mainMenu->clearButton->onClick = [=]() {
+        mainMenu->hide();
+        clearMenu->view();
     };
 
-    mainButtonRow->purgeButton->onClick = [=]() {
-        mainButtonRow->hide();
-        purgeButtonRow->view();
-    };
-
-    mainButtonRow->viewButton->onClick = [=]() {
+    mainMenu->viewButton->onClick = [=]() {
         onGetBankCallback(*selectedBank, viewPane->waveData);
-        mainButtonRow->hide();
+        mainMenu->hide();
         viewPane->view();
     };
 
-    mainButtonRow->cloneButton->onClick = [=]() {
+    mainMenu->cloneButton->onClick = [=]() {
         onGetBankCallback(*selectedBank, cloneMenu->sourcePage->waveData);
-        mainButtonRow->hide();
+        mainMenu->hide();
         cloneMenu->view();
     };
 
-    addChild(mainButtonRow);
+    mainMenu->moveButton->onClick = [=]() {
+        mainMenu->hide();
+        moveMenu->view();
+    };
+
+    addChild(mainMenu);
 
     // Load row
-    loadButtonRow = createWidget<TFormLoadMenu>(Vec(0, 0));
-    loadButtonRow->selectedBank = selectedBank;
-    loadButtonRow->onHide = [=]() {
-        mainButtonRow->view();
+    loadMenu = createWidget<TFormLoadMenu>(Vec(0, 0));
+    loadMenu->selectedBank = selectedBank;
+    loadMenu->onHide = [=]() {
+        mainMenu->view();
     };
-    loadButtonRow->visible = false;
-    addChild(loadButtonRow);
+    loadMenu->visible = false;
+    addChild(loadMenu);
 
     // Clear row
-    clearButtonRow = createWidget<TFormClearMenu>(Vec(0, 0));
-    clearButtonRow->selectedBank = selectedBank;
-    clearButtonRow->onExit = [=]() {
-        mainButtonRow->view();
+    clearMenu = createWidget<TFormClearMenu>(Vec(0, 0));
+    clearMenu->selectedBank = selectedBank;
+    clearMenu->onExit = [=]() {
+        mainMenu->view();
     };
-    clearButtonRow->hide();
-    addChild(clearButtonRow);
-
-    // Purge row
-    purgeButtonRow = createWidget<TFormPurgeMenu>(Vec(0, 0));
-    purgeButtonRow->onExit = [=]() {
-        mainButtonRow->view();
-    };
-    purgeButtonRow->hide();
-    addChild(purgeButtonRow);
+    clearMenu->hide();
+    addChild(clearMenu);
 
     // View row
     viewPane = createWidget<TFormWaveViewPane>(Vec(0, 0));
     viewPane->selectedBank = selectedBank;
     viewPane->onExit = [=]() {
-        mainButtonRow->view();
+        mainMenu->view();
     };
     viewPane->hide();
     viewPane->visible = false;
@@ -88,44 +80,128 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     cloneMenu = createWidget<TFormCloneMenu>(Vec(0, 0));
     cloneMenu->sourceBank = selectedBank;
     cloneMenu->onExit = [=]() {
-        mainButtonRow->view();
+        mainMenu->view();
     };
     cloneMenu->visible = false;
     addChild(cloneMenu);
+
+    // Mode menu
+    moveMenu = createWidget<TFormMoveMenu>(Vec(0, 0));
+    moveMenu->sourceBank = selectedBank;
+    moveMenu->onExit = [=]() {
+        mainMenu->view();
+    };
+    moveMenu->visible = false;
+    addChild(moveMenu);
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
 void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {
-    mainButtonRow->setSlotFilledFlag(slot, isFilled);
+    mainMenu->setSlotFilledFlag(slot, isFilled);
     cloneMenu->setSlotFilledFlag(slot, isFilled);
+    moveMenu->setSlotFilledFlag(slot, isFilled);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TFormEditorDefragMenu::TFormEditorDefragMenu() {
+    box.size = Vec(238, 195);
+    defragDoneMessage = createWidget<PlainText>(box.getCenter());
+    defragDoneMessage->vertAlignment = NVG_ALIGN_MIDDLE;
+    defragDoneMessage->box.size = box.size;
+    defragDoneMessage->text = "Defragmentation Complete";
+    addChild(defragDoneMessage);
+    viewCounter = viewCounterMax;
+}
+
+void TFormEditorDefragMenu::step() {
+    if (visible) {
+        --viewCounter;
+    }
+    if(viewCounter <= 0) {
+        viewCounter = viewCounterMax;
+        hide();
+    }
+    Widget::step();
+}
+
+TFormPurgeMenu::TFormPurgeMenu() {
+    box.size = Vec(238, 195);
+    yesButton = createNewMenuButton("Yes", NULL, box.size.x / 2 - buttonWidth - 1.5, 100, buttonWidth, buttonHeight);
+    yesButton->onClick = [=]() {
+        for (int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
+            onClearBankCallback(i);
+        }
+        noButton->hide();
+        yesButton->hide();
+        questionText->hide();
+        clearedText->show();
+        counter = 30;
+    };
+    addChild(yesButton);
+
+    noButton = createNewMenuButton("No", NULL, box.size.x / 2 + 1.5, 100, buttonWidth, buttonHeight);
+    noButton->onClick = [=]() {
+        hide();
+    };
+    addChild(noButton);
+
+    questionText = createWidget<PlainText>(Vec(119, 84));
+    questionText->box.size.x = 238;
+    questionText->size = 12;
+    questionText->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    questionText->text = "Do you really want to purge ALL banks?";
+    addChild(questionText);
+
+    clearedText = createWidget<PlainText>(Vec(119, 97.5));
+    clearedText->box.size.x = 238;
+    clearedText->size = 16;
+    clearedText->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    clearedText->vertAlignment = NVG_ALIGN_MIDDLE;
+    clearedText->text = "Cleared ALL banks";
+    clearedText->hide();
+    addChild(clearedText);
+
+    onView = [=]() {
+        noButton->show();
+        yesButton->show();
+        questionText->show();
+        clearedText->hide();
+    };
+}
+
+void TFormPurgeMenu::step() {
+    if (counter == 0 && clearedText->visible) {
+        clearedText->hide();
+        hide();
+    }
+    if (counter) {
+        --counter;
+    }
+}
+
 TFormEditorMainMenu::TFormEditorMainMenu() {
+    box.size = Vec(238, 195);
     Vec buttonSize = Vec(82, 32);
     float gap = 8.f;
     float ySpacing = buttonSize.y + gap;
     float xSpacing = buttonSize.x + gap;
-    float yOffset = 20.f;
+    float xOffset = 33.f;
+    float yOffset = 41.f;
     float buttonFontSize = 18;
-    box.size.x = buttonSize.x * 2 + gap;
-    box.size.y = buttonSize.y * 3 + (gap + yOffset) * 2;
 
-    title = createWidget<PlainText>(Vec(box.getCenter().x, 0));
-    defragDoneMessage = createWidget<PlainText>(box.getCenter());
-    editButton = createWidget<TFormEditorButton>(Vec(0, yOffset));
-    defragButton = createWidget<TFormEditorButton>(Vec(xSpacing, yOffset));
-    importButton = createWidget<TFormEditorButton>(Vec(0, ySpacing + yOffset));
-    exportButton = createWidget<TFormEditorButton>(Vec(xSpacing, ySpacing + yOffset));
-    exitButton = createWidget<TFormEditorButton>(Vec(0, ySpacing * 2 + yOffset));
-    purgeButton = createWidget<TFormEditorButton>(Vec(xSpacing, ySpacing * 2 + yOffset));
+    title = createWidget<PlainText>(Vec(box.getCenter().x, 20.f));
+    editButton = createWidget<TFormEditorButton>(Vec(xOffset, yOffset));
+    defragButton = createWidget<TFormEditorButton>(Vec(xSpacing + xOffset, yOffset));
+    importButton = createWidget<TFormEditorButton>(Vec(xOffset, ySpacing + yOffset));
+    exportButton = createWidget<TFormEditorButton>(Vec(xSpacing + xOffset, ySpacing + yOffset));
+    exitButton = createWidget<TFormEditorButton>(Vec(xOffset, ySpacing * 2 + yOffset));
+    purgeButton = createWidget<TFormEditorButton>(Vec(xSpacing + xOffset, ySpacing * 2 + yOffset));
 
     title->box.size = box.size;
-    defragDoneMessage->box.size = box.size;
     editButton->box.size = buttonSize;
     defragButton->box.size = buttonSize;
     importButton->box.size = buttonSize;
@@ -134,7 +210,6 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
     purgeButton->box.size = buttonSize;
 
     title->text = "User Wavetable Manager";
-    defragDoneMessage->text = "Defragmentation Complete";
     editButton->text = "Edit";
     defragButton->text = "Defrag";
     importButton->text = "Load ROM";
@@ -149,24 +224,62 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
     exitButton->fontSize = buttonFontSize;
     purgeButton->fontSize = buttonFontSize;
 
-    purgeButton->onClick = [=]() {
-        if(onClearBankCallback) {
-            for (int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
-                onClearBankCallback(i);
-            }
-        }
+    defragButton->onClick = [=]() {
+        onDefragmentCallback();
+        title->hide();
+        editButton->hide();
+        defragButton->hide();
+        importButton->hide();
+        exportButton->hide();
+        exitButton->hide();
+        purgeButton->hide();
+        defragMenu->view();
     };
 
-    defragDoneMessage->visible = false;
+    purgeButton->onClick = [=]() {
+        title->hide();
+        editButton->hide();
+        defragButton->hide();
+        importButton->hide();
+        exportButton->hide();
+        exitButton->hide();
+        purgeButton->hide();
+        purgeMenu->view();
+    };
+
+    defragMenu = createWidget<TFormEditorDefragMenu>(Vec(0, 0));
+    defragMenu->onHide = [=]() {
+        title->show();
+        editButton->show();
+        defragButton->show();
+        importButton->show();
+        exportButton->show();
+        exitButton->show();
+        purgeButton->show();
+    };
+    defragMenu->visible = false;
+
+    purgeMenu = createWidget<TFormPurgeMenu>(Vec(0, 0));
+    purgeMenu->onHide = [=]() {
+        title->show();
+        editButton->show();
+        defragButton->show();
+        importButton->show();
+        exportButton->show();
+        exitButton->show();
+        purgeButton->show();
+    };
+    purgeMenu->visible = false;
 
     addChild(title);
-    addChild(defragDoneMessage);
     addChild(editButton);
     addChild(defragButton);
     addChild(importButton);
     addChild(exportButton);
     addChild(exitButton);
     addChild(purgeButton);
+    addChild(defragMenu);
+    addChild(purgeMenu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,13 +288,13 @@ TFormEditor::TFormEditor() {
     box.size = Vec(238, 195);
 
     auto gotoMainMenu = [=] {
-        mainMenu->visible = true;
-        editMenu->visible = false;
+        mainMenu->show();
+        editMenu->hide();
     };
 
     auto gotoEditMenu = [=] {
-        mainMenu->visible = false;
-        editMenu->visible = true;
+        mainMenu->hide();
+        editMenu->show();
     };
 
     // Menu buttons
@@ -192,7 +305,7 @@ TFormEditor::TFormEditor() {
     addChild(mainMenu);
 
     editMenu = createWidget<TFormEditorBankEditMenu>(Vec(0,0));
-    editMenu->mainButtonRow->backButton->onClick = gotoMainMenu;
+    editMenu->mainMenu->backButton->onClick = gotoMainMenu;
     addChild(editMenu);
 
     gotoMainMenu();
@@ -207,17 +320,20 @@ void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::ve
 }
 
 void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback) {
-    editMenu->loadButtonRow->onIngestTableCallback = onIngestTableCallback;
+    editMenu->loadMenu->onIngestTableCallback = onIngestTableCallback;
 }
 
 void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearBankCallback) {
-    editMenu->clearButtonRow->onClearBankCallback = onClearBankCallback;
-    // editMenu->purgeButtonRow->onClearBankCallback = onClearBankCallback;
-    mainMenu->onClearBankCallback = onClearBankCallback;
+    editMenu->clearMenu->onClearBankCallback = onClearBankCallback;
+    mainMenu->purgeMenu->onClearBankCallback = onClearBankCallback;
 }
 
 void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {
     editMenu->cloneMenu->addCloneBankCallback(onCloneBankCallback);
+}
+
+void TFormEditor::addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback) {
+    editMenu->moveMenu->addMoveBankCallback(onMoveBankCallback);
 }
 
 void TFormEditor::addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback) {
@@ -233,7 +349,7 @@ void TFormEditor::addExportCallback(const std::function<void()>& onExportWaveTab
 }
 
 void TFormEditor::addDefragmentCallback(const std::function<void()>& onDefragmentCallback) {
-    mainMenu->defragButton->onClick = onDefragmentCallback;
+    mainMenu->onDefragmentCallback = onDefragmentCallback;
 }
 
 void TFormEditor::setSlotFilledFlag(int slot, bool isFilled) {

@@ -4,15 +4,15 @@ TFormEditMainMenu::TFormEditMainMenu() {
     box.size = Vec(238, 195);
     loadButton = createNewMenuButton("Load", NULL, buttonOffset, 21, buttonWidth, buttonHeight);
     addChild(loadButton);
-    viewButton = createNewMenuButton("View", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
-    addChild(viewButton);
-    cloneButton = createNewMenuButton("Clone", NULL, buttonWidth * 2 + buttonOffset * 3, 21, buttonWidth, buttonHeight);
-    addChild(cloneButton);
-    clearButton = createNewMenuButton("Clear", NULL, buttonWidth * 3 + buttonOffset * 4, 21, buttonWidth, buttonHeight);
+    clearButton = createNewMenuButton("Clear", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
     addChild(clearButton);
-    purgeButton = createNewMenuButton("Purge", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
-    addChild(purgeButton);
-    backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
+    viewButton = createNewMenuButton("View", NULL, buttonWidth * 2 + buttonOffset * 3, 21, buttonWidth, buttonHeight);
+    addChild(viewButton);
+    cloneButton = createNewMenuButton("Clone", NULL, buttonWidth * 3 + buttonOffset * 4, 21, buttonWidth, buttonHeight);
+    addChild(cloneButton);
+    moveButton = createNewMenuButton("Move", NULL, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
+    addChild(moveButton);
+    backButton = createNewMenuButton("Back", NULL, buttonWidth * 4 + buttonOffset * 5, 3, buttonWidth, buttonHeight);
     addChild(backButton);
 
     // Slots grid
