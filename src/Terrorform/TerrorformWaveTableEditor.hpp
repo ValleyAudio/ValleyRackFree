@@ -19,7 +19,7 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     TFormMoveMenu* moveMenu;
     TFormClearMenu* clearMenu;
     std::shared_ptr<int> selectedBank;
-    std::shared_ptr<bool> selectedBankIsFilled;
+    std::vector<bool> slotFilled;
 
     std::function<std::shared_ptr<std::vector<std::vector<float>>>()> onLoadWAVCallback;
     std::function<void(int, std::vector<std::vector<float>>&)> onGetBankCallback;

@@ -49,25 +49,37 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
     };
     addChild(noButton);
 
-    emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    sourceSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    sourceSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    destSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    destSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-
-    filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    //
+    // sourceSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // sourceSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // sourceSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // sourceSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    //
+    // destSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // destSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // destSlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // destSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    //
+    // filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    // filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotStyle.idleColors =           TFormEditorButtonColors(0xFF, 0xFF, 0xFF, 0xFF,
+                                                                   0x9F, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.hoverColors =          TFormEditorButtonColors(0xFF, 0xFF, 0xFF, 0xFF,
+                                                                   0x9F, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.highlightIdleColors =  TFormEditorButtonColors(0x00, 0x00, 0x00, 0xFF,
+                                                                   0xFF, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.highlightHoverColors = TFormEditorButtonColors(0x00, 0x00, 0x00, 0x00,
+                                                                   0xFF, 0x00, 0x00, 0x00,
+                                                                   0x00, 0x00, 0x00, 0x00);
 
     Vec offset = Vec(0, 40);
     grid = createWidget<TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>>(box.pos.plus(offset));
@@ -81,6 +93,7 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
                 destBank = id;
             };
             grid->slotButton[row][col]->text = std::to_string(id + 1);
+            grid->slotButton[row][col]->applyStyle(emptySlotStyle);
             ++id;
         }
     }
@@ -121,6 +134,12 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
         noButton->visible = false;
         filledText->visible = false;
         overwriteQuestion->visible = false;
+
+        int row = sourceBank;
+        int col = sourceBank;
+        grid->slotButton[row][col]->respondToMouse = false;
+        grid->slotButton[row][col]->applyStyle(filledSlotStyle);
+        grid->slotButton[row][col]->setHighlight(true);
     };
 }
 
@@ -130,8 +149,9 @@ void TFormMoveMenuDestPage::step() {
     for(auto i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
         row = i / TFORM_EDITOR_ROWS;
         col = i % TFORM_EDITOR_COLS;
-        grid->slotButton[row][col]->setHighlight(i == sourceBank || i == destBank);
-        grid->slotButton[row][col]->enabled = i != sourceBank;
+        grid->slotButton[row][col]->setHighlight(i == destBank);
+        // grid->slotButton[row][col]->highlight = i == sourceBank || i == destBank;
+        // grid->slotButton[row][col]->respondToMouse = i != sourceBank;
     }
     sourceDestText->text = "Bank " + std::to_string(sourceBank + 1) + " -> Bank " + std::to_string(destBank + 1);
     Widget::step();
@@ -142,14 +162,15 @@ void TFormMoveMenuDestPage::setSlotFilledFlag(int slot, bool isFilled) {
         int row = slot / TFORM_EDITOR_ROWS;
         int col = slot % TFORM_EDITOR_COLS;
         (*slotFilled)[slot] = isFilled;
-        for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
-            if(isFilled) {
-                grid->slotButton[row][col]->buttonStyles[m] = filledSlotButtonStyles[m];
-            }
-            else {
-                grid->slotButton[row][col]->buttonStyles[m] = emptySlotButtonStyles[m];
-            }
-        }
+        grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        // for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
+        //     if(isFilled) {
+        //         grid->slotButton[row][col]->buttonStyles[m] = filledSlotButtonStyles[m];
+        //     }
+        //     else {
+        //         grid->slotButton[row][col]->buttonStyles[m] = emptySlotButtonStyles[m];
+        //     }
+        // }
     }
 }
 
@@ -200,7 +221,7 @@ void TFormMoveMenu::step() {
 }
 
 void TFormMoveMenu::draw(const DrawArgs& args) {
-    if (moveDoneText->visible) {
+    if (destPage->visible) {
         nvgBeginPath(args.vg);
         nvgMoveTo(args.vg, 0, box.pos.y + 40);
         nvgLineTo(args.vg, box.size.x, box.pos.y + 40);

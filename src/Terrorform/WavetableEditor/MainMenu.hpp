@@ -10,9 +10,12 @@ struct TFormEditMainMenu : TFormMenu {
     TFormEditorButton* moveButton;
     TFormEditorButton* backButton;
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
-    TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
-    TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
 
+    // TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
+    // TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
+    TFormEditorButtonStyleSet emptySlotStyle;
+    TFormEditorButtonStyleSet filledSlotStyle;
+    
     std::vector<bool> slotFilled;
     std::shared_ptr<int> selectedBank;
     bool selectedBankIsFilled;

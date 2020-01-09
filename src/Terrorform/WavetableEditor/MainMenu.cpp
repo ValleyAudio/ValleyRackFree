@@ -16,15 +16,19 @@ TFormEditMainMenu::TFormEditMainMenu() {
     addChild(backButton);
 
     // Slots grid
-    emptySlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x2F, 0x2F, 0xAF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    emptySlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x5F, 0x5F, 0xFF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
-    filledSlotButtonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x9F, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0xBF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-    filledSlotButtonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0x00, 0x00, 0x00), nvgRGB(0xFF, 0x00, 0x00), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+    filledSlotStyle.idleColors =           TFormEditorButtonColors(0xFF, 0xFF, 0xFF, 0xFF,
+                                                                   0x9F, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.hoverColors =          TFormEditorButtonColors(0xFF, 0xFF, 0xFF, 0xFF,
+                                                                   0xBF, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.highlightIdleColors =  TFormEditorButtonColors(0x00, 0x00, 0x00, 0xFF,
+                                                                   0xFF, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
+    filledSlotStyle.highlightHoverColors = TFormEditorButtonColors(0x00, 0x00, 0x00, 0xFF,
+                                                                   0xFF, 0x00, 0x00, 0xFF,
+                                                                   0x00, 0x00, 0x00, 0x00);
 
     Vec offset = Vec(0, 40);
     grid = createWidget<TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>>(box.pos.plus(offset));
@@ -49,6 +53,10 @@ TFormEditMainMenu::TFormEditMainMenu() {
 
 void TFormEditMainMenu::step() {
     selectedBankIsFilled = slotFilled[*selectedBank];
+    viewButton->setEnable(selectedBankIsFilled);
+    clearButton->setEnable(selectedBankIsFilled);
+    cloneButton->setEnable(selectedBankIsFilled);
+    moveButton->setEnable(selectedBankIsFilled);
     int row = 0;
     int col = 0;
     for(int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
@@ -86,13 +94,6 @@ void TFormEditMainMenu::setSlotFilledFlag(int slot, bool isFilled) {
         int row = slot / TFORM_EDITOR_ROWS;
         int col = slot % TFORM_EDITOR_COLS;
         slotFilled[slot] = isFilled;
-        for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
-            if(isFilled) {
-                grid->slotButton[row][col]->buttonStyles[m] = filledSlotButtonStyles[m];
-            }
-            else {
-                grid->slotButton[row][col]->buttonStyles[m] = emptySlotButtonStyles[m];
-            }
-        }
+        grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
     }
 }

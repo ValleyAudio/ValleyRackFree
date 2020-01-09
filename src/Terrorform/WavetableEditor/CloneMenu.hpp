@@ -1,6 +1,7 @@
 #ifndef TFORM_EDITOR_CLONE_MENU_HPP
 #define TFORM_EDITOR_CLONE_MENU_HPP
 #include "MenuBase.hpp"
+#include "QuestionMenu.hpp"
 
 struct TFormCloneMenuSourcePage : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
@@ -14,7 +15,7 @@ struct TFormCloneMenuSourcePage : TFormMenu {
     int selectedWave;
 
     std::vector<std::vector<float>> waveData;
-    int sourceBank;
+    std::shared_ptr<int> sourceBank;
 
     TFormCloneMenuSourcePage();
     void step() override;
@@ -25,43 +26,38 @@ struct TFormCloneMenuSourcePage : TFormMenu {
 struct TFormCloneMenuDestPage : TFormMenu {
     TFormEditorButton* backButton;
     TFormEditorButton* okayButton;
-    TFormEditorButton* yesButton;
-    TFormEditorButton* noButton;
     PlainText* instructionText;
     PlainText* sourceDestText;
     PlainText* filledText;
-    PlainText* overwriteQuestion;
 
-    TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
-    TFormEditorButtonStyle sourceSlotButtonStyles[NUM_BUTTON_MODES];
-    TFormEditorButtonStyle destSlotButtonStyles[NUM_BUTTON_MODES];
-    TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
+    TFormEditorButtonStyleSet emptySlotStyle;
+    TFormEditorButtonStyleSet filledSlotStyle;
+
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
     std::shared_ptr<std::vector<bool>> slotFilled;
-    int sourceBank;
-    int destBank;
-
-    std::function<void(int, int)> onCloneBankCallback;
+    std::shared_ptr<int> sourceBank;
+    std::shared_ptr<int> destBank;
 
     TFormCloneMenuDestPage();
     void step() override;
+    void draw(const DrawArgs& args) override;
     void setSlotFilledFlag(int slot, bool isFilled);
 };
 
 struct TFormCloneMenu : TFormMenu {
     TFormCloneMenuSourcePage* sourcePage;
     TFormCloneMenuDestPage* destPage;
+    TFormQuestionMenu *overwriteMenu;
     PlainText* cloneDoneText;
     int counter;
 
     std::shared_ptr<std::vector<bool>> slotFilled;
     std::shared_ptr<int> sourceBank;
+    std::shared_ptr<int> destBank;
+    std::function<void(int, int)> onCloneBankCallback;
 
     TFormCloneMenu();
-    void step() override;
-    void draw(const DrawArgs& args) override;
     void setSlotFilledFlag(int slot, bool isFilled);
-    void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
 };
 
 #endif

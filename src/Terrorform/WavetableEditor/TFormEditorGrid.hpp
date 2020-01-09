@@ -7,8 +7,8 @@
 template<const int NRows, const int NCols>
 struct TFormEditorGrid : OpaqueWidget {
     NVGcolor color;
-    TFormEditorStyles style;
-    TFormEditorButtonStyle buttonStyles[NUM_BUTTON_MODES];
+    //TFormEditorStyles style;
+    //TFormEditorButtonStyle buttonStyles[NUM_BUTTON_MODES];
     TFormEditorButton* slotButton[NRows][NCols];
     int selectedBank;
 
@@ -16,10 +16,10 @@ struct TFormEditorGrid : OpaqueWidget {
         color = nvgRGB(0xAF, 0xAF, 0xAF);
         box.size = Vec(238, 155);
 
-        buttonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-        buttonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-        buttonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
-        buttonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+        // buttonStyles[IDLE_MODE] = TFormEditorButtonStyle(nvgRGB(0xCF, 0xCF, 0xCF), nvgRGB(0x17, 0x17, 0x17), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+        // buttonStyles[HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x32, 0x32, 0x7F), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+        // buttonStyles[HIGHLIGHT_MODE] =  TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
+        // buttonStyles[HIGHLIGHT_HOVER_MODE] = TFormEditorButtonStyle(nvgRGB(0xFF, 0xFF, 0xFF), nvgRGB(0x6F, 0x6F, 0xEF), nvgRGBA(0x00, 0x00, 0x00, 0x00));
 
         Vec slotButtonPos;
         float slotButtonWidth = box.size.x / NCols;
@@ -32,10 +32,10 @@ struct TFormEditorGrid : OpaqueWidget {
                 slotButton[row][col]->box.size.x = slotButtonWidth;
                 slotButton[row][col]->box.size.y = slotButtonHeight;
 
-                for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
-                    slotButton[row][col]->buttonStyles[m] = buttonStyles[m];
-                }
-                slotButton[row][col]->mode = IDLE_MODE;
+                // for(int m = 0; m < NUM_BUTTON_MODES; ++m) {
+                //     slotButton[row][col]->buttonStyles[m] = buttonStyles[m];
+                // }
+                //slotButton[row][col]->mode = IDLE_MODE;
                 addChild(slotButton[row][col]);
             }
         }

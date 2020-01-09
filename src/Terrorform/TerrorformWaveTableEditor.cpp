@@ -8,6 +8,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     box.size = Vec(238, 195);
 
     selectedBank = std::make_shared<int>(0);
+    slotFilled = std::vector<bool>(TFORM_EDITOR_SLOTS, false);
 
     // Main button row
     mainMenu = createWidget<TFormEditMainMenu>(Vec(0, 0));
@@ -217,12 +218,12 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
     exitButton->text = "Exit";
     purgeButton->text = "Purge";
 
-    editButton->fontSize = buttonFontSize;
-    defragButton->fontSize = buttonFontSize;
-    importButton->fontSize = buttonFontSize;
-    exportButton->fontSize = buttonFontSize;
-    exitButton->fontSize = buttonFontSize;
-    purgeButton->fontSize = buttonFontSize;
+    editButton->style.fontSize = buttonFontSize;
+    defragButton->style.fontSize = buttonFontSize;
+    importButton->style.fontSize = buttonFontSize;
+    exportButton->style.fontSize = buttonFontSize;
+    exitButton->style.fontSize = buttonFontSize;
+    purgeButton->style.fontSize = buttonFontSize;
 
     defragButton->onClick = [=]() {
         onDefragmentCallback();
@@ -329,7 +330,7 @@ void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearB
 }
 
 void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {
-    editMenu->cloneMenu->addCloneBankCallback(onCloneBankCallback);
+    editMenu->cloneMenu->onCloneBankCallback = onCloneBankCallback;
 }
 
 void TFormEditor::addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback) {

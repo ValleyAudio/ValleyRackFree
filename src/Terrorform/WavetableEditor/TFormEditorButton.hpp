@@ -3,47 +3,46 @@
 #include "../../Valley.hpp"
 #include "../../ValleyComponents.hpp"
 
-enum TFormEditorButtonModes {
-    IDLE_MODE,
-    HOVER_MODE,
-    HIGHLIGHT_MODE,
-    HIGHLIGHT_HOVER_MODE,
-    NUM_BUTTON_MODES
-};
-
-struct TFormEditorButtonStyle {
+struct TFormEditorButtonColors {
     NVGcolor textColor;
 	NVGcolor bgColor;
     NVGcolor borderColor;
 
-    TFormEditorButtonStyle();
-    TFormEditorButtonStyle(const NVGcolor& newTextColor,
-                           const NVGcolor& newBgColor,
-                           const NVGcolor& newBorderColor);
+    TFormEditorButtonColors();
+    TFormEditorButtonColors(char txtR, char txtG, char txtB, char txtA,
+                            char bgR,  char bgG,  char bgB,  char bgA,
+                            char brdR, char brdG, char brdB, char brdA);
 };
 
-enum TFormEditorStyles {
-    RED_EDITOR_STYLE,
-    YELLOW_EDITOR_STYLE,
-    GREEN_EDITOR_STYLE,
-    BLUE_EDITOR_STYLE,
-    WHITE_EDITOR_STYLE,
-    NUM_EDITOR_STYLES
+struct TFormEditorButtonStyleSet {
+    TFormEditorButtonColors disabledColors;
+    TFormEditorButtonColors idleColors;
+    TFormEditorButtonColors hoverColors;
+    TFormEditorButtonColors highlightIdleColors;
+    TFormEditorButtonColors highlightHoverColors;
+    std::shared_ptr<Font> font;
+    float fontSize;
+
+    TFormEditorButtonStyleSet();
 };
 
 struct TFormEditorButton : public OpaqueWidget {
-    std::string text;
-    std::shared_ptr<Font> font;
-    NVGcolor color;
-	NVGcolor bgColor;
-    NVGcolor borderColor;
-    Vec textOffset;
-    float fontSize;
-    bool enabled;
-
-    TFormEditorButtonStyle buttonStyles[NUM_BUTTON_MODES];
+    enum TFormEditorButtonModes {
+        DISABLED_MODE,
+        IDLE_MODE,
+        HOVER_MODE,
+        HIGHLIGHT_IDLE_MODE,
+        HIGHLIGHT_HOVER_MODE,
+        NUM_BUTTON_MODES
+    };
     TFormEditorButtonModes mode;
-    TFormEditorButtonModes modeOffset;
+    TFormEditorButtonStyleSet style;
+    std::string text;
+    Vec textOffset;
+
+    bool isEnabled;
+    bool isHighlighted;
+    bool respondToMouse;
 
     std::function<void()> onClick;
 
@@ -52,7 +51,12 @@ struct TFormEditorButton : public OpaqueWidget {
     void onEnter(const event::Enter& e) override;
     void onLeave(const event::Leave& e) override;
     void onDragEnd(const event::DragEnd& e) override;
+    void applyStyle(const TFormEditorButtonStyleSet& newStyle);
+    void setEnable(bool enable);
     void setHighlight(bool highlight);
+private:
+    TFormEditorButtonColors colors;
+    void setMode(const TFormEditorButtonModes& newMode);
 };
 
 TFormEditorButton* createNewMenuButton(const std::string& text,
