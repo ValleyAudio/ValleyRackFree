@@ -46,7 +46,7 @@ TFormNumberField::TFormNumberField() {
     color = nvgRGB(0xEF, 0xEF, 0xEF);
     multiline = false;
     minimum = 1;
-    range = 64;
+    maximum = 64;
     value = minimum;
 }
 
@@ -83,14 +83,25 @@ void TFormNumberField::draw(const DrawArgs& args) {
 
 void TFormNumberField::onDeselect(const event::Deselect& e) {
     updateText(text);
+    if (onChangeCallback) {
+        onChangeCallback();
+    }
 }
 
 void TFormNumberField::onAction(const event::Action& e) {
     updateText(text);
+    if (onChangeCallback) {
+        onChangeCallback();
+    }
+}
+
+void TFormNumberField::onDragMove(const event::DragMove& e) {
+    int newValue = value - (int) e.mouseDelta.y;
+    setValue(newValue);
 }
 
 void TFormNumberField::setValue(int newValue) {
-    if (newValue >= minimum && newValue < (minimum + range)) {
+    if (newValue >= minimum && newValue <= maximum) {
         value = newValue;
         text = std::to_string(value);
         prevText = text;
@@ -115,7 +126,7 @@ void TFormNumberField::updateText(const std::string& newText) {
 
     int newValue = stoi(text);
 
-    if (newValue >= minimum && newValue < (minimum + range)) {
+    if (newValue >= minimum && newValue <= maximum) {
         value = newValue;
     }
     else {
@@ -128,19 +139,19 @@ void TFormNumberField::updateText(const std::string& newText) {
 
 TFormLoadMenu::TFormLoadMenu() {
     box.size = Vec(238, 195);
-    startWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(buttonWidth + buttonOffset * 2, 20));
-    startWaveChoice->range = 64;
-    startWaveChoice->box.size.x = 28;
-    startWaveChoice->box.size.y = 15;
-    startWaveChoice->visible = false;
-    addChild(startWaveChoice);
-
-    endWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
-    endWaveChoice->range = 64;
-    endWaveChoice->box.size.x = 28;
-    endWaveChoice->box.size.y = 15;
-    endWaveChoice->visible = false;
-    addChild(endWaveChoice);
+    // startWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(buttonWidth + buttonOffset * 2, 20));
+    // startWaveChoice->range = 64;
+    // startWaveChoice->box.size.x = 28;
+    // startWaveChoice->box.size.y = 15;
+    // startWaveChoice->visible = false;
+    // addChild(startWaveChoice);
+    //
+    // endWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
+    // endWaveChoice->range = 64;
+    // endWaveChoice->box.size.x = 28;
+    // endWaveChoice->box.size.y = 15;
+    // endWaveChoice->visible = false;
+    // addChild(endWaveChoice);
 
     ingestNewTable = [=](int startWave, int endWave) {
         onIngestTableCallback(*selectedBank, startWave, endWave, nameField->getText());
@@ -148,7 +159,7 @@ TFormLoadMenu::TFormLoadMenu() {
     };
 
     auto triggerIngest = [=]() {
-        ingestNewTable(*startWaveChoice->choice, *endWaveChoice->choice);
+        ingestNewTable(startWaveField->value - 1, endWaveField->value);
     };
 
     cancelButton = createNewMenuButton("Cancel", NULL, buttonWidth * 4 + buttonOffset * 5, 3, buttonWidth, buttonHeight);
@@ -188,12 +199,20 @@ TFormLoadMenu::TFormLoadMenu() {
     startWaveField->box.size.x = buttonWidth / 2;
     startWaveField->box.size.y = buttonHeight;
     startWaveField->setValue(1);
+    startWaveField->onChangeCallback = [=]() {
+        startWaveField->maximum = endWaveField->value;
+        endWaveField->minimum = startWaveField->value;
+    };
     addChild(startWaveField);
 
     endWaveField = createWidget<TFormNumberField>(Vec(buttonWidth + buttonOffset * 2, 21));
     endWaveField->box.size.x = buttonWidth / 2;
     endWaveField->box.size.y = buttonHeight;
     endWaveField->setValue(64);
+    endWaveField->onChangeCallback = [=]() {
+        startWaveField->maximum = endWaveField->value;
+        endWaveField->minimum = startWaveField->value;
+    };
     addChild(endWaveField);
 
     onView = [=]() {

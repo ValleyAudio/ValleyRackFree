@@ -19,13 +19,16 @@ struct TFormNumberField : TextField {
     NVGcolor textColor;
 
     int minimum;
-    int range;
+    int maximum;
     int value;
+
+    std::function<void()> onChangeCallback;
 
     TFormNumberField();
     void draw(const DrawArgs& args) override;
     void onDeselect(const event::Deselect& e) override;
     void onAction(const event::Action& e) override;
+    void onDragMove(const event::DragMove& e) override;
     void setValue(int newValue);
 private:
     void updateText(const std::string& newText);
@@ -38,8 +41,8 @@ struct TFormLoadMenu : TFormMenu {
     TFormEditorButton* confirmButton;
     TFormEditorButton* yesButton;
     TFormEditorButton* noButton;
-    TFormEditorNumberChoice* startWaveChoice;
-    TFormEditorNumberChoice* endWaveChoice;
+    // TFormEditorNumberChoice* startWaveChoice;
+    // TFormEditorNumberChoice* endWaveChoice;
     std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
     std::shared_ptr<int> selectedBank;
     NVGcolor waveLineColor;

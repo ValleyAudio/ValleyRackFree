@@ -17,7 +17,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
         if (onLoadWAVCallback) {
             std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
-                *loadMenu->endWaveChoice->choice = detectedWaves->size() - 1;
+                loadMenu->endWaveField->setValue(detectedWaves->size());
                 loadMenu->detectedWaves = detectedWaves;
                 mainMenu->hide();
                 loadMenu->view();
