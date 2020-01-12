@@ -96,7 +96,7 @@ void TFormEditorButton::setEnable(bool isEnabled) {
     if(this->isEnabled == isEnabled) {
         return;
     }
-    
+
     this->isEnabled = isEnabled;
     if(isEnabled) {
         setMode(IDLE_MODE);
@@ -131,6 +131,9 @@ void TFormEditorButton::setMode(const TFormEditorButtonModes& newMode) {
 }
 
 void TFormEditorButton::setHighlight(bool highlight) {
+    if(isHighlighted == highlight) {
+        return;
+    }
     isHighlighted = highlight;
     setMode(mode);
 }

@@ -161,7 +161,6 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
         int col = *sourceBank;
         grid->slotButton[row][col]->respondToMouse = false;
         grid->slotButton[row][col]->applyStyle(filledSlotStyle);
-        grid->slotButton[row][col]->setHighlight(true);
     };
 }
 
@@ -172,7 +171,7 @@ void TFormCloneMenuDestPage::step() {
         for(auto i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
             row = i / TFORM_EDITOR_ROWS;
             col = i % TFORM_EDITOR_COLS;
-            grid->slotButton[row][col]->setHighlight(i == *destBank);
+            grid->slotButton[row][col]->setHighlight(i == *sourceBank || i == *destBank);
             //grid->slotButton[row][col]->highlight = i == *sourceBank || i == *destBank;
             //grid->slotButton[row][col]->respondToMouse = i != *sourceBank;
         }

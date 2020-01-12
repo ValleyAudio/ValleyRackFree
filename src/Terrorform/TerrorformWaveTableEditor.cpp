@@ -320,7 +320,7 @@ void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::ve
     editMenu->onLoadWAVCallback = onLoadWAVCallback;
 }
 
-void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int)>& onIngestTableCallback) {
+void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int, const std::string&)>& onIngestTableCallback) {
     editMenu->loadMenu->onIngestTableCallback = onIngestTableCallback;
 }
 

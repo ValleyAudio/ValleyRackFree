@@ -151,14 +151,17 @@ struct Terrorform : Module {
     static const int kMaxNumGroups = 1;
     ScanningQuadOsc osc[kMaxNumGroups];
 
+    // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
     char userWaveTableSizes[TFORM_MAX_BANKS];
     bool userWaveTableFilled[TFORM_MAX_BANKS];
     char numUserWaveTables = 0;
+    std::vector<std::string> userWaveTableNames;
 
     bool userWavesButtonState, prevUserWavesButtonState;
     bool readFromUserWaves;
 
+    // Outputs
     __m128 __mainOutput[kMaxNumGroups];
     __m128 __preDegradeOutput[kMaxNumGroups];
     __m128 __phasorOutput[kMaxNumGroups];
