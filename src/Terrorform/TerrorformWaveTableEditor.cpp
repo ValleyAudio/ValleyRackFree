@@ -329,7 +329,7 @@ void TFormEditor::addClearBankCallback(const std::function<void(int)>&  onClearB
     mainMenu->purgeMenu->onClearBankCallback = onClearBankCallback;
 }
 
-void TFormEditor::addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback) {
+void TFormEditor::addCloneBankCallback(const std::function<void(int, int, int, int)>& onCloneBankCallback) {
     editMenu->cloneMenu->onCloneBankCallback = onCloneBankCallback;
 }
 

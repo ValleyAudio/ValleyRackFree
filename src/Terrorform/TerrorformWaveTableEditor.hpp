@@ -84,7 +84,7 @@ struct TFormEditor : OpaqueWidget {
     void addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<std::vector<float>>>()>& onLoadWAVCallback);
     void addIngestTableCallback(const std::function<void(int, int, int, const std::string&)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
-    void addCloneBankCallback(const std::function<void(int, int)>& onCloneBankCallback);
+    void addCloneBankCallback(const std::function<void(int, int, int, int)>& onCloneBankCallback);
     void addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback);
     void addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback);
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);

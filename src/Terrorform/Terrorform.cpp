@@ -341,7 +341,6 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
-    // json_object_set_new(rootJ, "numUserWaveTables", json_integer((int)numUserWaveTables));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -352,7 +351,7 @@ json_t* Terrorform::dataToJson()  {
             json_object_set_new(userWaveJ, "numWaves", json_integer(0));
             continue;
         }
-        json_object_set_new(userWaveJ, "numWaves", json_integer(userWaveTableSizes[bank]));
+
         json_object_set_new(userWaveJ, "name", json_string(userWaveTableNames[bank].c_str()));
         json_t* tableJ = json_array();
         for (auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
@@ -387,14 +386,11 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     for (auto bank = 0; bank < numUserWaveTables; ++bank) {
         json_t* userWaveJ = json_array_get(userWavesJ, bank);
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
-        json_t* numWavesJ = json_object_get(userWaveJ, "numWaves");
         json_t* nameJ = json_object_get(userWaveJ, "name");
         json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
 
-        // printf("Num waves in bank %d : %d\n", bank, (int) json_array_size(tableJ));
-
         destBank = json_integer_value(destBankJ);
-        numWaves = json_integer_value(numWavesJ);
+        numWaves = (int) json_array_size(tableJ);
         userWaveTableNames[bank] = std::string(json_string_value(nameJ));
         if (numWaves) {
             userWaveTableSizes[destBank] = numWaves;
@@ -430,14 +426,18 @@ void Terrorform::clearUserWaveTables() {
     }
 }
 
-void Terrorform::cloneBank(int sourceBank, int destBank) {
-    for (int wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
-        memcpy(userWaveTableData[destBank][wave],
-               userWaveTableData[sourceBank][wave],
-               sizeof(float) * TFORM_MAX_WAVELENGTH);
+void Terrorform::cloneBank(int sourceBank, int destBank, int startWave, int endWave) {
+    int k = startWave;
+    float a = 0.f;
+    for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
+        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            a = k <= endWave ? userWaveTableData[sourceBank][k][j] : 0.f;
+            userWaveTableData[destBank][i][j] = a;
+        }
+        ++k;
     }
     userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
-    userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
+    userWaveTableSizes[destBank] =  (endWave - startWave) + 1;
 }
 
 void Terrorform::moveBank(int sourceBank, int destBank) {
@@ -1120,8 +1120,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         }
     });
 
-    editor->addCloneBankCallback([=](int sourceBank, int destBank) {
-        module->cloneBank(sourceBank, destBank);
+    editor->addCloneBankCallback([=](int sourceBank, int destBank, int startWave, int endWave) {
+        module->cloneBank(sourceBank, destBank, startWave, endWave);
     });
 
     editor->addMoveBankCallback([=](int sourceBank, int destBank) {

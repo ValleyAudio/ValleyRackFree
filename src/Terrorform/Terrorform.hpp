@@ -254,7 +254,7 @@ struct Terrorform : Module {
     void dataFromJson(json_t *rootJ) override;
     void clearBank(int bankNum);
     void clearUserWaveTables();
-    void cloneBank(int sourceBank, int destBank);
+    void cloneBank(int sourceBank, int destBank, int startWave, int endWave);
     void moveBank(int sourceBank, int destBank);
     void defragmentBanks();
 };

@@ -243,7 +243,7 @@ TFormCloneMenu::TFormCloneMenu() {
             overwriteMenu->view();
         }
         else {
-            onCloneBankCallback(*sourceBank, *destBank);
+            onCloneBankCallback(*sourceBank, *destBank, *sourcePage->startWave->choice, *sourcePage->endWave->choice);
             exit();
         }
     };
@@ -253,7 +253,7 @@ TFormCloneMenu::TFormCloneMenu() {
 
     overwriteMenu = createWidget<TFormQuestionMenu>(Vec(0, 0));
     overwriteMenu->taskCallback = [=]() {
-        onCloneBankCallback(*sourceBank, *destBank);
+        onCloneBankCallback(*sourceBank, *destBank, *sourcePage->startWave->choice, *sourcePage->endWave->choice);
     };
 
     overwriteMenu->onExit = [=]() {

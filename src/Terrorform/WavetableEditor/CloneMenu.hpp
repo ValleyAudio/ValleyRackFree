@@ -54,7 +54,7 @@ struct TFormCloneMenu : TFormMenu {
     std::shared_ptr<std::vector<bool>> slotFilled;
     std::shared_ptr<int> sourceBank;
     std::shared_ptr<int> destBank;
-    std::function<void(int, int)> onCloneBankCallback;
+    std::function<void(int, int, int, int)> onCloneBankCallback;
 
     TFormCloneMenu();
     void setSlotFilledFlag(int slot, bool isFilled);
