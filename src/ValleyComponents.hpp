@@ -256,33 +256,18 @@ struct RedDynamicLight : DynamicModuleLightWidget {
 
 struct PJ301MDarkPort : SvgPort {
 	PJ301MDarkPort() {
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDark.svg")));
-		/*background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDark.svg")));
 	}
 };
 
 struct PJ301MDarkSmall : SvgPort {
 	PJ301MDarkSmall() {
-		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg"));
-		background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg")));
 	}
 };
 
 struct PJ301MDarkSmallOut : SvgPort {
 	PJ301MDarkSmallOut() {
-		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg"));
-		background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg")));
 	}
 };

@@ -41,6 +41,20 @@ void VecOnePoleLPFilter::setCutoffFreq(const __m128& cutoffFreq) {
     _a = _mm_sub_ps(_mm_set1_ps(1.f), _b);
 }
 
+void VecOnePoleLPFilter::setCutoffFreqAlt(float cutoffFreq) {
+    _cutoffFreq = cutoffFreq > _maxCutoffFreq ? _maxCutoffFreq : cutoffFreq;
+    _a = _mm_set1_ps(sin(_2M_PI * _cutoffFreq * _1_sampleRate));
+    _b = _mm_sub_ps(_mm_set1_ps(1.f), _a);
+}
+
+void VecOnePoleLPFilter::setCutoffFreqAlt(const __m128& cutoffFreq) {
+    _fc = _mm_clamp_ps(cutoffFreq, _mm_set1_ps(1.f), _mm_set1_ps(_maxCutoffFreq));
+    _fc = _mm_mul_ps(_fc, _mm_set1_ps(sin(_2M_PI * _1_sampleRate)));
+    _a = valley::_mm_sine_ps(_fc);
+    _b = _mm_sub_ps(_mm_set1_ps(1.f), _a);
+
+}
+
 float VecOnePoleLPFilter::getMaxCutoffFreq() const {
     return _maxCutoffFreq;
 }

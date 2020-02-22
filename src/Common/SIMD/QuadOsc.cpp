@@ -313,9 +313,10 @@ void QuadOsc::sync(const __m128& syncSource) {
     __syncState = _mm_cmpgt_ps(syncSource, __zeros);
     __syncSource = _mm_and_ps(__syncState, _mm_andnot_ps(__syncing, __syncState));
 
-    if(_weakSync) {
-        __syncSource = _mm_and_ps(__syncSource, _mm_cmplt_ps(__a, __quarter));
-    }
+    // TODO: Externalise weak sync
+    // if(_weakSync) {
+    //     __syncSource = _mm_and_ps(__syncSource, _mm_cmplt_ps(__a, __quarter));
+    // }
     if(!_sync) {
         __dir = __ones;
     }
@@ -574,6 +575,7 @@ void ScanningQuadOsc::tick() {
     __mtMask = _mm_cmpge_ps(__a, __ones);
     __eoc = _mm_and_ps(__ones, __mtMask);
     __ltMask = _mm_cmplt_ps(__a, __zeros);
+    __a = _mm_add_ps(__a, _mm_and_ps(__ones, __ltMask));
     __a = _mm_sub_ps(__a, __eoc);
     __syncOut = _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev));
 

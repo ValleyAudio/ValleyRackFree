@@ -53,6 +53,10 @@ FourVoiceOPCore::FourVoiceOPCore() {
     __op2Col = __zeros;
     __op3Col = __zeros;
     __op4Col = __zeros;
+    _weakSync[0] = false;
+    _weakSync[1] = false;
+    _weakSync[2] = false;
+    _weakSync[3] = false;
     setAlgorithm(0);
 }
 
@@ -205,7 +209,9 @@ void FourVoiceOPCore::enableIntSync(int opNum, bool enableSync) {
 }
 
 void FourVoiceOPCore::enableWeakSync(int opNum, bool weakEnable) {
-    _op[opNum].enableWeakSync(weakEnable);
+    // TODO: Handle weak sync in this class rather than in QuadOsc
+    //_op[opNum].enableWeakSync(weakEnable);
+    _weakSync[opNum] = weakEnable;
 }
 
 void FourVoiceOPCore::setShapeMode(int opNum, int shapeMode) {
@@ -311,8 +317,13 @@ void FourVoiceOPCore::mix() {
     }
 
     for(auto i = 0; i < kNumOperators; ++i) {
+        // TODO : Apply weak sync here
+
         __opSyncIn[i] = _mm_mul_ps(__opSyncIn[i], __opSyncEnable[i]);
         __opSyncIn[i] = _mm_add_ps(__opSyncIn[i], __opExtSync[i]);
+        if (_weakSync[i]) {
+            __opSyncIn[i] = _mm_and_ps(__opSyncIn[i], _mm_cmplt_ps(_op[i].getPhasor(), _mm_set1_ps(0.25f)));
+        }
         _op[i].sync(__opSyncIn[i]);
     }
 }

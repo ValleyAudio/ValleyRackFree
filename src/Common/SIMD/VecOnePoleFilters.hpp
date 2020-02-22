@@ -10,6 +10,8 @@ struct VecOnePoleLPFilter {
     void clear();
     void setCutoffFreq(float cutoffFreq);
     void setCutoffFreq(const __m128& cutoffFreq);
+    void setCutoffFreqAlt(float cutoffFreq);
+    void setCutoffFreqAlt(const __m128& cutoffFreq);
     void setSampleRate(float sampleRate);
     float getMaxCutoffFreq() const;
 

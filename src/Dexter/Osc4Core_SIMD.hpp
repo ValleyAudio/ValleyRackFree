@@ -96,25 +96,27 @@ private:
          NUM_COLS
     };
 
-    float _inLevels[4];
-    float _opLevels[4];
-    bool _opPreFade[4];
-    __m128 __opLevel[4];
-    __m128 __opOut[4];
-    __m128 __opAuxOut[4];
+    float _inLevels[kNumOperators];
+    float _opLevels[kNumOperators];
+    bool _opPreFade[kNumOperators];
+    __m128 __opLevel[kNumOperators];
+    __m128 __opOut[kNumOperators];
+    __m128 __opAuxOut[kNumOperators];
     __m128 __op1Eoc, __op2Eoc, __op3Eoc, __op4Eoc;
-    __m128 __opExtFM[4];
-    __m128 __opExtSync[4];
-    __m128 __opSyncEnable[4];
+    __m128 __opExtFM[kNumOperators];
+    __m128 __opExtSync[kNumOperators];
+    __m128 __opSyncEnable[kNumOperators];
+
 
     __m128 __matrix[NUM_ROWS][NUM_COLS]; // Row = Source, Col = Dest
     __m128 __op1Col, __op2Col, __op3Col, __op4Col, __mainCol, __bCol;
     OpSyncSource _opSyncSource;
-    __m128 __opSyncSignal[4];
-    __m128 __opSyncIn[4];
+    __m128 __opSyncSignal[kNumOperators];
+    __m128 __opSyncIn[kNumOperators];
     __m128 __ones, __zeros, __five;
-    __m128 __outputLevels[4];
+    __m128 __outputLevels[kNumOperators];
     __m128 __aOutLevel, __bOutLevel;
+    bool _weakSync[kNumOperators];
     bool extSyncing;
 
     float _brightness;

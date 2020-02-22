@@ -75,19 +75,22 @@ Terrorform::Terrorform() {
     __fives = _mm_set1_ps(5.f);
     __negFives = _mm_set1_ps(-5.f);
     __tens = _mm_set1_ps(10.f);
+    __quarters = _mm_set1_ps(0.25f);
 
     __sync1 = __zeros;
     __sync2 = __zeros;
     __sync1Pls = __zeros;
     __sync2Pls = __zeros;
-    __percMode = __zeros;
+    __weakSync1Flag = __zeros;
+    __weakSync2Flag = __zeros;
+    __percVCAMode = __zeros;
+    __percFilterMode = __zeros;
 
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     shapes = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     degrades = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
-
-    percMode = false;
+    a = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
 
     // Fill user wavetables
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
@@ -116,6 +119,7 @@ Terrorform::~Terrorform() {
     aligned_free_16(waves);
     aligned_free_16(shapes);
     aligned_free_16(degrades);
+    aligned_free_16(a);
 
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
@@ -147,6 +151,7 @@ void Terrorform::process(const ProcessArgs &args) {
         }
 
         for(auto c = 0; c < kMaxNumGroups; ++c) {
+            lpg[c].mode = (VecLPG::Modes) percMode;
             if(readFromUserWaves) {
                 lights[USER_BANK_LIGHT].value = 1.f;
                 osc[c].setWavebank(userWaveTableData[0],
@@ -163,8 +168,29 @@ void Terrorform::process(const ProcessArgs &args) {
             degrader[c].setMode(degradeType);
             osc[c].setSyncMode(syncChoice);
         }
-        percMode = params[PERC_SWITCH_PARAM].getValue() > 0.5f ? true : false;
-        lights[PERCUSSION_LIGHT].value = percMode ? 1.f : 0.f;
+
+        switch ((VecLPG::Modes) percMode) {
+            case VecLPG::Modes::BYPASS_MODE :
+                lights[PERCUSSION_RED_LIGHT].value = 0.f;
+                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
+                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                break;
+            case VecLPG::Modes::VCA_MODE :
+                lights[PERCUSSION_RED_LIGHT].value = 1.f;
+                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
+                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                break;
+            case VecLPG::Modes::FILTER_MODE :
+                lights[PERCUSSION_RED_LIGHT].value = 0.f;
+                lights[PERCUSSION_GREEN_LIGHT].value = 1.f;
+                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                break;
+            case VecLPG::Modes::BOTH_MODE :
+                lights[PERCUSSION_RED_LIGHT].value = 0.f;
+                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
+                lights[PERCUSSION_BLUE_LIGHT].value = 1.f;
+                break;
+        }
 
         numWavesInTable = osc[0].getNumwaves() - 1.f;
         __numWavesInTable = _mm_set1_ps(numWavesInTable);
@@ -183,30 +209,57 @@ void Terrorform::process(const ProcessArgs &args) {
         counter = 0;
     }
 
+    percButtonState = params[PERC_SWITCH_PARAM].getValue() > 0.5f;
+    if (percButtonState && !percButtonPrevState) {
+        percMode++;
+        percMode = percMode == 4 ? 0 : percMode;
+    }
+    percButtonPrevState = percButtonState;
+
+    // Perc trigger logic
     trig1 = 0.f;
-    if(params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1State == false) {
-        trig1State = true;
+    if (params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1ButtonState == false) {
+        trig1ButtonState = true;
         trig1 = 1.f;
         trig1LightPulse.trigger(trigLightDurationSamples);
     }
-    if(params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1State == true) {
-        trig1State = false;
+    if (params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1ButtonState == true) {
+        trig1ButtonState = false;
     }
 
     trig2 = 0.f;
-    if(params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2State == false) {
-        trig2State = true;
+    if (params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2ButtonState == false) {
+        trig2ButtonState = true;
         trig2 = 1.f;
         trig2LightPulse.trigger(trigLightDurationSamples);
     }
-    if(params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2State == true) {
-        trig2State = false;
+    if (params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2ButtonState == true) {
+        trig2ButtonState = false;
     }
 
     lights[TRIGGER_1_LIGHT].value = trig1LightPulse.process(1.f) ? 10.f : 0.f;
     lights[TRIGGER_2_LIGHT].value = trig2LightPulse.process(1.f) ? 10.f : 0.f;
 
-    rootPitch = (int)params[OCTAVE_PARAM].getValue();
+    // Sync button logic
+    weakSwitch1State = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
+    if (weakSwitch1State && !prevWeakSwitch1State) {
+        weakSync1Enable = 1 - weakSync1Enable;
+        __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
+    }
+    prevWeakSwitch1State = weakSwitch1State;
+
+    weakSwitch2State = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
+    if (weakSwitch2State && !prevWeakSwitch2State) {
+        weakSync2Enable = 1 - weakSync2Enable;
+        __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
+    }
+    prevWeakSwitch2State = weakSwitch2State;
+
+    lights[WEAK_SYNC_1_LIGHT].value = (float) weakSync1Enable;
+    lights[WEAK_SYNC_2_LIGHT].value = (float) weakSync2Enable;
+
+    // Pitch, wave, shape and ehancement CV
+    rootPitch = (int) params[OCTAVE_PARAM].getValue();
     rootPitch += params[COARSE_PARAM].getValue();
     rootPitch += params[FINE_PARAM].getValue();
     rootWave = params[WAVE_PARAM].getValue();
@@ -217,22 +270,35 @@ void Terrorform::process(const ProcessArgs &args) {
     pitchCV2 = params[VOCT_2_CV_PARAM].getValue();
     pitchCV1 *= pitchCV1;
     pitchCV2 *= pitchCV2;
-    waveCV = params[WAVE_CV_1_PARAM].getValue();
-    shapeDepthCV = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
-    degradeDepthCV = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
+    waveCV1 = params[WAVE_CV_1_PARAM].getValue();
+    waveCV2 = params[WAVE_CV_1_PARAM].getValue();
+    shapeDepthCV1 = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
+    shapeDepthCV2 = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
+    degradeDepthCV1 = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
+    degradeDepthCV2 = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
 
     for(auto i = 0; i < kMaxNumGroups * 4; ++i) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
                                         rootPitch);
-        waves[i] = rootWave + inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV * 0.1f;
+        waves[i] = rootWave;
+        waves[i] += inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
+        waves[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
         waves[i] *= numWavesInTable;
-        shapes[i] = rootShapeDepth + inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV * 0.1f;
-        degrades[i] = rootDegradeDepth + inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV * 0.1f;
+
+        shapes[i] = rootShapeDepth;
+        shapes[i] += inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV1 * 0.1f;
+        shapes[i] += inputs[SHAPE_DEPTH_INPUT_2].getPolyVoltage(i) * shapeDepthCV2 * 0.1f;
+
+        degrades[i] = rootDegradeDepth;
+        degrades[i] += inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV1 * 0.1f;
+        degrades[i] += inputs[DEGRADE_DEPTH_INPUT_2].getPolyVoltage(i) * degradeDepthCV2 * 0.1f;
     }
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
     sync2 = inputs[SYNC_2_INPUT].getVoltages();
+    trigger1 = inputs[TRIGGER_1_INPUT].getVoltages();
+    trigger2 = inputs[TRIGGER_2_INPUT].getVoltages();
     fmA1 = inputs[FM_A1_INPUT].getVoltages();
     fmA2 = inputs[FM_A2_INPUT].getVoltages();
     fmB1 = inputs[FM_B1_INPUT].getVoltages();
@@ -265,8 +331,14 @@ void Terrorform::process(const ProcessArgs &args) {
         __sync1Pls = _mm_and_ps(__ones, __sync1Pls);
         __sync2Pls = _mm_and_ps(_mm_cmple_ps(__prevSync2, __zeros), _mm_cmpgt_ps(__sync2, __zeros));
         __sync2Pls = _mm_and_ps(__ones, __sync2Pls);
+        __quarterPhase = _mm_cmplt_ps(osc[c].getPhasor(), __quarters);
+        __sync1Pls = _mm_switch_ps(__sync1Pls, _mm_and_ps(__sync1Pls, __quarterPhase), __weakSync1Flag);
+        __sync2Pls = _mm_switch_ps(__sync2Pls, _mm_and_ps(__sync2Pls, __quarterPhase), __weakSync2Flag);
         __prevSync1 = __sync1;
         __prevSync2 = __sync2;
+
+        __trigger1 = _mm_add_ps(_mm_load_ps(trigger1 + g), _mm_set1_ps(trig1));
+        __trigger2 = _mm_add_ps(_mm_load_ps(trigger2 + g), _mm_set1_ps(trig2));
 
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
         __fmA = _mm_mul_ps(__fmA, __fmA1Level);
@@ -296,7 +368,6 @@ void Terrorform::process(const ProcessArgs &args) {
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
 
         lpg[c].setDecay(__decay);
-        //lpg[c].process()
 
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
         osc[c].setPhase(__fmSum);
@@ -315,16 +386,16 @@ void Terrorform::process(const ProcessArgs &args) {
         __mainOutput[c] = degrader[c].process(__preDegradeOutput[c], __degrade);
         __preDegradeOutput[c] = _mm_mul_ps(__preDegradeOutput[c], __fives);
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+        __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
 
-        __mainOutput[c] = _mm_switch_ps(__mainOutput[c], _mm_mul_ps(__mainOutput[c], lpg[c].__output), __percMode);
+        // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__vcaOutput, __percVCAMode);
+        // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__filterOutput, __percFilterMode);
 
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), lpg[c].getEnvelope());
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), lpg[c].__env);
         _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preDegradeOutput[c]);
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
-        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), lpg[c].process(__mainOutput[c], __sync1Pls));
-
-        //_mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), lpg[c].process(__sync1Pls));
+        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
     }
     outputs[MAIN_OUTPUT].setChannels(kMaxNumGroups * 4);
 }
@@ -341,6 +412,7 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
+    json_object_set_new(rootJ, "percMode", json_integer(percMode));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -375,6 +447,12 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     panelStyle = json_integer_value(panelStyleJ);
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
     displayStyle = json_integer_value(displayStyleJ);
+    json_t *percModeJ = json_object_get(rootJ, "percMode");
+    percMode = json_integer_value(percModeJ);
+
+    panelStyle = panelStyle > 1 ? 1 : panelStyle;
+    displayStyle = displayStyle > 4 ? 4 : displayStyle;
+    percMode = percMode > 3 ? 3 : percMode;
 
     int destBank;
     int numWaves;
@@ -873,10 +951,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Switches
     percButton = createParamCentered<LightLEDButton3>(percSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
-    percButton->momentary = false;
     addParam(percButton);
 
-    percButtonLight = createLightCentered<LargeLight<RedLight>>(percSwitchPos, module, Terrorform::PERCUSSION_LIGHT);
+    percButtonLight = createLightCentered<LargeLight<RedGreenBlueLight>>(percSwitchPos, module, Terrorform::PERCUSSION_RED_LIGHT);
     addChild(percButtonLight);
 
     addChild(createParamCentered<LightLEDButton3>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_SWITCH_PARAM));

@@ -3,43 +3,57 @@
 #include "VecOnePoleFilters.hpp"
 
 struct VecLPG {
+    __m128 __env;
+    __m128 __decay;
+    __m128 __sampleRate;
+    __m128 __zeros, __ones;
+    __m128 __cutoff, __maxCutoff;
+    __m128 __filterSwitch;
+    __m128 __vca, __filter, __output;
+    VecOnePoleLPFilter _lpf1, _lpf2;
+
+    enum Modes {
+        BYPASS_MODE = 0,
+        VCA_MODE,
+        FILTER_MODE,
+        BOTH_MODE
+    };
+    Modes mode;
+
     VecLPG() {
         __zeros = _mm_set1_ps(0.f);
         __ones = _mm_set1_ps(1.f);
-        __y = __zeros;
+        __env = __zeros;
         __maxCutoff = _mm_set1_ps(22050.f);
         __cutoff = __maxCutoff;
         setDecay(__ones);
-        enableFilter(false);
+        mode = BYPASS_MODE;
     }
 
     __m128 process(const __m128& x, const __m128& trigger) {
-        __y = _mm_switch_ps(__y, trigger, _mm_cmpgt_ps(trigger, __zeros));
-        __y = _mm_mul_ps(__y, __decay);
-        __cutoff = _mm_switch_ps(__maxCutoff, _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__y, __y), __y),
-                                 __maxCutoff), __filterSwitch);
-        _lpf1.setCutoffFreq(__cutoff);
+        __env = _mm_switch_ps(__env, trigger, _mm_cmpgt_ps(trigger, __zeros));
+        __env = _mm_mul_ps(__env, __decay);
+        __vca = _mm_mul_ps(x, __env);
+
+        __cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__env, __env), __env), __maxCutoff);
+        _lpf1.setCutoffFreqAlt(_mm_mul_ps(__cutoff, _mm_set1_ps(0.5f)));
         _lpf2._a = _lpf1._a;
         _lpf2._b = _lpf1._b;
-        __output = _lpf2.process(_lpf1.process(x));;
+        __filter = _lpf2.process(_lpf1.process(x));
+
+        __output = x;
+        switch (mode) {
+            case BYPASS_MODE : break;
+            case VCA_MODE : __output = __vca; break;
+            case FILTER_MODE : __output = __filter; break;
+            case BOTH_MODE : __output = _mm_mul_ps(__env, __filter); break;
+        }
+
         return __output;
     }
 
-    __m128 getEnvelope() const {
-        return __y;
-    }
-
-    void enableFilter(bool enable) {
-        if(enable) {
-            __filterSwitch = _mm_high_ps();
-        }
-        else {
-            __filterSwitch = __zeros;
-        }
-    }
-
-    void clear() {
-        __y = __zeros;
+    inline void clear() {
+        __env = __zeros;
     }
 
     void setDecay(const __m128& decay) {
@@ -56,13 +70,4 @@ struct VecLPG {
         _lpf1.setSampleRate(newSampleRate);
         _lpf2.setSampleRate(newSampleRate);
     }
-
-    __m128 __y;
-    __m128 __decay;
-    __m128 __sampleRate;
-    __m128 __zeros, __ones;
-    __m128 __cutoff, __maxCutoff;
-    __m128 __filterSwitch;
-    __m128 __output;
-    VecOnePoleLPFilter _lpf1, _lpf2;
 };

@@ -135,7 +135,9 @@ struct Terrorform : Module {
     };
 
     enum LightIds {
-        PERCUSSION_LIGHT,
+        PERCUSSION_RED_LIGHT,
+        PERCUSSION_GREEN_LIGHT,
+        PERCUSSION_BLUE_LIGHT,
         USER_BANK_LIGHT,
         LOAD_TABLE_LIGHT,
         TRIGGER_1_LIGHT,
@@ -188,17 +190,20 @@ struct Terrorform : Module {
     float numWavesInTable;
     __m128 __wave;
     __m128 __numWavesInTable;
-    float waveCV;
+    float waveCV1;
+    float waveCV2;
 
     float rootShapeDepth;
     float* shapes;
     __m128 __shape;
-    float shapeDepthCV;
+    float shapeDepthCV1;
+    float shapeDepthCV2;
 
     float rootDegradeDepth;
     float* degrades;
     __m128 __degrade;
-    float degradeDepthCV;
+    float degradeDepthCV1;
+    float degradeDepthCV2;
 
     int modBusTarget = 0;
 
@@ -206,14 +211,26 @@ struct Terrorform : Module {
     bool sync1IsMono, sync2IsMono;
     float* sync1;
     float* sync2;
-    __m128 __sync1, __sync2, __prevSync1, __prevSync2;
-    __m128 __sync1Pls, __sync2Pls;
+    __m128 __sync1, __sync2, __prevSync1, __prevSync2, __quarterPhase;
+    __m128 __sync1Pls, __sync2Pls, __weakSync1Flag, __weakSync2Flag;
     unsigned long syncChoice = 0;
+    int weakSync1Enable = 0;
+    int weakSync2Enable = 0;
+    bool weakSwitch1State = false;
+    bool weakSwitch2State = false;
+    bool prevWeakSwitch1State = false;
+    bool prevWeakSwitch2State = false;
 
     // Percussion
-    bool percMode;
-    __m128 __percMode;
-    bool trig1State, trig2State;
+    int percMode = 0;
+    bool percButtonState = false;
+    bool percButtonPrevState = false;
+    __m128 __percVCAMode;
+    __m128 __percFilterMode;
+
+    bool trig1ButtonState = false;
+    bool trig2ButtonState = false;
+
     float trig1, trig2;
     __m128 __trig1, __trig2;
     dsp::PulseGenerator trig1LightPulse, trig2LightPulse;
@@ -221,6 +238,7 @@ struct Terrorform : Module {
     float trigLightDurationSamples = trigLightDurationTime * 44100.f;
     VecLPG lpg[kMaxNumGroups];
     __m128 __decay;
+
 
     // FM
     bool fmA1IsMono, fmA2IsMono;
@@ -234,16 +252,22 @@ struct Terrorform : Module {
     float* fmB2;
     float* fmAVCA;
     float* fmBVCA;
+    float* trigger1;
+    float* trigger2;
     __m128 __fmA, __fmB, __fmSum;
     __m128 __fmAVCA, __fmBVCA;
     __m128 __fmA1Level, __fmA2Level, __fmB1Level, __fmB2Level;
     __m128 __fmAVCACV, __fmBVCACV;
+    __m128 __trigger1 , __trigger2;
 
-    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
+    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens, __quarters;
 
     int counter = 512;
 
     bool romIsLoading = false;
+
+    __m128 __a;
+    float* a;
 
     Terrorform();
     ~Terrorform();
@@ -404,7 +428,7 @@ struct TerrorformWidget : ModuleWidget {
     LightLEDButton3* percButton;
 
     MediumLight<RedLight>* lfoButtonLight;
-    LargeLight<RedLight>* percButtonLight;
+    LargeLight<RedGreenBlueLight>* percButtonLight;
 
     Vec percSwitchPos = Vec(150, 219);
     Vec trigSwitch1Pos = Vec(118, 282);

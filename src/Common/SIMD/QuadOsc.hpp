@@ -64,6 +64,7 @@ public:
     const __m128& getOutput() const;
     const __m128& getPhasor() const;
     const __m128& getEOCPulse() const;
+    const __m128& getDirection() const;
 
     void setWavetable(float* wavetable, long size);
     void setFrequency(float frequency);
