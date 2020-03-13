@@ -321,38 +321,38 @@ void QuadOsc::sync(const __m128& syncSource) {
         __dir = __ones;
     }
     else {
-        switch(_syncMode) {
-            case 0: hardSync(__syncSource);
+        switch((SyncModes) _syncMode) {
+            case HARD_SYNC: hardSync(__syncSource);
                 break;
-            case 1: fifthSync(__syncSource);
+            case FIFTH_SYNC: fifthSync(__syncSource);
                 break;
-            case 2: octaveSync(__syncSource);
+            case OCTAVE_SYNC: octaveSync(__syncSource);
                 break;
-            case 3: subOctaveSync(__syncSource);
+            case SUB_OCTAVE_SYNC: subOctaveSync(__syncSource);
                 break;
-            case 4: riseASync(__syncSource);
+            case RISE_A_SYNC: riseASync(__syncSource);
                 break;
-            case 5: riseBSync(__syncSource);
+            case RISE_B_SYNC: riseBSync(__syncSource);
                 break;
-            case 6: fallASync(__syncSource);
+            case FALL_A_SYNC: fallASync(__syncSource);
                 break;
-            case 7: fallBSync(__syncSource);
+            case FALL_B_SYNC: fallBSync(__syncSource);
                 break;
-            case 8: pullASync(__syncSource);
+            case PULL_A_SYNC: pullASync(__syncSource);
                 break;
-            case 9: pullBSync(__syncSource);
+            case PULL_B_SYNC: pullBSync(__syncSource);
                 break;
-            case 10: pushASync(__syncSource);
+            case PUSH_A_SYNC: pushASync(__syncSource);
                 break;
-            case 11: pushBSync(__syncSource);
+            case PUSH_B_SYNC: pushBSync(__syncSource);
                 break;
-            case 12: holdSync(__syncSource);
+            case HOLD_SYNC: holdSync(__syncSource);
                 break;
-            case 13: oneShot(__syncSource);
+            case ONE_SHOT_SYNC: oneShot(__syncSource);
                 break;
-            case 14: lockShot(__syncSource);
+            case LOCK_SHOT_SYNC: lockShot(__syncSource);
                 break;
-            case 15: reverseSync(__syncSource);
+            case REVERSE_SYNC: reverseSync(__syncSource);
                 break;
             default: hardSync(__syncSource);
         }
@@ -399,10 +399,6 @@ void QuadOsc::setFrequency(const __m128& frequency) {
     __frequency = frequency;
     __frequency = _mm_switch_ps(__frequency, __nyquist, _mm_cmpgt_ps(__frequency, __nyquist));
     calcStepSize();
-}
-
-void QuadOsc::setPhase(const __m128 &phase) {
-    __inputPhase = phase;
 }
 
 void QuadOsc::setShape(float shape) {

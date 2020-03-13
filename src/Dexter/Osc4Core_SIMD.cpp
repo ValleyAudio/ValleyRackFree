@@ -291,10 +291,10 @@ void FourVoiceOPCore::mix() {
     __op3Col = _mm_add_ps(__op3Col, __opExtFM[2]);
     __op4Col = _mm_add_ps(__op4Col, __opExtFM[3]);
 
-    _op[0].setPhase(_mm_mul_ps(__op1Col, _mm_set1_ps(2.5f)));
-    _op[1].setPhase(_mm_mul_ps(__op2Col, _mm_set1_ps(2.5f)));
-    _op[2].setPhase(_mm_mul_ps(__op3Col, _mm_set1_ps(2.5f)));
-    _op[3].setPhase(_mm_mul_ps(__op4Col, _mm_set1_ps(2.5f)));
+    _op[0].__inputPhase = _mm_mul_ps(__op1Col, _mm_set1_ps(2.5f));
+    _op[1].__inputPhase = _mm_mul_ps(__op2Col, _mm_set1_ps(2.5f));
+    _op[2].__inputPhase = _mm_mul_ps(__op3Col, _mm_set1_ps(2.5f));
+    _op[3].__inputPhase = _mm_mul_ps(__op4Col, _mm_set1_ps(2.5f));
 
     // Sync
     for(auto i = 0; i < kNumOperators; ++i) {

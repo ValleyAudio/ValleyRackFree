@@ -54,6 +54,28 @@ private:
 
 class QuadOsc {
 public:
+    __m128 __inputPhase;
+
+    enum SyncModes {
+        HARD_SYNC = 0,
+        FIFTH_SYNC,
+        OCTAVE_SYNC,
+        SUB_OCTAVE_SYNC,
+        RISE_A_SYNC,
+        RISE_B_SYNC,
+        FALL_A_SYNC,
+        FALL_B_SYNC,
+        PULL_A_SYNC,
+        PULL_B_SYNC,
+        PUSH_A_SYNC,
+        PUSH_B_SYNC,
+        HOLD_SYNC,
+        ONE_SHOT_SYNC,
+        LOCK_SHOT_SYNC,
+        REVERSE_SYNC,
+        NUM_SYNC_MODES
+    };
+
     QuadOsc();
     ~QuadOsc();
     virtual void tick();
@@ -70,7 +92,6 @@ public:
     void setFrequency(float frequency);
     void setFrequency(float f0, float f1, float f2, float f3);
     void setFrequency(const __m128& frequency);
-    void setPhase(const __m128& phase);
 
     void setShape(float shape);
     void setShape(const __m128& shape);
@@ -98,7 +119,7 @@ protected:
 
     __m128 __frequency, __samplerate, __nyquist;
 
-    __m128 __readPhase, __inputPhase, __negMask, __syncSource, __syncState, __syncing;
+    __m128 __readPhase, __negMask, __syncSource, __syncState, __syncing;
     __m128 __shifts;
     __m128i __shiftsI;
 
