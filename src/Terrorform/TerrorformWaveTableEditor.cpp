@@ -31,13 +31,16 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
 
     mainMenu->viewButton->onClick = [=]() {
-        onGetBankCallback(*selectedBank, viewPane->waveData);
+        //onGetBankCallback(*selectedBank, viewPane->waveData, viewPane->bankName);
+        onGetBankCallback(*selectedBank, viewPane->bank);
         mainMenu->hide();
         viewPane->view();
     };
 
     mainMenu->cloneButton->onClick = [=]() {
-        onGetBankCallback(*selectedBank, cloneMenu->sourcePage->waveData);
+        //onGetBankCallback(*selectedBank, cloneMenu->sourcePage->waveData, cloneMenu->bankName);
+        onGetBankCallback(*selectedBank, cloneMenu->bank);
+        onGetBankCallback(*selectedBank, cloneMenu->sourcePage->bank);
         mainMenu->hide();
         cloneMenu->view();
     };
@@ -225,6 +228,13 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
     exitButton->style.fontSize = buttonFontSize;
     purgeButton->style.fontSize = buttonFontSize;
 
+    editButton->setFilled(true);
+    defragButton->setFilled(true);
+    importButton->setFilled(true);
+    exportButton->setFilled(true);
+    exitButton->setFilled(true);
+    purgeButton->setFilled(true);
+
     defragButton->onClick = [=]() {
         onDefragmentCallback();
         title->hide();
@@ -337,8 +347,9 @@ void TFormEditor::addMoveBankCallback(const std::function<void(int, int)>& onMov
     editMenu->moveMenu->addMoveBankCallback(onMoveBankCallback);
 }
 
-void TFormEditor::addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback) {
+void TFormEditor::addGetBankCallback(const std::function<void(int, TerrorformWaveBank&)>& onGetBankCallback) {
     editMenu->onGetBankCallback = onGetBankCallback;
+    editMenu->mainMenu->onGetBankCallback = onGetBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {

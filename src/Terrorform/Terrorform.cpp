@@ -22,12 +22,12 @@ Terrorform::Terrorform() {
     configParam(Terrorform::SHAPE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 1");
     configParam(Terrorform::SHAPE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 2");
 
-    configParam(Terrorform::DEGRADE_TYPE_PARAM, 0.0, VecDegrader::VecDegraderModes::NUM_MODES - 1.f, 0.0, "Degrade Type");
-    configParam(Terrorform::DEGRADE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Degrade Depth");
-    configParam(Terrorform::DEGRADE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Degrade Type CV Atten. 1");
-    configParam(Terrorform::DEGRADE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Degrade Type CV Atten. 2");
-    configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Degrade Depth CV Atten. 1");
-    configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Degrade Depth CV Atten. 2");
+    configParam(Terrorform::DEGRADE_TYPE_PARAM, 0.0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1.f, 0.0, "Enhance Type");
+    configParam(Terrorform::DEGRADE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Enhance Depth");
+    configParam(Terrorform::DEGRADE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 1");
+    configParam(Terrorform::DEGRADE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 2");
+    configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 1");
+    configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 2");
 
     configParam(Terrorform::PERC_DECAY_PARAM, 0.0, 1.0, 0.5, "Perc Decay");
     configParam(Terrorform::PERC_VELOCITY_PARAM, 0.0, 1.0, 1.0, "Perc Velocity");
@@ -65,7 +65,7 @@ Terrorform::Terrorform() {
     rootWave = 0.f;
     numWavesInTable = 1.f;
     rootShapeDepth = 0.f;
-    rootDegradeDepth = 0.f;
+    rootEnhanceDepth = 0.f;
 
     __zeros = _mm_set1_ps(0.f);
     __ones = _mm_set1_ps(1.f);
@@ -134,15 +134,15 @@ void Terrorform::process(const ProcessArgs &args) {
     if(counter > 512) {
         rootBank = (int)params[BANK_PARAM].getValue();
         rootShapeType = (int)params[SHAPE_TYPE_PARAM].getValue();
-        rootDegradeType = (int)params[DEGRADE_TYPE_PARAM].getValue();
+        rootEnhanceType = (int)params[DEGRADE_TYPE_PARAM].getValue();
 
         bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f);
         shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f);
-        degradeType = rootDegradeType + (int)(inputs[DEGRADE_TYPE_INPUT_1].getVoltage() * params[DEGRADE_TYPE_CV_1_PARAM].getValue() * 0.2f);
+        degradeType = rootEnhanceType + (int)(inputs[DEGRADE_TYPE_INPUT_1].getVoltage() * params[DEGRADE_TYPE_CV_1_PARAM].getValue() * 0.2f);
 
         bank = clamp(bank, 0, NUM_TERRORFORM_WAVETABLES - 1);
         shapeType = clamp(shapeType, 0, 11);
-        degradeType = clamp(degradeType, 0, VecDegrader::VecDegraderModes::NUM_MODES - 1);
+        degradeType = clamp(degradeType, 0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
 
         prevUserWavesButtonState = userWavesButtonState;
         userWavesButtonState = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
@@ -264,7 +264,7 @@ void Terrorform::process(const ProcessArgs &args) {
     rootPitch += params[FINE_PARAM].getValue();
     rootWave = params[WAVE_PARAM].getValue();
     rootShapeDepth = params[SHAPE_DEPTH_PARAM].getValue();
-    rootDegradeDepth = params[DEGRADE_DEPTH_PARAM].getValue();
+    rootEnhanceDepth = params[DEGRADE_DEPTH_PARAM].getValue();
 
     pitchCV1 = params[VOCT_1_CV_PARAM].getValue();
     pitchCV2 = params[VOCT_2_CV_PARAM].getValue();
@@ -290,7 +290,7 @@ void Terrorform::process(const ProcessArgs &args) {
         shapes[i] += inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV1 * 0.1f;
         shapes[i] += inputs[SHAPE_DEPTH_INPUT_2].getPolyVoltage(i) * shapeDepthCV2 * 0.1f;
 
-        degrades[i] = rootDegradeDepth;
+        degrades[i] = rootEnhanceDepth;
         degrades[i] += inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV1 * 0.1f;
         degrades[i] += inputs[DEGRADE_DEPTH_INPUT_2].getPolyVoltage(i) * degradeDepthCV2 * 0.1f;
     }
@@ -363,6 +363,8 @@ void Terrorform::process(const ProcessArgs &args) {
         __shape = _mm_load_ps(shapes);
         __degrade = _mm_load_ps(degrades);
 
+        __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
+
         __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
@@ -370,7 +372,7 @@ void Terrorform::process(const ProcessArgs &args) {
         lpg[c].setDecay(__decay);
 
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
-        osc[c].setPhase(__fmSum);
+        osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
         osc[c].setFrequency(__freq);
         osc[c].mm_setScanPosition(__wave);
         osc[c].setShape(__shape);
@@ -381,22 +383,27 @@ void Terrorform::process(const ProcessArgs &args) {
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
         degrader[c].insertAuxSignal(__phasorOutput[c]);
         __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
-        __preDegradeOutput[c] = osc[c].getOutput();
+        __preEnhanceOutput[c] = osc[c].getOutput();
 
-        __mainOutput[c] = degrader[c].process(__preDegradeOutput[c], __degrade);
-        __preDegradeOutput[c] = _mm_mul_ps(__preDegradeOutput[c], __fives);
+        __mainOutput[c] = degrader[c].process(__preEnhanceOutput[c], __degrade);
+        __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
         __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
 
         // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__vcaOutput, __percVCAMode);
         // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__filterOutput, __percFilterMode);
 
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), lpg[c].__env);
-        _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preDegradeOutput[c]);
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
+        _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
     }
+
+    outputs[ENVELOPE_OUTPUT].setChannels(kMaxNumGroups * 4);
+    outputs[PRE_DEGRADE_OUTPUT].setChannels(kMaxNumGroups * 4);
+    outputs[PHASOR_OUTPUT].setChannels(kMaxNumGroups * 4);
+    outputs[END_OF_CYCLE_OUTPUT].setChannels(kMaxNumGroups * 4);
     outputs[MAIN_OUTPUT].setChannels(kMaxNumGroups * 4);
 }
 
@@ -412,7 +419,9 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
+    json_object_set_new(rootJ, "fmMode", json_integer(fmMode));
     json_object_set_new(rootJ, "percMode", json_integer(percMode));
+    json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -444,15 +453,22 @@ json_t* Terrorform::dataToJson()  {
 
 void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
-    panelStyle = json_integer_value(panelStyleJ);
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
-    displayStyle = json_integer_value(displayStyleJ);
+    json_t *fmModeJ = json_object_get(rootJ, "fmMode");
     json_t *percModeJ = json_object_get(rootJ, "percMode");
+    json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
+    panelStyle = json_integer_value(panelStyleJ);
+    displayStyle = json_integer_value(displayStyleJ);
+    fmMode = json_integer_value(fmModeJ);
     percMode = json_integer_value(percModeJ);
+    syncChoice = json_integer_value(syncChoiceJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
+    fmMode = fmMode > 1 ? 1 : fmMode;
+    trueFMEnabled = fmMode == 1;
     percMode = percMode > 3 ? 3 : percMode;
+    syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
 
     int destBank;
     int numWaves;
@@ -469,6 +485,10 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
         destBank = json_integer_value(destBankJ);
         numWaves = (int) json_array_size(tableJ);
+        if (numWaves > 64) {
+            numWaves = 64;
+        }
+
         userWaveTableNames[bank] = std::string(json_string_value(nameJ));
         if (numWaves) {
             userWaveTableSizes[destBank] = numWaves;
@@ -565,6 +585,16 @@ void TerrorformDisplayStyleItem::step() {
     MenuItem::step();
 }
 
+void TerrorformFMModeItem::onAction(const event::Action &e) {
+    module->fmMode = fmMode;
+    module->trueFMEnabled = fmMode == 1;
+}
+
+void TerrorformFMModeItem::step() {
+    rightText = (module->fmMode == fmMode) ? "✔" : "";
+    MenuItem::step();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
@@ -621,7 +651,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(phasorOutPos, module, Terrorform::PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MDarkSmallOut>(preDegradePos, module, Terrorform::PRE_DEGRADE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(preEnhancePos, module, Terrorform::PRE_DEGRADE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(subOutPos, module, Terrorform::SUB_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
 
@@ -820,7 +850,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(shapeDepthBlurText2);
     addChild(shapeDepthText);
 
-    // Degrade Text
+    // Enhance Text
 
     degradeTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : degradeNames[0]);
     degradeBlurText = new DynamicText;
@@ -1189,12 +1219,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->clearBank(bankNum);
     });
 
-    editor->addGetBankCallback([=](int bank, std::vector<std::vector<float>>& data) {
-        data.resize(module->userWaveTableSizes[bank]);
-        for (int i = 0; i < data.size(); ++i) {
-            data[i].resize(TFORM_MAX_WAVELENGTH);
-            memcpy(data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
+    editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
+        waveBank.data.resize(module->userWaveTableSizes[bank]);
+        for (int i = 0; i < waveBank.data.size(); ++i) {
+            waveBank.data[i].resize(TFORM_MAX_WAVELENGTH);
+            memcpy(waveBank.data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
         }
+        waveBank.name = module->userWaveTableNames[bank];
     });
 
     editor->addCloneBankCallback([=](int sourceBank, int destBank, int startWave, int endWave) {
@@ -1235,6 +1266,13 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
                                                       module, &TerrorformDisplayStyleItem::displayStyle, 3));
     menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "White LED", &TerrorformDisplayStyleItem::module,
                                                       module, &TerrorformDisplayStyleItem::displayStyle, 4));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "FM Mode"));
+    menu->addChild(construct<TerrorformFMModeItem>(&MenuItem::text, "DX Style Phase Modulation", &TerrorformFMModeItem::module,
+                                                    module, &TerrorformFMModeItem::fmMode, 0));
+    menu->addChild(construct<TerrorformFMModeItem>(&MenuItem::text, "\"True\" Modulation", &TerrorformFMModeItem::module,
+                                                    module, &TerrorformFMModeItem::fmMode, 1));
  }
 
 void TerrorformWidget::step() {
@@ -1269,7 +1307,11 @@ void TerrorformWidget::step() {
             editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
         }
 
-        *syncStr = syncNames[(unsigned long)dynamic_cast<Terrorform*>(module)->syncChoice];
+        int syncChoice = (int)dynamic_cast<Terrorform*>(module)->syncChoice;
+        *syncStr = syncNames[syncChoice];
+        if (syncMenu->_choice != syncChoice) {
+            syncMenu->_choice = syncChoice;
+        }
     }
     Widget::step();
 }

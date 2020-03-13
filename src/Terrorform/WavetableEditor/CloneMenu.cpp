@@ -43,14 +43,19 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
 
     onView = [=] {
         *startWave->choice = 0;
-        *endWave->choice = waveData.size() - 1;
+        *endWave->choice = bank.data.size() - 1;
     };
 }
 
 void TFormCloneMenuSourcePage::step() {
     int j = 0;
+
+    if(bank.data.size() == 0) {
+        return;
+    }
+    
     for (unsigned long i = *startWave->choice; i <= *endWave->choice; ++i) {
-        memcpy(&waveDisplay->waveData[j], waveData[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+        memcpy(&waveDisplay->waveData[j], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
         ++j;
     }
     waveDisplay->numWaves = *endWave->choice - *startWave->choice + 1;
@@ -194,8 +199,11 @@ void TFormCloneMenuDestPage::setSlotFilledFlag(int slot, bool isFilled) {
     if(slot >= 0 && slot < TFORM_EDITOR_SLOTS) {
         int row = slot / TFORM_EDITOR_ROWS;
         int col = slot % TFORM_EDITOR_COLS;
-        (*slotFilled)[slot] = isFilled;
-        grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        if ((*slotFilled)[slot] != isFilled) {
+            (*slotFilled)[slot] = isFilled;
+            grid->slotButton[row][col]->setFilled(isFilled);
+            grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        }
     }
 }
 

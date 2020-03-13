@@ -142,8 +142,11 @@ void TFormMoveMenuDestPage::setSlotFilledFlag(int slot, bool isFilled) {
     if(slot >= 0 && slot < TFORM_EDITOR_SLOTS) {
         int row = slot / TFORM_EDITOR_ROWS;
         int col = slot % TFORM_EDITOR_COLS;
-        (*slotFilled)[slot] = isFilled;
-        grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        if ((*slotFilled)[slot] != isFilled) {
+            (*slotFilled)[slot] = isFilled;
+            grid->slotButton[row][col]->setFilled(isFilled);
+            grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        }
     }
 }
 

@@ -10,6 +10,7 @@
 #include "WavetableEditor/ViewPane.hpp"
 #include "WavetableEditor/LoadMenu.hpp"
 #include "WavetableEditor/MainMenu.hpp"
+#include "TerrorformWaveBank.hpp"
 
 struct TFormEditorBankEditMenu : OpaqueWidget {
     TFormEditMainMenu* mainMenu;
@@ -22,7 +23,7 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     std::vector<bool> slotFilled;
 
     std::function<std::shared_ptr<std::vector<std::vector<float>>>()> onLoadWAVCallback;
-    std::function<void(int, std::vector<std::vector<float>>&)> onGetBankCallback;
+    std::function<void(int, TerrorformWaveBank&)> onGetBankCallback;
 
     std::shared_ptr<Font> font;
 
@@ -86,7 +87,7 @@ struct TFormEditor : OpaqueWidget {
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int, int, int, int)>& onCloneBankCallback);
     void addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback);
-    void addGetBankCallback(const std::function<void(int, std::vector<std::vector<float>>&)>& onGetBankCallback);
+    void addGetBankCallback(const std::function<void(int, TerrorformWaveBank&)>& onGetBankCallback);
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
     void addDefragmentCallback(const std::function<void()>& onDefragmentCallback);

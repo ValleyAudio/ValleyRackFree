@@ -6,9 +6,9 @@
 #include "../Common/SIMD/VecNonLinear.hpp"
 #include "../Common/Utilities.hpp"
 
-class VecDegrader {
+class VecEnhancer {
 public:
-    enum VecDegraderModes {
+    enum VecEnhancerModes {
         BITCRUSH_MODE,
         QUANTIZE_MODE,
         BIT_AND_MODE,
@@ -25,7 +25,7 @@ public:
         NUM_MODES
     };
 
-    VecDegrader() {
+    VecEnhancer() {
         __zeros = _mm_set1_ps(0.f);
         __ones = _mm_set1_ps(1.f);
         __twos = _mm_set1_ps(2.f);
@@ -63,19 +63,19 @@ public:
         }
         setSampleRate(44100.f);
 
-        p[BITCRUSH_MODE] = &VecDegrader::bitCrush;
-        p[QUANTIZE_MODE] = &VecDegrader::quantize;
-        p[BIT_AND_MODE] = &VecDegrader::bitAND;
-        p[BIT_XOR_MODE] = &VecDegrader::bitXOR;
-        p[BIT_AND_FLOAT_MODE] = &VecDegrader::bitANDFloat;
-        p[OVERDRIVE_MODE] = &VecDegrader::overdrive;
-        p[MULTIPLY_MODE] = &VecDegrader::multiply;
-        p[GRAIN_MODE] = &VecDegrader::grain;
-        p[FOLD_MODE] = &VecDegrader::fold;
-        p[CHEBYSHEV_MODE] = &VecDegrader::chebyshev;
-        //p[WRAP_MODE] = &VecDegrader::wrap;
-        p[MIRROR_MODE] = &VecDegrader::mirror;
-        p[SUB_MODE] = &VecDegrader::sub;
+        p[BITCRUSH_MODE] = &VecEnhancer::bitCrush;
+        p[QUANTIZE_MODE] = &VecEnhancer::quantize;
+        p[BIT_AND_MODE] = &VecEnhancer::bitAND;
+        p[BIT_XOR_MODE] = &VecEnhancer::bitXOR;
+        p[BIT_AND_FLOAT_MODE] = &VecEnhancer::bitANDFloat;
+        p[OVERDRIVE_MODE] = &VecEnhancer::overdrive;
+        p[MULTIPLY_MODE] = &VecEnhancer::multiply;
+        p[GRAIN_MODE] = &VecEnhancer::grain;
+        p[FOLD_MODE] = &VecEnhancer::fold;
+        p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
+        //p[WRAP_MODE] = &VecEnhancer::wrap;
+        p[MIRROR_MODE] = &VecEnhancer::mirror;
+        p[SUB_MODE] = &VecEnhancer::sub;
 
     }
 
@@ -117,7 +117,7 @@ private:
         __stepSize = _mm_mul_ps(_internalSampleRate, _engineSampleTime);
     }
 
-    __m128 (VecDegrader::*p[NUM_MODES])(const __m128& x, const __m128& param);
+    __m128 (VecEnhancer::*p[NUM_MODES])(const __m128& x, const __m128& param);
 
     __m128 bitCrush(const __m128& x, const __m128& param) {
         __counter = _mm_add_ps(__counter, __stepSize);

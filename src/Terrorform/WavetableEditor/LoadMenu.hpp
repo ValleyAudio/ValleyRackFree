@@ -51,6 +51,8 @@ struct TFormLoadMenu : TFormMenu {
     int selectedWave;
 
     PlainText* nameFieldLabel;
+    PlainText* startWaveFieldLabel;
+    PlainText* endWaveFieldLabel;
     TFormTextField* nameField;
     TFormNumberField* startWaveField;
     TFormNumberField* endWaveField;

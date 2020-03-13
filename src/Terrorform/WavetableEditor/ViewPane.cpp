@@ -4,6 +4,7 @@ TFormWaveViewPane::TFormWaveViewPane() {
     box.size = Vec(238, 195);
 
     backButton = createNewMenuButton("Back", NULL, box.size.x - buttonWidth - 3, 3, buttonWidth, buttonHeight);
+    backButton->setFilled(true);
     backButton->onClick = [=] {
         exit();
     };
@@ -47,9 +48,9 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
 
 void TFormWaveViewPane::step() {
     selectedBankText->text = "Viewing wave " + std::to_string(selectedWave) + " in bank " + std::to_string(*selectedBank + 1);
-    waveDisplay->numWaves = waveData.size();
-    for (int i = 0; i < waveData.size(); ++i) {
-        memcpy(&waveDisplay->waveData[i], waveData[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+    waveDisplay->numWaves = bank.data.size();
+    for (int i = 0; i < bank.data.size(); ++i) {
+        memcpy(&waveDisplay->waveData[i], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
     }
     selectedWave = waveDisplay->selectedWave;
     Widget::step();

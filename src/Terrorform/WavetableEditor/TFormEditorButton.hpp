@@ -39,9 +39,6 @@ struct TFormEditorButton : public OpaqueWidget {
     TFormEditorButtonStyleSet style;
     std::string text;
     Vec textOffset;
-
-    bool isEnabled;
-    bool isHighlighted;
     bool respondToMouse;
 
     std::function<void()> onClick;
@@ -54,13 +51,25 @@ struct TFormEditorButton : public OpaqueWidget {
     void applyStyle(const TFormEditorButtonStyleSet& newStyle);
     void setEnable(bool enable);
     void setHighlight(bool highlight);
-private:
+    void setFilled(bool filled);
+protected:
     TFormEditorButtonColors colors;
+    bool isEnabled;
+    bool isHighlighted;
+    bool isFilled;
     void setMode(const TFormEditorButtonModes& newMode);
 };
 
-TFormEditorButton* createNewMenuButton(const std::string& text,
-                                       const std::function<void()>& onClickCallback,
-                                       int x, int y, int width, int height);
+template<class T = TFormEditorButton>
+T* createNewMenuButton(const std::string& text,
+                       const std::function<void()>& onClickCallback,
+                       int x, int y, int width, int height) {
+    T* newButton = createWidget<T>(Vec(x, y));
+    newButton->text = text;
+    newButton->box.size.x = width;
+    newButton->box.size.y = height;
+    newButton->onClick = onClickCallback;
+    return newButton;
+}
 
 #endif

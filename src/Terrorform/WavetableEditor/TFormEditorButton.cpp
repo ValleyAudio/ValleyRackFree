@@ -46,10 +46,24 @@ TFormEditorButton::TFormEditorButton() {
 }
 
 void TFormEditorButton::draw(const DrawArgs& args) {
-    nvgBeginPath(args.vg);
-    nvgFillColor(args.vg, colors.bgColor);
-    nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-    nvgFill(args.vg);
+    if (isFilled) {
+        nvgBeginPath(args.vg);
+        nvgFillColor(args.vg, colors.bgColor);
+        nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+        nvgFill(args.vg);
+    }
+    else {
+        nvgBeginPath(args.vg);
+        nvgFillColor(args.vg, nvgRGB(0, 0, 0));
+        nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+        nvgFill(args.vg);
+
+        nvgBeginPath(args.vg);
+        nvgStrokeColor(args.vg, colors.bgColor);
+        nvgStrokeWidth(args.vg, 2.0);
+        nvgRect(args.vg, 3, 3, box.size.x - 6, box.size.y - 6);
+        nvgStroke(args.vg);
+    }
 
     nvgBeginPath(args.vg);
     nvgStrokeColor(args.vg, colors.borderColor);
@@ -135,6 +149,14 @@ void TFormEditorButton::setHighlight(bool highlight) {
         return;
     }
     isHighlighted = highlight;
+    setMode(mode);
+}
+
+void TFormEditorButton::setFilled(bool filled) {
+    if(isFilled == filled) {
+        return;
+    }
+    isFilled = filled;
     setMode(mode);
 }
 

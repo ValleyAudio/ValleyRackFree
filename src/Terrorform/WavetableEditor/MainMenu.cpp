@@ -3,17 +3,26 @@
 TFormEditMainMenu::TFormEditMainMenu() {
     box.size = Vec(238, 195);
     loadButton = createNewMenuButton("Load", NULL, buttonOffset, 21, buttonWidth, buttonHeight);
+    loadButton->setFilled(true);
     addChild(loadButton);
     clearButton = createNewMenuButton("Clear", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
+    clearButton->setFilled(true);
     addChild(clearButton);
     viewButton = createNewMenuButton("View", NULL, buttonWidth * 2 + buttonOffset * 3, 21, buttonWidth, buttonHeight);
+    viewButton->setFilled(true);
     addChild(viewButton);
     cloneButton = createNewMenuButton("Clone", NULL, buttonWidth * 3 + buttonOffset * 4, 21, buttonWidth, buttonHeight);
+    cloneButton->setFilled(true);
     addChild(cloneButton);
     moveButton = createNewMenuButton("Move", NULL, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
+    moveButton->setFilled(true);
     addChild(moveButton);
     backButton = createNewMenuButton("Back", NULL, buttonWidth * 4 + buttonOffset * 5, 3, buttonWidth, buttonHeight);
+    backButton->setFilled(true);
     addChild(backButton);
+
+    bankName = createWidget<PlainText>(Vec(70, 5));
+    addChild(bankName);
 
     // Slots grid
 
@@ -40,6 +49,10 @@ TFormEditMainMenu::TFormEditMainMenu() {
         for (int col = 0; col < TFORM_EDITOR_COLS; ++col) {
             auto selectBank = [=]() {
                 *selectedBank = id;
+                if (onGetBankCallback) {
+                    onGetBankCallback(*selectedBank, bank);
+                    printf("Selected %d, %s\n", *selectedBank, bank.name.c_str());
+                }
             };
             grid->slotButton[row][col]->onClick = selectBank;
             grid->slotButton[row][col]->text = std::to_string(id + 1);
@@ -69,7 +82,8 @@ void TFormEditMainMenu::step() {
 
 void TFormEditMainMenu::draw(const DrawArgs& args) {
     std::string strSelectedBank = "Bank: " + std::to_string(*selectedBank + 1);
-    std::string strFilled = "Filled";
+    strSelectedBank += ", " + bank.name;
+    //std::string strFilled = bank.name; //"Filled";
     nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
     nvgFontFaceId(args.vg, font->handle);
     nvgTextLetterSpacing(args.vg, 0.0);
@@ -77,14 +91,16 @@ void TFormEditMainMenu::draw(const DrawArgs& args) {
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
 
-    if(selectedBankIsFilled) {
-        nvgFillColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.0);
-        nvgFontSize(args.vg, 12);
-        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-        nvgText(args.vg, 55, 5, strFilled.c_str(), NULL);
-    }
+
+
+    // if(selectedBankIsFilled) {
+    //     nvgFillColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
+    //     nvgFontFaceId(args.vg, font->handle);
+    //     nvgTextLetterSpacing(args.vg, 0.0);
+    //     nvgFontSize(args.vg, 12);
+    //     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    //     nvgText(args.vg, 55, 5, strFilled.c_str(), NULL);
+    // }
 
     Widget::draw(args);
 }
@@ -93,7 +109,18 @@ void TFormEditMainMenu::setSlotFilledFlag(int slot, bool isFilled) {
     if(slot >= 0 && slot < TFORM_EDITOR_SLOTS) {
         int row = slot / TFORM_EDITOR_ROWS;
         int col = slot % TFORM_EDITOR_COLS;
-        slotFilled[slot] = isFilled;
-        grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        if (slotFilled[slot] != isFilled) {
+            slotFilled[slot] = isFilled;
+            grid->slotButton[row][col]->setFilled(isFilled);
+            grid->slotButton[row][col]->applyStyle(isFilled ? filledSlotStyle : emptySlotStyle);
+        }
     }
+}
+
+void TFormEditMainMenu::onShow(const event::Show& e) {
+    if (onGetBankCallback) {
+        onGetBankCallback(*selectedBank, bank);
+        printf("Selected %d, %s\n", *selectedBank, bank.name.c_str());
+    }
+    recurseEvent(&Widget::onShow, e);
 }

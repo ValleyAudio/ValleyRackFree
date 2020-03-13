@@ -7,7 +7,9 @@ TFormTextField::TFormTextField() {
 }
 
 void TFormTextField::draw(const DrawArgs& args) {
-    nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+    //nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+    float undersize = 0;
+
     // Text
     if (font->handle >= 0) {
         bndSetFont(font->handle);
@@ -16,10 +18,13 @@ void TFormTextField::draw(const DrawArgs& args) {
         highlightColor.a = 0.5;
         int begin = std::min(cursor, selection);
         int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
+
         if (text.size() > 9) {
             text = text.substr(0, 9);
         }
-        bndIconLabelCaret(args.vg, 0, -2,  box.size.x, box.size.y,
+        // box.size.x = bndLabelWidth(args.vg, -1, "--------");
+        // undersize = box.size.x - bndLabelWidth(args.vg, -1, "-------");
+        bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
                           -1, color, 12, text.c_str(), highlightColor, begin, end);
         bndSetFont(APP->window->uiFont->handle);
     }
@@ -27,11 +32,14 @@ void TFormTextField::draw(const DrawArgs& args) {
     nvgBeginPath(args.vg);
     nvgStrokeColor(args.vg, color);
     nvgStrokeWidth(args.vg, 1.0);
-    nvgMoveTo(args.vg, 0, box.size.y);
+    nvgMoveTo(args.vg, 0, 0);
+    nvgLineTo(args.vg, box.size.x, 0);
     nvgLineTo(args.vg, box.size.x, box.size.y);
+    nvgLineTo(args.vg, 0, box.size.y);
+    nvgLineTo(args.vg, 0, 0);
     nvgStroke(args.vg);
 
-    nvgResetScissor(args.vg);
+    //nvgResetScissor(args.vg);
     Widget::draw(args);
 }
 
@@ -51,7 +59,9 @@ TFormNumberField::TFormNumberField() {
 }
 
 void TFormNumberField::draw(const DrawArgs& args) {
-    nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+    //nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+    float undersize = 0;
+
     // Text
     if (font->handle >= 0) {
         bndSetFont(font->handle);
@@ -64,8 +74,7 @@ void TFormNumberField::draw(const DrawArgs& args) {
         if (text.size() > 2) {
             text = text.substr(0, 2);
         }
-
-        bndIconLabelCaret(args.vg, 0, -2,  box.size.x, box.size.y,
+        bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
                           -1, color, 12, text.c_str(), highlightColor, begin, end);
         bndSetFont(APP->window->uiFont->handle);
     }
@@ -73,11 +82,14 @@ void TFormNumberField::draw(const DrawArgs& args) {
     nvgBeginPath(args.vg);
     nvgStrokeColor(args.vg, color);
     nvgStrokeWidth(args.vg, 1.0);
-    nvgMoveTo(args.vg, 0, box.size.y);
+    nvgMoveTo(args.vg, 0, 0);
+    nvgLineTo(args.vg, box.size.x, 0);
     nvgLineTo(args.vg, box.size.x, box.size.y);
+    nvgLineTo(args.vg, 0, box.size.y);
+    nvgLineTo(args.vg, 0, 0);
     nvgStroke(args.vg);
 
-    nvgResetScissor(args.vg);
+    //nvgResetScissor(args.vg);
     Widget::draw(args);
 }
 
@@ -139,19 +151,6 @@ void TFormNumberField::updateText(const std::string& newText) {
 
 TFormLoadMenu::TFormLoadMenu() {
     box.size = Vec(238, 195);
-    // startWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(buttonWidth + buttonOffset * 2, 20));
-    // startWaveChoice->range = 64;
-    // startWaveChoice->box.size.x = 28;
-    // startWaveChoice->box.size.y = 15;
-    // startWaveChoice->visible = false;
-    // addChild(startWaveChoice);
-    //
-    // endWaveChoice = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
-    // endWaveChoice->range = 64;
-    // endWaveChoice->box.size.x = 28;
-    // endWaveChoice->box.size.y = 15;
-    // endWaveChoice->visible = false;
-    // addChild(endWaveChoice);
 
     ingestNewTable = [=](int startWave, int endWave) {
         onIngestTableCallback(*selectedBank, startWave, endWave, nameField->getText());
@@ -159,7 +158,7 @@ TFormLoadMenu::TFormLoadMenu() {
     };
 
     auto triggerIngest = [=]() {
-        ingestNewTable(startWaveField->value - 1, endWaveField->value);
+        ingestNewTable(startWaveField->value - 1, endWaveField->value - 1);
     };
 
     cancelButton = createNewMenuButton("Cancel", NULL, buttonWidth * 4 + buttonOffset * 5, 3, buttonWidth, buttonHeight);
@@ -182,7 +181,7 @@ TFormLoadMenu::TFormLoadMenu() {
 
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 
-    nameFieldLabel = createWidget<PlainText>(Vec(buttonOffset, 5));
+    nameFieldLabel = createWidget<PlainText>(Vec(5, 5));
     nameFieldLabel->box.size.x = buttonWidth;
     nameFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
     nameFieldLabel->size = 12;
@@ -190,13 +189,29 @@ TFormLoadMenu::TFormLoadMenu() {
     nameFieldLabel->text = "Name:";
     addChild(nameFieldLabel);
 
-    nameField = createWidget<TFormTextField>(Vec(buttonWidth + buttonOffset * 2, 3));
-    nameField->box.size.x = buttonWidth * 2 + buttonOffset;
+    nameField = createWidget<TFormTextField>(Vec(40, 3));
+    nameField->box.size.x = 69;
     nameField->box.size.y = buttonHeight;
     addChild(nameField);
 
-    startWaveField = createWidget<TFormNumberField>(Vec(buttonOffset, 21));
-    startWaveField->box.size.x = buttonWidth / 2;
+    startWaveFieldLabel = createWidget<PlainText>(Vec(5, 22));
+    startWaveFieldLabel->box.size.x = buttonWidth;
+    startWaveFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    startWaveFieldLabel->size = 12;
+    startWaveFieldLabel->horzAlignment = NVG_ALIGN_LEFT;
+    startWaveFieldLabel->text = "Start:";
+    addChild(startWaveFieldLabel);
+
+    endWaveFieldLabel = createWidget<PlainText>(Vec(65, 22));
+    endWaveFieldLabel->box.size.x = buttonWidth;
+    endWaveFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    endWaveFieldLabel->size = 12;
+    endWaveFieldLabel->horzAlignment = NVG_ALIGN_LEFT;
+    endWaveFieldLabel->text = "End:";
+    addChild(endWaveFieldLabel);
+
+    startWaveField = createWidget<TFormNumberField>(Vec(40, 21));
+    startWaveField->box.size.x = 20;
     startWaveField->box.size.y = buttonHeight;
     startWaveField->setValue(1);
     startWaveField->onChangeCallback = [=]() {
@@ -205,8 +220,8 @@ TFormLoadMenu::TFormLoadMenu() {
     };
     addChild(startWaveField);
 
-    endWaveField = createWidget<TFormNumberField>(Vec(buttonWidth + buttonOffset * 2, 21));
-    endWaveField->box.size.x = buttonWidth / 2;
+    endWaveField = createWidget<TFormNumberField>(Vec(89, 21));
+    endWaveField->box.size.x = 20;
     endWaveField->box.size.y = buttonHeight;
     endWaveField->setValue(64);
     endWaveField->onChangeCallback = [=]() {
@@ -216,6 +231,7 @@ TFormLoadMenu::TFormLoadMenu() {
     addChild(endWaveField);
 
     onView = [=]() {
+        nameField->text = "Untitled";
         startWaveField->setValue(1);
         endWaveField->setValue(64);
     };
@@ -230,8 +246,6 @@ void TFormLoadMenu::draw(const DrawArgs& args) {
     nvgFontSize(args.vg, 12);
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     //nvgText(args.vg, 5, 5, strDetectedWaves.c_str(), NULL);
-    //nvgText(args.vg, 5, 21, "Start:", NULL);
-    //nvgText(args.vg, 80, 21, "End:", NULL);
 
     // Horizontal bar
     nvgBeginPath(args.vg);

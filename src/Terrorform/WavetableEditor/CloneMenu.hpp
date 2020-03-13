@@ -2,6 +2,7 @@
 #define TFORM_EDITOR_CLONE_MENU_HPP
 #include "MenuBase.hpp"
 #include "QuestionMenu.hpp"
+#include "../TerrorformWaveBank.hpp"
 
 struct TFormCloneMenuSourcePage : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
@@ -16,6 +17,7 @@ struct TFormCloneMenuSourcePage : TFormMenu {
 
     std::vector<std::vector<float>> waveData;
     std::shared_ptr<int> sourceBank;
+    TerrorformWaveBank bank;
 
     TFormCloneMenuSourcePage();
     void step() override;
@@ -50,6 +52,9 @@ struct TFormCloneMenu : TFormMenu {
     TFormQuestionMenu *overwriteMenu;
     PlainText* cloneDoneText;
     int counter;
+    std::string bankName;
+
+    TerrorformWaveBank bank;
 
     std::shared_ptr<std::vector<bool>> slotFilled;
     std::shared_ptr<int> sourceBank;

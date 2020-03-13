@@ -1,6 +1,7 @@
 #ifndef TFORM_EDITOR_VIEW_PANE_HPP
 #define TFORM_EDITOR_VIEW_PANE_HPP
 #include "MenuBase.hpp"
+#include "../TerrorformWaveBank.hpp"
 
 struct TFormWaveViewPane : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
@@ -11,6 +12,9 @@ struct TFormWaveViewPane : TFormMenu {
     float waveSliderPos;
     std::shared_ptr<int> selectedBank;
     int selectedWave = 0;
+    std::string bankName;
+
+    TerrorformWaveBank bank;
 
     std::vector<std::vector<float>> waveData;
 

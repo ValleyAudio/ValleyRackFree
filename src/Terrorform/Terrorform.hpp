@@ -33,7 +33,8 @@
 #include "../../dep/dr_wav.h"
 #include "TerrorformWavetableROM.hpp"
 #include "TerrorformWaveTableEditor.hpp"
-#include "Degrader.hpp"
+#include "TerrorformWaveBank.hpp"
+#include "Enhancer.hpp"
 #include "osdialog.h"
 #include <cstdio>
 #include <fstream>
@@ -165,16 +166,16 @@ struct Terrorform : Module {
 
     // Outputs
     __m128 __mainOutput[kMaxNumGroups];
-    __m128 __preDegradeOutput[kMaxNumGroups];
+    __m128 __preEnhanceOutput[kMaxNumGroups];
     __m128 __phasorOutput[kMaxNumGroups];
     __m128 __eocOutput[kMaxNumGroups];
 
-    VecDegrader degrader[4];
+    VecEnhancer degrader[4];
     FreqLUT freqLUT;
 
     int rootBank;
     int rootShapeType;
-    int rootDegradeType;
+    int rootEnhanceType;
     int bank;
     int shapeType;
     int degradeType;
@@ -199,7 +200,7 @@ struct Terrorform : Module {
     float shapeDepthCV1;
     float shapeDepthCV2;
 
-    float rootDegradeDepth;
+    float rootEnhanceDepth;
     float* degrades;
     __m128 __degrade;
     float degradeDepthCV1;
@@ -239,8 +240,9 @@ struct Terrorform : Module {
     VecLPG lpg[kMaxNumGroups];
     __m128 __decay;
 
-
     // FM
+    int fmMode = 0;
+    bool trueFMEnabled = false;
     bool fmA1IsMono, fmA2IsMono;
     bool fmB1IsMono, fmB2IsMono;
     bool fmAVCAIsMono, fmBVCAIsMono;
@@ -295,6 +297,13 @@ struct TerrorformPanelStyleItem : MenuItem {
 struct TerrorformDisplayStyleItem : MenuItem {
     Terrorform* module;
     int displayStyle;
+    void onAction(const event::Action &e) override;
+    void step() override;
+};
+
+struct TerrorformFMModeItem : MenuItem {
+    Terrorform* module;
+    int fmMode;
     void onAction(const event::Action &e) override;
     void step() override;
 };
@@ -491,7 +500,7 @@ struct TerrorformWidget : ModuleWidget {
     Vec phasorOutPos = Vec(70, 330);
     Vec eocOutPos = Vec(102, 330);
     Vec envOutPos = Vec(134, 330);
-    Vec preDegradePos = Vec(166, 330);
+    Vec preEnhancePos = Vec(166, 330);
     Vec subOutPos = Vec(198, 330);
     Vec mainOutPos = Vec(230, 330);
 
@@ -573,7 +582,7 @@ struct TerrorformWidget : ModuleWidget {
         "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
         "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
         "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
-        "PLAITS_3", "PLAITS_4"
+        "PLAITS_3", "PLAITS_4", "GMTRY_1"
     };
 
     std::vector<std::string> bankMenuItems = {
@@ -585,7 +594,7 @@ struct TerrorformWidget : ModuleWidget {
         "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM", "Bi Pulse", "Saw Gap 1",
         "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
         "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        "Plaits 3", "Plaits 4"
+        "Plaits 3", "Plaits 4", "Geometry 1"
     };
 
     std::vector<std::string> shapeNames = {
@@ -611,7 +620,7 @@ struct TerrorformWidget : ModuleWidget {
     std::vector<std::string> syncNames = {
         "HARD", "+FIFTH", "OCTAVE+1", "OCTAVE-1", "RISE_1", "RISE_2",
         "FALL_1", "FALL_2", "PULL_1", "PULL_2", "PUSH_1", "PUSH_2",
-        "HOLD", "ONE_SHOT", "LOCKSHOT", "REVERSE!"
+        "HOLD", "ONE_SHOT", "LOCKSHOT", "RE-VERSE"
     };
 
     std::vector<std::string> syncMenuItems = {
@@ -626,8 +635,8 @@ struct TerrorformWidget : ModuleWidget {
     };
 
     std::vector<std::string> modBusMenuItems = {
-        "Pitch", "Wave Bank", "Wave Position", "Shape Type", "Shape Depth", "Degrade Type",
-        "Degrade Depth", "FM In", "FM Depth", "Sync In", "Percussion Trig", "Percussion Decay"
+        "Pitch", "Wave Bank", "Wave Position", "Shape Type", "Shape Depth", "Enhance Type",
+        "Enhance Depth", "FM In", "FM Depth", "Sync In", "Percussion Trig", "Percussion Decay"
     };
 
     TerrorformWidget(Terrorform *module);
