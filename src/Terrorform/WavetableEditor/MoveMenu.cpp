@@ -72,6 +72,12 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
         for (int col = 0; col < TFORM_EDITOR_COLS; ++col) {
             grid->slotButton[row][col]->onClick = [=]() {
                 destBank = id;
+                if ((*slotFilled)[id]) {
+                    filledText->show();
+                }
+                else {
+                    filledText->hide();
+                }
             };
             grid->slotButton[row][col]->text = std::to_string(id + 1);
             grid->slotButton[row][col]->applyStyle(emptySlotStyle);
@@ -101,6 +107,7 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
     filledText->size = 12;
     filledText->horzAlignment = NVG_ALIGN_LEFT;
     filledText->text = "                   (Filled)";
+    filledText->hide();
     addChild(filledText);
 
     overwriteQuestion = createWidget<PlainText>(Vec(119, 5));
@@ -116,8 +123,14 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
         filledText->visible = false;
         overwriteQuestion->visible = false;
 
-        int row = sourceBank;
-        int col = sourceBank;
+        for (int row = 0; row < TFORM_EDITOR_ROWS; ++row) {
+            for (int col = 0; col < TFORM_EDITOR_COLS; ++col) {
+                grid->slotButton[row][col]->respondToMouse = true;
+            }
+        }
+
+        int row = sourceBank / TFORM_EDITOR_ROWS;
+        int col = sourceBank % TFORM_EDITOR_COLS;
         grid->slotButton[row][col]->respondToMouse = false;
         grid->slotButton[row][col]->applyStyle(filledSlotStyle);
         grid->slotButton[row][col]->setHighlight(true);
@@ -178,7 +191,8 @@ TFormMoveMenu::TFormMoveMenu() {
     addChild(destPage);
 
     onView = [=]() {
-        destPage->show();
+        //destPage->show();
+        destPage->view();
     };
 }
 

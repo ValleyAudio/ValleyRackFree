@@ -432,7 +432,7 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallMustard* percVelocityCV2;
 
     // Switches
-    LightLEDButton2* lfoButton;
+    LightLEDButton2* userBankButton;
     LightLEDButton2* loadButton;
     LightLEDButton3* percButton;
 
@@ -642,8 +642,6 @@ struct TerrorformWidget : ModuleWidget {
     TerrorformWidget(Terrorform *module);
     void appendContextMenu(Menu *menu) override;
     void step() override;
-    void onDisplayParams();
-    void onDisplayLoadError();
     void changeDisplayStyle();
     void exportWavetables();
     void importWavetables();

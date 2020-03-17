@@ -2,14 +2,17 @@
 #define TFORM_EDITOR_CLONE_MENU_HPP
 #include "MenuBase.hpp"
 #include "QuestionMenu.hpp"
+#include "TextField.hpp"
 #include "../TerrorformWaveBank.hpp"
 
 struct TFormCloneMenuSourcePage : TFormMenu {
     TFormEditorWaveDisplay* waveDisplay;
     TFormEditorButton* backButton;
     TFormEditorButton* nextButton;
-    TFormEditorNumberChoice* startWave;
-    TFormEditorNumberChoice* endWave;
+    PlainText* startWaveFieldLabel;
+    PlainText* endWaveFieldLabel;
+    TFormNumberField* startWaveField;
+    TFormNumberField* endWaveField;
     NVGcolor waveLineColor;
     NVGcolor waveFillColor;
     float waveSliderPos;

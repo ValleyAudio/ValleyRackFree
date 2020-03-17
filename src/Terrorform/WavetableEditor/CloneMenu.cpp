@@ -10,18 +10,42 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
 
     nextButton = createNewMenuButton("Next", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
     addChild(nextButton);
+    
+    startWaveFieldLabel = createWidget<PlainText>(Vec(5, 22));
+    startWaveFieldLabel->box.size.x = buttonWidth;
+    startWaveFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    startWaveFieldLabel->size = 12;
+    startWaveFieldLabel->horzAlignment = NVG_ALIGN_LEFT;
+    startWaveFieldLabel->text = "Start:";
+    addChild(startWaveFieldLabel);
 
-    startWave = createWidget<TFormEditorNumberChoice>(Vec(45, 20));
-    startWave->range = 64;
-    startWave->box.size.x = 28;
-    startWave->box.size.y = 15;
-    addChild(startWave);
+    endWaveFieldLabel = createWidget<PlainText>(Vec(65, 22));
+    endWaveFieldLabel->box.size.x = buttonWidth;
+    endWaveFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    endWaveFieldLabel->size = 12;
+    endWaveFieldLabel->horzAlignment = NVG_ALIGN_LEFT;
+    endWaveFieldLabel->text = "End:";
+    addChild(endWaveFieldLabel);
 
-    endWave = createWidget<TFormEditorNumberChoice>(Vec(108, 20));
-    endWave->range = 64;
-    endWave->box.size.x = 28;
-    endWave->box.size.y = 15;
-    addChild(endWave);
+    startWaveField = createWidget<TFormNumberField>(Vec(40, 21));
+    startWaveField->box.size.x = 20;
+    startWaveField->box.size.y = buttonHeight;
+    startWaveField->setValue(1);
+    startWaveField->onChangeCallback = [=]() {
+        startWaveField->maximum = endWaveField->value;
+        endWaveField->minimum = startWaveField->value;
+    };
+    addChild(startWaveField);
+
+    endWaveField = createWidget<TFormNumberField>(Vec(89, 21));
+    endWaveField->box.size.x = 20;
+    endWaveField->box.size.y = buttonHeight;
+    endWaveField->setValue(64);
+    endWaveField->onChangeCallback = [=]() {
+        startWaveField->maximum = endWaveField->value;
+        endWaveField->minimum = startWaveField->value;
+    };
+    addChild(endWaveField);
 
     waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5,27));
     waveDisplay->box.size.x = box.size.x - 3.f;
@@ -42,8 +66,9 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
     }
 
     onView = [=] {
-        *startWave->choice = 0;
-        *endWave->choice = bank.data.size() - 1;
+        startWaveField->setValue(1);
+        endWaveField->setValue(bank.data.size());
+        endWaveField->maximum = bank.data.size();
     };
 }
 
@@ -53,12 +78,12 @@ void TFormCloneMenuSourcePage::step() {
     if(bank.data.size() == 0) {
         return;
     }
-    
-    for (unsigned long i = *startWave->choice; i <= *endWave->choice; ++i) {
+
+    for (int i = startWaveField->value - 1; i < endWaveField->value; ++i) {
         memcpy(&waveDisplay->waveData[j], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
         ++j;
     }
-    waveDisplay->numWaves = *endWave->choice - *startWave->choice + 1;
+    waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
     selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
@@ -73,8 +98,6 @@ void TFormCloneMenuSourcePage::draw(const DrawArgs& args) {
         nvgFontSize(args.vg, 12);
         nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
         nvgText(args.vg, 5, 5, strCloningFrom.c_str(), NULL);
-        nvgText(args.vg, 5, 21, "Start:", NULL);
-        nvgText(args.vg, 80, 21, "End:", NULL);
     }
     nvgBeginPath(args.vg);
     nvgMoveTo(args.vg, 0, box.pos.y + 40);
@@ -251,7 +274,7 @@ TFormCloneMenu::TFormCloneMenu() {
             overwriteMenu->view();
         }
         else {
-            onCloneBankCallback(*sourceBank, *destBank, *sourcePage->startWave->choice, *sourcePage->endWave->choice);
+            onCloneBankCallback(*sourceBank, *destBank, sourcePage->startWaveField->value - 1, sourcePage->endWaveField->value - 1);
             exit();
         }
     };
@@ -261,7 +284,7 @@ TFormCloneMenu::TFormCloneMenu() {
 
     overwriteMenu = createWidget<TFormQuestionMenu>(Vec(0, 0));
     overwriteMenu->taskCallback = [=]() {
-        onCloneBankCallback(*sourceBank, *destBank, *sourcePage->startWave->choice, *sourcePage->endWave->choice);
+        onCloneBankCallback(*sourceBank, *destBank, sourcePage->startWaveField->value - 1, sourcePage->endWaveField->value - 1);
     };
 
     overwriteMenu->onExit = [=]() {

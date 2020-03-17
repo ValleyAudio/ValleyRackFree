@@ -17,6 +17,8 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
         if (onLoadWAVCallback) {
             std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
+                loadMenu->endWaveField->maximum = detectedWaves->size();
+                loadMenu->startWaveField->maximum = detectedWaves->size();
                 loadMenu->endWaveField->setValue(detectedWaves->size());
                 loadMenu->detectedWaves = detectedWaves;
                 mainMenu->hide();
@@ -31,14 +33,12 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
 
     mainMenu->viewButton->onClick = [=]() {
-        //onGetBankCallback(*selectedBank, viewPane->waveData, viewPane->bankName);
         onGetBankCallback(*selectedBank, viewPane->bank);
         mainMenu->hide();
         viewPane->view();
     };
 
     mainMenu->cloneButton->onClick = [=]() {
-        //onGetBankCallback(*selectedBank, cloneMenu->sourcePage->waveData, cloneMenu->bankName);
         onGetBankCallback(*selectedBank, cloneMenu->bank);
         onGetBankCallback(*selectedBank, cloneMenu->sourcePage->bank);
         mainMenu->hide();
@@ -56,7 +56,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     loadMenu = createWidget<TFormLoadMenu>(Vec(0, 0));
     loadMenu->selectedBank = selectedBank;
     loadMenu->onHide = [=]() {
-        mainMenu->view();
+        mainMenu->show();
     };
     loadMenu->visible = false;
     addChild(loadMenu);
@@ -65,7 +65,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     clearMenu = createWidget<TFormClearMenu>(Vec(0, 0));
     clearMenu->selectedBank = selectedBank;
     clearMenu->onExit = [=]() {
-        mainMenu->view();
+        mainMenu->show();
     };
     clearMenu->hide();
     addChild(clearMenu);
@@ -74,7 +74,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     viewPane = createWidget<TFormWaveViewPane>(Vec(0, 0));
     viewPane->selectedBank = selectedBank;
     viewPane->onExit = [=]() {
-        mainMenu->view();
+        mainMenu->show();
     };
     viewPane->hide();
     viewPane->visible = false;
@@ -84,7 +84,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     cloneMenu = createWidget<TFormCloneMenu>(Vec(0, 0));
     cloneMenu->sourceBank = selectedBank;
     cloneMenu->onExit = [=]() {
-        mainMenu->view();
+        mainMenu->show();
     };
     cloneMenu->visible = false;
     addChild(cloneMenu);
@@ -93,7 +93,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     moveMenu = createWidget<TFormMoveMenu>(Vec(0, 0));
     moveMenu->sourceBank = selectedBank;
     moveMenu->onExit = [=]() {
-        mainMenu->view();
+        mainMenu->show();
     };
     moveMenu->visible = false;
     addChild(moveMenu);
@@ -350,6 +350,10 @@ void TFormEditor::addMoveBankCallback(const std::function<void(int, int)>& onMov
 void TFormEditor::addGetBankCallback(const std::function<void(int, TerrorformWaveBank&)>& onGetBankCallback) {
     editMenu->onGetBankCallback = onGetBankCallback;
     editMenu->mainMenu->onGetBankCallback = onGetBankCallback;
+}
+
+void TFormEditor::addRenameBankCallback(const std::function<void(int, const std::string&)>& onRenameBankCallback) {
+    editMenu->mainMenu->onRenameBankCallback = onRenameBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {

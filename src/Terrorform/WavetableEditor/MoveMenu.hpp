@@ -12,13 +12,9 @@ struct TFormMoveMenuDestPage : TFormMenu {
     PlainText* filledText;
     PlainText* overwriteQuestion;
 
-    // TFormEditorButtonStyle emptySlotButtonStyles[NUM_BUTTON_MODES];
-    // TFormEditorButtonStyle sourceSlotButtonStyles[NUM_BUTTON_MODES];
-    // TFormEditorButtonStyle destSlotButtonStyles[NUM_BUTTON_MODES];
-    // TFormEditorButtonStyle filledSlotButtonStyles[NUM_BUTTON_MODES];
     TFormEditorButtonStyleSet emptySlotStyle;
     TFormEditorButtonStyleSet filledSlotStyle;
-    
+
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
     std::shared_ptr<std::vector<bool>> slotFilled;
     int sourceBank;

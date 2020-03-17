@@ -23,6 +23,7 @@ struct TFormEditorGrid : OpaqueWidget {
                 slotButton[row][col] = createWidget<TFormEditorButton>(slotButtonPos);
                 slotButton[row][col]->box.size.x = slotButtonWidth;
                 slotButton[row][col]->box.size.y = slotButtonHeight;
+                slotButton[row][col]->setFilled(false);
                 addChild(slotButton[row][col]);
             }
         }

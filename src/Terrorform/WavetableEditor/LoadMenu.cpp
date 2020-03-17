@@ -1,154 +1,5 @@
 #include "LoadMenu.hpp"
 
-TFormTextField::TFormTextField() {
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
-    color = nvgRGB(0xEF, 0xEF, 0xEF);
-    multiline = false;
-}
-
-void TFormTextField::draw(const DrawArgs& args) {
-    //nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-    float undersize = 0;
-
-    // Text
-    if (font->handle >= 0) {
-        bndSetFont(font->handle);
-
-        NVGcolor highlightColor = color;
-        highlightColor.a = 0.5;
-        int begin = std::min(cursor, selection);
-        int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
-
-        if (text.size() > 9) {
-            text = text.substr(0, 9);
-        }
-        // box.size.x = bndLabelWidth(args.vg, -1, "--------");
-        // undersize = box.size.x - bndLabelWidth(args.vg, -1, "-------");
-        bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
-                          -1, color, 12, text.c_str(), highlightColor, begin, end);
-        bndSetFont(APP->window->uiFont->handle);
-    }
-
-    nvgBeginPath(args.vg);
-    nvgStrokeColor(args.vg, color);
-    nvgStrokeWidth(args.vg, 1.0);
-    nvgMoveTo(args.vg, 0, 0);
-    nvgLineTo(args.vg, box.size.x, 0);
-    nvgLineTo(args.vg, box.size.x, box.size.y);
-    nvgLineTo(args.vg, 0, box.size.y);
-    nvgLineTo(args.vg, 0, 0);
-    nvgStroke(args.vg);
-
-    //nvgResetScissor(args.vg);
-    Widget::draw(args);
-}
-
-std::string TFormTextField::getText() const {
-    return text.substr(0, 9);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TFormNumberField::TFormNumberField() {
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
-    color = nvgRGB(0xEF, 0xEF, 0xEF);
-    multiline = false;
-    minimum = 1;
-    maximum = 64;
-    value = minimum;
-}
-
-void TFormNumberField::draw(const DrawArgs& args) {
-    //nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-    float undersize = 0;
-
-    // Text
-    if (font->handle >= 0) {
-        bndSetFont(font->handle);
-
-        NVGcolor highlightColor = color;
-        highlightColor.a = 0.5;
-        int begin = std::min(cursor, selection);
-        int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
-
-        if (text.size() > 2) {
-            text = text.substr(0, 2);
-        }
-        bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
-                          -1, color, 12, text.c_str(), highlightColor, begin, end);
-        bndSetFont(APP->window->uiFont->handle);
-    }
-
-    nvgBeginPath(args.vg);
-    nvgStrokeColor(args.vg, color);
-    nvgStrokeWidth(args.vg, 1.0);
-    nvgMoveTo(args.vg, 0, 0);
-    nvgLineTo(args.vg, box.size.x, 0);
-    nvgLineTo(args.vg, box.size.x, box.size.y);
-    nvgLineTo(args.vg, 0, box.size.y);
-    nvgLineTo(args.vg, 0, 0);
-    nvgStroke(args.vg);
-
-    //nvgResetScissor(args.vg);
-    Widget::draw(args);
-}
-
-void TFormNumberField::onDeselect(const event::Deselect& e) {
-    updateText(text);
-    if (onChangeCallback) {
-        onChangeCallback();
-    }
-}
-
-void TFormNumberField::onAction(const event::Action& e) {
-    updateText(text);
-    if (onChangeCallback) {
-        onChangeCallback();
-    }
-}
-
-void TFormNumberField::onDragMove(const event::DragMove& e) {
-    int newValue = value - (int) e.mouseDelta.y;
-    setValue(newValue);
-}
-
-void TFormNumberField::setValue(int newValue) {
-    if (newValue >= minimum && newValue <= maximum) {
-        value = newValue;
-        text = std::to_string(value);
-        prevText = text;
-    }
-}
-
-void TFormNumberField::updateText(const std::string& newText) {
-    auto isNumeric = [](const std::string& str) -> bool {
-        for(int i = 0; i < str.size(); ++i) {
-            if(!std::isdigit(str[i])) {
-                return false;
-            }
-        }
-        return true;
-    };
-
-    if (!isNumeric(text) || text.size() < 1) {
-        text = prevText;
-        return;
-    }
-    prevText = text;
-
-    int newValue = stoi(text);
-
-    if (newValue >= minimum && newValue <= maximum) {
-        value = newValue;
-    }
-    else {
-        text = std::to_string(value);
-        prevText = text;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 TFormLoadMenu::TFormLoadMenu() {
     box.size = Vec(238, 195);
 
@@ -231,9 +82,8 @@ TFormLoadMenu::TFormLoadMenu() {
     addChild(endWaveField);
 
     onView = [=]() {
-        nameField->text = "Untitled";
         startWaveField->setValue(1);
-        endWaveField->setValue(64);
+        nameField->text = "EMPTY_" + std::to_string(*selectedBank);
     };
 }
 
@@ -276,7 +126,6 @@ void TFormLoadMenu::step() {
         }
     }
 
-    //waveDisplay->numWaves = *endWaveChoice->choice - *startWaveChoice->choice + 1;
     waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
     selectedWave = waveDisplay->selectedWave;
     Widget::step();

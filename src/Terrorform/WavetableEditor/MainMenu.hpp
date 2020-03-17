@@ -1,6 +1,7 @@
 #ifndef TFORM_EDITOR_MAIN_MENU_HPP
 #define TFORM_EDITOR_MAIN_MENU_HPP
 #include "MenuBase.hpp"
+#include "TextField.hpp"
 #include "../TerrorformWaveBank.hpp"
 
 struct TFormEditMainMenu : TFormMenu {
@@ -12,16 +13,17 @@ struct TFormEditMainMenu : TFormMenu {
     TFormEditorButton* backButton;
     TFormEditorGrid<TFORM_EDITOR_ROWS, TFORM_EDITOR_COLS>* grid;
 
-    PlainText* bankName;
     TFormEditorButtonStyleSet emptySlotStyle;
     TFormEditorButtonStyleSet filledSlotStyle;
     TerrorformWaveBank bank;
+    TFormTextField* nameField;
 
     std::vector<bool> slotFilled;
     std::shared_ptr<int> selectedBank;
     bool selectedBankIsFilled;
 
     std::function<void(int, TerrorformWaveBank&)> onGetBankCallback;
+    std::function<void(int, const std::string&)> onRenameBankCallback;
 
     TFormEditMainMenu();
     void step() override;

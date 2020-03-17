@@ -43,6 +43,7 @@ TFormEditorButton::TFormEditorButton() {
     isHighlighted = false;
     respondToMouse = true;
     setMode(IDLE_MODE);
+    setFilled(true);
 }
 
 void TFormEditorButton::draw(const DrawArgs& args) {

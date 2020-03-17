@@ -21,8 +21,15 @@ TFormEditMainMenu::TFormEditMainMenu() {
     backButton->setFilled(true);
     addChild(backButton);
 
-    bankName = createWidget<PlainText>(Vec(70, 5));
-    addChild(bankName);
+    nameField = createWidget<TFormTextField>(Vec(buttonWidth + buttonOffset * 2, 3));
+    nameField->box.size.x = buttonWidth * 2 + buttonOffset;
+    nameField->box.size.y = buttonHeight;
+    nameField->onDeselectCallback = [=](const std::string s) {
+        if (onRenameBankCallback) {
+            onRenameBankCallback(*selectedBank, s);
+        }
+    };
+    addChild(nameField);
 
     // Slots grid
 
@@ -51,7 +58,7 @@ TFormEditMainMenu::TFormEditMainMenu() {
                 *selectedBank = id;
                 if (onGetBankCallback) {
                     onGetBankCallback(*selectedBank, bank);
-                    printf("Selected %d, %s\n", *selectedBank, bank.name.c_str());
+                    nameField->text = bank.name;
                 }
             };
             grid->slotButton[row][col]->onClick = selectBank;
@@ -70,6 +77,7 @@ void TFormEditMainMenu::step() {
     clearButton->setEnable(selectedBankIsFilled);
     cloneButton->setEnable(selectedBankIsFilled);
     moveButton->setEnable(selectedBankIsFilled);
+    nameField->enabled = selectedBankIsFilled;
     int row = 0;
     int col = 0;
     for(int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
@@ -81,9 +89,7 @@ void TFormEditMainMenu::step() {
 }
 
 void TFormEditMainMenu::draw(const DrawArgs& args) {
-    std::string strSelectedBank = "Bank: " + std::to_string(*selectedBank + 1);
-    strSelectedBank += ", " + bank.name;
-    //std::string strFilled = bank.name; //"Filled";
+    std::string strSelectedBank = "Bank: ";
     nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
     nvgFontFaceId(args.vg, font->handle);
     nvgTextLetterSpacing(args.vg, 0.0);
@@ -91,7 +97,9 @@ void TFormEditMainMenu::draw(const DrawArgs& args) {
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
 
-
+    std::string bankNum = std::to_string(*selectedBank + 1);
+    nvgTextAlign(args.vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+    nvgText(args.vg, 3 + buttonWidth, 5, bankNum.c_str(), NULL);
 
     // if(selectedBankIsFilled) {
     //     nvgFillColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
@@ -120,6 +128,7 @@ void TFormEditMainMenu::setSlotFilledFlag(int slot, bool isFilled) {
 void TFormEditMainMenu::onShow(const event::Show& e) {
     if (onGetBankCallback) {
         onGetBankCallback(*selectedBank, bank);
+        nameField->text = bank.name;
         printf("Selected %d, %s\n", *selectedBank, bank.name.c_str());
     }
     recurseEvent(&Widget::onShow, e);

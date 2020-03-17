@@ -88,6 +88,7 @@ struct TFormEditor : OpaqueWidget {
     void addCloneBankCallback(const std::function<void(int, int, int, int)>& onCloneBankCallback);
     void addMoveBankCallback(const std::function<void(int, int)>& onMoveBankCallback);
     void addGetBankCallback(const std::function<void(int, TerrorformWaveBank&)>& onGetBankCallback);
+    void addRenameBankCallback(const std::function<void(int, const std::string&)>& onRenameBankCallback);
     void addImportCallback(const std::function<void()>& onImportWaveTableCallback);
     void addExportCallback(const std::function<void()>& onExportWaveTableCallback);
     void addDefragmentCallback(const std::function<void()>& onDefragmentCallback);

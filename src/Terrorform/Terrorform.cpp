@@ -97,7 +97,7 @@ Terrorform::Terrorform() {
         userWaveTableData[bank] = new float*[TFORM_MAX_NUM_WAVES];
         userWaveTableFilled[bank] = false;
         userWaveTableSizes[bank] = 1;
-        userWaveTableNames.push_back("USRWAVE_" + std::to_string(bank + 1));
+        userWaveTableNames.push_back("EMPTY_" + std::to_string(bank + 1));
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
             userWaveTableData[bank][wave] = new float[TFORM_MAX_WAVELENGTH];
             for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -145,10 +145,11 @@ void Terrorform::process(const ProcessArgs &args) {
         degradeType = clamp(degradeType, 0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
 
         prevUserWavesButtonState = userWavesButtonState;
-        userWavesButtonState = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
-        if(prevUserWavesButtonState == false && userWavesButtonState == true) {
-            readFromUserWaves = !readFromUserWaves;
-        }
+        readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
+
+        // if(prevUserWavesButtonState == false && userWavesButtonState == true) {
+        //     readFromUserWaves = !readFromUserWaves;
+        // }
 
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) percMode;
@@ -516,6 +517,7 @@ void Terrorform::clearBank(int bankNum) {
     }
     userWaveTableFilled[bankNum] = false;
     userWaveTableSizes[bankNum] = 1;
+    userWaveTableNames[bankNum] = "EMPTY_" + std::to_string(bankNum + 1);
 }
 
 void Terrorform::clearUserWaveTables() {
@@ -536,6 +538,7 @@ void Terrorform::cloneBank(int sourceBank, int destBank, int startWave, int endW
     }
     userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
     userWaveTableSizes[destBank] =  (endWave - startWave) + 1;
+    userWaveTableNames[destBank] = userWaveTableNames[sourceBank];
 }
 
 void Terrorform::moveBank(int sourceBank, int destBank) {
@@ -547,8 +550,8 @@ void Terrorform::moveBank(int sourceBank, int destBank) {
     }
     userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
     userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
-    userWaveTableSizes[sourceBank] = 1;
-    userWaveTableFilled[sourceBank] = false;
+    userWaveTableNames[destBank] = userWaveTableNames[sourceBank];
+    clearBank(sourceBank);
 }
 
 void Terrorform::defragmentBanks() {
@@ -995,9 +998,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
 
-    lfoButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
-    lfoButton->momentary = true;
-    addParam(lfoButton);
+    userBankButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
+    userBankButton->momentary = false;
+    addParam(userBankButton);
 
     lfoButtonLight = createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT);
     addChild(lfoButtonLight);
@@ -1061,7 +1064,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percVelocityCV1->visible = false;
         percVelocityCV2->visible = false;
 
-        lfoButton->visible = false;
+        userBankButton->visible = false;
         loadButton->visible = false;
         percButton->visible = false;
 
@@ -1129,7 +1132,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percVelocityCV1->visible = true;
         percVelocityCV2->visible = true;
 
-        lfoButton->visible = true;
+        userBankButton->visible = true;
         loadButton->visible = true;
         percButton->visible = true;
 
@@ -1174,12 +1177,12 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
         int numBlocks = (int) numSamples / TFORM_MAX_WAVELENGTH;
         int readPos = 0;
-        waves->resize(64);
+        waves->resize(numBlocks);
         for (int i = 0; i < numBlocks; ++i) {
             (*waves)[i].assign(256, 0.f);
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 (*waves)[i][j] = newTable[readPos];
-                ++readPos;
+                readPos += channels;
             }
         }
         return waves;
@@ -1226,6 +1229,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             memcpy(waveBank.data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
         }
         waveBank.name = module->userWaveTableNames[bank];
+    });
+
+    editor->addRenameBankCallback([=](int bank, const std::string& name) {
+        module->userWaveTableNames[bank] = name;
     });
 
     editor->addCloneBankCallback([=](int sourceBank, int destBank, int startWave, int endWave) {
@@ -1294,64 +1301,37 @@ void TerrorformWidget::step() {
         }
         prevDisplayStyle = displayStyle;
 
-        switch (displayMode) {
-            case DISPLAY_PARAMS:
-                onDisplayParams();
-                break;
-            case DISPLAY_LOAD_ERROR:
-                onDisplayLoadError();
-                break;
+        // Display params
+        bankChoice = (int)(bankKnob->paramQuantity->getValue());
+        if (userBankButton->paramQuantity->getValue() > 0.5f) {
+            *bankStr = dynamic_cast<Terrorform*>(module)->userWaveTableNames[bankChoice];
         }
+        else {
+            *bankStr = bankNames[bankChoice];
+        }
+        wavePercent = (int)(waveKnob->paramQuantity->getValue() * 100.f);
+        *waveStr = std::to_string(wavePercent);
 
-        for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
-            editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
-        }
+        *shapeTypeStr = shapeNames[(int)(shapeTypeKnob->paramQuantity->getValue())];
+        shapeDepthPercent = (int)(shapeDepthKnob->paramQuantity->getValue() * 100.f);
+        *shapeDepthStr = std::to_string(shapeDepthPercent);
+
+        *degradeTypeStr = degradeNames[(int)(degradeTypeKnob->paramQuantity->getValue())];
+        degradeDepthPercent = (int)(degradeDepthKnob->paramQuantity->getValue() * 100.f);
+        *degradeDepthStr = std::to_string(degradeDepthPercent);
 
         int syncChoice = (int)dynamic_cast<Terrorform*>(module)->syncChoice;
         *syncStr = syncNames[syncChoice];
         if (syncMenu->_choice != syncChoice) {
             syncMenu->_choice = syncChoice;
         }
+
+        // Report slots filled to editor
+        for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
+            editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
+        }
     }
     Widget::step();
-}
-
-void TerrorformWidget::onDisplayParams() {
-    bankChoice = (int)(bankKnob->paramQuantity->getValue());
-    *bankStr = bankNames[bankChoice];
-    wavePercent = (int)(waveKnob->paramQuantity->getValue() * 100.f);
-    *waveStr = std::to_string(wavePercent);
-
-    *shapeTypeStr = shapeNames[(int)(shapeTypeKnob->paramQuantity->getValue())];
-    shapeDepthPercent = (int)(shapeDepthKnob->paramQuantity->getValue() * 100.f);
-    *shapeDepthStr = std::to_string(shapeDepthPercent);
-
-    *degradeTypeStr = degradeNames[(int)(degradeTypeKnob->paramQuantity->getValue())];
-    degradeDepthPercent = (int)(degradeDepthKnob->paramQuantity->getValue() * 100.f);
-    *degradeDepthStr = std::to_string(degradeDepthPercent);
-
-    bankMenu->visible = true;
-    shapeMenu->visible = true;
-    degradeMenu->visible = true;
-}
-
-void TerrorformWidget::onDisplayLoadError() {
-    *bankStr = "CANT!OVRWRITE";
-    *waveStr = "";
-
-    *shapeTypeStr = "!!READ-ONLY!!";
-    *shapeDepthStr = "";
-
-    *degradeTypeStr = "!!WAVETABLE!!";
-    *degradeDepthStr = "";
-    bankMenu->visible = false;
-    shapeMenu->visible = false;
-    degradeMenu->visible = false;
-
-    elapsedErrorDisplayTime++;
-    if (elapsedErrorDisplayTime >= errorDisplayTime) {
-        displayMode = DISPLAY_PARAMS;
-    }
 }
 
 void TerrorformWidget::changeDisplayStyle() {
