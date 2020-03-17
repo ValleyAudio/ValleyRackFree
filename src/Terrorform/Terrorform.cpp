@@ -1370,7 +1370,7 @@ void TerrorformWidget::exportWavetables() {
     Terrorform* tform = dynamic_cast<Terrorform*>(module);
     std::fstream outFile;
 
-    const char FILE_FILTERS[] = "Valley Wavetable (.vwt):vwt";
+    const char FILE_FILTERS[] = "Valley Wavetable ROM(.vwt):vwt";
     std::string dir = asset::user("");
     std::string filename;
     std::string filepath;
@@ -1404,6 +1404,14 @@ void TerrorformWidget::exportWavetables() {
         outFile.write("T401VWT", sizeof(char) * 7);
         outFile.write(&tform->numUserWaveTables, sizeof(char));
         outFile.write((char*) &userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
+
+        for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+            for (int j = 0; j < tform->userWaveTableNames[b].size(); ++j) {
+                outFile.write(reinterpret_cast<char*>(&tform->userWaveTableNames[b][j]), sizeof(char));
+            }
+            outFile.put('\0');
+        }
+
         for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
             for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
                 for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
@@ -1445,14 +1453,14 @@ void TerrorformWidget::importWavetables() {
     inFile.open(filepath, std::ios::in | std::ios::binary);
 
     if (!inFile.is_open()) {
-        printf("Error opening wavetable file\n");
+        printf("Error opening wavetable ROM\n");
         return;
     }
 
     inFile.read((char*) &header, sizeof(char) * 7);
     header[7] = '\0';
     if (std::string(header) != "T401VWT") {
-        printf("Not a valid Valley Wavetable file\n");
+        printf("Not a valid Valley Wavetable ROM\n");
         return;
     }
     pos += sizeof(char) * 7;
