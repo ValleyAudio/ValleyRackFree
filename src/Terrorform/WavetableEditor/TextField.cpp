@@ -2,14 +2,19 @@
 
 TFormTextField::TFormTextField() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    bgColor = nvgRGB(0x00, 0x00, 0x00);
     color = nvgRGB(0x7F, 0x7F, 0x7F);
     textColor = nvgRGB(0xCF, 0xCF, 0xCF);
     multiline = false;
     enabled = true;
+    selected = false;
 }
 
 void TFormTextField::draw(const DrawArgs& args) {
-    float undersize = 0;
+    nvgBeginPath(args.vg);
+    nvgFillColor(args.vg, bgColor);
+    nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+    nvgFill(args.vg);
 
     // Text
     if (font->handle >= 0) {
@@ -53,10 +58,13 @@ void TFormTextField::draw(const DrawArgs& args) {
 void TFormTextField::onSelect(const event::Select& e) {
     if (enabled) {
         color = nvgRGB(0xEF, 0xEF, 0xEF);
+        bgColor = nvgRGB(0x00, 0x00, 0x00);
+        textColor = nvgRGB(0xCF, 0xCF, 0xCF);
     }
     else {
         color = nvgRGB(0x7F, 0x7F, 0x7F);
     }
+    selected = true;
 }
 
 void TFormTextField::onDeselect(const event::Deselect& e) {
@@ -64,6 +72,23 @@ void TFormTextField::onDeselect(const event::Deselect& e) {
     if (onDeselectCallback) {
         onDeselectCallback(text);
     }
+    selected = false;
+}
+
+void TFormTextField::onEnter(const event::Enter& e) {
+    if (enabled && !selected) {
+        bgColor = nvgRGB(0x2F, 0x2F, 0xAF);
+        textColor = nvgRGB(0xEF, 0xEF, 0xEF);
+    }
+    else {
+        bgColor = nvgRGB(0x00, 0x00, 0x00);
+        textColor = nvgRGB(0xCF, 0xCF, 0xCF);
+    }
+}
+
+void TFormTextField::onLeave(const event::Leave& e) {
+    bgColor = nvgRGB(0x00, 0x00, 0x00);
+    textColor = nvgRGB(0xCF, 0xCF, 0xCF);
 }
 
 std::string TFormTextField::getText() const {
@@ -74,17 +99,22 @@ std::string TFormTextField::getText() const {
 
 TFormNumberField::TFormNumberField() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    bgColor = nvgRGB(0x00, 0x00, 0x00);
     color = nvgRGB(0x7F, 0x7F, 0x7F);
+    textColor = nvgRGB(0xCF, 0xCF, 0xCF);
     multiline = false;
     minimum = 1;
     maximum = 64;
     value = minimum;
+    enabled = true;
     selected = false;
 }
 
 void TFormNumberField::draw(const DrawArgs& args) {
-    //nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-    float undersize = 0;
+    nvgBeginPath(args.vg);
+    nvgFillColor(args.vg, bgColor);
+    nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+    nvgFill(args.vg);
 
     // Text
     if (font->handle >= 0) {
@@ -99,7 +129,7 @@ void TFormNumberField::draw(const DrawArgs& args) {
             text = text.substr(0, 2);
         }
         bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
-                          -1, color, 12, text.c_str(), highlightColor, begin, end);
+                          -1, textColor, 12, text.c_str(), highlightColor, begin, end);
         bndSetFont(APP->window->uiFont->handle);
     }
 
@@ -113,13 +143,19 @@ void TFormNumberField::draw(const DrawArgs& args) {
     nvgLineTo(args.vg, 0, 0);
     nvgStroke(args.vg);
 
-    //nvgResetScissor(args.vg);
     Widget::draw(args);
 }
 
 void TFormNumberField::onSelect(const event::Select& e) {
+    if (enabled) {
+        color = nvgRGB(0xEF, 0xEF, 0xEF);
+        bgColor = nvgRGB(0x00, 0x00, 0x00);
+        textColor = nvgRGB(0xCF, 0xCF, 0xCF);
+    }
+    else {
+        color = nvgRGB(0x7F, 0x7F, 0x7F);
+    }
     selected = true;
-    color = nvgRGB(0xEF, 0xEF, 0xEF);
 }
 
 void TFormNumberField::onDeselect(const event::Deselect& e) {
@@ -142,6 +178,22 @@ void TFormNumberField::onDragMove(const event::DragMove& e) {
     int newValue = value - (int) e.mouseDelta.y;
     setValue(newValue);
 }
+
+void TFormNumberField::onEnter(const event::Enter& e) {
+    if (enabled && !selected) {
+        bgColor = nvgRGB(0x2F, 0x2F, 0xAF);
+        textColor = nvgRGB(0xEF, 0xEF, 0xEF);
+    }
+    else {
+        bgColor = nvgRGB(0x00, 0x00, 0x00);
+        textColor = nvgRGB(0xCF, 0xCF, 0xCF);
+    }
+};
+
+void TFormNumberField::onLeave(const event::Leave& e) {
+    bgColor = nvgRGB(0x00, 0x00, 0x00);
+    textColor = nvgRGB(0xCF, 0xCF, 0xCF);
+};
 
 void TFormNumberField::setValue(int newValue) {
     if (newValue >= minimum && newValue <= maximum) {
