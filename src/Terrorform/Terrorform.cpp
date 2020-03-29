@@ -1478,6 +1478,19 @@ void TerrorformWidget::importWavetables() {
         }
     }
 
+    tform->userWaveTableNames.clear();
+    char letter = ' ';
+    std::string name;
+    for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+        name.clear();
+        letter = ' ';
+        while (letter != '\0') {
+            letter = inFile.get();
+            name.push_back(letter);
+        }
+        tform->userWaveTableNames.push_back(name);
+    }
+
     for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
         for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
