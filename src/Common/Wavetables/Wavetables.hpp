@@ -59,5 +59,12 @@
 #include "plaits3_waveTable/plaits3_waveTable.h"
 #include "plaits4_waveTable/plaits4_waveTable.h"
 #include "gmtry_1_waveTable/gmtry_1_waveTable.h"
+#include "gmtry_2_waveTable/gmtry_2_waveTable.h"
+#include "gmtry_3_waveTable/gmtry_3_waveTable.h"
+#include "resoSaw_waveTable/resoSaw_waveTable.h"
+#include "resoSquare_waveTable/resoSquare_waveTable.h"
+#include "chirp_waveTable/chirp_waveTable.h"
+#include "distort_waveTable/distort_waveTable.h"
+#include "ebass_waveTable/ebass_waveTable.h"
 
-#define NUM_VALLEY_WAVETABLES 57
+#define NUM_VALLEY_WAVETABLES 66

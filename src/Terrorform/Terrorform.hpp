@@ -582,7 +582,8 @@ struct TerrorformWidget : ModuleWidget {
         "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
         "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
         "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
-        "PLAITS_3", "PLAITS_4", "GMTRY_1"
+        "PLAITS_3", "PLAITS_4", "GMTRY_1", "GMTRY_2", "GMTRY_3", "RESO_SAW", "RESO_SQR", "CHIRP",
+        "DISTRT_1", "EBASS"
     };
 
     std::vector<std::string> bankMenuItems = {
@@ -594,7 +595,8 @@ struct TerrorformWidget : ModuleWidget {
         "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM", "Bi Pulse", "Saw Gap 1",
         "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
         "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        "Plaits 3", "Plaits 4", "Geometry 1"
+        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry3", "Resonant Saw",
+        "Resonant Square", "Chirp", "Distorted 1", "Electric Bass"
     };
 
     std::vector<std::string> shapeNames = {
