@@ -423,6 +423,8 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "fmMode", json_integer(fmMode));
     json_object_set_new(rootJ, "percMode", json_integer(percMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
+    json_object_set_new(rootJ, "weakSync1Enable", json_integer(weakSync1Enable));
+    json_object_set_new(rootJ, "weakSync2Enable", json_integer(weakSync2Enable));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -458,11 +460,16 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *fmModeJ = json_object_get(rootJ, "fmMode");
     json_t *percModeJ = json_object_get(rootJ, "percMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
+    json_t *weakSync1EnableJ = json_object_get(rootJ, "weakSync1Enable");
+    json_t *weakSync2EnableJ = json_object_get(rootJ, "weakSync2Enable");
+
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
     fmMode = json_integer_value(fmModeJ);
     percMode = json_integer_value(percModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
+    weakSync1Enable = json_integer_value(weakSync1EnableJ);
+    weakSync2Enable = json_integer_value(weakSync2EnableJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
@@ -470,6 +477,8 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     trueFMEnabled = fmMode == 1;
     percMode = percMode > 3 ? 3 : percMode;
     syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
+    weakSync1Enable = weakSync1Enable < 0 ? 0 : (weakSync1Enable > 1 ? 1 : weakSync1Enable);
+    weakSync2Enable = weakSync2Enable < 0 ? 0 : (weakSync2Enable > 1 ? 1 : weakSync2Enable);
 
     int destBank;
     int numWaves;
@@ -566,7 +575,6 @@ void Terrorform::defragmentBanks() {
         }
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
