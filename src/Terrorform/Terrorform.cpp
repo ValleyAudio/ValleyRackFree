@@ -609,9 +609,9 @@ void TerrorformFMModeItem::step() {
 Menu* TerrorformTestSubMenu::createChildMenu() {
     Menu* menu = new Menu;
     MenuLabel* testLabel = new MenuLabel;
+
     testLabel->text = "I'm in there";
     menu->addChild(testLabel);
-
     return menu;
 }
 
@@ -938,7 +938,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         };
 
         bankMenu = createDynamicMenu(bankTextPos, bankText->box.size,
-                                     bankMenuItems, true, false);
+                                     bankMenuItems, true, false, 16);
         bankMenu->onMouseEnter = [=]() {
             setOnHoverColour(bankBackText, bankText, bankBlurText, bankBlurText2);
         };
@@ -953,7 +953,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(bankMenu);
 
         shapeMenu = createDynamicMenu(shapeTextPos, shapeText->box.size,
-                                      shapeMenuItems, true, false);
+                                      shapeMenuItems, true, false, 0);
         shapeMenu->onMouseEnter = [=]() {
             setOnHoverColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
         };
@@ -968,7 +968,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(shapeMenu);
 
         degradeMenu = createDynamicMenu(degradeTextPos, degradeText->box.size,
-                                        degradeMenuItems, true, false);
+                                        degradeMenuItems, true, false, 0);
         degradeMenu->onMouseEnter = [=]() {
             setOnHoverColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
         };
@@ -983,7 +983,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(degradeMenu);
 
         syncMenu = createDynamicMenu(syncTextPos.minus(Vec(syncText->box.size.x / 2.f, 0.f)), syncText->box.size,
-                                     syncMenuItems, true, true);
+                                     syncMenuItems, true, true, 0);
         syncMenu->onMouseEnter = [=]() {
             setOnHoverColour(syncBackText, syncText, syncBlurText, syncBlurText2);
         };
@@ -1346,10 +1346,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     trueFMModeItem->fmMode = 1;
     menu->addChild(trueFMModeItem);
 
-    // TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
-    // subMenu->text = "Holly";
-    // subMenu->rightText = RIGHT_ARROW;
-    // menu->addChild(subMenu);
+    TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
+    subMenu->text = "Holly";
+    subMenu->rightText = RIGHT_ARROW;
+    menu->addChild(subMenu);
  }
 
 void TerrorformWidget::step() {

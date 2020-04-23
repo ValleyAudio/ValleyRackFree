@@ -351,6 +351,15 @@ struct DynamicMenuItem : MenuItem {
     std::function<void(int)> setChoice;
 };
 
+struct DynamicSubMenu : MenuItem {
+    Menu* createChildMenu() override;
+	std::vector<std::string> items;
+	int itemOffset;
+	int* choice;
+	bool showTick;
+	std::function<void(int)> setChoice;
+};
+
 struct DynamicMenu : ChoiceButton {
     DynamicMenu();
     void step() override;
@@ -360,6 +369,7 @@ struct DynamicMenu : ChoiceButton {
     void draw(const DrawArgs &args) override;
 
     int _choice;
+	int _subMenuGroupSize;
     std::vector<std::string> _items;
     std::shared_ptr<std::string> _text;
     std::shared_ptr<Font> _font;
@@ -375,6 +385,6 @@ struct DynamicMenu : ChoiceButton {
 
 DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
                                const std::vector<std::string>& items,
-                               bool isTransparent, bool showTick);
+                               bool isTransparent, bool showTick, int subMenuGroupSize);
 
 #endif
