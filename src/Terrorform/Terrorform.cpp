@@ -147,10 +147,6 @@ void Terrorform::process(const ProcessArgs &args) {
         prevUserWavesButtonState = userWavesButtonState;
         readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
 
-        // if(prevUserWavesButtonState == false && userWavesButtonState == true) {
-        //     readFromUserWaves = !readFromUserWaves;
-        // }
-
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) percMode;
             if(readFromUserWaves) {
@@ -210,12 +206,37 @@ void Terrorform::process(const ProcessArgs &args) {
         counter = 0;
     }
 
-    percButtonState = params[PERC_SWITCH_PARAM].getValue() > 0.5f;
-    if (percButtonState && !percButtonPrevState) {
-        percMode++;
-        percMode = percMode == 4 ? 0 : percMode;
+    // Perc mode logic
+
+    percButtonPressed = params[PERC_SWITCH_PARAM].getValue() > 0.5f;
+    if (percButtonPressed) {
+        //printf("%f\n", percButtonTimer.time);
+        if (percButtonTimer.time < 0.5f) {
+            percButtonTimer.process(APP->engine->getSampleTime());
+        }
+
+        if (percButtonTimer.time >= 0.5f && !percButtonHeldDown) {
+            percButtonHeldDown = true;
+            if (percMode > 0) {
+                percMode = 0;
+            }
+            else {
+                percMode = 1;
+            }
+        }
     }
-    percButtonPrevState = percButtonState;
+
+    // Button has been released
+    if (!percButtonPressed && percButtonPrevState) {
+        if (!percButtonHeldDown && percMode != 0) {
+            percMode++;
+            percMode = percMode == 4 ? 1 : percMode;
+        }
+        percButtonHeldDown = false;
+        percButtonTimer.reset();
+    }
+
+    percButtonPrevState = percButtonPressed;
 
     // Perc trigger logic
     trig1 = 0.f;

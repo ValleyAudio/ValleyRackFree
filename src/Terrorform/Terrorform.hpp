@@ -223,8 +223,10 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Percussion
+    dsp::Timer percButtonTimer;
     int percMode = 0;
-    bool percButtonState = false;
+    bool percButtonPressed = false;
+    bool percButtonHeldDown = false;
     bool percButtonPrevState = false;
     __m128 __percVCAMode;
     __m128 __percFilterMode;
