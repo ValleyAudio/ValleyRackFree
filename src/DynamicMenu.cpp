@@ -71,9 +71,6 @@ void DynamicMenu::draw(const DrawArgs &args) {
         return;
     }
 
-    /*if(_choice != nullptr) {
-        *_text = _items[*_choice];
-    }*/
     nvgFontSize(args.vg, _textSize);
     nvgFontFaceId(args.vg, _font->handle);
     nvgTextLetterSpacing(args.vg, 0.f);

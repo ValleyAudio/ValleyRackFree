@@ -1346,10 +1346,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     trueFMModeItem->fmMode = 1;
     menu->addChild(trueFMModeItem);
 
-    TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
-    subMenu->text = "Holly";
-    subMenu->rightText = RIGHT_ARROW;
-    menu->addChild(subMenu);
+    // TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
+    // subMenu->text = "Holly";
+    // subMenu->rightText = RIGHT_ARROW;
+    // menu->addChild(subMenu);
  }
 
 void TerrorformWidget::step() {
@@ -1468,6 +1468,9 @@ void TerrorformWidget::exportWavetables() {
         userWaveTableSizes[b] = tform->userWaveTableFilled[b] ? userWaveTableSizes[b] : 0;
     }
 
+    /** Write data to file, first the header and size, then the names, and then finally the
+    data itself.
+    */
     outFile.open(filepath, std::ios::out | std::ios::binary);
     if (outFile.is_open()) {
         outFile.seekp(0);
@@ -1535,6 +1538,7 @@ void TerrorformWidget::importWavetables() {
     }
     pos += sizeof(char) * 7;
 
+    // Get number of tables and their respective sizes
     inFile.seekg(pos);
     inFile.read(&tform->numUserWaveTables, sizeof(char));
     inFile.read((char*) &tform->userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
@@ -1548,6 +1552,7 @@ void TerrorformWidget::importWavetables() {
         }
     }
 
+    // Read in wavetable names
     tform->userWaveTableNames.clear();
     char letter = ' ';
     std::string name;
@@ -1561,6 +1566,7 @@ void TerrorformWidget::importWavetables() {
         tform->userWaveTableNames.push_back(name);
     }
 
+    // Read in the wavetable data
     for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
         for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
