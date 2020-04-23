@@ -308,6 +308,11 @@ struct TerrorformFMModeItem : MenuItem {
     void step() override;
 };
 
+struct TerrorformTestSubMenu : MenuItem {
+    Terrorform* module;
+    Menu* createChildMenu() override;
+};
+
 struct TerrorformWidget : ModuleWidget {
     int errorDisplayTime = 30 * 5;
     int elapsedErrorDisplayTime = 0;
@@ -433,7 +438,7 @@ struct TerrorformWidget : ModuleWidget {
 
     // Switches
     LightLEDButton2* userBankButton;
-    LightLEDButton2* loadButton;
+    LightLEDButton2* manageButton;
     LightLEDButton3* percButton;
 
     MediumLight<RedLight>* lfoButtonLight;
@@ -443,7 +448,7 @@ struct TerrorformWidget : ModuleWidget {
     Vec trigSwitch1Pos = Vec(118, 282);
     Vec trigSwitch2Pos = Vec(182, 282);
     Vec userBankSwitchPos = Vec(143.3, 77.3);
-    Vec loadTableSwitchPos = Vec(143.3, 102.3);
+    Vec manageButtonPos = Vec(143.3, 102.3);
     Vec weakSyncSwitch1Pos = Vec(87, 299);
     Vec weakSyncSwitch2Pos = Vec(213, 299);
 

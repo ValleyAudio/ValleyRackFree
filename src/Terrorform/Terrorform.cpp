@@ -606,6 +606,15 @@ void TerrorformFMModeItem::step() {
     MenuItem::step();
 }
 
+Menu* TerrorformTestSubMenu::createChildMenu() {
+    Menu* menu = new Menu;
+    MenuLabel* testLabel = new MenuLabel;
+    testLabel->text = "I'm in there";
+    menu->addChild(testLabel);
+
+    return menu;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
@@ -1013,10 +1022,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     lfoButtonLight = createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT);
     addChild(lfoButtonLight);
 
-    loadButton = createParam<LightLEDButton2>(loadTableSwitchPos, module, Terrorform::LOAD_TABLE_SWITCH_PARAM);
-    loadButton->momentary = true;
+    manageButton = createParam<LightLEDButton2>(manageButtonPos, module, Terrorform::LOAD_TABLE_SWITCH_PARAM);
+    manageButton->momentary = true;
 
-    loadButton->onClick = [=]() {
+    manageButton->onClick = [=]() {
         octaveKnob->visible = false;
         coarseKnob->visible = false;
         fineKnob->visible = false;
@@ -1073,7 +1082,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percVelocityCV2->visible = false;
 
         userBankButton->visible = false;
-        loadButton->visible = false;
+        manageButton->visible = false;
         percButton->visible = false;
 
         percButtonLight->visible = false;
@@ -1082,7 +1091,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         editor->visible = true;
         inEditorMode = true;
     };
-    addParam(loadButton);
+    addParam(manageButton);
 
     auto onExitEditor = [=]() {
         octaveKnob->visible = true;
@@ -1141,7 +1150,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percVelocityCV2->visible = true;
 
         userBankButton->visible = true;
-        loadButton->visible = true;
+        manageButton->visible = true;
         percButton->visible = true;
 
         percButtonLight->visible = true;
@@ -1262,32 +1271,85 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     Terrorform *module = dynamic_cast<Terrorform*>(this->module);
     assert(module);
 
+    // Panel style items
     menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
-    menu->addChild(construct<TerrorformPanelStyleItem>(&MenuItem::text, "Dark", &TerrorformPanelStyleItem::module,
-                                                    module, &TerrorformPanelStyleItem::panelStyle, 0));
-    menu->addChild(construct<TerrorformPanelStyleItem>(&MenuItem::text, "Light", &TerrorformPanelStyleItem::module,
-                                                      module, &TerrorformPanelStyleItem::panelStyle, 1));
 
-    menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Display style"));
-    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Red LED", &TerrorformDisplayStyleItem::module,
-                                                    module, &TerrorformDisplayStyleItem::displayStyle, 0));
-    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Yellow LED", &TerrorformDisplayStyleItem::module,
-                                                    module, &TerrorformDisplayStyleItem::displayStyle, 1));
-    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Green LED", &TerrorformDisplayStyleItem::module,
-                                                    module, &TerrorformDisplayStyleItem::displayStyle, 2));
-    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "Blue VFD", &TerrorformDisplayStyleItem::module,
-                                                      module, &TerrorformDisplayStyleItem::displayStyle, 3));
-    menu->addChild(construct<TerrorformDisplayStyleItem>(&MenuItem::text, "White LED", &TerrorformDisplayStyleItem::module,
-                                                      module, &TerrorformDisplayStyleItem::displayStyle, 4));
+    MenuLabel* panelStyleLabel = new MenuLabel;
+    panelStyleLabel->text = "Panel style";
+    menu->addChild(panelStyleLabel);
 
+    TerrorformPanelStyleItem* darkPanelStyleItem = new TerrorformPanelStyleItem;
+    darkPanelStyleItem->text = "Dark";
+    darkPanelStyleItem->module = module;
+    darkPanelStyleItem->panelStyle = 0;
+    menu->addChild(darkPanelStyleItem);
+
+    TerrorformPanelStyleItem* lightPanelStyleItem = new TerrorformPanelStyleItem;
+    lightPanelStyleItem->text = "Light";
+    lightPanelStyleItem->module = module;
+    lightPanelStyleItem->panelStyle = 1;
+    menu->addChild(lightPanelStyleItem);
+
+    // Display style items
     menu->addChild(construct<MenuLabel>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "FM Mode"));
-    menu->addChild(construct<TerrorformFMModeItem>(&MenuItem::text, "DX Style Phase Modulation", &TerrorformFMModeItem::module,
-                                                    module, &TerrorformFMModeItem::fmMode, 0));
-    menu->addChild(construct<TerrorformFMModeItem>(&MenuItem::text, "\"True\" Modulation", &TerrorformFMModeItem::module,
-                                                    module, &TerrorformFMModeItem::fmMode, 1));
+
+    MenuLabel* displayStyleLabel = new MenuLabel;
+    displayStyleLabel->text = "Display style";
+    menu->addChild(displayStyleLabel);
+
+    TerrorformDisplayStyleItem* redLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    redLEDDisplayStyleItem->text = "Red LED";
+    redLEDDisplayStyleItem->module = module;
+    redLEDDisplayStyleItem->displayStyle = 0;
+    menu->addChild(redLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* yellowLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    yellowLEDDisplayStyleItem->text = "Yellow LED";
+    yellowLEDDisplayStyleItem->module = module;
+    yellowLEDDisplayStyleItem->displayStyle = 1;
+    menu->addChild(yellowLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* greenLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    greenLEDDisplayStyleItem->text = "Green LED";
+    greenLEDDisplayStyleItem->module = module;
+    greenLEDDisplayStyleItem->displayStyle = 2;
+    menu->addChild(greenLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* blueLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    blueLEDDisplayStyleItem->text = "Blue LED";
+    blueLEDDisplayStyleItem->module = module;
+    blueLEDDisplayStyleItem->displayStyle = 3;
+    menu->addChild(blueLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* whiteLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    whiteLEDDisplayStyleItem->text = "White LED";
+    whiteLEDDisplayStyleItem->module = module;
+    whiteLEDDisplayStyleItem->displayStyle = 4;
+    menu->addChild(whiteLEDDisplayStyleItem);
+
+    // FM mode Items
+    menu->addChild(construct<MenuLabel>());
+
+    MenuLabel* fmModeStyleLabel = new MenuLabel;
+    fmModeStyleLabel->text = "FM Mode";
+    menu->addChild(fmModeStyleLabel);
+
+    TerrorformFMModeItem* dxModeItem = new TerrorformFMModeItem;
+    dxModeItem->text = "DX Style Phase Modulation";
+    dxModeItem->module = module;
+    dxModeItem->fmMode = 0;
+    menu->addChild(dxModeItem);
+
+    TerrorformFMModeItem* trueFMModeItem = new TerrorformFMModeItem;
+    trueFMModeItem->text = "\"True\" Modulation";
+    trueFMModeItem->module = module;
+    trueFMModeItem->fmMode = 1;
+    menu->addChild(trueFMModeItem);
+
+    TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
+    subMenu->text = "Holly";
+    subMenu->rightText = RIGHT_ARROW;
+    menu->addChild(subMenu);
  }
 
 void TerrorformWidget::step() {
