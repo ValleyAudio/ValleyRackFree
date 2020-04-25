@@ -2,7 +2,7 @@
 #define TFORM_EDITOR_CLONE_MENU_HPP
 #include "MenuBase.hpp"
 #include "QuestionMenu.hpp"
-#include "TextField.hpp"
+#include "TFormTextField.hpp"
 #include "../TerrorformWaveBank.hpp"
 
 struct TFormCloneMenuSourcePage : TFormMenu {

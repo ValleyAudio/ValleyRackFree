@@ -77,7 +77,8 @@ void TFormEditMainMenu::step() {
     clearButton->setEnable(selectedBankIsFilled);
     cloneButton->setEnable(selectedBankIsFilled);
     moveButton->setEnable(selectedBankIsFilled);
-    nameField->enabled = selectedBankIsFilled;
+    nameField->visible = selectedBankIsFilled;
+
     int row = 0;
     int col = 0;
     for(int i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
@@ -100,15 +101,6 @@ void TFormEditMainMenu::draw(const DrawArgs& args) {
     std::string bankNum = std::to_string(*selectedBank + 1);
     nvgTextAlign(args.vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
     nvgText(args.vg, 3 + buttonWidth, 5, bankNum.c_str(), NULL);
-
-    // if(selectedBankIsFilled) {
-    //     nvgFillColor(args.vg, nvgRGB(0xFF, 0x00, 0x00));
-    //     nvgFontFaceId(args.vg, font->handle);
-    //     nvgTextLetterSpacing(args.vg, 0.0);
-    //     nvgFontSize(args.vg, 12);
-    //     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    //     nvgText(args.vg, 55, 5, strFilled.c_str(), NULL);
-    // }
 
     Widget::draw(args);
 }

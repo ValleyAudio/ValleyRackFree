@@ -1,6 +1,6 @@
 #ifndef TFORM_EDITOR_LOAD_MENU_HPP
 #define TFORM_EDITOR_LOAD_MENU_HPP
-#include "TextField.hpp"
+#include "TFormTextField.hpp"
 #include "MenuBase.hpp"
 
 struct TFormLoadMenu : TFormMenu {

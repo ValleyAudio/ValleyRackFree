@@ -14,6 +14,7 @@ struct TFormTextField : TextField {
 
     TFormTextField();
     void draw(const DrawArgs& args) override;
+
     void onSelect(const event::Select& e) override;
     void onDeselect(const event::Deselect& e) override;
     void onEnter(const event::Enter& e) override;

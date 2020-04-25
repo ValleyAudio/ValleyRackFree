@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_MAIN_MENU_HPP
 #define TFORM_EDITOR_MAIN_MENU_HPP
 #include "MenuBase.hpp"
-#include "TextField.hpp"
+#include "TFormTextField.hpp"
 #include "../TerrorformWaveBank.hpp"
 
 struct TFormEditMainMenu : TFormMenu {
@@ -17,7 +17,7 @@ struct TFormEditMainMenu : TFormMenu {
     TFormEditorButtonStyleSet filledSlotStyle;
     TerrorformWaveBank bank;
     TFormTextField* nameField;
-
+    
     std::vector<bool> slotFilled;
     std::shared_ptr<int> selectedBank;
     bool selectedBankIsFilled;
