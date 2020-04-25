@@ -206,11 +206,9 @@ void Terrorform::process(const ProcessArgs &args) {
         counter = 0;
     }
 
-    // Perc mode logic
-
+    // Perc mode press / hold
     percButtonPressed = params[PERC_SWITCH_PARAM].getValue() > 0.5f;
     if (percButtonPressed) {
-        //printf("%f\n", percButtonTimer.time);
         if (percButtonTimer.time < 0.5f) {
             percButtonTimer.process(APP->engine->getSampleTime());
         }
@@ -235,7 +233,6 @@ void Terrorform::process(const ProcessArgs &args) {
         percButtonHeldDown = false;
         percButtonTimer.reset();
     }
-
     percButtonPrevState = percButtonPressed;
 
     // Perc trigger logic
@@ -627,13 +624,8 @@ void TerrorformFMModeItem::step() {
     MenuItem::step();
 }
 
-Menu* TerrorformTestSubMenu::createChildMenu() {
-    Menu* menu = new Menu;
-    MenuLabel* testLabel = new MenuLabel;
-
-    testLabel->text = "I'm in there";
-    menu->addChild(testLabel);
-    return menu;
+void TerrorformManagerItem::onAction(const event::Action &e) {
+    openMenu();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1043,77 +1035,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     lfoButtonLight = createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT);
     addChild(lfoButtonLight);
 
-    manageButton = createParam<LightLEDButton2>(manageButtonPos, module, Terrorform::LOAD_TABLE_SWITCH_PARAM);
-    manageButton->momentary = true;
-
-    manageButton->onClick = [=]() {
-        octaveKnob->visible = false;
-        coarseKnob->visible = false;
-        fineKnob->visible = false;
-        bankKnob->visible = false;
-        waveKnob->visible = false;
-        shapeTypeKnob->visible = false;
-        shapeDepthKnob->visible = false;
-        degradeTypeKnob->visible = false;
-        degradeDepthKnob->visible = false;
-        decayKnob->visible = false;
-        velocityKnob->visible = false;
-
-        bankBackText->visible = false;
-        shapeBackText->visible = false;
-        degradeBackText->visible = false;
-
-        bankText->visible = false;
-        shapeText->visible = false;
-        degradeText->visible = false;
-        waveText->visible = false;
-        shapeDepthText->visible = false;
-        degradeDepthText->visible = false;
-
-        bankBlurText->visible = false;
-        bankBlurText2->visible = false;
-        waveBlurText->visible = false;
-        waveBlurText2->visible = false;
-        shapeBlurText->visible = false;
-        shapeBlurText2->visible = false;
-        shapeDepthBlurText->visible = false;
-        shapeDepthBlurText2->visible = false;
-        degradeBlurText->visible = false;
-        degradeBlurText2->visible = false;
-        degradeDepthBlurText->visible = false;
-        degradeDepthBlurText2->visible = false;
-
-        vOct1CV->visible = false;
-        vOct2CV->visible = false;
-        bankCV1->visible = false;
-        bankCV2->visible = false;
-        waveCV1->visible = false;
-        waveCV2->visible = false;
-        shapeTypeCV1->visible = false;
-        shapeTypeCV2->visible = false;
-        shapeDepthCV1->visible = false;
-        shapeDepthCV2->visible = false;
-        degradeTypeCV1->visible = false;
-        degradeTypeCV2->visible = false;
-        degradeDepthCV1->visible = false;
-        degradeDepthCV2->visible = false;
-        percDecayCV1->visible = false;
-        percDecayCV2->visible = false;
-        percVelocityCV1->visible = false;
-        percVelocityCV2->visible = false;
-
-        userBankButton->visible = false;
-        manageButton->visible = false;
-        percButton->visible = false;
-
-        percButtonLight->visible = false;
-        lfoButtonLight->visible = false;
-
-        editor->visible = true;
-        inEditorMode = true;
-    };
-    addParam(manageButton);
-
     auto onExitEditor = [=]() {
         octaveKnob->visible = true;
         coarseKnob->visible = true;
@@ -1171,7 +1092,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percVelocityCV2->visible = true;
 
         userBankButton->visible = true;
-        manageButton->visible = true;
         percButton->visible = true;
 
         percButtonLight->visible = true;
@@ -1367,10 +1287,82 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     trueFMModeItem->fmMode = 1;
     menu->addChild(trueFMModeItem);
 
-    TerrorformTestSubMenu* subMenu = new TerrorformTestSubMenu;
-    subMenu->text = "Holly";
-    subMenu->rightText = RIGHT_ARROW;
-    menu->addChild(subMenu);
+    // Manager item
+    menu->addChild(construct<MenuLabel>());
+
+    MenuLabel* managerLabel = new MenuLabel;
+    managerLabel->text = "User Bank Manager";
+    menu->addChild(managerLabel);
+
+    TerrorformManagerItem* managerItem = new TerrorformManagerItem;
+    managerItem->text = "Open";
+    managerItem->openMenu = [=]() {
+        octaveKnob->visible = false;
+        coarseKnob->visible = false;
+        fineKnob->visible = false;
+        bankKnob->visible = false;
+        waveKnob->visible = false;
+        shapeTypeKnob->visible = false;
+        shapeDepthKnob->visible = false;
+        degradeTypeKnob->visible = false;
+        degradeDepthKnob->visible = false;
+        decayKnob->visible = false;
+        velocityKnob->visible = false;
+
+        bankBackText->visible = false;
+        shapeBackText->visible = false;
+        degradeBackText->visible = false;
+
+        bankText->visible = false;
+        shapeText->visible = false;
+        degradeText->visible = false;
+        waveText->visible = false;
+        shapeDepthText->visible = false;
+        degradeDepthText->visible = false;
+
+        bankBlurText->visible = false;
+        bankBlurText2->visible = false;
+        waveBlurText->visible = false;
+        waveBlurText2->visible = false;
+        shapeBlurText->visible = false;
+        shapeBlurText2->visible = false;
+        shapeDepthBlurText->visible = false;
+        shapeDepthBlurText2->visible = false;
+        degradeBlurText->visible = false;
+        degradeBlurText2->visible = false;
+        degradeDepthBlurText->visible = false;
+        degradeDepthBlurText2->visible = false;
+
+        vOct1CV->visible = false;
+        vOct2CV->visible = false;
+        bankCV1->visible = false;
+        bankCV2->visible = false;
+        waveCV1->visible = false;
+        waveCV2->visible = false;
+        shapeTypeCV1->visible = false;
+        shapeTypeCV2->visible = false;
+        shapeDepthCV1->visible = false;
+        shapeDepthCV2->visible = false;
+        degradeTypeCV1->visible = false;
+        degradeTypeCV2->visible = false;
+        degradeDepthCV1->visible = false;
+        degradeDepthCV2->visible = false;
+        percDecayCV1->visible = false;
+        percDecayCV2->visible = false;
+        percVelocityCV1->visible = false;
+        percVelocityCV2->visible = false;
+
+        userBankButton->visible = false;
+        percButton->visible = false;
+
+        percButtonLight->visible = false;
+        lfoButtonLight->visible = false;
+
+        editor->visible = true;
+        inEditorMode = true;
+    };
+    menu->addChild(managerItem);
+
  }
 
 void TerrorformWidget::step() {

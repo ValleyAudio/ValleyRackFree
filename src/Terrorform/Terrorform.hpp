@@ -310,9 +310,9 @@ struct TerrorformFMModeItem : MenuItem {
     void step() override;
 };
 
-struct TerrorformTestSubMenu : MenuItem {
-    Terrorform* module;
-    Menu* createChildMenu() override;
+struct TerrorformManagerItem : MenuItem {
+    std::function<void()> openMenu;
+    void onAction(const event::Action &e) override;
 };
 
 struct TerrorformWidget : ModuleWidget {
