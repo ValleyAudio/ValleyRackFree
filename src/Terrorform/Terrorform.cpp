@@ -36,8 +36,8 @@ Terrorform::Terrorform() {
     configParam(Terrorform::PERC_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV2 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV1 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV2 Atten.");
-    configParam(Terrorform::TRIGGER_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 1");
-    configParam(Terrorform::TRIGGER_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 2");
+    // configParam(Terrorform::TRIGGER_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 1");
+    // configParam(Terrorform::TRIGGER_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 2");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -236,28 +236,28 @@ void Terrorform::process(const ProcessArgs &args) {
     percButtonPrevState = percButtonPressed;
 
     // Perc trigger logic
-    trig1 = 0.f;
-    if (params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1ButtonState == false) {
-        trig1ButtonState = true;
-        trig1 = 1.f;
-        trig1LightPulse.trigger(trigLightDurationSamples);
-    }
-    if (params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1ButtonState == true) {
-        trig1ButtonState = false;
-    }
-
-    trig2 = 0.f;
-    if (params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2ButtonState == false) {
-        trig2ButtonState = true;
-        trig2 = 1.f;
-        trig2LightPulse.trigger(trigLightDurationSamples);
-    }
-    if (params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2ButtonState == true) {
-        trig2ButtonState = false;
-    }
-
-    lights[TRIGGER_1_LIGHT].value = trig1LightPulse.process(1.f) ? 10.f : 0.f;
-    lights[TRIGGER_2_LIGHT].value = trig2LightPulse.process(1.f) ? 10.f : 0.f;
+    // trig1 = 0.f;
+    // if (params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1ButtonState == false) {
+    //     trig1ButtonState = true;
+    //     trig1 = 1.f;
+    //     trig1LightPulse.trigger(trigLightDurationSamples);
+    // }
+    // if (params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1ButtonState == true) {
+    //     trig1ButtonState = false;
+    // }
+    //
+    // trig2 = 0.f;
+    // if (params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2ButtonState == false) {
+    //     trig2ButtonState = true;
+    //     trig2 = 1.f;
+    //     trig2LightPulse.trigger(trigLightDurationSamples);
+    // }
+    // if (params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2ButtonState == true) {
+    //     trig2ButtonState = false;
+    // }
+    //
+    // lights[TRIGGER_1_LIGHT].value = trig1LightPulse.process(1.f) ? 10.f : 0.f;
+    // lights[TRIGGER_2_LIGHT].value = trig2LightPulse.process(1.f) ? 10.f : 0.f;
 
     // Sync button logic
     weakSwitch1State = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
@@ -339,6 +339,7 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
 
     __decay = _mm_set1_ps(params[PERC_DECAY_PARAM].getValue());
+    __velocity = _mm_set1_ps(params[PERC_VELOCITY_PARAM].getValue());
 
     // Tick the oscillator
     int g = 0;
@@ -356,8 +357,10 @@ void Terrorform::process(const ProcessArgs &args) {
         __prevSync1 = __sync1;
         __prevSync2 = __sync2;
 
-        __trigger1 = _mm_add_ps(_mm_load_ps(trigger1 + g), _mm_set1_ps(trig1));
-        __trigger2 = _mm_add_ps(_mm_load_ps(trigger2 + g), _mm_set1_ps(trig2));
+        __trigger1 = _mm_load_ps(trigger1 + g);
+        __trigger2 = _mm_load_ps(trigger2 + g);
+        __trigger1 = _mm_mul_ps(__trigger1, __velocity);
+        __trigger2 = _mm_mul_ps(__trigger2, __velocity);
 
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
         __fmA = _mm_mul_ps(__fmA, __fmA1Level);
@@ -1019,10 +1022,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     percButtonLight = createLightCentered<LargeLight<RedGreenBlueLight>>(percSwitchPos, module, Terrorform::PERCUSSION_RED_LIGHT);
     addChild(percButtonLight);
 
-    addChild(createParamCentered<LightLEDButton3>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_SWITCH_PARAM));
-    addChild(createParamCentered<LightLEDButton3>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_SWITCH_PARAM));
-    addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_LIGHT));
-    addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_LIGHT));
+    // addChild(createParamCentered<LightLEDButton3>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_SWITCH_PARAM));
+    // addChild(createParamCentered<LightLEDButton3>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_SWITCH_PARAM));
+    // addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_LIGHT));
+    // addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_LIGHT));
     addChild(createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM));
     addChild(createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));

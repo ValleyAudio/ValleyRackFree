@@ -240,7 +240,7 @@ struct Terrorform : Module {
     float trigLightDurationTime = 0.125f;
     float trigLightDurationSamples = trigLightDurationTime * 44100.f;
     VecLPG lpg[kMaxNumGroups];
-    __m128 __decay;
+    __m128 __decay, __velocity;
 
     // FM
     int fmMode = 0;

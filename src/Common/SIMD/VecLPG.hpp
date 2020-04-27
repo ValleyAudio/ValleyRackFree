@@ -7,6 +7,7 @@
 
 #pragma once
 #include "SIMDUtilities.hpp"
+#include "VecAREnvelope.hpp"
 #include "VecOnePoleFilters.hpp"
 
 /** A vectorised lowpass gate with simple AR envelope generator.
@@ -47,8 +48,11 @@ public:
         // value is derived using the rising / falling flags, e.g. rising is env = 1 - seg and
         // falling is just env = seg
 
-        __env = _mm_switch_ps(__env, trigger, _mm_cmpgt_ps(trigger, __zeros));
-        __env = _mm_mul_ps(__env, __decay);
+        __env = __envelope.process(trigger);
+
+        // __env = _mm_switch_ps(__env, trigger, _mm_cmpgt_ps(trigger, __zeros));
+        // __env = _mm_mul_ps(__env, __decay);
+
 
         __vca = _mm_mul_ps(x, __env);
 
@@ -80,7 +84,7 @@ public:
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, _mm_set1_ps(0.001995));
         __decay = _mm_add_ps(__decay, _mm_set1_ps(0.000005));
-        __decay = _mm_sub_ps(__ones, __decay);
+        __envelope.fallRate = _mm_sub_ps(__ones, __decay);
     }
 
     void setSampleRate(float newSampleRate) {
@@ -88,5 +92,5 @@ public:
         _lpf2.setSampleRate(newSampleRate);
     }
 private:
-    __m128 __prevTrigger;
+    VecAREnvelope __envelope;
 };
