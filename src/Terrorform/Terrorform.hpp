@@ -79,10 +79,10 @@ struct Terrorform : Module {
     enum OutputIds {
         PHASOR_OUTPUT,
         END_OF_CYCLE_OUTPUT,
-        PRE_DEGRADE_OUTPUT,
-        SUB_OUTPUT,
-        MAIN_OUTPUT,
+        SHAPED_PHASOR_OUTPUT,
+        RAW_OUTPUT,
         ENVELOPE_OUTPUT,
+        MAIN_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -151,7 +151,7 @@ struct Terrorform : Module {
     int panelStyle = 0;
     int displayStyle = 0;
 
-    static const int kMaxNumGroups = 1;
+    static const int kMaxNumGroups = 4;
     ScanningQuadOsc osc[kMaxNumGroups];
 
     // User wave table data
@@ -258,6 +258,8 @@ struct Terrorform : Module {
     float* fmBVCA;
     float* trigger1;
     float* trigger2;
+    float* velocity1;
+    float* velocity2;
     __m128 __fmA, __fmB, __fmSum;
     __m128 __fmAVCA, __fmBVCA;
     __m128 __fmA1Level, __fmA2Level, __fmB1Level, __fmB2Level;
@@ -506,9 +508,9 @@ struct TerrorformWidget : ModuleWidget {
     // Outputs
     Vec phasorOutPos = Vec(70, 330);
     Vec eocOutPos = Vec(102, 330);
-    Vec envOutPos = Vec(134, 330);
-    Vec preEnhancePos = Vec(166, 330);
-    Vec subOutPos = Vec(198, 330);
+    Vec shapedOutPos = Vec(134, 330);
+    Vec rawOutPos = Vec(166, 330);
+    Vec envOutPos = Vec(198, 330);
     Vec mainOutPos = Vec(230, 330);
 
     // Text

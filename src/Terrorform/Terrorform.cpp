@@ -29,15 +29,13 @@ Terrorform::Terrorform() {
     configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 1");
     configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 2");
 
-    configParam(Terrorform::PERC_DECAY_PARAM, 0.0, 1.0, 0.5, "Perc Decay");
-    configParam(Terrorform::PERC_VELOCITY_PARAM, 0.0, 1.0, 1.0, "Perc Velocity");
+    configParam(Terrorform::PERC_DECAY_PARAM, 0.0, 1.0, 0.5, "Lowpass Gate Attack");
+    configParam(Terrorform::PERC_VELOCITY_PARAM, 0.0, 1.0, 1.0, "Lowpass Gate Decay");
     configParam(Terrorform::PERC_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Enable");
     configParam(Terrorform::PERC_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV1 Atten.");
     configParam(Terrorform::PERC_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV2 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV1 Atten.");
     configParam(Terrorform::PERC_VELOCITY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV2 Atten.");
-    // configParam(Terrorform::TRIGGER_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 1");
-    // configParam(Terrorform::TRIGGER_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Trigger 2");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -235,30 +233,6 @@ void Terrorform::process(const ProcessArgs &args) {
     }
     percButtonPrevState = percButtonPressed;
 
-    // Perc trigger logic
-    // trig1 = 0.f;
-    // if (params[TRIGGER_1_SWITCH_PARAM].getValue() > 0.5f && trig1ButtonState == false) {
-    //     trig1ButtonState = true;
-    //     trig1 = 1.f;
-    //     trig1LightPulse.trigger(trigLightDurationSamples);
-    // }
-    // if (params[TRIGGER_1_SWITCH_PARAM].getValue() < 0.5f && trig1ButtonState == true) {
-    //     trig1ButtonState = false;
-    // }
-    //
-    // trig2 = 0.f;
-    // if (params[TRIGGER_2_SWITCH_PARAM].getValue() > 0.5f && trig2ButtonState == false) {
-    //     trig2ButtonState = true;
-    //     trig2 = 1.f;
-    //     trig2LightPulse.trigger(trigLightDurationSamples);
-    // }
-    // if (params[TRIGGER_2_SWITCH_PARAM].getValue() < 0.5f && trig2ButtonState == true) {
-    //     trig2ButtonState = false;
-    // }
-    //
-    // lights[TRIGGER_1_LIGHT].value = trig1LightPulse.process(1.f) ? 10.f : 0.f;
-    // lights[TRIGGER_2_LIGHT].value = trig2LightPulse.process(1.f) ? 10.f : 0.f;
-
     // Sync button logic
     weakSwitch1State = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
     if (weakSwitch1State && !prevWeakSwitch1State) {
@@ -416,14 +390,14 @@ void Terrorform::process(const ProcessArgs &args) {
         // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__filterOutput, __percFilterMode);
 
         _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
-        _mm_store_ps(outputs[PRE_DEGRADE_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
+        _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
     }
 
     outputs[ENVELOPE_OUTPUT].setChannels(kMaxNumGroups * 4);
-    outputs[PRE_DEGRADE_OUTPUT].setChannels(kMaxNumGroups * 4);
+    outputs[SHAPED_PHASOR_OUTPUT].setChannels(kMaxNumGroups * 4);
     outputs[PHASOR_OUTPUT].setChannels(kMaxNumGroups * 4);
     outputs[END_OF_CYCLE_OUTPUT].setChannels(kMaxNumGroups * 4);
     outputs[MAIN_OUTPUT].setChannels(kMaxNumGroups * 4);
@@ -634,10 +608,10 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
-    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/Cell/CellDarkInky3.svg",
-                                                            "res/Cell/CellLightInky3.svg",
-                                                            "res/Cell/CellDarkLoader3.svg",
-                                                            "res/Cell/CellDarkLoader3.svg"};
+    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/Cell/TerrorformDark.svg",
+                                                            "res/Cell/TerrorformLight.svg",
+                                                            "res/Cell/TerrorformDarkLoader.svg",
+                                                            "res/Cell/TerrorformLightLoader.svg"};
     setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[TRRFORM_DARK_PANEL_NORMAL])));
     for(auto i = 1; i < NUM_TRRFORM_PANELS; ++i) {
@@ -686,9 +660,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(phasorOutPos, module, Terrorform::PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(shapedOutPos, module, Terrorform::SHAPED_PHASOR_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(rawOutPos, module, Terrorform::RAW_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MDarkSmallOut>(preEnhancePos, module, Terrorform::PRE_DEGRADE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MDarkSmallOut>(subOutPos, module, Terrorform::SUB_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
 
     // Knobs
@@ -1568,7 +1542,7 @@ void TerrorformWidget::importWavetables() {
         }
     }
 
-    // Read in wavetable names
+    // Read in wavetable names (probably not the CS way but it gets around pesky memory errors)
     tform->userWaveTableNames.clear();
     char letter = ' ';
     std::string name;
