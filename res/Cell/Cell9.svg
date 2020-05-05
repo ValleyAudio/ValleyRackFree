@@ -557,8 +557,8 @@
 </g>
 <text transform="matrix(1 0 0 1 140.912 249.7234)" class="st6 st7 st10">Mode</text>
 <g id="layer1_19_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path2706_2_" class="st28" d="M190.1,302.9c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
-		C193.1,309.6,190.1,306.6,190.1,302.9L190.1,302.9z"/>
+	<path id="path2706_2_" class="st28" d="M190.1,302.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
+		C193.1,309.5,190.1,306.5,190.1,302.8L190.1,302.8z"/>
 </g>
 <text transform="matrix(1 0 0 1 78.0559 283.8968)" class="st6 st7 st9">Sync</text>
 <text transform="matrix(1 0 0 1 140.6716 283.8968)" class="st6 st7 st9">Gate</text>
@@ -926,7 +926,7 @@
 </g>
 <g>
 	<path class="st1" d="M139.8,280.5c-2,0-3.7-1.6-3.7-3.7"/>
-	<path class="st1" d="M136.1,276.8v-13.8"/>
+	<path class="st1" d="M136.1,276.8V263"/>
 </g>
 <g id="layer1_38_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path7255_18_" inkscape:connector-curvature="0" class="st23" d="M225.9,394.8c-5.7,0-10.3-4.6-10.3-10.3

@@ -81,6 +81,7 @@ struct Terrorform : Module {
         END_OF_CYCLE_OUTPUT,
         SHAPED_PHASOR_OUTPUT,
         RAW_OUTPUT,
+        ENHANCER_OUTPUT,
         ENVELOPE_OUTPUT,
         MAIN_OUTPUT,
         NUM_OUTPUTS
@@ -132,6 +133,8 @@ struct Terrorform : Module {
         TRIGGER_2_SWITCH_PARAM,
         WEAK_SYNC_1_SWITCH_PARAM,
         WEAK_SYNC_2_SWITCH_PARAM,
+        TRUE_FM_SWITCH_PARAM,
+        SWAP_SWITCH_PARAM,
         NUM_PARAMS
     };
 
@@ -145,6 +148,8 @@ struct Terrorform : Module {
         TRIGGER_2_LIGHT,
         WEAK_SYNC_1_LIGHT,
         WEAK_SYNC_2_LIGHT,
+        TRUE_FM_LIGHT,
+        SWAP_LIGHT,
         NUM_LIGHTS
     };
 
@@ -386,8 +391,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthPos = Vec(230, 138);
     Vec degradeTypePos = Vec(79, 182);
     Vec degradeDepthPos = Vec(221, 182);
-    Vec percDecayPos = Vec(125, 200);
-    Vec percVelocityPos = Vec(175, 200);
+    Vec percAttackPos = Vec(125, 200);
+    Vec percDecayPos = Vec(175, 200);
 
     RoganMedBlue* octaveKnob;
     RoganMedBlue* coarseKnob;
@@ -416,10 +421,10 @@ struct TerrorformWidget : ModuleWidget {
     Vec degradeTypeCV2Pos = Vec(75, 224);
     Vec degradeDepthCV1Pos = Vec(263, 198);
     Vec degradeDepthCV2Pos = Vec(225, 224);
-    Vec percDecayCV1Pos = Vec(99, 215);
-    Vec percDecayCV2Pos = Vec(123, 234);
-    Vec percVelocityCV1Pos = Vec(178, 234);
-    Vec percVelocityCV2Pos = Vec(201, 215);
+    Vec percAttackCV1Pos = Vec(99, 215);
+    Vec percAttackCV2Pos = Vec(123, 234);
+    Vec percDecayCV1Pos = Vec(178, 234);
+    Vec percDecayCV2Pos = Vec(201, 215);
 
     RoganSmallBlue* vOct1CV;
     RoganSmallBlue* vOct2CV;
@@ -435,26 +440,28 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallGreen* degradeTypeCV2;
     RoganSmallGreen* degradeDepthCV1;
     RoganSmallGreen* degradeDepthCV2;
+    RoganSmallMustard* percAttackCV1;
+    RoganSmallMustard* percAttackCV2;
     RoganSmallMustard* percDecayCV1;
     RoganSmallMustard* percDecayCV2;
-    RoganSmallMustard* percVelocityCV1;
-    RoganSmallMustard* percVelocityCV2;
 
     // Switches
     LightLEDButton2* userBankButton;
     LightLEDButton2* manageButton;
-    LightLEDButton3* percButton;
+    LightLEDButton2* percButton;
 
     MediumLight<RedLight>* lfoButtonLight;
-    LargeLight<RedGreenBlueLight>* percButtonLight;
+    MediumLight<RedGreenBlueLight>* percButtonLight;
 
-    Vec percSwitchPos = Vec(150, 219);
-    Vec trigSwitch1Pos = Vec(118, 282);
-    Vec trigSwitch2Pos = Vec(182, 282);
-    Vec userBankSwitchPos = Vec(143.3, 77.3);
-    Vec manageButtonPos = Vec(143.3, 102.3);
-    Vec weakSyncSwitch1Pos = Vec(87, 299);
-    Vec weakSyncSwitch2Pos = Vec(213, 299);
+    Vec lfoButtonPos = Vec(121, 55);
+    Vec zeroFreqButtonPos = Vec(179, 55);
+    Vec userBankSwitchPos = Vec(150, 98);
+    Vec lpgModeSwitchPos = Vec(150, 209);
+    Vec lpgTrigSwitchPos = Vec(150, 234);
+    Vec weakSyncSwitch1Pos = Vec(110, 278);
+    Vec weakSyncSwitch2Pos = Vec(190, 278);
+    Vec trueFMButtonPos = Vec(81.64, 301);
+    Vec swapButtonPos = Vec(218.34, 301);
 
     Vec vcaAPos = Vec(44, 278);
     Vec fmA1Pos = Vec(44, 303);
@@ -495,23 +502,24 @@ struct TerrorformWidget : ModuleWidget {
     Vec fmB1InputPos = Vec(col2X, 307);
     Vec fmB2InputPos = Vec(col2X, 339);
 
-    Vec syncInput1Pos = Vec(87, 264);
-    Vec syncInput2Pos = Vec(213, 264);
+    Vec syncInput1Pos = Vec(88, 264);
+    Vec syncInput2Pos = Vec(212, 264);
 
-    Vec decayInput1Pos = Vec(93, 240);
-    Vec decayInput2Pos = Vec(111, 258);
-    Vec velocityInput1Pos = Vec(207, 240);
-    Vec velocityInput2Pos = Vec(189, 258);
-    Vec triggerInput1Pos = Vec(135, 254);
-    Vec triggerInput2Pos = Vec(165, 254);
+    Vec attackInput1Pos = Vec(93, 240);
+    Vec attackInput2Pos = Vec(112, 257);
+    Vec decayInput1Pos = Vec(207, 240);
+    Vec decayInput2Pos = Vec(188, 257);
+    Vec triggerInput1Pos = Vec(136, 264);
+    Vec triggerInput2Pos = Vec(164, 264);
 
     // Outputs
-    Vec phasorOutPos = Vec(70, 330);
-    Vec eocOutPos = Vec(102, 330);
-    Vec shapedOutPos = Vec(134, 330);
-    Vec rawOutPos = Vec(166, 330);
-    Vec envOutPos = Vec(198, 330);
-    Vec mainOutPos = Vec(230, 330);
+    Vec phasorOutPos =  Vec(67.9541, 331);
+    Vec eocOutPos =     Vec(95.3541, 331);
+    Vec shapedOutPos =  Vec(122.9541, 331);
+    Vec rawOutPos =     Vec(150, 331);
+    Vec degraderOutPos = Vec(177.3541, 331);
+    Vec envOutPos =     Vec(204.6541, 331);
+    Vec mainOutPos =    Vec(231.9541, 331);
 
     // Text
     Vec bankTextPos = Vec(97.46, 130.358);
@@ -522,7 +530,7 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthTextPos = Vec(202.897, 143.211);
     Vec degradeDepthTextPos = Vec(202.897, 156.065);
 
-    Vec syncTextPos = Vec(149.829, 300);
+    Vec syncTextPos = Vec(149.829, 302);
 
     widget::Widget* panels[NUM_TRRFORM_PANELS];
     bool inEditorMode = false;

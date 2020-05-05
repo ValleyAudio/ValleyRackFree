@@ -651,10 +651,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addInput(createInputCentered<PJ301MDarkSmall>(fmB2InputPos, module, Terrorform::FM_B2_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(syncInput1Pos, module, Terrorform::SYNC_1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(syncInput2Pos, module, Terrorform::SYNC_2_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(decayInput1Pos, module, Terrorform::DECAY_1_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::DECAY_2_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(velocityInput1Pos, module, Terrorform::VELOCITY_1_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(velocityInput2Pos, module, Terrorform::VELOCITY_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(attackInput1Pos, module, Terrorform::DECAY_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(attackInput2Pos, module, Terrorform::DECAY_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput1Pos, module, Terrorform::VELOCITY_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::VELOCITY_2_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput1Pos, module, Terrorform::TRIGGER_1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput2Pos, module, Terrorform::TRIGGER_2_INPUT));
 
@@ -662,6 +662,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(shapedOutPos, module, Terrorform::SHAPED_PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(rawOutPos, module, Terrorform::RAW_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(degraderOutPos, module, Terrorform::ENHANCER_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
 
@@ -696,9 +697,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     degradeDepthKnob = createParamCentered<RoganMedGreen>(degradeDepthPos, module, Terrorform::DEGRADE_DEPTH_PARAM);
     addParam(degradeDepthKnob);
 
-    decayKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::PERC_DECAY_PARAM);
+    decayKnob = createParamCentered<RoganMedMustard>(percAttackPos, module, Terrorform::PERC_DECAY_PARAM);
     addParam(decayKnob);
-    velocityKnob = createParamCentered<RoganMedMustard>(percVelocityPos, module, Terrorform::PERC_VELOCITY_PARAM);
+    velocityKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::PERC_VELOCITY_PARAM);
     addParam(velocityKnob);
 
     vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
@@ -732,14 +733,14 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(degradeDepthCV1);
     addParam(degradeDepthCV2);
 
-    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM);
-    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM);
-    percVelocityCV1 = createParamCentered<RoganSmallMustard>(percVelocityCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM);
-    percVelocityCV2 = createParamCentered<RoganSmallMustard>(percVelocityCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM);
+    percAttackCV1 = createParamCentered<RoganSmallMustard>(percAttackCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM);
+    percAttackCV2 = createParamCentered<RoganSmallMustard>(percAttackCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM);
+    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM);
+    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM);
+    addParam(percAttackCV1);
+    addParam(percAttackCV2);
     addParam(percDecayCV1);
     addParam(percDecayCV2);
-    addParam(percVelocityCV1);
-    addParam(percVelocityCV2);
 
     addParam(createParamCentered<RoganSmallWhite>(vcaAPos, module, Terrorform::FM_A_VCA_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(vcaBPos, module, Terrorform::FM_B_VCA_ATTEN_PARAM));
@@ -990,26 +991,27 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     // Switches
-    percButton = createParamCentered<LightLEDButton3>(percSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
+    percButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
     addParam(percButton);
 
-    percButtonLight = createLightCentered<LargeLight<RedGreenBlueLight>>(percSwitchPos, module, Terrorform::PERCUSSION_RED_LIGHT);
+    percButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::PERCUSSION_RED_LIGHT);
     addChild(percButtonLight);
 
-    // addChild(createParamCentered<LightLEDButton3>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_SWITCH_PARAM));
-    // addChild(createParamCentered<LightLEDButton3>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_SWITCH_PARAM));
-    // addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch1Pos, module, Terrorform::TRIGGER_1_LIGHT));
-    // addChild(createLightCentered<LargeLight<RedLight>>(trigSwitch2Pos, module, Terrorform::TRIGGER_2_LIGHT));
     addChild(createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM));
     addChild(createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
 
-    userBankButton = createParam<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
+    addChild(createParamCentered<LightLEDButton>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM));
+    addChild(createParamCentered<LightLEDButton>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM));
+    addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
+
+    userBankButton = createParamCentered<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     userBankButton->momentary = false;
     addParam(userBankButton);
 
-    lfoButtonLight = createLight<MediumLight<RedLight>>(userBankSwitchPos.plus(Vec(2.5f, 2.5f)), module, Terrorform::USER_BANK_LIGHT);
+    lfoButtonLight = createLightCentered<MediumLight<RedLight>>(userBankSwitchPos, module, Terrorform::USER_BANK_LIGHT);
     addChild(lfoButtonLight);
 
     auto onExitEditor = [=]() {
@@ -1063,10 +1065,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         degradeTypeCV2->visible = true;
         degradeDepthCV1->visible = true;
         degradeDepthCV2->visible = true;
+        percAttackCV1->visible = true;
+        percAttackCV2->visible = true;
         percDecayCV1->visible = true;
         percDecayCV2->visible = true;
-        percVelocityCV1->visible = true;
-        percVelocityCV2->visible = true;
 
         userBankButton->visible = true;
         percButton->visible = true;
@@ -1324,10 +1326,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         degradeTypeCV2->visible = false;
         degradeDepthCV1->visible = false;
         degradeDepthCV2->visible = false;
+        percAttackCV1->visible = false;
+        percAttackCV2->visible = false;
         percDecayCV1->visible = false;
         percDecayCV2->visible = false;
-        percVelocityCV1->visible = false;
-        percVelocityCV2->visible = false;
 
         userBankButton->visible = false;
         percButton->visible = false;
