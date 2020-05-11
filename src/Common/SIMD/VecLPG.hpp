@@ -15,7 +15,7 @@
 class VecLPG {
 public:
     __m128 __env;
-    __m128 __decay;
+    __m128 __attack, __decay;
     __m128 __sampleRate;
     __m128 __zeros, __ones;
     __m128 __cutoff, __maxCutoff;
@@ -42,12 +42,6 @@ public:
     }
 
     __m128 process(const __m128& x, const __m128& trigger) {
-        // TODO : Replace this section with rise and fall segments. The __seg variable
-        // always starts at one, and the appropriate logic is used to decide when it has reached a
-        // target value and switch modes. In both seg is reduced by seg = seg * rate, whilst the env
-        // value is derived using the rising / falling flags, e.g. rising is env = 1 - seg and
-        // falling is just env = seg
-
         __env = __envelope.process(trigger);
 
         // __env = _mm_switch_ps(__env, trigger, _mm_cmpgt_ps(trigger, __zeros));
@@ -73,8 +67,18 @@ public:
         return __output;
     }
 
-    inline void clear() {
+    void clear() {
         __env = __zeros;
+    }
+
+    void setAttack(const __m128& attack) {
+        __attack = _mm_sub_ps(__ones, attack);
+        __attack = _mm_mul_ps(__attack, __attack);
+        __attack = _mm_mul_ps(__attack, __attack);
+        __attack = _mm_mul_ps(__attack, __attack);
+        __attack = _mm_mul_ps(__attack, _mm_set1_ps(0.03995));
+        __attack = _mm_add_ps(__attack, _mm_set1_ps(0.000005));
+        __envelope.riseRate = _mm_sub_ps(__ones, __attack);
     }
 
     void setDecay(const __m128& decay) {
@@ -82,7 +86,7 @@ public:
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
-        __decay = _mm_mul_ps(__decay, _mm_set1_ps(0.001995));
+        __decay = _mm_mul_ps(__decay, _mm_set1_ps(0.003995));
         __decay = _mm_add_ps(__decay, _mm_set1_ps(0.000005));
         __envelope.fallRate = _mm_sub_ps(__ones, __decay);
     }

@@ -18,6 +18,7 @@ struct VecAREnvelope {
     __m128 risingEdge;
     __m128 riseFinished;
     __m128 targetValue;
+    __m128 risingEpsilon, fallingEpsilon;
 
     VecAREnvelope() {
         zeros = _mm_set1_ps(0.f);
@@ -33,6 +34,8 @@ struct VecAREnvelope {
 
         riseRate = _mm_set1_ps(0.99f);
         fallRate = _mm_set1_ps(0.99f);
+        risingEpsilon = _mm_set1_ps(0.002f);
+        fallingEpsilon = _mm_set1_ps(0.000031f);
     }
 
     __m128 process(const __m128& trigger) {
@@ -40,6 +43,7 @@ struct VecAREnvelope {
         targetValue = _mm_switch_ps(targetValue, trigger, risingEdge);
         s.setStartValue(_mm_switch_ps(s.seg, _mm_sub_ps(targetValue, s.seg), _mm_and_ps(risingEdge, falling)));
 
+        s.epsilon = _mm_switch_ps(risingEpsilon, fallingEpsilon, falling);
         rising = _mm_switch_ps(rising, high, risingEdge);
         falling = _mm_switch_ps(falling, zeros, risingEdge);
         riseFinished = _mm_and_ps(s.hasFinished(), rising);

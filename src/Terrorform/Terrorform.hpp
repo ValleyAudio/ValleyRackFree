@@ -97,9 +97,8 @@ struct Terrorform : Module {
         SHAPE_DEPTH_PARAM,
         DEGRADE_TYPE_PARAM,
         DEGRADE_DEPTH_PARAM,
-        PERC_DECAY_PARAM,
-        PERC_VELOCITY_PARAM,
-        PERC_SWITCH_PARAM,
+        LPG_ATTACK_PARAM,
+        LPG_DECAY_PARAM,
 
         VOCT_1_CV_PARAM,
         VOCT_2_CV_PARAM,
@@ -115,10 +114,10 @@ struct Terrorform : Module {
         DEGRADE_TYPE_CV_2_PARAM,
         DEGRADE_DEPTH_CV_1_PARAM,
         DEGRADE_DEPTH_CV_2_PARAM,
-        PERC_DECAY_CV_1_PARAM,
-        PERC_DECAY_CV_2_PARAM,
-        PERC_VELOCITY_CV_1_PARAM,
-        PERC_VELOCITY_CV_2_PARAM,
+        LPG_ATTACK_CV_1_PARAM,
+        LPG_ATTACK_CV_2_PARAM,
+        LPG_DECAY_CV_1_PARAM,
+        LPG_DECAY_CV_2_PARAM,
         FM_A_VCA_ATTEN_PARAM,
         FM_A1_ATTEN_PARAM,
         FM_A2_ATTEN_PARAM,
@@ -129,8 +128,8 @@ struct Terrorform : Module {
         USER_BANK_SWITCH_PARAM,
         LOAD_TABLE_SWITCH_PARAM,
 
-        TRIGGER_1_SWITCH_PARAM,
-        TRIGGER_2_SWITCH_PARAM,
+        LPG_SWITCH_PARAM,
+        LPG_TRIGGER_PARAM,
         WEAK_SYNC_1_SWITCH_PARAM,
         WEAK_SYNC_2_SWITCH_PARAM,
         TRUE_FM_SWITCH_PARAM,
@@ -139,9 +138,9 @@ struct Terrorform : Module {
     };
 
     enum LightIds {
-        PERCUSSION_RED_LIGHT,
-        PERCUSSION_GREEN_LIGHT,
-        PERCUSSION_BLUE_LIGHT,
+        LPG_RED_LIGHT,
+        LPG_GREEN_LIGHT,
+        LPG_BLUE_LIGHT,
         USER_BANK_LIGHT,
         LOAD_TABLE_LIGHT,
         TRIGGER_1_LIGHT,
@@ -245,7 +244,7 @@ struct Terrorform : Module {
     float trigLightDurationTime = 0.125f;
     float trigLightDurationSamples = trigLightDurationTime * 44100.f;
     VecLPG lpg[kMaxNumGroups];
-    __m128 __decay, __velocity;
+    __m128 __attack, __decay;
 
     // FM
     int fmMode = 0;
@@ -403,8 +402,8 @@ struct TerrorformWidget : ModuleWidget {
     RoganMedRed* shapeDepthKnob;
     RoganMedGreen* degradeTypeKnob;
     RoganMedGreen* degradeDepthKnob;
+    RoganMedMustard* attackKnob;
     RoganMedMustard* decayKnob;
-    RoganMedMustard* velocityKnob;
 
     // Attenuators
     Vec vOct1CVPos = Vec(53, 43);
@@ -650,7 +649,7 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> modBusNames = {
         "PITCH", "WAVE_BANK", "WAVE_POS", "SHAPE_TYPE", "SHAPE_DEPTH", "DEGRADE_TYPE",
-        "DEGRADEDEPTH", "FM_IN", "FM_DEPTH", "SYNC_IN", "PERC_TRIG", "PERC_DECAY"
+        "DEGRADEDEPTH", "FM_IN", "FM_DEPTH", "SYNC_IN", "LPG_TRIG", "LPG_DECAY"
     };
 
     std::vector<std::string> modBusMenuItems = {

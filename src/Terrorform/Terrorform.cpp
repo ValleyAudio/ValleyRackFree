@@ -29,13 +29,14 @@ Terrorform::Terrorform() {
     configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 1");
     configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 2");
 
-    configParam(Terrorform::PERC_DECAY_PARAM, 0.0, 1.0, 0.5, "Lowpass Gate Attack");
-    configParam(Terrorform::PERC_VELOCITY_PARAM, 0.0, 1.0, 1.0, "Lowpass Gate Decay");
-    configParam(Terrorform::PERC_SWITCH_PARAM, 0.0, 1.0, 0.0, "Perc Enable");
-    configParam(Terrorform::PERC_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV1 Atten.");
-    configParam(Terrorform::PERC_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Decay CV2 Atten.");
-    configParam(Terrorform::PERC_VELOCITY_CV_1_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV1 Atten.");
-    configParam(Terrorform::PERC_VELOCITY_CV_2_PARAM, -1.0, 1.0, 0.0, "Perc Velocity CV2 Atten.");
+    configParam(Terrorform::LPG_ATTACK_PARAM, 0.0, 1.0, 0.0, "Lowpass Gate Attack");
+    configParam(Terrorform::LPG_DECAY_PARAM, 0.0, 1.0, 0.5, "Lowpass Gate Decay");
+    configParam(Terrorform::LPG_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
+    configParam(Terrorform::LPG_TRIGGER_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Mode");
+    configParam(Terrorform::LPG_ATTACK_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Attack CV1 Atten.");
+    configParam(Terrorform::LPG_ATTACK_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Attack CV2 Atten.");
+    configParam(Terrorform::LPG_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV1 Atten.");
+    configParam(Terrorform::LPG_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV2 Atten.");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -166,24 +167,24 @@ void Terrorform::process(const ProcessArgs &args) {
 
         switch ((VecLPG::Modes) percMode) {
             case VecLPG::Modes::BYPASS_MODE :
-                lights[PERCUSSION_RED_LIGHT].value = 0.f;
-                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
-                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                lights[LPG_RED_LIGHT].value = 0.f;
+                lights[LPG_GREEN_LIGHT].value = 0.f;
+                lights[LPG_BLUE_LIGHT].value = 0.f;
                 break;
             case VecLPG::Modes::VCA_MODE :
-                lights[PERCUSSION_RED_LIGHT].value = 1.f;
-                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
-                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                lights[LPG_RED_LIGHT].value = 1.f;
+                lights[LPG_GREEN_LIGHT].value = 0.f;
+                lights[LPG_BLUE_LIGHT].value = 0.f;
                 break;
             case VecLPG::Modes::FILTER_MODE :
-                lights[PERCUSSION_RED_LIGHT].value = 0.f;
-                lights[PERCUSSION_GREEN_LIGHT].value = 1.f;
-                lights[PERCUSSION_BLUE_LIGHT].value = 0.f;
+                lights[LPG_RED_LIGHT].value = 0.f;
+                lights[LPG_GREEN_LIGHT].value = 1.f;
+                lights[LPG_BLUE_LIGHT].value = 0.f;
                 break;
             case VecLPG::Modes::BOTH_MODE :
-                lights[PERCUSSION_RED_LIGHT].value = 0.f;
-                lights[PERCUSSION_GREEN_LIGHT].value = 0.f;
-                lights[PERCUSSION_BLUE_LIGHT].value = 1.f;
+                lights[LPG_RED_LIGHT].value = 0.f;
+                lights[LPG_GREEN_LIGHT].value = 0.f;
+                lights[LPG_BLUE_LIGHT].value = 1.f;
                 break;
         }
 
@@ -205,7 +206,7 @@ void Terrorform::process(const ProcessArgs &args) {
     }
 
     // Perc mode press / hold
-    percButtonPressed = params[PERC_SWITCH_PARAM].getValue() > 0.5f;
+    percButtonPressed = params[LPG_SWITCH_PARAM].getValue() > 0.5f;
     if (percButtonPressed) {
         if (percButtonTimer.time < 0.5f) {
             percButtonTimer.process(APP->engine->getSampleTime());
@@ -312,8 +313,8 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmAVCACV = _mm_set1_ps(fmAVCACV);
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
 
-    __decay = _mm_set1_ps(params[PERC_DECAY_PARAM].getValue());
-    __velocity = _mm_set1_ps(params[PERC_VELOCITY_PARAM].getValue());
+    __attack = _mm_set1_ps(params[LPG_ATTACK_PARAM].getValue());
+    __decay = _mm_set1_ps(params[LPG_DECAY_PARAM].getValue());
 
     // Tick the oscillator
     int g = 0;
@@ -333,8 +334,6 @@ void Terrorform::process(const ProcessArgs &args) {
 
         __trigger1 = _mm_load_ps(trigger1 + g);
         __trigger2 = _mm_load_ps(trigger2 + g);
-        __trigger1 = _mm_mul_ps(__trigger1, __velocity);
-        __trigger2 = _mm_mul_ps(__trigger2, __velocity);
 
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
         __fmA = _mm_mul_ps(__fmA, __fmA1Level);
@@ -365,6 +364,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
 
+        lpg[c].setAttack(__attack);
         lpg[c].setDecay(__decay);
 
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
@@ -697,10 +697,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     degradeDepthKnob = createParamCentered<RoganMedGreen>(degradeDepthPos, module, Terrorform::DEGRADE_DEPTH_PARAM);
     addParam(degradeDepthKnob);
 
-    decayKnob = createParamCentered<RoganMedMustard>(percAttackPos, module, Terrorform::PERC_DECAY_PARAM);
+    attackKnob = createParamCentered<RoganMedMustard>(percAttackPos, module, Terrorform::LPG_ATTACK_PARAM);
+    addParam(attackKnob);
+    decayKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::LPG_DECAY_PARAM);
     addParam(decayKnob);
-    velocityKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::PERC_VELOCITY_PARAM);
-    addParam(velocityKnob);
 
     vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
     vOct2CV = createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM);
@@ -733,10 +733,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(degradeDepthCV1);
     addParam(degradeDepthCV2);
 
-    percAttackCV1 = createParamCentered<RoganSmallMustard>(percAttackCV1Pos, module, Terrorform::PERC_DECAY_CV_1_PARAM);
-    percAttackCV2 = createParamCentered<RoganSmallMustard>(percAttackCV2Pos, module, Terrorform::PERC_DECAY_CV_2_PARAM);
-    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::PERC_VELOCITY_CV_1_PARAM);
-    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::PERC_VELOCITY_CV_2_PARAM);
+    percAttackCV1 = createParamCentered<RoganSmallMustard>(percAttackCV1Pos, module, Terrorform::LPG_ATTACK_CV_1_PARAM);
+    percAttackCV2 = createParamCentered<RoganSmallMustard>(percAttackCV2Pos, module, Terrorform::LPG_ATTACK_CV_2_PARAM);
+    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::LPG_DECAY_CV_1_PARAM);
+    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::LPG_DECAY_CV_2_PARAM);
     addParam(percAttackCV1);
     addParam(percAttackCV2);
     addParam(percDecayCV1);
@@ -991,10 +991,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     // Switches
-    percButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::PERC_SWITCH_PARAM);
+    percButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_SWITCH_PARAM);
     addParam(percButton);
 
-    percButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::PERCUSSION_RED_LIGHT);
+    percButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
     addChild(percButtonLight);
 
     addChild(createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM));
@@ -1024,8 +1024,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeDepthKnob->visible = true;
         degradeTypeKnob->visible = true;
         degradeDepthKnob->visible = true;
+        attackKnob->visible = true;
         decayKnob->visible = true;
-        velocityKnob->visible = true;
 
         bankBackText->visible = true;
         shapeBackText->visible = true;
@@ -1285,8 +1285,8 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         shapeDepthKnob->visible = false;
         degradeTypeKnob->visible = false;
         degradeDepthKnob->visible = false;
+        attackKnob->visible = false;
         decayKnob->visible = false;
-        velocityKnob->visible = false;
 
         bankBackText->visible = false;
         shapeBackText->visible = false;
