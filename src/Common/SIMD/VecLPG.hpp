@@ -16,8 +16,6 @@ class VecLPG {
 public:
     __m128 __env;
     __m128 __attack, __decay;
-    __m128 __sampleRate;
-    __m128 __zeros, __ones;
     __m128 __cutoff, __maxCutoff;
     __m128 __filterSwitch;
     __m128 __vca, __filter, __output;
@@ -34,6 +32,8 @@ public:
     VecLPG() {
         __zeros = _mm_set1_ps(0.f);
         __ones = _mm_set1_ps(1.f);
+        __halfs = _mm_set1_ps(0.5f);
+        __quarters = _mm_set1_ps(0.25f);
         __env = __zeros;
         __maxCutoff = _mm_set1_ps(22050.f);
         __cutoff = __maxCutoff;
@@ -43,13 +43,7 @@ public:
 
     __m128 process(const __m128& x, const __m128& trigger) {
         __env = __envelope.process(trigger);
-
-        // __env = _mm_switch_ps(__env, trigger, _mm_cmpgt_ps(trigger, __zeros));
-        // __env = _mm_mul_ps(__env, __decay);
-
-
         __vca = _mm_mul_ps(x, __env);
-
         __cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__env, __env), __env), __maxCutoff);
         _lpf1.setCutoffFreqAlt(_mm_mul_ps(__cutoff, _mm_set1_ps(0.5f)));
         _lpf2._a = _lpf1._a;
@@ -72,22 +66,18 @@ public:
     }
 
     void setAttack(const __m128& attack) {
-        __attack = _mm_sub_ps(__ones, attack);
+        __attack = _mm_sub_ps(_mm_set1_ps(0.68f), _mm_mul_ps(attack, __halfs));
         __attack = _mm_mul_ps(__attack, __attack);
         __attack = _mm_mul_ps(__attack, __attack);
         __attack = _mm_mul_ps(__attack, __attack);
-        __attack = _mm_mul_ps(__attack, _mm_set1_ps(0.03995));
-        __attack = _mm_add_ps(__attack, _mm_set1_ps(0.000005));
         __envelope.riseRate = _mm_sub_ps(__ones, __attack);
     }
 
     void setDecay(const __m128& decay) {
-        __decay = _mm_sub_ps(__ones, decay);
+        __decay = _mm_sub_ps(_mm_set1_ps(0.68f), _mm_mul_ps(decay, __halfs));
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
-        __decay = _mm_mul_ps(__decay, _mm_set1_ps(0.003995));
-        __decay = _mm_add_ps(__decay, _mm_set1_ps(0.000005));
         __envelope.fallRate = _mm_sub_ps(__ones, __decay);
     }
 
@@ -96,5 +86,7 @@ public:
         _lpf2.setSampleRate(newSampleRate);
     }
 private:
+    __m128 __sampleRate;
+    __m128 __zeros, __ones, __halfs, __quarters;
     VecAREnvelope __envelope;
 };
