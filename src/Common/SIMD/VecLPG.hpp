@@ -66,7 +66,7 @@ public:
     }
 
     void setAttack(const __m128& attack) {
-        __attack = _mm_sub_ps(_mm_set1_ps(0.68f), _mm_mul_ps(attack, __halfs));
+        __attack = _mm_sub_ps(_mm_set1_ps(0.66f), _mm_mul_ps(attack, _mm_set1_ps(0.45f)));
         __attack = _mm_mul_ps(__attack, __attack);
         __attack = _mm_mul_ps(__attack, __attack);
         __attack = _mm_mul_ps(__attack, __attack);
@@ -74,11 +74,11 @@ public:
     }
 
     void setDecay(const __m128& decay) {
-        __decay = _mm_sub_ps(_mm_set1_ps(0.68f), _mm_mul_ps(decay, __halfs));
+        __decay = _mm_sub_ps(_mm_set1_ps(0.5f), _mm_mul_ps(decay, _mm_set1_ps(0.5f)));
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
         __decay = _mm_mul_ps(__decay, __decay);
-        __envelope.fallRate = _mm_sub_ps(__ones, __decay);
+        __envelope.fallRate = _mm_sub_ps(_mm_set1_ps(0.99999f), __decay);
     }
 
     void setSampleRate(float newSampleRate) {
