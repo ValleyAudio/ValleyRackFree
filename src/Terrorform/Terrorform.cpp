@@ -314,8 +314,8 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
 
     __attack = _mm_set1_ps(params[LPG_ATTACK_PARAM].getValue());
+    //__decay = _mm_set1_ps(0.999999f - powf(0.44f - 0.44f * params[LPG_DECAY_PARAM].getValue(), 6.f));
     __decay = _mm_set1_ps(params[LPG_DECAY_PARAM].getValue());
-
     // Tick the oscillator
     int g = 0;
     for(auto c = 0; c < kMaxNumGroups; ++c) {
