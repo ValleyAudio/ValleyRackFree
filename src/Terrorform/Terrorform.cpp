@@ -48,7 +48,11 @@ Terrorform::Terrorform() {
     configParam(Terrorform::WEAK_SYNC_1_SWITCH_PARAM, 0.0, 1.0, 0.0, "Weak Sync 1");
     configParam(Terrorform::WEAK_SYNC_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Weak Sync 2");
 
-    configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves Switch");
+    configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves");
+    configParam(Terrorform::TRUE_FM_SWITCH_PARAM, 0.0, 1.0, 0.0, "True FM Mode");
+    configParam(Terrorform::SWAP_SWITCH_PARAM, 0.0, 1.0, 0.0, "Swap Enhancer and LPA order");
+    configParam(Terrorform::LFO_SWITCH_PARAM, 0.0, 1.0, 0.0, "LFO Mode");
+    configParam(Terrorform::ZERO_SWITCH_PARAM, 0.0, 1.0, 0.0, "Zero Frequency Mode");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
@@ -74,6 +78,7 @@ Terrorform::Terrorform() {
     __fives = _mm_set1_ps(5.f);
     __negFives = _mm_set1_ps(-5.f);
     __tens = _mm_set1_ps(10.f);
+    __hundredths = _mm_set1_ps(0.01f);
     __quarters = _mm_set1_ps(0.25f);
 
     __sync1 = __zeros;
@@ -109,8 +114,6 @@ Terrorform::Terrorform() {
     readFromUserWaves = false;
     userWavesButtonState = false;
     prevUserWavesButtonState = false;
-
-    trigLightDurationSamples = trigLightDurationTime * APP->engine->getSampleRate();
 }
 
 Terrorform::~Terrorform() {
@@ -188,6 +191,13 @@ void Terrorform::process(const ProcessArgs &args) {
                 break;
         }
 
+        lights[TRUE_FM_LIGHT].value = trueFMEnabled;
+        lights[SWAP_LIGHT].value = params[SWAP_SWITCH_PARAM].getValue();
+        lights[WEAK_SYNC_1_LIGHT].value = (float) weakSync1Enable;
+        lights[WEAK_SYNC_2_LIGHT].value = (float) weakSync2Enable;
+        lights[LFO_LIGHT].value = (float) lfoModeEnabled;
+        lights[ZERO_LIGHT].value = (float) zeroFreqEnabled;
+
         numWavesInTable = osc[0].getNumwaves() - 1.f;
         __numWavesInTable = _mm_set1_ps(numWavesInTable);
 
@@ -249,8 +259,25 @@ void Terrorform::process(const ProcessArgs &args) {
     }
     prevWeakSwitch2State = weakSwitch2State;
 
-    lights[WEAK_SYNC_1_LIGHT].value = (float) weakSync1Enable;
-    lights[WEAK_SYNC_2_LIGHT].value = (float) weakSync2Enable;
+    // Misc button logic
+    swapEnhancerAndLPG = params[SWAP_SWITCH_PARAM].getValue() > 0.f;
+    trueFMSwitchValue = params[TRUE_FM_SWITCH_PARAM].getValue();
+    trueFMEnabled = trueFMSwitchValue > 0.f;
+    if (trueFMSwitchValue != prevTrueFMSwitchValue) {
+        for (int i = 0; i < kMaxNumGroups; ++i) {
+            osc[i].resetPhase();
+        }
+    }
+    prevTrueFMSwitchValue = trueFMSwitchValue;
+
+    lfoModeEnabled = params[LFO_SWITCH_PARAM].getValue() > 0.f;
+
+    if (!zeroFreqEnabled && params[ZERO_SWITCH_PARAM].getValue() > 0.f) {
+        for (int i = 0; i < kMaxNumGroups; ++i) {
+            osc[i].resetPhase();
+        }
+    }
+    zeroFreqEnabled = params[ZERO_SWITCH_PARAM].getValue() > 0.f;
 
     // Pitch, wave, shape and ehancement CV
     rootPitch = (int) params[OCTAVE_PARAM].getValue();
@@ -314,12 +341,14 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
 
     __attack = _mm_set1_ps(params[LPG_ATTACK_PARAM].getValue());
-    //__decay = _mm_set1_ps(0.999999f - powf(0.44f - 0.44f * params[LPG_DECAY_PARAM].getValue(), 6.f));
     __decay = _mm_set1_ps(params[LPG_DECAY_PARAM].getValue());
+
     // Tick the oscillator
     int g = 0;
     for(auto c = 0; c < kMaxNumGroups; ++c) {
         g = c * 4;
+
+        // Sync and LPG
         __sync1 = sync1IsMono ? _mm_set1_ps(sync1[0]) : _mm_load_ps(sync1 + g);
         __sync2 = sync2IsMono ? _mm_set1_ps(sync2[0]) : _mm_load_ps(sync2 + g);
         __sync1Pls = _mm_and_ps(_mm_cmple_ps(__prevSync1, __zeros), _mm_cmpgt_ps(__sync1, __zeros));
@@ -331,10 +360,14 @@ void Terrorform::process(const ProcessArgs &args) {
         __sync2Pls = _mm_switch_ps(__sync2Pls, _mm_and_ps(__sync2Pls, __quarterPhase), __weakSync2Flag);
         __prevSync1 = __sync1;
         __prevSync2 = __sync2;
+        osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
 
         __trigger1 = _mm_load_ps(trigger1 + g);
         __trigger2 = _mm_load_ps(trigger2 + g);
+        lpg[c].setAttack(__attack);
+        lpg[c].setDecay(__decay);
 
+        // FM
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
         __fmA = _mm_mul_ps(__fmA, __fmA1Level);
         __fmA = _mm_add_ps(__fmA, _mm_mul_ps(fmA2IsMono ? _mm_set1_ps(fmA2[0]) : _mm_load_ps(fmA2 + g), __fmA2Level));
@@ -352,23 +385,21 @@ void Terrorform::process(const ProcessArgs &args) {
         __fmB = _mm_mul_ps(__fmB, __fmBVCA);
 
         __fmSum = _mm_add_ps(__fmA, __fmB);
-
         __freq = _mm_load_ps(freqs);
+        __freq = _mm_mul_ps(__freq, (lfoModeEnabled ? __hundredths : __ones));
+        __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
+        __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
+        osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
+
         __wave = _mm_load_ps(waves);
         __shape = _mm_load_ps(shapes);
         __degrade = _mm_load_ps(degrades);
-
-        __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
 
         __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
         __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
 
-        lpg[c].setAttack(__attack);
-        lpg[c].setDecay(__decay);
 
-        osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
-        osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
         osc[c].setFrequency(__freq);
         osc[c].mm_setScanPosition(__wave);
         osc[c].setShape(__shape);
@@ -381,13 +412,20 @@ void Terrorform::process(const ProcessArgs &args) {
         __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
         __preEnhanceOutput[c] = osc[c].getOutput();
 
-        __mainOutput[c] = degrader[c].process(__preEnhanceOutput[c], __degrade);
-        __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
-        __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+        // TODO : Add LPA / Enhancer swap code here
 
-        // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__vcaOutput, __percVCAMode);
-        // __mainOutput[c] = _mm_switch_ps(__mainOutput[c], lpg[c].__filterOutput, __percFilterMode);
+        if (swapEnhancerAndLPG) {
+            __mainOutput[c] = lpg[c].process(__preEnhanceOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+            __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
+            __mainOutput[c] = degrader[c].process(__mainOutput[c], __degrade);
+            __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+        }
+        else {
+            __mainOutput[c] = degrader[c].process(__preEnhanceOutput[c], __degrade);
+            __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
+            __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+            __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+        }
 
         _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
         _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
@@ -408,14 +446,12 @@ void Terrorform::onSampleRateChange() {
         osc[i].setSampleRate(APP->engine->getSampleRate());
         degrader[i].setSampleRate(APP->engine->getSampleRate());
     }
-    trigLightDurationSamples = trigLightDurationTime * APP->engine->getSampleRate();
 }
 
 json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
-    json_object_set_new(rootJ, "fmMode", json_integer(fmMode));
     json_object_set_new(rootJ, "percMode", json_integer(percMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
     json_object_set_new(rootJ, "weakSync1Enable", json_integer(weakSync1Enable));
@@ -452,7 +488,6 @@ json_t* Terrorform::dataToJson()  {
 void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
-    json_t *fmModeJ = json_object_get(rootJ, "fmMode");
     json_t *percModeJ = json_object_get(rootJ, "percMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
     json_t *weakSync1EnableJ = json_object_get(rootJ, "weakSync1Enable");
@@ -460,7 +495,6 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
-    fmMode = json_integer_value(fmModeJ);
     percMode = json_integer_value(percModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
     weakSync1Enable = json_integer_value(weakSync1EnableJ);
@@ -468,8 +502,6 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
-    fmMode = fmMode > 1 ? 1 : fmMode;
-    trueFMEnabled = fmMode == 1;
     percMode = percMode > 3 ? 3 : percMode;
     syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
     weakSync1Enable = weakSync1Enable < 0 ? 0 : (weakSync1Enable > 1 ? 1 : weakSync1Enable);
@@ -588,16 +620,6 @@ void TerrorformDisplayStyleItem::onAction(const event::Action &e) {
 
 void TerrorformDisplayStyleItem::step() {
     rightText = (module->displayStyle == displayStyle) ? "✔" : "";
-    MenuItem::step();
-}
-
-void TerrorformFMModeItem::onAction(const event::Action &e) {
-    module->fmMode = fmMode;
-    module->trueFMEnabled = fmMode == 1;
-}
-
-void TerrorformFMModeItem::step() {
-    rightText = (module->fmMode == fmMode) ? "✔" : "";
     MenuItem::step();
 }
 
@@ -1002,10 +1024,31 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
 
-    addChild(createParamCentered<LightLEDButton>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM));
-    addChild(createParamCentered<LightLEDButton>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM));
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(zeroFreqButtonPos, module, Terrorform::ZERO_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+
     addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(lfoButtonPos, module, Terrorform::LFO_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(zeroFreqButtonPos, module, Terrorform::ZERO_LIGHT));
 
     userBankButton = createParamCentered<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     userBankButton->momentary = false;
@@ -1161,7 +1204,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
         waveBank.data.resize(module->userWaveTableSizes[bank]);
-        for (int i = 0; i < waveBank.data.size(); ++i) {
+        for (unsigned long i = 0; i < waveBank.data.size(); ++i) {
             waveBank.data[i].resize(TFORM_MAX_WAVELENGTH);
             memcpy(waveBank.data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
         }
@@ -1246,25 +1289,6 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     whiteLEDDisplayStyleItem->module = module;
     whiteLEDDisplayStyleItem->displayStyle = 4;
     menu->addChild(whiteLEDDisplayStyleItem);
-
-    // FM mode Items
-    menu->addChild(construct<MenuLabel>());
-
-    MenuLabel* fmModeStyleLabel = new MenuLabel;
-    fmModeStyleLabel->text = "FM Mode";
-    menu->addChild(fmModeStyleLabel);
-
-    TerrorformFMModeItem* dxModeItem = new TerrorformFMModeItem;
-    dxModeItem->text = "DX Style Phase Modulation";
-    dxModeItem->module = module;
-    dxModeItem->fmMode = 0;
-    menu->addChild(dxModeItem);
-
-    TerrorformFMModeItem* trueFMModeItem = new TerrorformFMModeItem;
-    trueFMModeItem->text = "\"True\" Modulation";
-    trueFMModeItem->module = module;
-    trueFMModeItem->fmMode = 1;
-    menu->addChild(trueFMModeItem);
 
     // Manager item
     menu->addChild(construct<MenuLabel>());
@@ -1471,7 +1495,7 @@ void TerrorformWidget::exportWavetables() {
         outFile.write((char*) &userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
 
         for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
-            for (int j = 0; j < tform->userWaveTableNames[b].size(); ++j) {
+            for (unsigned long j = 0; j < tform->userWaveTableNames[b].size(); ++j) {
                 outFile.write(reinterpret_cast<char*>(&tform->userWaveTableNames[b][j]), sizeof(char));
             }
             outFile.put('\0');

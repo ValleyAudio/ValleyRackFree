@@ -127,13 +127,14 @@ struct Terrorform : Module {
 
         USER_BANK_SWITCH_PARAM,
         LOAD_TABLE_SWITCH_PARAM,
-
         LPG_SWITCH_PARAM,
         LPG_TRIGGER_PARAM,
         WEAK_SYNC_1_SWITCH_PARAM,
         WEAK_SYNC_2_SWITCH_PARAM,
         TRUE_FM_SWITCH_PARAM,
         SWAP_SWITCH_PARAM,
+        LFO_SWITCH_PARAM,
+        ZERO_SWITCH_PARAM,
         NUM_PARAMS
     };
 
@@ -149,6 +150,8 @@ struct Terrorform : Module {
         WEAK_SYNC_2_LIGHT,
         TRUE_FM_LIGHT,
         SWAP_LIGHT,
+        LFO_LIGHT,
+        ZERO_LIGHT,
         NUM_LIGHTS
     };
 
@@ -240,15 +243,17 @@ struct Terrorform : Module {
 
     float trig1, trig2;
     __m128 __trig1, __trig2;
-    dsp::PulseGenerator trig1LightPulse, trig2LightPulse;
-    float trigLightDurationTime = 0.125f;
-    float trigLightDurationSamples = trigLightDurationTime * 44100.f;
     VecLPG lpg[kMaxNumGroups];
     __m128 __attack, __decay;
+    bool swapEnhancerAndLPG = false;
 
     // FM
     int fmMode = 0;
+    float trueFMSwitchValue = 0.f;
+    float prevTrueFMSwitchValue = 0.f;
     bool trueFMEnabled = false;
+    bool lfoModeEnabled = false;
+    bool zeroFreqEnabled = false;
     bool fmA1IsMono, fmA2IsMono;
     bool fmB1IsMono, fmB2IsMono;
     bool fmAVCAIsMono, fmBVCAIsMono;
@@ -270,7 +275,8 @@ struct Terrorform : Module {
     __m128 __fmAVCACV, __fmBVCACV;
     __m128 __trigger1 , __trigger2;
 
-    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens, __quarters;
+    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
+    __m128 __hundredths, __quarters;
 
     int counter = 512;
 
@@ -309,12 +315,12 @@ struct TerrorformDisplayStyleItem : MenuItem {
     void step() override;
 };
 
-struct TerrorformFMModeItem : MenuItem {
-    Terrorform* module;
-    int fmMode;
-    void onAction(const event::Action &e) override;
-    void step() override;
-};
+// struct TerrorformFMModeItem : MenuItem {
+//     Terrorform* module;
+//     int fmMode;
+//     void onAction(const event::Action &e) override;
+//     void step() override;
+// };
 
 struct TerrorformManagerItem : MenuItem {
     std::function<void()> openMenu;
