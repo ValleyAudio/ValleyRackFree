@@ -66,18 +66,18 @@ public:
     }
 
     void setAttack(const __m128& attack) {
-        __m128 x = _mm_sub_ps(_mm_set1_ps(0.62f), _mm_mul_ps(_mm_set1_ps(0.62f), attack));
+        __m128 x = _mm_sub_ps(_mm_set1_ps(0.64f), _mm_mul_ps(_mm_set1_ps(0.64f), attack));
         __attack = _mm_mul_ps(x, x);
         __attack = _mm_mul_ps(__attack, x);
         __attack = _mm_mul_ps(__attack, x);
         __attack = _mm_mul_ps(__attack, x);
         __attack = _mm_mul_ps(__attack, x);
-        __attack = _mm_sub_ps(_mm_set1_ps(0.9999f), __attack);
+        __attack = _mm_sub_ps(_mm_set1_ps(0.99999f), __attack);
         __envelope.riseRate = __attack;
     }
 
     void setDecay(const __m128& decay) {
-        __m128 x = _mm_sub_ps(_mm_set1_ps(0.44f), _mm_mul_ps(_mm_set1_ps(0.44f), decay));
+        __m128 x = _mm_sub_ps(_mm_set1_ps(0.4f), _mm_mul_ps(_mm_set1_ps(0.4f), decay));
         __decay = _mm_mul_ps(x, x);
         __decay = _mm_mul_ps(__decay, x);
         __decay = _mm_mul_ps(__decay, x);
