@@ -22,12 +22,12 @@ Terrorform::Terrorform() {
     configParam(Terrorform::SHAPE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 1");
     configParam(Terrorform::SHAPE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Shape Depth CV Atten. 2");
 
-    configParam(Terrorform::DEGRADE_TYPE_PARAM, 0.0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1.f, 0.0, "Enhance Type");
-    configParam(Terrorform::DEGRADE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Enhance Depth");
-    configParam(Terrorform::DEGRADE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 1");
-    configParam(Terrorform::DEGRADE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 2");
-    configParam(Terrorform::DEGRADE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 1");
-    configParam(Terrorform::DEGRADE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 2");
+    configParam(Terrorform::ENHANCE_TYPE_PARAM, 0.0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1.f, 0.0, "Enhance Type");
+    configParam(Terrorform::ENHANCE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Enhance Depth");
+    configParam(Terrorform::ENHANCE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 1");
+    configParam(Terrorform::ENHANCE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Type CV Atten. 2");
+    configParam(Terrorform::ENHANCE_DEPTH_CV_1_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 1");
+    configParam(Terrorform::ENHANCE_DEPTH_CV_2_PARAM, -1.0, 1.0, 0.0, "Enhance Depth CV Atten. 2");
 
     configParam(Terrorform::LPG_ATTACK_PARAM, 0.0, 1.0, 0.0, "Lowpass Gate Attack");
     configParam(Terrorform::LPG_DECAY_PARAM, 0.0, 1.0, 0.5, "Lowpass Gate Decay");
@@ -93,7 +93,7 @@ Terrorform::Terrorform() {
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     shapes = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
-    degrades = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    enhances = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     a = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
 
     // Fill user wavetables
@@ -120,7 +120,7 @@ Terrorform::~Terrorform() {
     aligned_free_16(freqs);
     aligned_free_16(waves);
     aligned_free_16(shapes);
-    aligned_free_16(degrades);
+    aligned_free_16(enhances);
     aligned_free_16(a);
 
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
@@ -136,15 +136,15 @@ void Terrorform::process(const ProcessArgs &args) {
     if(counter > 512) {
         rootBank = (int)params[BANK_PARAM].getValue();
         rootShapeType = (int)params[SHAPE_TYPE_PARAM].getValue();
-        rootEnhanceType = (int)params[DEGRADE_TYPE_PARAM].getValue();
+        rootEnhanceType = (int)params[ENHANCE_TYPE_PARAM].getValue();
 
         bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f);
         shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f);
-        degradeType = rootEnhanceType + (int)(inputs[DEGRADE_TYPE_INPUT_1].getVoltage() * params[DEGRADE_TYPE_CV_1_PARAM].getValue() * 0.2f);
+        enhanceType = rootEnhanceType + (int)(inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.2f);
 
         bank = clamp(bank, 0, NUM_TERRORFORM_WAVETABLES - 1);
         shapeType = clamp(shapeType, 0, 11);
-        degradeType = clamp(degradeType, 0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
+        enhanceType = clamp(enhanceType, 0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
 
         prevUserWavesButtonState = userWavesButtonState;
         readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
@@ -164,10 +164,14 @@ void Terrorform::process(const ProcessArgs &args) {
                                    wavetable_lengths[bank][0]);
             }
             osc[c].setShapeMethod(shapeType);
-            degrader[c].setMode(degradeType);
+            enhancer[c].setMode(enhanceType);
             osc[c].setSyncMode(syncChoice);
         }
 
+        numWavesInTable = osc[0].getNumwaves() - 1.f;
+        __numWavesInTable = _mm_set1_ps(numWavesInTable);
+
+        // LPG mode lights
         switch ((VecLPG::Modes) percMode) {
             case VecLPG::Modes::BYPASS_MODE :
                 lights[LPG_RED_LIGHT].value = 0.f;
@@ -191,6 +195,7 @@ void Terrorform::process(const ProcessArgs &args) {
                 break;
         }
 
+        // Other button lights
         lights[TRUE_FM_LIGHT].value = trueFMEnabled;
         lights[SWAP_LIGHT].value = params[SWAP_SWITCH_PARAM].getValue();
         lights[WEAK_SYNC_1_LIGHT].value = (float) weakSync1Enable;
@@ -198,8 +203,11 @@ void Terrorform::process(const ProcessArgs &args) {
         lights[LFO_LIGHT].value = (float) lfoModeEnabled;
         lights[ZERO_LIGHT].value = (float) zeroFreqEnabled;
 
-        numWavesInTable = osc[0].getNumwaves() - 1.f;
-        __numWavesInTable = _mm_set1_ps(numWavesInTable);
+        numActiveChannels = std::max(inputs[VOCT_1_INPUT].getChannels(),
+                                     inputs[VOCT_2_INPUT].getChannels());
+        numActiveChannels = numActiveChannels < 1 ? 1 : numActiveChannels;
+        numActiveGroups = (int) std::ceil((float) numActiveChannels / 4.f);
+        numActiveGroups = numActiveGroups < 1 ? 1 : numActiveGroups;
 
         sync1IsMono = inputs[SYNC_1_INPUT].isMonophonic();
         sync2IsMono = inputs[SYNC_2_INPUT].isMonophonic();
@@ -264,7 +272,7 @@ void Terrorform::process(const ProcessArgs &args) {
     trueFMSwitchValue = params[TRUE_FM_SWITCH_PARAM].getValue();
     trueFMEnabled = trueFMSwitchValue > 0.f;
     if (trueFMSwitchValue != prevTrueFMSwitchValue) {
-        for (int i = 0; i < kMaxNumGroups; ++i) {
+        for (int i = 0; i < numActiveChannels; ++i) {
             osc[i].resetPhase();
         }
     }
@@ -285,20 +293,20 @@ void Terrorform::process(const ProcessArgs &args) {
     rootPitch += params[FINE_PARAM].getValue();
     rootWave = params[WAVE_PARAM].getValue();
     rootShapeDepth = params[SHAPE_DEPTH_PARAM].getValue();
-    rootEnhanceDepth = params[DEGRADE_DEPTH_PARAM].getValue();
+    rootEnhanceDepth = params[ENHANCE_DEPTH_PARAM].getValue();
 
     pitchCV1 = params[VOCT_1_CV_PARAM].getValue();
     pitchCV2 = params[VOCT_2_CV_PARAM].getValue();
-    pitchCV1 *= pitchCV1;
-    pitchCV2 *= pitchCV2;
+    bankCV1 = params[BANK_CV_1_PARAM].getValue();
+    bankCV2 = params[BANK_CV_2_PARAM].getValue();
     waveCV1 = params[WAVE_CV_1_PARAM].getValue();
-    waveCV2 = params[WAVE_CV_1_PARAM].getValue();
+    waveCV2 = params[WAVE_CV_2_PARAM].getValue();
     shapeDepthCV1 = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
-    shapeDepthCV2 = params[SHAPE_DEPTH_CV_1_PARAM].getValue();
-    degradeDepthCV1 = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
-    degradeDepthCV2 = params[DEGRADE_DEPTH_CV_1_PARAM].getValue();
+    shapeDepthCV2 = params[SHAPE_DEPTH_CV_2_PARAM].getValue();
+    enhanceDepthCV1 = params[ENHANCE_DEPTH_CV_1_PARAM].getValue();
+    enhanceDepthCV2 = params[ENHANCE_DEPTH_CV_2_PARAM].getValue();
 
-    for(auto i = 0; i < kMaxNumGroups * 4; ++i) {
+    for(auto i = 0; i < numActiveChannels; ++i) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
                                         rootPitch);
@@ -311,9 +319,9 @@ void Terrorform::process(const ProcessArgs &args) {
         shapes[i] += inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV1 * 0.1f;
         shapes[i] += inputs[SHAPE_DEPTH_INPUT_2].getPolyVoltage(i) * shapeDepthCV2 * 0.1f;
 
-        degrades[i] = rootEnhanceDepth;
-        degrades[i] += inputs[DEGRADE_DEPTH_INPUT_1].getPolyVoltage(i) * degradeDepthCV1 * 0.1f;
-        degrades[i] += inputs[DEGRADE_DEPTH_INPUT_2].getPolyVoltage(i) * degradeDepthCV2 * 0.1f;
+        enhances[i] = rootEnhanceDepth;
+        enhances[i] += inputs[ENHANCE_DEPTH_INPUT_1].getPolyVoltage(i) * enhanceDepthCV1 * 0.1f;
+        enhances[i] += inputs[ENHANCE_DEPTH_INPUT_2].getPolyVoltage(i) * enhanceDepthCV2 * 0.1f;
     }
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
@@ -345,7 +353,7 @@ void Terrorform::process(const ProcessArgs &args) {
 
     // Tick the oscillator
     int g = 0;
-    for(auto c = 0; c < kMaxNumGroups; ++c) {
+    for(auto c = 0; c < numActiveGroups; ++c) {
         g = c * 4;
 
         // Sync and LPG
@@ -393,11 +401,11 @@ void Terrorform::process(const ProcessArgs &args) {
 
         __wave = _mm_load_ps(waves);
         __shape = _mm_load_ps(shapes);
-        __degrade = _mm_load_ps(degrades);
+        __enhance = _mm_load_ps(enhances);
 
         __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
-        __degrade = _mm_clamp_ps(__degrade, __zeros, __ones);
+        __enhance = _mm_clamp_ps(__enhance, __zeros, __ones);
 
 
         osc[c].setFrequency(__freq);
@@ -408,43 +416,46 @@ void Terrorform::process(const ProcessArgs &args) {
 
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
-        degrader[c].insertAuxSignal(__phasorOutput[c]);
+        __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
+        enhancer[c].insertAuxSignal(__phasorOutput[c]);
         __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
         __preEnhanceOutput[c] = osc[c].getOutput();
-
-        // TODO : Add LPA / Enhancer swap code here
 
         if (swapEnhancerAndLPG) {
             __mainOutput[c] = lpg[c].process(__preEnhanceOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
             __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-            __mainOutput[c] = degrader[c].process(__mainOutput[c], __degrade);
-            __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+            __mainOutput[c] = enhancer[c].process(__mainOutput[c], __enhance);
         }
         else {
-            __mainOutput[c] = degrader[c].process(__preEnhanceOutput[c], __degrade);
+            __mainOutput[c] = enhancer[c].process(__preEnhanceOutput[c], __enhance);
             __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-            __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
             __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
 
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
-        _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
+        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
+        _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(__shapedPhasorOutput[c], __fives));
+        _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
+        _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), _mm_mul_ps(enhancer[c].output, __fives));
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
     }
 
-    outputs[ENVELOPE_OUTPUT].setChannels(kMaxNumGroups * 4);
-    outputs[SHAPED_PHASOR_OUTPUT].setChannels(kMaxNumGroups * 4);
-    outputs[PHASOR_OUTPUT].setChannels(kMaxNumGroups * 4);
-    outputs[END_OF_CYCLE_OUTPUT].setChannels(kMaxNumGroups * 4);
-    outputs[MAIN_OUTPUT].setChannels(kMaxNumGroups * 4);
+    outputs[PHASOR_OUTPUT].setChannels(numActiveChannels);
+    outputs[END_OF_CYCLE_OUTPUT].setChannels(numActiveChannels);
+    outputs[SHAPED_PHASOR_OUTPUT].setChannels(numActiveChannels);
+    outputs[RAW_OUTPUT].setChannels(numActiveChannels);
+    outputs[ENHANCER_OUTPUT].setChannels(numActiveChannels);
+    outputs[ENVELOPE_OUTPUT].setChannels(numActiveChannels);
+    outputs[MAIN_OUTPUT].setChannels(numActiveChannels);
 }
 
 void Terrorform::onSampleRateChange() {
     for(auto i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setSampleRate(APP->engine->getSampleRate());
-        degrader[i].setSampleRate(APP->engine->getSampleRate());
+        enhancer[i].setSampleRate(APP->engine->getSampleRate());
     }
 }
 
@@ -661,10 +672,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addInput(createInputCentered<PJ301MDarkSmall>(shapeTypeInput2Pos, module, Terrorform::SHAPE_TYPE_INPUT_2));
     addInput(createInputCentered<PJ301MDarkSmall>(shapeDepthInput1Pos, module, Terrorform::SHAPE_DEPTH_INPUT_1));
     addInput(createInputCentered<PJ301MDarkSmall>(shapeDepthInput2Pos, module, Terrorform::SHAPE_DEPTH_INPUT_2));
-    addInput(createInputCentered<PJ301MDarkSmall>(degradeTypeInput1Pos, module, Terrorform::DEGRADE_TYPE_INPUT_1));
-    addInput(createInputCentered<PJ301MDarkSmall>(degradeTypeInput2Pos, module, Terrorform::DEGRADE_TYPE_INPUT_2));
-    addInput(createInputCentered<PJ301MDarkSmall>(degradeDepthInput1Pos, module, Terrorform::DEGRADE_DEPTH_INPUT_1));
-    addInput(createInputCentered<PJ301MDarkSmall>(degradeDepthInput2Pos, module, Terrorform::DEGRADE_DEPTH_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(enhanceTypeInput1Pos, module, Terrorform::ENHANCE_TYPE_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(enhanceTypeInput2Pos, module, Terrorform::ENHANCE_TYPE_INPUT_2));
+    addInput(createInputCentered<PJ301MDarkSmall>(enhanceDepthInput1Pos, module, Terrorform::ENHANCE_DEPTH_INPUT_1));
+    addInput(createInputCentered<PJ301MDarkSmall>(enhanceDepthInput2Pos, module, Terrorform::ENHANCE_DEPTH_INPUT_2));
     addInput(createInputCentered<PJ301MDarkSmall>(vcaAInputPos, module, Terrorform::FM_A_VCA_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(fmA1InputPos, module, Terrorform::FM_A1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(fmA2InputPos, module, Terrorform::FM_A2_INPUT));
@@ -684,7 +695,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(shapedOutPos, module, Terrorform::SHAPED_PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(rawOutPos, module, Terrorform::RAW_OUTPUT));
-    addOutput(createOutputCentered<PJ301MDarkSmallOut>(degraderOutPos, module, Terrorform::ENHANCER_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(enhancerOutPos, module, Terrorform::ENHANCER_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
 
@@ -712,12 +723,12 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     shapeDepthKnob = createParamCentered<RoganMedRed>(shapeDepthPos, module, Terrorform::SHAPE_DEPTH_PARAM);
     addParam(shapeDepthKnob);
 
-    degradeTypeKnob = createParamCentered<RoganMedGreen>(degradeTypePos, module, Terrorform::DEGRADE_TYPE_PARAM);
-    degradeTypeKnob->smooth = false;
-    degradeTypeKnob->snap = true;
-    addParam(degradeTypeKnob);
-    degradeDepthKnob = createParamCentered<RoganMedGreen>(degradeDepthPos, module, Terrorform::DEGRADE_DEPTH_PARAM);
-    addParam(degradeDepthKnob);
+    enhanceTypeKnob = createParamCentered<RoganMedGreen>(enhanceTypePos, module, Terrorform::ENHANCE_TYPE_PARAM);
+    enhanceTypeKnob->smooth = false;
+    enhanceTypeKnob->snap = true;
+    addParam(enhanceTypeKnob);
+    enhanceDepthKnob = createParamCentered<RoganMedGreen>(enhanceDepthPos, module, Terrorform::ENHANCE_DEPTH_PARAM);
+    addParam(enhanceDepthKnob);
 
     attackKnob = createParamCentered<RoganMedMustard>(percAttackPos, module, Terrorform::LPG_ATTACK_PARAM);
     addParam(attackKnob);
@@ -746,14 +757,14 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(shapeDepthCV1);
     addParam(shapeDepthCV2);
 
-    degradeTypeCV1 = createParamCentered<RoganSmallGreen>(degradeTypeCV1Pos, module, Terrorform::DEGRADE_TYPE_CV_1_PARAM);
-    degradeTypeCV2 = createParamCentered<RoganSmallGreen>(degradeTypeCV2Pos, module, Terrorform::DEGRADE_TYPE_CV_2_PARAM);
-    degradeDepthCV1 = createParamCentered<RoganSmallGreen>(degradeDepthCV1Pos, module, Terrorform::DEGRADE_DEPTH_CV_1_PARAM);
-    degradeDepthCV2 = createParamCentered<RoganSmallGreen>(degradeDepthCV2Pos, module, Terrorform::DEGRADE_DEPTH_CV_2_PARAM);
-    addParam(degradeTypeCV1);
-    addParam(degradeTypeCV2);
-    addParam(degradeDepthCV1);
-    addParam(degradeDepthCV2);
+    enhanceTypeCV1 = createParamCentered<RoganSmallGreen>(enhanceTypeCV1Pos, module, Terrorform::ENHANCE_TYPE_CV_1_PARAM);
+    enhanceTypeCV2 = createParamCentered<RoganSmallGreen>(enhanceTypeCV2Pos, module, Terrorform::ENHANCE_TYPE_CV_2_PARAM);
+    enhanceDepthCV1 = createParamCentered<RoganSmallGreen>(enhanceDepthCV1Pos, module, Terrorform::ENHANCE_DEPTH_CV_1_PARAM);
+    enhanceDepthCV2 = createParamCentered<RoganSmallGreen>(enhanceDepthCV2Pos, module, Terrorform::ENHANCE_DEPTH_CV_2_PARAM);
+    addParam(enhanceTypeCV1);
+    addParam(enhanceTypeCV2);
+    addParam(enhanceDepthCV1);
+    addParam(enhanceDepthCV2);
 
     percAttackCV1 = createParamCentered<RoganSmallMustard>(percAttackCV1Pos, module, Terrorform::LPG_ATTACK_CV_1_PARAM);
     percAttackCV2 = createParamCentered<RoganSmallMustard>(percAttackCV2Pos, module, Terrorform::LPG_ATTACK_CV_2_PARAM);
@@ -840,8 +851,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(bankBackText);
     shapeBackText = makeBackText(shapeTextPos, 13, NVG_ALIGN_LEFT);
     addChild(shapeBackText);
-    degradeBackText = makeBackText(degradeTextPos, 13, NVG_ALIGN_LEFT);
-    addChild(degradeBackText);
+    enhanceBackText = makeBackText(enhanceTextPos, 13, NVG_ALIGN_LEFT);
+    addChild(enhanceBackText);
     syncBackText = makeBackText(syncTextPos, 10, NVG_ALIGN_CENTER);
     addChild(syncBackText);
 
@@ -885,23 +896,23 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Enhance Text
 
-    degradeTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : degradeNames[0]);
-    degradeBlurText = new DynamicText;
-    degradeBlurText2 = new DynamicText;
-    degradeText = new DynamicText;
-    setupFrontText(degradeText, degradeBlurText, degradeBlurText2, degradeTypeStr, degradeTextPos, NVG_ALIGN_LEFT);
-    addChild(degradeBlurText);
-    addChild(degradeBlurText2);
-    addChild(degradeText);
+    enhanceTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : enhanceNames[0]);
+    enhanceBlurText = new DynamicText;
+    enhanceBlurText2 = new DynamicText;
+    enhanceText = new DynamicText;
+    setupFrontText(enhanceText, enhanceBlurText, enhanceBlurText2, enhanceTypeStr, enhanceTextPos, NVG_ALIGN_LEFT);
+    addChild(enhanceBlurText);
+    addChild(enhanceBlurText2);
+    addChild(enhanceText);
 
-    degradeDepthStr = std::make_shared<std::string>("0");
-    degradeDepthBlurText = new DynamicText;
-    degradeDepthBlurText2 = new DynamicText;
-    degradeDepthText = new DynamicText;
-    setupFrontText(degradeDepthText, degradeDepthBlurText, degradeDepthBlurText2, degradeDepthStr, degradeDepthTextPos, NVG_ALIGN_RIGHT);
-    addChild(degradeDepthBlurText);
-    addChild(degradeDepthBlurText2);
-    addChild(degradeDepthText);
+    enhanceDepthStr = std::make_shared<std::string>("0");
+    enhanceDepthBlurText = new DynamicText;
+    enhanceDepthBlurText2 = new DynamicText;
+    enhanceDepthText = new DynamicText;
+    setupFrontText(enhanceDepthText, enhanceDepthBlurText, enhanceDepthBlurText2, enhanceDepthStr, enhanceDepthTextPos, NVG_ALIGN_RIGHT);
+    addChild(enhanceDepthBlurText);
+    addChild(enhanceDepthBlurText2);
+    addChild(enhanceDepthText);
 
     // Sync Text
     syncStr = make_shared<std::string>(inBrowser ? "DOWN" : syncNames[0]);
@@ -980,20 +991,20 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         };
         addChild(shapeMenu);
 
-        degradeMenu = createDynamicMenu(degradeTextPos, degradeText->box.size,
-                                        degradeMenuItems, true, false, 0);
-        degradeMenu->onMouseEnter = [=]() {
-            setOnHoverColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
+        enhanceMenu = createDynamicMenu(enhanceTextPos, enhanceText->box.size,
+                                        enhanceMenuItems, true, false, 0);
+        enhanceMenu->onMouseEnter = [=]() {
+            setOnHoverColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
         };
 
-        degradeMenu->onMouseLeave = [=]() {
-            setOnLeaveColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
+        enhanceMenu->onMouseLeave = [=]() {
+            setOnLeaveColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
         };
 
-        degradeMenu->setChoice = [=](int i) {
-            degradeTypeKnob->paramQuantity->setValue((float)i);
+        enhanceMenu->setChoice = [=](int i) {
+            enhanceTypeKnob->paramQuantity->setValue((float)i);
         };
-        addChild(degradeMenu);
+        addChild(enhanceMenu);
 
         syncMenu = createDynamicMenu(syncTextPos.minus(Vec(syncText->box.size.x / 2.f, 0.f)), syncText->box.size,
                                      syncMenuItems, true, true, 0);
@@ -1065,21 +1076,21 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         waveKnob->visible = true;
         shapeTypeKnob->visible = true;
         shapeDepthKnob->visible = true;
-        degradeTypeKnob->visible = true;
-        degradeDepthKnob->visible = true;
+        enhanceTypeKnob->visible = true;
+        enhanceDepthKnob->visible = true;
         attackKnob->visible = true;
         decayKnob->visible = true;
 
         bankBackText->visible = true;
         shapeBackText->visible = true;
-        degradeBackText->visible = true;
+        enhanceBackText->visible = true;
 
         bankText->visible = true;
         shapeText->visible = true;
-        degradeText->visible = true;
+        enhanceText->visible = true;
         waveText->visible = true;
         shapeDepthText->visible = true;
-        degradeDepthText->visible = true;
+        enhanceDepthText->visible = true;
 
         bankBlurText->visible = true;
         bankBlurText2->visible = true;
@@ -1089,10 +1100,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeBlurText2->visible = true;
         shapeDepthBlurText->visible = true;
         shapeDepthBlurText2->visible = true;
-        degradeBlurText->visible = true;
-        degradeBlurText2->visible = true;
-        degradeDepthBlurText->visible = true;
-        degradeDepthBlurText2->visible = true;
+        enhanceBlurText->visible = true;
+        enhanceBlurText2->visible = true;
+        enhanceDepthBlurText->visible = true;
+        enhanceDepthBlurText2->visible = true;
 
         vOct1CV->visible = true;
         vOct2CV->visible = true;
@@ -1104,10 +1115,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeTypeCV2->visible = true;
         shapeDepthCV1->visible = true;
         shapeDepthCV2->visible = true;
-        degradeTypeCV1->visible = true;
-        degradeTypeCV2->visible = true;
-        degradeDepthCV1->visible = true;
-        degradeDepthCV2->visible = true;
+        enhanceTypeCV1->visible = true;
+        enhanceTypeCV2->visible = true;
+        enhanceDepthCV1->visible = true;
+        enhanceDepthCV2->visible = true;
         percAttackCV1->visible = true;
         percAttackCV2->visible = true;
         percDecayCV1->visible = true;
@@ -1307,21 +1318,21 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         waveKnob->visible = false;
         shapeTypeKnob->visible = false;
         shapeDepthKnob->visible = false;
-        degradeTypeKnob->visible = false;
-        degradeDepthKnob->visible = false;
+        enhanceTypeKnob->visible = false;
+        enhanceDepthKnob->visible = false;
         attackKnob->visible = false;
         decayKnob->visible = false;
 
         bankBackText->visible = false;
         shapeBackText->visible = false;
-        degradeBackText->visible = false;
+        enhanceBackText->visible = false;
 
         bankText->visible = false;
         shapeText->visible = false;
-        degradeText->visible = false;
+        enhanceText->visible = false;
         waveText->visible = false;
         shapeDepthText->visible = false;
-        degradeDepthText->visible = false;
+        enhanceDepthText->visible = false;
 
         bankBlurText->visible = false;
         bankBlurText2->visible = false;
@@ -1331,10 +1342,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         shapeBlurText2->visible = false;
         shapeDepthBlurText->visible = false;
         shapeDepthBlurText2->visible = false;
-        degradeBlurText->visible = false;
-        degradeBlurText2->visible = false;
-        degradeDepthBlurText->visible = false;
-        degradeDepthBlurText2->visible = false;
+        enhanceBlurText->visible = false;
+        enhanceBlurText2->visible = false;
+        enhanceDepthBlurText->visible = false;
+        enhanceDepthBlurText2->visible = false;
 
         vOct1CV->visible = false;
         vOct2CV->visible = false;
@@ -1346,10 +1357,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         shapeTypeCV2->visible = false;
         shapeDepthCV1->visible = false;
         shapeDepthCV2->visible = false;
-        degradeTypeCV1->visible = false;
-        degradeTypeCV2->visible = false;
-        degradeDepthCV1->visible = false;
-        degradeDepthCV2->visible = false;
+        enhanceTypeCV1->visible = false;
+        enhanceTypeCV2->visible = false;
+        enhanceDepthCV1->visible = false;
+        enhanceDepthCV2->visible = false;
         percAttackCV1->visible = false;
         percAttackCV2->visible = false;
         percDecayCV1->visible = false;
@@ -1402,9 +1413,9 @@ void TerrorformWidget::step() {
         shapeDepthPercent = (int)(shapeDepthKnob->paramQuantity->getValue() * 100.f);
         *shapeDepthStr = std::to_string(shapeDepthPercent);
 
-        *degradeTypeStr = degradeNames[(int)(degradeTypeKnob->paramQuantity->getValue())];
-        degradeDepthPercent = (int)(degradeDepthKnob->paramQuantity->getValue() * 100.f);
-        *degradeDepthStr = std::to_string(degradeDepthPercent);
+        *enhanceTypeStr = enhanceNames[(int)(enhanceTypeKnob->paramQuantity->getValue())];
+        enhanceDepthPercent = (int)(enhanceDepthKnob->paramQuantity->getValue() * 100.f);
+        *enhanceDepthStr = std::to_string(enhanceDepthPercent);
 
         int syncChoice = (int)dynamic_cast<Terrorform*>(module)->syncChoice;
         *syncStr = syncNames[syncChoice];
@@ -1447,8 +1458,8 @@ void TerrorformWidget::changeDisplayStyle() {
     setNewColour(nullptr, waveText, waveBlurText, waveBlurText2);
     setNewColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
     setNewColour(nullptr, shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2);
-    setNewColour(degradeBackText, degradeText, degradeBlurText, degradeBlurText2);
-    setNewColour(nullptr, degradeDepthText, degradeDepthBlurText, degradeDepthBlurText2);
+    setNewColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
+    setNewColour(nullptr, enhanceDepthText, enhanceDepthBlurText, enhanceDepthBlurText2);
     setNewColour(syncBackText, syncText, syncBlurText, syncBlurText2);
 }
 

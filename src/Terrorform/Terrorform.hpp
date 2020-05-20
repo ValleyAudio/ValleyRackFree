@@ -55,10 +55,10 @@ struct Terrorform : Module {
         SHAPE_TYPE_INPUT_2,
         SHAPE_DEPTH_INPUT_1,
         SHAPE_DEPTH_INPUT_2,
-        DEGRADE_TYPE_INPUT_1,
-        DEGRADE_TYPE_INPUT_2,
-        DEGRADE_DEPTH_INPUT_1,
-        DEGRADE_DEPTH_INPUT_2,
+        ENHANCE_TYPE_INPUT_1,
+        ENHANCE_TYPE_INPUT_2,
+        ENHANCE_DEPTH_INPUT_1,
+        ENHANCE_DEPTH_INPUT_2,
         FM_A_VCA_INPUT,
         FM_A1_INPUT,
         FM_A2_INPUT,
@@ -95,8 +95,8 @@ struct Terrorform : Module {
         WAVE_PARAM,
         SHAPE_TYPE_PARAM,
         SHAPE_DEPTH_PARAM,
-        DEGRADE_TYPE_PARAM,
-        DEGRADE_DEPTH_PARAM,
+        ENHANCE_TYPE_PARAM,
+        ENHANCE_DEPTH_PARAM,
         LPG_ATTACK_PARAM,
         LPG_DECAY_PARAM,
 
@@ -110,10 +110,10 @@ struct Terrorform : Module {
         SHAPE_TYPE_CV_2_PARAM,
         SHAPE_DEPTH_CV_1_PARAM,
         SHAPE_DEPTH_CV_2_PARAM,
-        DEGRADE_TYPE_CV_1_PARAM,
-        DEGRADE_TYPE_CV_2_PARAM,
-        DEGRADE_DEPTH_CV_1_PARAM,
-        DEGRADE_DEPTH_CV_2_PARAM,
+        ENHANCE_TYPE_CV_1_PARAM,
+        ENHANCE_TYPE_CV_2_PARAM,
+        ENHANCE_DEPTH_CV_1_PARAM,
+        ENHANCE_DEPTH_CV_2_PARAM,
         LPG_ATTACK_CV_1_PARAM,
         LPG_ATTACK_CV_2_PARAM,
         LPG_DECAY_CV_1_PARAM,
@@ -159,6 +159,8 @@ struct Terrorform : Module {
     int displayStyle = 0;
 
     static const int kMaxNumGroups = 4;
+    int numActiveChannels = 0;
+    int numActiveGroups = 0;
     ScanningQuadOsc osc[kMaxNumGroups];
 
     // User wave table data
@@ -175,9 +177,10 @@ struct Terrorform : Module {
     __m128 __mainOutput[kMaxNumGroups];
     __m128 __preEnhanceOutput[kMaxNumGroups];
     __m128 __phasorOutput[kMaxNumGroups];
+    __m128 __shapedPhasorOutput[kMaxNumGroups];
     __m128 __eocOutput[kMaxNumGroups];
 
-    VecEnhancer degrader[4];
+    VecEnhancer enhancer[kMaxNumGroups];
     FreqLUT freqLUT;
 
     int rootBank;
@@ -185,7 +188,7 @@ struct Terrorform : Module {
     int rootEnhanceType;
     int bank;
     int shapeType;
-    int degradeType;
+    int enhanceType;
 
     float rootPitch;
     float* freqs;
@@ -198,8 +201,8 @@ struct Terrorform : Module {
     float numWavesInTable;
     __m128 __wave;
     __m128 __numWavesInTable;
-    float waveCV1;
-    float waveCV2;
+    flaot bankCV1, bankCV2;
+    float waveCV1, waveCV2;
 
     float rootShapeDepth;
     float* shapes;
@@ -208,10 +211,10 @@ struct Terrorform : Module {
     float shapeDepthCV2;
 
     float rootEnhanceDepth;
-    float* degrades;
-    __m128 __degrade;
-    float degradeDepthCV1;
-    float degradeDepthCV2;
+    float* enhances;
+    __m128 __enhance;
+    float enhanceDepthCV1;
+    float enhanceDepthCV2;
 
     int modBusTarget = 0;
 
@@ -394,8 +397,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec wavePos = Vec(179, 92);
     Vec shapeTypePos = Vec(70, 138);
     Vec shapeDepthPos = Vec(230, 138);
-    Vec degradeTypePos = Vec(79, 182);
-    Vec degradeDepthPos = Vec(221, 182);
+    Vec enhanceTypePos = Vec(79, 182);
+    Vec enhanceDepthPos = Vec(221, 182);
     Vec percAttackPos = Vec(125, 200);
     Vec percDecayPos = Vec(175, 200);
 
@@ -406,8 +409,8 @@ struct TerrorformWidget : ModuleWidget {
     RoganMedPurple* waveKnob;
     RoganMedRed* shapeTypeKnob;
     RoganMedRed* shapeDepthKnob;
-    RoganMedGreen* degradeTypeKnob;
-    RoganMedGreen* degradeDepthKnob;
+    RoganMedGreen* enhanceTypeKnob;
+    RoganMedGreen* enhanceDepthKnob;
     RoganMedMustard* attackKnob;
     RoganMedMustard* decayKnob;
 
@@ -422,10 +425,10 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeTypeCV2Pos = Vec(47, 172);
     Vec shapeDepthCV1Pos = Vec(258, 122);
     Vec shapeDepthCV2Pos = Vec(253, 172);
-    Vec degradeTypeCV1Pos = Vec(37, 198);
-    Vec degradeTypeCV2Pos = Vec(75, 224);
-    Vec degradeDepthCV1Pos = Vec(263, 198);
-    Vec degradeDepthCV2Pos = Vec(225, 224);
+    Vec enhanceTypeCV1Pos = Vec(37, 198);
+    Vec enhanceTypeCV2Pos = Vec(75, 224);
+    Vec enhanceDepthCV1Pos = Vec(263, 198);
+    Vec enhanceDepthCV2Pos = Vec(225, 224);
     Vec percAttackCV1Pos = Vec(99, 215);
     Vec percAttackCV2Pos = Vec(123, 234);
     Vec percDecayCV1Pos = Vec(178, 234);
@@ -441,10 +444,10 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallRed* shapeTypeCV2;
     RoganSmallRed* shapeDepthCV1;
     RoganSmallRed* shapeDepthCV2;
-    RoganSmallGreen* degradeTypeCV1;
-    RoganSmallGreen* degradeTypeCV2;
-    RoganSmallGreen* degradeDepthCV1;
-    RoganSmallGreen* degradeDepthCV2;
+    RoganSmallGreen* enhanceTypeCV1;
+    RoganSmallGreen* enhanceTypeCV2;
+    RoganSmallGreen* enhanceDepthCV1;
+    RoganSmallGreen* enhanceDepthCV2;
     RoganSmallMustard* percAttackCV1;
     RoganSmallMustard* percAttackCV2;
     RoganSmallMustard* percDecayCV1;
@@ -494,11 +497,11 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthInput1Pos = Vec(col2X, 133);
     Vec shapeDepthInput2Pos = Vec(col2X, 171);
 
-    Vec degradeTypeInput1Pos = Vec(col1X, 227);
-    Vec degradeTypeInput2Pos = Vec(39, 249);
+    Vec enhanceTypeInput1Pos = Vec(col1X, 227);
+    Vec enhanceTypeInput2Pos = Vec(39, 249);
 
-    Vec degradeDepthInput1Pos = Vec(col2X, 227);
-    Vec degradeDepthInput2Pos = Vec(261, 249);
+    Vec enhanceDepthInput1Pos = Vec(col2X, 227);
+    Vec enhanceDepthInput2Pos = Vec(261, 249);
 
     Vec vcaAInputPos = Vec(col1X, 271);
     Vec fmA1InputPos = Vec(col1X, 307);
@@ -522,18 +525,18 @@ struct TerrorformWidget : ModuleWidget {
     Vec eocOutPos =     Vec(95.3541, 331);
     Vec shapedOutPos =  Vec(122.9541, 331);
     Vec rawOutPos =     Vec(150, 331);
-    Vec degraderOutPos = Vec(177.3541, 331);
+    Vec enhancerOutPos = Vec(177.3541, 331);
     Vec envOutPos =     Vec(204.6541, 331);
     Vec mainOutPos =    Vec(231.9541, 331);
 
     // Text
     Vec bankTextPos = Vec(97.46, 130.358);
     Vec shapeTextPos = Vec(97.46, 143.211);
-    Vec degradeTextPos = Vec(97.46, 156.065);
+    Vec enhanceTextPos = Vec(97.46, 156.065);
 
     Vec waveTextPos = Vec(202.897, 130.358);
     Vec shapeDepthTextPos = Vec(202.897, 143.211);
-    Vec degradeDepthTextPos = Vec(202.897, 156.065);
+    Vec enhanceDepthTextPos = Vec(202.897, 156.065);
 
     Vec syncTextPos = Vec(149.829, 302);
 
@@ -541,15 +544,15 @@ struct TerrorformWidget : ModuleWidget {
     bool inEditorMode = false;
     DynamicText* bankBackText;
     DynamicText* shapeBackText;
-    DynamicText* degradeBackText;
+    DynamicText* enhanceBackText;
     DynamicText* syncBackText;
 
     DynamicText* bankText;
     DynamicText* shapeText;
-    DynamicText* degradeText;
+    DynamicText* enhanceText;
     DynamicText* waveText;
     DynamicText* shapeDepthText;
-    DynamicText* degradeDepthText;
+    DynamicText* enhanceDepthText;
     DynamicText* syncText;
 
     DynamicText* bankBlurText;
@@ -560,30 +563,30 @@ struct TerrorformWidget : ModuleWidget {
     DynamicText* shapeBlurText2;
     DynamicText* shapeDepthBlurText;
     DynamicText* shapeDepthBlurText2;
-    DynamicText* degradeBlurText;
-    DynamicText* degradeBlurText2;
-    DynamicText* degradeDepthBlurText;
-    DynamicText* degradeDepthBlurText2;
+    DynamicText* enhanceBlurText;
+    DynamicText* enhanceBlurText2;
+    DynamicText* enhanceDepthBlurText;
+    DynamicText* enhanceDepthBlurText2;
     DynamicText* syncBlurText;
     DynamicText* syncBlurText2;
 
     std::shared_ptr<std::string> bankStr;
     std::shared_ptr<std::string> shapeTypeStr;
-    std::shared_ptr<std::string> degradeTypeStr;
+    std::shared_ptr<std::string> enhanceTypeStr;
 
     std::shared_ptr<std::string> waveStr;
     std::shared_ptr<std::string> shapeDepthStr;
-    std::shared_ptr<std::string> degradeDepthStr;
+    std::shared_ptr<std::string> enhanceDepthStr;
 
     std::shared_ptr<std::string> syncStr;
 
     int wavePercent;
     int shapeDepthPercent;
-    int degradeDepthPercent;
+    int enhanceDepthPercent;
 
     DynamicMenu* bankMenu;
     DynamicMenu* shapeMenu;
-    DynamicMenu* degradeMenu;
+    DynamicMenu* enhanceMenu;
     DynamicMenu* syncMenu;
 
     unsigned long bankChoice = 0;
@@ -631,12 +634,12 @@ struct TerrorformWidget : ModuleWidget {
         "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step"
     };
 
-    std::vector<std::string> degradeNames = {
+    std::vector<std::string> enhanceNames = {
         "BITCRUSH", "QUANTIZE", "AND_INT", "XOR_INT", "AND_FLOAT", "OVERDRIVE",
         "RING_MOD", "GRAIN", "SINE", "FOLD", "LOCK_SUB", /*"WRAP",*/ "MIRROR"
     };
 
-    std::vector<std::string> degradeMenuItems = {
+    std::vector<std::string> enhanceMenuItems = {
         "Bit Crush", "Quantize", "Bitwise AND Int", "Bitwise XOR Int", "Bitwise AND Float", "Overdrive",
         "Ring Mod", "Grain", "Sine", "Fold", "Locking Sub", /*"Wrap",*/ "Mirror"
     };
@@ -651,16 +654,6 @@ struct TerrorformWidget : ModuleWidget {
         "Hard", "Fifth", "+1 Oct", "-1 Oct", "Rise 1", "Rise 2",
         "Fall 1", "Fall 2", "Pull 1", "Pull 2", "Push 1", "Push 2",
         "Hold", "One Shot", "Lock Shot", "Reverse"
-    };
-
-    std::vector<std::string> modBusNames = {
-        "PITCH", "WAVE_BANK", "WAVE_POS", "SHAPE_TYPE", "SHAPE_DEPTH", "DEGRADE_TYPE",
-        "DEGRADEDEPTH", "FM_IN", "FM_DEPTH", "SYNC_IN", "LPG_TRIG", "LPG_DECAY"
-    };
-
-    std::vector<std::string> modBusMenuItems = {
-        "Pitch", "Wave Bank", "Wave Position", "Shape Type", "Shape Depth", "Enhance Type",
-        "Enhance Depth", "FM In", "FM Depth", "Sync In", "Percussion Trig", "Percussion Decay"
     };
 
     TerrorformWidget(Terrorform *module);

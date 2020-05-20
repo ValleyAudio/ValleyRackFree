@@ -105,6 +105,7 @@ void Shaper::lean(const __m128& a, const __m128& f) {
     __x = _mm_mul_ps(a, a);
     __x = _mm_mul_ps(__x, __x);
     __output = _mm_linterp_ps(a, __x, f);
+
     /*__x = _mm_circle_ps(_mm_mul_ps(a, _mm_mul_ps(f, _mm_set1_ps(8.f))));
     __output = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);*/
@@ -372,6 +373,10 @@ const __m128& QuadOsc::getPhasor() const {
     return __a;
 }
 
+const __m128& QuadOsc::getShapedPhasor() const {
+    return __readPhase;
+}
+
 const __m128& QuadOsc::getEOCPulse() const {
     return __syncOut;
 }
@@ -615,18 +620,18 @@ void ScanningQuadOsc::tick() {
         __readPhase = _mm_clamp_ps(__readPhase, __zeros, __ones);
     }
 
-    __readPhase = _mm_mul_ps(__readPhase, __tabSize_1);
+    __scaledReadPhase = _mm_mul_ps(__readPhase, __tabSize_1);
 
     // Prepare read positions
-    __b = _mm_add_ps(__readPhase, __ones);
+    __b = _mm_add_ps(__scaledReadPhase, __ones);
     __mask = _mm_cmpge_ps(__b, __tabSize);
     __sub = _mm_and_ps(__tabSize, __mask);
     __b = _mm_sub_ps(__b, __sub);
-    __aInt = _mm_cvttps_epi32(__readPhase);
+    __aInt = _mm_cvttps_epi32(__scaledReadPhase);
     __bInt = _mm_cvttps_epi32(__b);
     _mm_store_si128((__m128i*)_aPos, __aInt);
     _mm_store_si128((__m128i*)_bPos, __bInt);
-    __frac = _mm_sub_ps(__readPhase, _mm_cvtepi32_ps(__aInt));
+    __frac = _mm_sub_ps(__scaledReadPhase, _mm_cvtepi32_ps(__aInt));
 
     // Do linear interpolation
     for(auto j = 0; j < 4; ++j) {
@@ -643,7 +648,6 @@ void ScanningQuadOsc::tick() {
     __highSamp = _mm_load_ps(_highSample2);
     __result2 = _mm_linterp_ps(__lowSamp, __highSamp, __frac);
     __output = _mm_linterp_ps(__result1, __result2, __fade);
-    //__output = __readPhase;
 
     // Advance wave read position
     __aPrev = __a;

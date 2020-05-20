@@ -85,6 +85,7 @@ public:
     float getOutput(int channel) const;
     const __m128& getOutput() const;
     const __m128& getPhasor() const;
+    const __m128& getShapedPhasor() const;
     const __m128& getEOCPulse() const;
     const __m128& getDirection() const;
 
@@ -119,7 +120,7 @@ protected:
 
     __m128 __frequency, __samplerate, __nyquist;
 
-    __m128 __readPhase, __negMask, __syncSource, __syncState, __syncing;
+    __m128 __readPhase, __scaledReadPhase, __negMask, __syncSource, __syncState, __syncing;
     __m128 __shifts;
     __m128i __shiftsI;
 

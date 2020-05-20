@@ -25,6 +25,8 @@ public:
         NUM_MODES
     };
 
+    __m128 output;
+
     VecEnhancer() {
         __zeros = _mm_set1_ps(0.f);
         __ones = _mm_set1_ps(1.f);
@@ -56,6 +58,8 @@ public:
         __doSample = __zeros;
         __updateRate = __ones;
 
+        output = __zeros;
+
         std::srand(std::time(NULL));
         for(auto i = 0; i < 4; ++i) {
             _randZ[i] = std::rand();
@@ -86,7 +90,8 @@ public:
         __updateRate = _mm_mul_ps(__updateRate, _mm_set1_ps(0.97f));
         __updateRate = _mm_add_ps(__updateRate, _mm_set1_ps(0.03f));
         calcStepSize();
-        return (this->*p[_mode])(x, param);
+        output = (this->*p[_mode])(x, param);
+        return output;
     }
 
     void setMode(int mode) {
