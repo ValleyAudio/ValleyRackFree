@@ -8,6 +8,7 @@
 
 #pragma once
 #include <pmmintrin.h>
+#include <iostream>
 #define VALLEY_1F2 0.5
 #define VALLEY_1F3 0.1666666667
 #define VALLEY_1F4 0.04166666667
@@ -264,6 +265,20 @@ inline __m128 _mm_varStep_ps(const __m128& a, const __m128& f) {
     ff = _mm_mul_ps(absF, _mm_set1_ps(100.f));
     ff = _mm_clamp_ps(ff, _mm_set1_ps(0.f), _mm_set1_ps(1.f));
     return _mm_linterp_ps(a, aIntF, ff);
+}
+
+inline __m128 _mm_polyblep_ps(const __m128& t, const __m128& dt) {
+    __m128 ones = _mm_set1_ps(1.f);
+    __m128 __t, __tt, __y;
+    __m128 lowMask = _mm_cmplt_ps(t, dt);
+    __m128 highMask = _mm_cmpgt_ps(t, _mm_sub_ps(ones, dt));
+
+    __t = _mm_sub_ps(t, _mm_and_ps(ones, highMask));
+    __t = _mm_div_ps(__t, dt);
+    __tt = _mm_mul_ps(__t, __t);
+    __t = _mm_add_ps(__t, __t);
+    __y = _mm_and_ps(_mm_sub_ps(_mm_sub_ps(__t, __tt), ones), lowMask);
+    return _mm_switch_ps(__y, _mm_add_ps(_mm_add_ps(__t, __tt), ones), highMask);
 }
 
 namespace valley {
