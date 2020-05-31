@@ -373,6 +373,10 @@ const __m128& QuadOsc::getPhasor() const {
     return __a;
 }
 
+const __m128& QuadOsc::getStepSize() const {
+    return __stepSize;
+}
+
 const __m128& QuadOsc::getShapedPhasor() const {
     return __readPhase;
 }
@@ -572,14 +576,6 @@ ScanningQuadOsc::~ScanningQuadOsc() {
 }
 
 void ScanningQuadOsc::tick() {
-    // Wrap wave position
-    __mtMask = _mm_cmpge_ps(__a, __ones);
-    __eoc = _mm_and_ps(__ones, __mtMask);
-    __ltMask = _mm_cmplt_ps(__a, __zeros);
-    __a = _mm_add_ps(__a, _mm_and_ps(__ones, __ltMask));
-    __a = _mm_sub_ps(__a, __eoc);
-    __syncOut = _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev));
-
     // Phase modulate
     if(_PMPostShape) {
         // Shape
@@ -652,6 +648,14 @@ void ScanningQuadOsc::tick() {
     // Advance wave read position
     __aPrev = __a;
     __a = _mm_add_ps(__a, _mm_mul_ps(__stepSize, __dir));
+
+    // Wrap wave position
+    __mtMask = _mm_cmpge_ps(__a, __ones);
+    __eoc = _mm_and_ps(__ones, __mtMask);
+    __ltMask = _mm_cmplt_ps(__a, __zeros);
+    __a = _mm_add_ps(__a, _mm_and_ps(__ones, __ltMask));
+    __a = _mm_sub_ps(__a, __eoc);
+    __syncOut = _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev));
 }
 
 void ScanningQuadOsc::setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize) {

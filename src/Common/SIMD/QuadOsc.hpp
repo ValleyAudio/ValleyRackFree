@@ -85,6 +85,7 @@ public:
     float getOutput(int channel) const;
     const __m128& getOutput() const;
     const __m128& getPhasor() const;
+    const __m128& getStepSize() const;
     const __m128& getShapedPhasor() const;
     const __m128& getEOCPulse() const;
     const __m128& getDirection() const;
