@@ -138,9 +138,12 @@ void Terrorform::process(const ProcessArgs &args) {
         rootShapeType = (int)params[SHAPE_TYPE_PARAM].getValue();
         rootEnhanceType = (int)params[ENHANCE_TYPE_PARAM].getValue();
 
-        bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f);
-        shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f);
-        enhanceType = rootEnhanceType + (int)(inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.2f);
+        bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f)
+                        + (int)(inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.2f);
+        shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f)
+                                  + (int)(inputs[SHAPE_TYPE_INPUT_2].getVoltage() * params[SHAPE_TYPE_CV_2_PARAM].getValue() * 0.2f);
+        enhanceType = rootEnhanceType + (int)(inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.2f)
+                                      + (int)(inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.2f);
 
         bank = clamp(bank, 0, NUM_TERRORFORM_WAVETABLES - 1);
         shapeType = clamp(shapeType, 0, 11);
@@ -253,19 +256,10 @@ void Terrorform::process(const ProcessArgs &args) {
     percButtonPrevState = percButtonPressed;
 
     // Sync button logic
-    weakSwitch1State = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
-    if (weakSwitch1State && !prevWeakSwitch1State) {
-        weakSync1Enable = 1 - weakSync1Enable;
-        __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
-    }
-    prevWeakSwitch1State = weakSwitch1State;
-
-    weakSwitch2State = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
-    if (weakSwitch2State && !prevWeakSwitch2State) {
-        weakSync2Enable = 1 - weakSync2Enable;
-        __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
-    }
-    prevWeakSwitch2State = weakSwitch2State;
+    weakSync1Enable = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
+    weakSync2Enable = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
+    __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
+    __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
 
     // Misc button logic
     swapEnhancerAndLPG = params[SWAP_SWITCH_PARAM].getValue() > 0.f;
@@ -417,7 +411,8 @@ void Terrorform::process(const ProcessArgs &args) {
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
         __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
-        enhancer[c].insertAuxSignal(__phasorOutput[c]);
+        //enhancer[c].insertAuxSignal(__phasorOutput[c], osc[c].getStepSize());
+        enhancer[c].insertAuxSignals(osc[c].getPhasor(), osc[c].getStepSize(), osc[c].getEOCPulse());
         __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
         __preEnhanceOutput[c] = osc[c].getOutput();
 
@@ -465,8 +460,6 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
     json_object_set_new(rootJ, "percMode", json_integer(percMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
-    json_object_set_new(rootJ, "weakSync1Enable", json_integer(weakSync1Enable));
-    json_object_set_new(rootJ, "weakSync2Enable", json_integer(weakSync2Enable));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -501,22 +494,16 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
     json_t *percModeJ = json_object_get(rootJ, "percMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
-    json_t *weakSync1EnableJ = json_object_get(rootJ, "weakSync1Enable");
-    json_t *weakSync2EnableJ = json_object_get(rootJ, "weakSync2Enable");
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
     percMode = json_integer_value(percModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
-    weakSync1Enable = json_integer_value(weakSync1EnableJ);
-    weakSync2Enable = json_integer_value(weakSync2EnableJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
     percMode = percMode > 3 ? 3 : percMode;
     syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
-    weakSync1Enable = weakSync1Enable < 0 ? 0 : (weakSync1Enable > 1 ? 1 : weakSync1Enable);
-    weakSync2Enable = weakSync2Enable < 0 ? 0 : (weakSync2Enable > 1 ? 1 : weakSync2Enable);
 
     int destBank;
     int numWaves;
@@ -1030,10 +1017,16 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     percButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
     addChild(percButtonLight);
 
-    addChild(createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM));
-    addChild(createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM));
-    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+    {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
 
     {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
@@ -1056,6 +1049,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(newButton);
     }
 
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(lfoButtonPos, module, Terrorform::LFO_LIGHT));

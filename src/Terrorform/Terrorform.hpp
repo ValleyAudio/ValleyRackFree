@@ -4,7 +4,7 @@
 // Contact: valley.audio.soft@gmail.com
 // Date: 8/2/2019
 //
-// Copyright 2018 Dale Johnson. Redistribution and use in source and binary forms, with or without
+// Copyright 2098 Dale Johnson. Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met: 1. Redistributions of
 // source code must retain the above copyright notice, this list of conditions and the following
 // disclaimer. 2. Redistributions in binary form must reproduce the above copyright notice, this
@@ -201,7 +201,7 @@ struct Terrorform : Module {
     float numWavesInTable;
     __m128 __wave;
     __m128 __numWavesInTable;
-    flaot bankCV1, bankCV2;
+    float bankCV1, bankCV2;
     float waveCV1, waveCV2;
 
     float rootShapeDepth;
@@ -636,12 +636,12 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> enhanceNames = {
         "BITCRUSH", "QUANTIZE", "AND_INT", "XOR_INT", "AND_FLOAT", "OVERDRIVE",
-        "RING_MOD", "GRAIN", "SINE", "FOLD", "LOCK_SUB", /*"WRAP",*/ "MIRROR"
+        "RING_MOD", "GRAIN", "SINE", "FOLD", "MIRROR", "SUB_SAW", "SUB_PULSE"
     };
 
     std::vector<std::string> enhanceMenuItems = {
         "Bit Crush", "Quantize", "Bitwise AND Int", "Bitwise XOR Int", "Bitwise AND Float", "Overdrive",
-        "Ring Mod", "Grain", "Sine", "Fold", "Locking Sub", /*"Wrap",*/ "Mirror"
+        "Ring Mod", "Grain", "Sine", "Fold", "Mirror", "Sub Saw", "Sub Pulse"
     };
 
     std::vector<std::string> syncNames = {
