@@ -134,20 +134,26 @@ Terrorform::~Terrorform() {
 void Terrorform::process(const ProcessArgs &args) {
     ++counter;
     if(counter > 512) {
-        rootBank = (int)params[BANK_PARAM].getValue();
-        rootShapeType = (int)params[SHAPE_TYPE_PARAM].getValue();
-        rootEnhanceType = (int)params[ENHANCE_TYPE_PARAM].getValue();
+        bank = (inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.1f)
+               + (inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.1f);
+        bank *= (float)(NUM_TERRORFORM_WAVETABLES - 1);
+        bank += params[BANK_PARAM].getValue();
+        bank = clamp(bank, 0.f, (float)(NUM_TERRORFORM_WAVETABLES - 1));
+        bankI = (int)bank;
 
-        bank = rootBank + (int)(inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.2f)
-                        + (int)(inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.2f);
-        shapeType = rootShapeType + (int)(inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.2f)
-                                  + (int)(inputs[SHAPE_TYPE_INPUT_2].getVoltage() * params[SHAPE_TYPE_CV_2_PARAM].getValue() * 0.2f);
-        enhanceType = rootEnhanceType + (int)(inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.2f)
-                                      + (int)(inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.2f);
+        shapeType = (inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.1f)
+                    + (inputs[SHAPE_TYPE_INPUT_2].getVoltage() * params[SHAPE_TYPE_CV_2_PARAM].getValue() * 0.1f);
+        shapeType *= 11.f;
+        shapeType += params[SHAPE_TYPE_PARAM].getValue();
+        shapeType = clamp(shapeType, 0.f, 11.f);
+        shapeTypeI = (int)shapeType;
 
-        bank = clamp(bank, 0, NUM_TERRORFORM_WAVETABLES - 1);
-        shapeType = clamp(shapeType, 0, 11);
-        enhanceType = clamp(enhanceType, 0, VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
+        enhanceType = (inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.1f)
+                      + (inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.1f);
+        enhanceType *= (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
+        enhanceType += params[ENHANCE_TYPE_PARAM].getValue();
+        enhanceType = clamp(enhanceType, 0.f, (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1));
+        enhanceTypeI = (int)enhanceType;
 
         prevUserWavesButtonState = userWavesButtonState;
         readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
@@ -162,12 +168,12 @@ void Terrorform::process(const ProcessArgs &args) {
             }
             else {
                 lights[USER_BANK_LIGHT].value = 0.f;
-                osc[c].setWavebank(wavetables[bank],
-                                   wavetable_sizes[bank],
-                                   wavetable_lengths[bank][0]);
+                osc[c].setWavebank(wavetables[bankI],
+                                   wavetable_sizes[bankI],
+                                   wavetable_lengths[bankI][0]);
             }
-            osc[c].setShapeMethod(shapeType);
-            enhancer[c].setMode(enhanceType);
+            osc[c].setShapeMethod(shapeTypeI);
+            enhancer[c].setMode(enhanceTypeI);
             osc[c].setSyncMode(syncChoice);
         }
 

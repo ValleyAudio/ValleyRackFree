@@ -183,12 +183,16 @@ struct Terrorform : Module {
     VecEnhancer enhancer[kMaxNumGroups];
     FreqLUT freqLUT;
 
-    int rootBank;
-    int rootShapeType;
-    int rootEnhanceType;
-    int bank;
-    int shapeType;
-    int enhanceType;
+    float rootBank;
+    float rootShapeType;
+    float rootEnhanceType;
+
+    float bank;
+    int bankI;
+    float shapeType;
+    int shapeTypeI;
+    float enhanceType;
+    int enhanceTypeI;
 
     float rootPitch;
     float* freqs;

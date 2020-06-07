@@ -81,7 +81,7 @@ public:
         p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
         p[MIRROR_MODE] = &VecEnhancer::mirror;
         p[SAW_SUB_MODE] = &VecEnhancer::subSaw;
-        p[SQUARE_SUB_MODE] = &VecEnhancer::subSquare;
+        p[SQUARE_SUB_MODE] = &VecEnhancer::subChebyshev;
     }
 
     inline __m128 process(const __m128& x, const __m128& param) {
@@ -284,6 +284,21 @@ private:
         __y = _mm_sub_ps(__y, _mm_polyblep_ps(__b, __aux2));
 
         return _mm_add_ps(x, _mm_mul_ps(__y, param));
+    }
+
+    __m128 subChebyshev(const __m128& x, const __m128& param) {
+        __trig = _mm_cmplt_ps(__aux1, __prev);
+        __prev = __aux1;
+        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __trig));
+        __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
+
+        __a = _mm_switch_ps(__aux1, _mm_sub_ps(__ones, __aux1), _mm_cmpeq_ps(__counter, __ones));
+        __y = _mm_mul_ps(__a, __twos);
+        __y = _mm_sub_ps(__y, __ones);
+
+        __b = _mm_mul_ps(param, _mm_set1_ps(8.f));
+        __y = valley::_mm_sine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(__y, __b)), _mm_set1_ps(M_PI)));
+        return _mm_add_ps(x, _mm_mul_ps(__y, _mm_clamp_ps(__b, __zeros, __ones)));
     }
 
     int _mode;
