@@ -34,10 +34,13 @@ public:
         __ones = _mm_set1_ps(1.f);
         __halfs = _mm_set1_ps(0.5f);
         __quarters = _mm_set1_ps(0.25f);
+        __scale = _mm_set1_ps(0.75f);
+        __longOffset = _mm_set1_ps(0.25f);
+        __offset = __zeros;
         __env = __zeros;
         __maxCutoff = _mm_set1_ps(22050.f);
         __cutoff = __maxCutoff;
-        setDecay(__ones);
+        setDecay(__ones, false);
         mode = BYPASS_MODE;
     }
 
@@ -65,8 +68,10 @@ public:
         __env = __zeros;
     }
 
-    void setAttack(const __m128& attack) {
-        __m128 x = _mm_sub_ps(_mm_set1_ps(0.64f), _mm_mul_ps(_mm_set1_ps(0.64f), attack));
+    void setAttack(const __m128& attack, bool longScale) {
+        __offset = longScale ? __longOffset : __zeros;
+        __m128 x = _mm_mul_ps(attack, __scale);
+        x = _mm_sub_ps(_mm_set1_ps(0.64f), _mm_mul_ps(_mm_set1_ps(0.64f), x));
         __attack = _mm_mul_ps(x, x);
         __attack = _mm_mul_ps(__attack, x);
         __attack = _mm_mul_ps(__attack, x);
@@ -76,8 +81,10 @@ public:
         __envelope.riseRate = __attack;
     }
 
-    void setDecay(const __m128& decay) {
-        __m128 x = _mm_sub_ps(_mm_set1_ps(0.4f), _mm_mul_ps(_mm_set1_ps(0.4f), decay));
+    void setDecay(const __m128& decay, bool longScale) {
+        __offset = longScale ? __longOffset : __zeros;
+        __m128 x = _mm_mul_ps(decay, __scale);
+        x = _mm_sub_ps(_mm_set1_ps(0.4f), _mm_mul_ps(_mm_set1_ps(0.4f), x));
         __decay = _mm_mul_ps(x, x);
         __decay = _mm_mul_ps(__decay, x);
         __decay = _mm_mul_ps(__decay, x);
@@ -94,5 +101,6 @@ public:
 private:
     __m128 __sampleRate;
     __m128 __zeros, __ones, __halfs, __quarters;
+    __m128 __scale, __offset, __longOffset;
     VecAREnvelope __envelope;
 };
