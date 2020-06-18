@@ -382,7 +382,11 @@ const __m128& QuadOsc::getShapedPhasor() const {
 }
 
 const __m128& QuadOsc::getEOCPulse() const {
-    return __syncOut;
+    return __eoc;
+}
+
+const __m128& QuadOsc::getDirection() const {
+    return __dir;
 }
 
 void QuadOsc::setWavetable(float* wavetable, long size) {
@@ -651,11 +655,17 @@ void ScanningQuadOsc::tick() {
 
     // Wrap wave position
     __mtMask = _mm_cmpge_ps(__a, __ones);
-    __eoc = _mm_and_ps(__ones, __mtMask);
     __ltMask = _mm_cmplt_ps(__a, __zeros);
+    //__eoc = _mm_and_ps(__ones, __mtMask);
+    //__eoc = _mm_or_ps(__eoc, _mm_and_ps(__ones, __ltMask));
     __a = _mm_add_ps(__a, _mm_and_ps(__ones, __ltMask));
-    __a = _mm_sub_ps(__a, __eoc);
-    __syncOut = _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev));
+    __a = _mm_sub_ps(__a, _mm_and_ps(__ones, __mtMask));
+
+    // __eoc = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__a, __aPrev)),
+    //                       _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev)),
+    //                       _mm_cmpgt_ps(__dir, __zeros));
+
+    __eoc = _mm_or_ps(_mm_and_ps(__ones, __ltMask), _mm_and_ps(__ones, __mtMask));
 }
 
 void ScanningQuadOsc::setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize) {
