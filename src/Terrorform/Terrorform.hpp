@@ -187,6 +187,7 @@ struct Terrorform : Module {
     float rootShapeType;
     float rootEnhanceType;
 
+    int maxNumBanks;
     float bank;
     int bankI;
     float shapeType;
@@ -322,12 +323,9 @@ struct TerrorformDisplayStyleItem : MenuItem {
     void step() override;
 };
 
-// struct TerrorformFMModeItem : MenuItem {
-//     Terrorform* module;
-//     int fmMode;
-//     void onAction(const event::Action &e) override;
-//     void step() override;
-// };
+struct TerrorformManagerPanel : OpaqueWidget {
+
+};
 
 struct TerrorformManagerItem : MenuItem {
     std::function<void()> openMenu;
@@ -458,11 +456,14 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallMustard* percDecayCV2;
 
     // Switches
+    LightLEDButton2* lfoButton;
+    LightLEDButton2* zeroFreqButton;
     LightLEDButton2* userBankButton;
-    LightLEDButton2* manageButton;
     LightLEDButton2* percButton;
 
     MediumLight<RedLight>* lfoButtonLight;
+    MediumLight<RedLight>* zeroFreqLight;
+    MediumLight<RedLight>* userBankLight;
     MediumLight<RedGreenBlueLight>* percButtonLight;
 
     Vec lfoButtonPos = Vec(121, 55);
@@ -592,10 +593,12 @@ struct TerrorformWidget : ModuleWidget {
     DynamicMenu* shapeMenu;
     DynamicMenu* enhanceMenu;
     DynamicMenu* syncMenu;
+    bool readingUserWaves = false;
 
     unsigned long bankChoice = 0;
     unsigned long menuBankChoice = 0;
     bool bankMenuIsOpen = false;
+    bool updateBankNames = false;
 
     TFormEditor* editor;
     float *newTable;
@@ -618,14 +621,13 @@ struct TerrorformWidget : ModuleWidget {
     std::vector<std::string> bankMenuItems = {
         "Opal", "Basic", "Tee Eks", "Sine Harmonics", "Additive Sine", "AM Harmonics", "Sweep Harmonics", "X Fade",
         "Additive Saw", "Additive Square", "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4",
-        "Oboe", "Saxophone", "Reed", "Cello 1", "Cello 2",
-        "Violin", "Piano", "Theremin", "Pluck", "Overtone 1", "Overtone 2", "Symmetry",
-        "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2", "Grit", "Voice 1", "Voice 2",
-        "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM", "Bi Pulse", "Saw Gap 1",
-        "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4", "FM5", "FM6",
-        "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry3", "Resonant Saw",
-        "Resonant Square", "Chirp", "Distorted 1", "Electric Bass"
+        "Oboe", "Saxophone", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Theremin", "Pluck",
+        "Overtone 1", "Overtone 2", "Symmetry", "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2",
+        "Grit", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM",
+        "Bi Pulse", "Saw Gap 1", "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4",
+        "FM5", "FM6", "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
+        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry3", "Resonant Saw", "Resonant Square", "Chirp",
+        "Distorted 1", "Electric Bass"
     };
 
     std::vector<std::string> shapeNames = {
@@ -640,12 +642,12 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> enhanceNames = {
         "BITCRUSH", "QUANTIZE", "AND_INT", "XOR_INT", "AND_FLOAT", "OVERDRIVE",
-        "RING_MOD", "GRAIN", "SINE", "FOLD", "MIRROR", "SUB_SAW", "SUB_PULSE"
+        "RING_MOD", "GRAIN", "SINE", "FOLD", "MIRROR", "SUB_SAW", "SUB_PULSE", "SUB_CHEBY", "SUB_GLTCH"
     };
 
     std::vector<std::string> enhanceMenuItems = {
         "Bit Crush", "Quantize", "Bitwise AND Int", "Bitwise XOR Int", "Bitwise AND Float", "Overdrive",
-        "Ring Mod", "Grain", "Sine", "Fold", "Mirror", "Sub Saw", "Sub Pulse"
+        "Ring Mod", "Grain", "Sine", "Fold", "Mirror", "Sub Saw", "Sub Pulse", "Sub Chebyshev", "Sub Glitch"
     };
 
     std::vector<std::string> syncNames = {

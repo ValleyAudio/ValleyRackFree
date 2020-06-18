@@ -112,8 +112,6 @@ Terrorform::Terrorform() {
     numUserWaveTables = 0;
 
     readFromUserWaves = false;
-    userWavesButtonState = false;
-    prevUserWavesButtonState = false;
 }
 
 Terrorform::~Terrorform() {
@@ -134,11 +132,19 @@ Terrorform::~Terrorform() {
 void Terrorform::process(const ProcessArgs &args) {
     ++counter;
     if(counter > 512) {
+        readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
+        if (readFromUserWaves) {
+            maxNumBanks = TFORM_MAX_BANKS;
+        }
+        else {
+            maxNumBanks = NUM_TERRORFORM_WAVETABLES;
+        }
+
         bank = (inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.1f)
                + (inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.1f);
-        bank *= (float)(NUM_TERRORFORM_WAVETABLES - 1);
+        bank *= (float)(maxNumBanks - 1);
         bank += params[BANK_PARAM].getValue();
-        bank = clamp(bank, 0.f, (float)(NUM_TERRORFORM_WAVETABLES - 1));
+        bank = clamp(bank, 0.f, (float)(maxNumBanks - 1));
         bankI = (int)bank;
 
         shapeType = (inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.1f)
@@ -155,15 +161,12 @@ void Terrorform::process(const ProcessArgs &args) {
         enhanceType = clamp(enhanceType, 0.f, (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1));
         enhanceTypeI = (int)enhanceType;
 
-        prevUserWavesButtonState = userWavesButtonState;
-        readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
-
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) percMode;
             if(readFromUserWaves) {
                 lights[USER_BANK_LIGHT].value = 1.f;
-                osc[c].setWavebank(userWaveTableData[0],
-                                   userWaveTableSizes[0],
+                osc[c].setWavebank(userWaveTableData[bankI],
+                                   userWaveTableSizes[bankI],
                                    TFORM_MAX_WAVELENGTH);
             }
             else {
@@ -372,8 +375,8 @@ void Terrorform::process(const ProcessArgs &args) {
 
         __trigger1 = _mm_load_ps(trigger1 + g);
         __trigger2 = _mm_load_ps(trigger2 + g);
-        lpg[c].setAttack(__attack);
-        lpg[c].setDecay(__decay);
+        lpg[c].setAttack(__attack, true);
+        lpg[c].setDecay(__decay, true);
 
         // FM
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
@@ -417,8 +420,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
         __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
-        //enhancer[c].insertAuxSignal(__phasorOutput[c], osc[c].getStepSize());
-        enhancer[c].insertAuxSignals(osc[c].getPhasor(), osc[c].getStepSize(), osc[c].getEOCPulse());
+        enhancer[c].insertAuxSignals(osc[c].getPhasor(), osc[c].getStepSize(), osc[c].getEOCPulse(), osc[c].getDirection());
         __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
         __preEnhanceOutput[c] = osc[c].getOutput();
 
@@ -634,6 +636,8 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
+
+    // Welcome to Janksville, the jankiest place on earth
     const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/Cell/TerrorformDark.svg",
                                                             "res/Cell/TerrorformLight.svg",
                                                             "res/Cell/TerrorformDarkLoader.svg",
@@ -1044,30 +1048,32 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         newButton->momentary = false;
         addChild(newButton);
     }
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(zeroFreqButtonPos, module, Terrorform::ZERO_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
 
-    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(lfoButtonPos, module, Terrorform::LFO_LIGHT));
-    addChild(createLightCentered<MediumLight<RedLight>>(zeroFreqButtonPos, module, Terrorform::ZERO_LIGHT));
+    lfoButton = createParamCentered<LightLEDButton2>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
+    lfoButton->momentary = false;
+    addParam(lfoButton);
+
+    zeroFreqButton = createParamCentered<LightLEDButton2>(zeroFreqButtonPos, module, Terrorform::ZERO_SWITCH_PARAM);
+    zeroFreqButton->momentary = false;
+    addChild(zeroFreqButton);
+
+    lfoButtonLight = createLightCentered<MediumLight<RedLight>>(lfoButtonPos, module, Terrorform::LFO_LIGHT);
+    addChild(lfoButtonLight);
+
+    zeroFreqLight = createLightCentered<MediumLight<RedLight>>(zeroFreqButtonPos, module, Terrorform::ZERO_LIGHT);
+    addChild(zeroFreqLight);
 
     userBankButton = createParamCentered<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     userBankButton->momentary = false;
     addParam(userBankButton);
 
-    lfoButtonLight = createLightCentered<MediumLight<RedLight>>(userBankSwitchPos, module, Terrorform::USER_BANK_LIGHT);
-    addChild(lfoButtonLight);
+    userBankLight = createLightCentered<MediumLight<RedLight>>(userBankSwitchPos, module, Terrorform::USER_BANK_LIGHT);
+    addChild(userBankLight);
+
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
 
     auto onExitEditor = [=]() {
         octaveKnob->visible = true;
@@ -1125,11 +1131,15 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         percDecayCV1->visible = true;
         percDecayCV2->visible = true;
 
+        lfoButton->visible = true;
+        zeroFreqButton->visible = true;
         userBankButton->visible = true;
         percButton->visible = true;
 
-        percButtonLight->visible = true;
         lfoButtonLight->visible = true;
+        zeroFreqLight->visible = true;
+        userBankLight->visible = true;
+        percButtonLight->visible = true;
 
         editor->visible = false;
         inEditorMode = false;
@@ -1167,7 +1177,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         numSamples -= overflow;
         numSamples = numSamples > TFORM_MAX_TABLE_SIZE ? TFORM_MAX_TABLE_SIZE : numSamples;
 
-        int numBlocks = (int) numSamples / TFORM_MAX_WAVELENGTH;
+        int numBlocks = (int) numSamples / (TFORM_MAX_WAVELENGTH * channels);
         int readPos = 0;
         waves->resize(numBlocks);
         for (int i = 0; i < numBlocks; ++i) {
@@ -1198,6 +1208,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->userWaveTableFilled[bank] = true;
         module->userWaveTableNames[bank] = name;
         module->numUserWaveTables++;
+        updateBankNames = true;
     };
 
     editor = createWidget<TFormEditor>(Vec(31, 30));
@@ -1212,6 +1223,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     editor->addClearBankCallback([=](int bankNum){
         module->clearBank(bankNum);
+        updateBankNames = true;
     });
 
     editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
@@ -1225,18 +1237,22 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     editor->addRenameBankCallback([=](int bank, const std::string& name) {
         module->userWaveTableNames[bank] = name;
+        updateBankNames = true;
     });
 
     editor->addCloneBankCallback([=](int sourceBank, int destBank, int startWave, int endWave) {
         module->cloneBank(sourceBank, destBank, startWave, endWave);
+        updateBankNames = true;
     });
 
     editor->addMoveBankCallback([=](int sourceBank, int destBank) {
         module->moveBank(sourceBank, destBank);
+        updateBankNames = true;
     });
 
     editor->addDefragmentCallback([=]() {
         module->defragmentBanks();
+        updateBankNames = true;
     });
 
     addChild(editor);
@@ -1367,17 +1383,20 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         percDecayCV1->visible = false;
         percDecayCV2->visible = false;
 
+        lfoButton->visible = false;
+        zeroFreqButton->visible = false;
         userBankButton->visible = false;
         percButton->visible = false;
 
-        percButtonLight->visible = false;
         lfoButtonLight->visible = false;
+        zeroFreqLight->visible = false;
+        userBankLight->visible = false;
+        percButtonLight->visible = false;
 
         editor->visible = true;
         inEditorMode = true;
     };
     menu->addChild(managerItem);
-
  }
 
 void TerrorformWidget::step() {
@@ -1407,6 +1426,23 @@ void TerrorformWidget::step() {
         else {
             *bankStr = bankNames[bankChoice];
         }
+
+        std::replace(bankStr->begin(), bankStr->end(), ' ', '!');
+
+        if (dynamic_cast<Terrorform*>(module)->readFromUserWaves && !updateBankNames) {
+            updateBankNames = true;
+        }
+
+        if (updateBankNames) {
+            updateBankNames = false;
+            if(dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
+                bankMenu->_items = dynamic_cast<Terrorform*>(module)->userWaveTableNames;
+            }
+            else if (!dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
+                bankMenu->_items = bankMenuItems;
+            }
+        }
+
         wavePercent = (int)(waveKnob->paramQuantity->getValue() * 100.f);
         *waveStr = std::to_string(wavePercent);
 
@@ -1605,6 +1641,7 @@ void TerrorformWidget::importWavetables() {
 
     inFile.close();
     printf("Wavetable import successful\n");
+    updateBankNames = true;
 }
 
 Model *modelTerrorform = createModel<Terrorform, TerrorformWidget>("Terrorform");
