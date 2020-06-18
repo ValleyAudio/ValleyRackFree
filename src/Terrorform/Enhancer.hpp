@@ -22,6 +22,8 @@ public:
         MIRROR_MODE,
         SAW_SUB_MODE,
         SQUARE_SUB_MODE,
+        CHEBYSHEV_SUB_MODE,
+        GLITCH_SUB_MODE,
         NUM_MODES
     };
 
@@ -81,7 +83,9 @@ public:
         p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
         p[MIRROR_MODE] = &VecEnhancer::mirror;
         p[SAW_SUB_MODE] = &VecEnhancer::subSaw;
-        p[SQUARE_SUB_MODE] = &VecEnhancer::subChebyshev;
+        p[SQUARE_SUB_MODE] = &VecEnhancer::subSquare;
+        p[CHEBYSHEV_SUB_MODE] = &VecEnhancer::subChebyshev;
+        p[GLITCH_SUB_MODE] = &VecEnhancer::subGlitch;
     }
 
     inline __m128 process(const __m128& x, const __m128& param) {
@@ -107,35 +111,40 @@ public:
         else if(_mode >= NUM_MODES) {
             _mode = NUM_MODES - 1;
         }
+    }
 
-        // Reset internal flags and registers
+    // Reset internal flags and registers
+    void reset() {
         __counter = __zeros;
         __a = __zeros;
         __b = __zeros;
         __x = __zeros;
         __y = __zeros;
         __z = __zeros;
+        __flipFlop = __zeros;
+        __trig = __zeros;
         __prev = __zeros;
     }
 
     void setSampleRate(float sampleRate) {
-        _engineSampleRate = _mm_set1_ps(sampleRate);
-        _engineSampleTime = _mm_set1_ps(1.f / sampleRate);
+        __scaler = _mm_set1_ps(44100.f / sampleRate);
         __filter.setSampleRate(sampleRate);
         calcStepSize();
     }
 
-    void insertAuxSignals(const __m128& aux1, const __m128& aux2, const __m128& aux3) {
-        __aux1 = aux1;
-        __aux2 = aux2;
-        __aux3 = aux3;
+    void insertAuxSignals(const __m128& phasor, const __m128& phasorStepSize,
+                          const __m128& eoc, const __m128& direction) {
+        __phasor = phasor;
+        __phasorStepSize = phasorStepSize;
+        __eoc = eoc;
+        __direction = direction;
+        __phasorStepSize = _mm_mul_ps(__phasorStepSize, __direction);
     }
 
 private:
 
     inline void calcStepSize() {
-        _internalSampleRate = _mm_mul_ps(_engineSampleRate, __updateRate);
-        __stepSize = _mm_mul_ps(_internalSampleRate, _engineSampleTime);
+        __stepSize = _mm_mul_ps(__updateRate, __scaler);
     }
 
     __m128 (VecEnhancer::*p[NUM_MODES])(const __m128& x, const __m128& param);
@@ -159,12 +168,12 @@ private:
     }
 
     __m128 bitANDFloat(const __m128& x, const __m128& param) {
-        return _mm_linterp_ps(x, _mm_and_ps(x,__aux1), param);
+        return _mm_linterp_ps(x, _mm_and_ps(x,__phasor), param);
     }
 
     __m128 bitAND(const __m128& x, const __m128& param) {
         __xInt = _mm_cvttps_epi32(_mm_mul_ps(x, __intMaxF));
-        __yInt = _mm_cvttps_epi32(_mm_mul_ps(__aux1, __intMaxF));
+        __yInt = _mm_cvttps_epi32(_mm_mul_ps(__phasor, __intMaxF));
         __yInt = _mm_and_si128(__xInt, __yInt);
         __y = _mm_mul_ps(_mm_cvtepi32_ps(__yInt), __invIntMaxF);
         return _mm_linterp_ps(x, __y, param);
@@ -172,7 +181,7 @@ private:
 
     __m128 bitXOR(const __m128& x, const __m128& param) {
         __xInt = _mm_cvttps_epi32(_mm_mul_ps(x, __intMaxF));
-        __yInt = _mm_cvttps_epi32(_mm_mul_ps(__aux1, __intMaxF));
+        __yInt = _mm_cvttps_epi32(_mm_mul_ps(__phasor, __intMaxF));
         __yInt = _mm_xor_si128(__xInt, __yInt);
         __a = _mm_mul_ps(_mm_cvtepi32_ps(__yInt), __invIntMaxF);
         return _mm_linterp_ps(x, __a, param);
@@ -186,7 +195,7 @@ private:
 
     __m128 multiply(const __m128& x, const __m128& param) {
         __a = _mm_mul_ps(param, __sixteens);
-        __y = _mm_mul_ps(x, valley::_mm_cosine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(__aux1, __a)), _mm_set1_ps(M_PI))));
+        __y = _mm_mul_ps(x, valley::_mm_cosine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(__phasor, __a)), _mm_set1_ps(M_PI))));
         return _mm_linterp_ps(x, __y, _mm_clamp_ps(__a, __zeros, __ones));
     }
 
@@ -203,30 +212,12 @@ private:
         return __y;
     }
 
+    // Fold the input signal x with the sine function
     __m128 chebyshev(const __m128& x, const __m128& param) {
         __a = _mm_mul_ps(param, _mm_set1_ps(8.f));
         __y = valley::_mm_sine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(x, __a)), _mm_set1_ps(M_PI)));
         return _mm_linterp_ps(x, __y, _mm_clamp_ps(__a, __zeros, __ones));
     }
-
-    // __m128 wrap(const __m128& x, const __m128& param) {
-    //     /*__a = _mm_wrap_ps(_mm_add_ps(_mm_mul_ps(x, __halfs), __halfs), param);
-    //     __a = _mm_mul_ps(_mm_sub_ps(__a, __halfs), __twos);
-    //     return __a;*/
-    //     __a = _mm_mul_ps(param, __fours);
-    //     __aInt = _mm_cvttps_epi32(__a);
-    //     __b = _mm_cvtepi32_ps(__aInt);
-    //     __b = _mm_mul_ps(__b, __quarters);
-    //     __a = _mm_wrap_1_ps(__a);
-    //     __x = _mm_add_ps(_mm_mul_ps(x, __halfs), __halfs);
-    //
-    //     __y = _mm_wrap_ps(__x, __b);
-    //     __y = _mm_mul_ps(_mm_sub_ps(__y, __halfs), __twos);
-    //
-    //     __z = _mm_wrap_ps(__x, _mm_add_ps(__b, __quarters));
-    //     __z = _mm_mul_ps(_mm_sub_ps(__z, __halfs), __twos);
-    //     return _mm_linterp_ps(__y, __z, __a);
-    // }
 
     __m128 mirror(const __m128& x, const __m128& param) {
         __a = _mm_mul_ps(param, __fours);
@@ -239,60 +230,50 @@ private:
                               __a);
     }
 
-    // __m128 sub(const __m128& x, const __m128& param) {
-    //     __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
-    //     __trig = _mm_switch_ps(__trig,
-    //                            _mm_sub_ps(__ones, __trig),
-    //                            _mm_and_ps(_mm_cmpgt_ps(x, __zeros), _mm_cmple_ps(__prev, __zeros)));
-    //     __prev = x;
-    //     return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, __twos), __halfs)), x);
-    // }
-
     /** Saw sub-oscillator that is derived from and external phasor using piecewise transform
-        to create a sub-octave phasor, which is then anti-aliased using a PolyBLEP */
+        to create a sub-octave phasor, which is then anti-aliased using a PolyBLEP
+    */
     __m128 subSaw(const __m128& x, const __m128& param) {
         __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
-        __trig = _mm_cmplt_ps(__aux1, __prev);
-        __prev = __aux1;
-        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __trig));
+        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __eoc));
         __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
 
-        __a = _mm_mul_ps(__aux1, __halfs);
+        __a = _mm_mul_ps(__phasor, __halfs);
         __a = _mm_add_ps(__a, _mm_mul_ps(__counter, __halfs));
         __y = _mm_mul_ps(__a, __twos);
         __y = _mm_sub_ps(__y, __ones);
-        __y = _mm_sub_ps(__y, _mm_polyblep_ps(__a, __aux2));
+        __y = _mm_sub_ps(__y, _mm_polyblep_ps(__a, __phasorStepSize));
 
         return _mm_add_ps(x, _mm_mul_ps(__y, param));
     }
 
     /** Similar to above except a square wave is further derived from the sub-octave phasor and
-        anti-aliased using two PolyBLEPs*/
+        anti-aliased using two PolyBLEPs
+    */
     __m128 subSquare(const __m128& x, const __m128& param) {
         __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
-        __trig = _mm_cmplt_ps(__aux1, __prev);
-        __prev = __aux1;
-        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __trig));
+        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __eoc));
         __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
 
-        __a = _mm_mul_ps(__aux1, __halfs);
+        __a = _mm_mul_ps(__phasor, __halfs);
         __a = _mm_add_ps(__a, _mm_mul_ps(__counter, __halfs));
         __b = _mm_add_ps(__a, __halfs);
         __b = _mm_sub_ps(__b, _mm_and_ps(__ones, _mm_cmpge_ps(__b, __ones)));
         __y = _mm_switch_ps(__negOnes, __ones, _mm_cmplt_ps(__a, __halfs));
-        __y = _mm_add_ps(__y, _mm_polyblep_ps(__a, __aux2));
-        __y = _mm_sub_ps(__y, _mm_polyblep_ps(__b, __aux2));
+        __y = _mm_add_ps(__y, _mm_polyblep_ps(__a, __phasorStepSize));
+        __y = _mm_sub_ps(__y, _mm_polyblep_ps(__b, __phasorStepSize));
 
         return _mm_add_ps(x, _mm_mul_ps(__y, param));
     }
 
+    /** Using a similar principle to the previous sub-octave methods, make a sub-octave phasor, then
+        shape it using a Chebyshev shaper
+    */
     __m128 subChebyshev(const __m128& x, const __m128& param) {
-        __trig = _mm_cmplt_ps(__aux1, __prev);
-        __prev = __aux1;
-        __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __trig));
+        __counter = _mm_add_ps(__counter, __eoc);
         __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
 
-        __a = _mm_switch_ps(__aux1, _mm_sub_ps(__ones, __aux1), _mm_cmpeq_ps(__counter, __ones));
+        __a = _mm_switch_ps(__phasor, _mm_sub_ps(__ones, __phasor), _mm_cmpeq_ps(__counter, __ones));
         __y = _mm_mul_ps(__a, __twos);
         __y = _mm_sub_ps(__y, __ones);
 
@@ -301,15 +282,26 @@ private:
         return _mm_add_ps(x, _mm_mul_ps(__y, _mm_clamp_ps(__b, __zeros, __ones)));
     }
 
+    /** Quick and dirty way of creating a sub oscillator signal: just switch from low to high every
+        time the input signal (x) cross zero
+    */
+    __m128 subGlitch(const __m128& x, const __m128& param) {
+        __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
+        __trig = _mm_switch_ps(__trig,
+                               _mm_sub_ps(__ones, __trig),
+                               _mm_and_ps(_mm_cmpgt_ps(x, __zeros), _mm_cmple_ps(__prev, __zeros)));
+        __prev = x;
+        return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, __twos), __ones)), x);
+    }
+
     int _mode;
-    __m128 _engineSampleRate, _engineSampleTime, _internalSampleRate;
-    __m128 __updateRate, __counter, __stepSize, __doSample;
+    __m128 __scaler, __updateRate, __stepSize, __counter, __doSample;
     __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour;
     __m128 __halfs, __quarters, __eighths;
     __m128 __a, __b, __x, __y, __z;
     __m128i __xInt, __yInt, __zInt, __aInt;
     __m128 __intMaxF, __invIntMaxF;
-    __m128 __aux1, __aux2, __aux3;
+    __m128 __phasor, __phasorStepSize, __eoc, __direction;
 
     __m128 __flipFlop, __prev, __trig;
     VecOnePoleLPFilter __filter;
