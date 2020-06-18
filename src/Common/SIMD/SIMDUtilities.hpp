@@ -288,12 +288,9 @@ namespace valley {
         __m128 x5 = _mm_mul_ps(x2, x3);
         __m128 x7 = _mm_mul_ps(x2, x5);
         __m128 x9 = _mm_mul_ps(x2, x7);
-        //__m128 x11 = _mm_mul_ps(x2, x9);
         __m128 out = _mm_sub_ps(x, _mm_mul_ps(x3, _mm_set1_ps((float)VALLEY_1F3)));
         out = _mm_add_ps(out, _mm_mul_ps(x5, _mm_set1_ps((float)VALLEY_1F5)));
         out = _mm_sub_ps(out, _mm_mul_ps(x7, _mm_set1_ps((float)VALLEY_1F7)));
-        //out = _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
-        //return _mm_sub_ps(out, _mm_mul_ps(x11, _mm_set1_ps((float)VALLEY_1F11)));
         return _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
     }
 
@@ -305,8 +302,6 @@ namespace valley {
         __m128 out = _mm_sub_ps(_mm_set1_ps(1.f), _mm_mul_ps(x2, _mm_set1_ps((float)VALLEY_1F2)));
         out = _mm_add_ps(out, _mm_mul_ps(x4, _mm_set1_ps((float)VALLEY_1F4)));
         out = _mm_sub_ps(out, _mm_mul_ps(x6, _mm_set1_ps((float)VALLEY_1F6)));
-        //out = _mm_add_ps(out, _mm_mul_ps(x9, _mm_set1_ps((float)VALLEY_1F9)));
-        //return _mm_sub_ps(out, _mm_mul_ps(x11, _mm_set1_ps((float)VALLEY_1F11)));
         return _mm_add_ps(out, _mm_mul_ps(x8, _mm_set1_ps((float)VALLEY_1F8)));
     }
 
