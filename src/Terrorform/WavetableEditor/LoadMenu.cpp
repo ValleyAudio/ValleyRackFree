@@ -17,6 +17,7 @@ TFormLoadMenu::TFormLoadMenu() {
         hide();
     };
     addChild(cancelButton);
+
     confirmButton = createNewMenuButton("Okay", triggerIngest, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
     addChild(confirmButton);
 
@@ -83,7 +84,7 @@ TFormLoadMenu::TFormLoadMenu() {
 
     onView = [=]() {
         startWaveField->setValue(1);
-        nameField->text = "EMPTY_" + std::to_string(*selectedBank);
+        nameField->text = "Bank_" + std::to_string(*selectedBank);
     };
 }
 
@@ -95,7 +96,6 @@ void TFormLoadMenu::draw(const DrawArgs& args) {
 
     nvgFontSize(args.vg, 12);
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    //nvgText(args.vg, 5, 5, strDetectedWaves.c_str(), NULL);
 
     // Horizontal bar
     nvgBeginPath(args.vg);

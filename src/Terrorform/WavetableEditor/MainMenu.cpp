@@ -121,7 +121,6 @@ void TFormEditMainMenu::onShow(const event::Show& e) {
     if (onGetBankCallback) {
         onGetBankCallback(*selectedBank, bank);
         nameField->text = bank.name;
-        printf("Selected %d, %s\n", *selectedBank, bank.name.c_str());
     }
     recurseEvent(&Widget::onShow, e);
 }

@@ -10,7 +10,7 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
 
     nextButton = createNewMenuButton("Next", NULL, box.size.x - buttonWidth - 3, 21, buttonWidth, buttonHeight);
     addChild(nextButton);
-    
+
     startWaveFieldLabel = createWidget<PlainText>(Vec(5, 22));
     startWaveFieldLabel->box.size.x = buttonWidth;
     startWaveFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
@@ -185,8 +185,8 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
     addChild(filledText);
 
     onView = [=]() {
-        int row = *sourceBank;
-        int col = *sourceBank;
+        int row = *sourceBank / TFORM_EDITOR_ROWS;
+        int col = *sourceBank % TFORM_EDITOR_COLS;
         grid->slotButton[row][col]->respondToMouse = false;
         grid->slotButton[row][col]->applyStyle(filledSlotStyle);
     };
@@ -199,9 +199,7 @@ void TFormCloneMenuDestPage::step() {
         for(auto i = 0; i < TFORM_EDITOR_SLOTS; ++i) {
             row = i / TFORM_EDITOR_ROWS;
             col = i % TFORM_EDITOR_COLS;
-            grid->slotButton[row][col]->setHighlight(i == *sourceBank || i == *destBank);
-            //grid->slotButton[row][col]->highlight = i == *sourceBank || i == *destBank;
-            //grid->slotButton[row][col]->respondToMouse = i != *sourceBank;
+            grid->slotButton[row][col]->setHighlight((i == *sourceBank) || (i == *destBank));
         }
         sourceDestText->text = "Bank " + std::to_string(*sourceBank + 1) + " -> Bank " + std::to_string(*destBank + 1);
     }
