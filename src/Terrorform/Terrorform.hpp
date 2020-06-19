@@ -129,6 +129,9 @@ struct Terrorform : Module {
         LOAD_TABLE_SWITCH_PARAM,
         LPG_SWITCH_PARAM,
         LPG_TRIGGER_PARAM,
+        LPG_LONG_TIME_SWITCH_PARAM,
+        LPG_VELOCITY_SWITCH_PARAM,
+        LPG_TRIGGER_SWITCH_PARAM,
         WEAK_SYNC_1_SWITCH_PARAM,
         WEAK_SYNC_2_SWITCH_PARAM,
         TRUE_FM_SWITCH_PARAM,
@@ -238,13 +241,13 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Percussion
-    dsp::Timer percButtonTimer;
-    int percMode = 0;
-    bool percButtonPressed = false;
-    bool percButtonHeldDown = false;
-    bool percButtonPrevState = false;
-    __m128 __percVCAMode;
-    __m128 __percFilterMode;
+    dsp::Timer lpgButtonTimer;
+    int lpgMode = 0;
+    bool lpgButtonPressed = false;
+    bool lpgButtonHeldDown = false;
+    bool lpgButtonPrevState = false;
+    __m128 __lpgVCAMode;
+    __m128 __lpgFilterMode;
 
     bool trig1ButtonState = false;
     bool trig2ButtonState = false;
@@ -287,6 +290,7 @@ struct Terrorform : Module {
     __m128 __hundredths, __quarters;
 
     int counter = 512;
+    int samplySampler = 0;
 
     bool romIsLoading = false;
 
@@ -401,8 +405,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthPos = Vec(230, 138);
     Vec enhanceTypePos = Vec(79, 182);
     Vec enhanceDepthPos = Vec(221, 182);
-    Vec percAttackPos = Vec(125, 200);
-    Vec percDecayPos = Vec(175, 200);
+    Vec lpgAttackPos = Vec(125, 200);
+    Vec lpgDecayPos = Vec(175, 200);
 
     RoganMedBlue* octaveKnob;
     RoganMedBlue* coarseKnob;
@@ -431,10 +435,10 @@ struct TerrorformWidget : ModuleWidget {
     Vec enhanceTypeCV2Pos = Vec(75, 224);
     Vec enhanceDepthCV1Pos = Vec(263, 198);
     Vec enhanceDepthCV2Pos = Vec(225, 224);
-    Vec percAttackCV1Pos = Vec(99, 215);
-    Vec percAttackCV2Pos = Vec(123, 234);
-    Vec percDecayCV1Pos = Vec(178, 234);
-    Vec percDecayCV2Pos = Vec(201, 215);
+    Vec lpgAttackCV1Pos = Vec(99, 215);
+    Vec lpgAttackCV2Pos = Vec(123, 234);
+    Vec lpgDecayCV1Pos = Vec(178, 234);
+    Vec lpgDecayCV2Pos = Vec(201, 215);
 
     RoganSmallBlue* vOct1CV;
     RoganSmallBlue* vOct2CV;
@@ -450,21 +454,26 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallGreen* enhanceTypeCV2;
     RoganSmallGreen* enhanceDepthCV1;
     RoganSmallGreen* enhanceDepthCV2;
-    RoganSmallMustard* percAttackCV1;
-    RoganSmallMustard* percAttackCV2;
-    RoganSmallMustard* percDecayCV1;
-    RoganSmallMustard* percDecayCV2;
+    RoganSmallMustard* lpgAttackCV1;
+    RoganSmallMustard* lpgAttackCV2;
+    RoganSmallMustard* lpgDecayCV1;
+    RoganSmallMustard* lpgDecayCV2;
 
     // Switches
     LightLEDButton2* lfoButton;
     LightLEDButton2* zeroFreqButton;
     LightLEDButton2* userBankButton;
-    LightLEDButton2* percButton;
+
+    LightLEDButton2* lpgButton;
+    LightLEDButton2* longTimeButton;
+    LightLEDButton2* velocityButton;
+    LightLEDButton2* trigButton;
+
 
     MediumLight<RedLight>* lfoButtonLight;
     MediumLight<RedLight>* zeroFreqLight;
     MediumLight<RedLight>* userBankLight;
-    MediumLight<RedGreenBlueLight>* percButtonLight;
+    MediumLight<RedGreenBlueLight>* lpgButtonLight;
 
     Vec lfoButtonPos = Vec(121, 55);
     Vec zeroFreqButtonPos = Vec(179, 55);

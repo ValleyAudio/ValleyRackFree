@@ -87,8 +87,8 @@ Terrorform::Terrorform() {
     __sync2Pls = __zeros;
     __weakSync1Flag = __zeros;
     __weakSync2Flag = __zeros;
-    __percVCAMode = __zeros;
-    __percFilterMode = __zeros;
+    __lpgVCAMode = __zeros;
+    __lpgFilterMode = __zeros;
 
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
@@ -162,7 +162,7 @@ void Terrorform::process(const ProcessArgs &args) {
         enhanceTypeI = (int)enhanceType;
 
         for(auto c = 0; c < kMaxNumGroups; ++c) {
-            lpg[c].mode = (VecLPG::Modes) percMode;
+            lpg[c].mode = (VecLPG::Modes) lpgMode;
             if(readFromUserWaves) {
                 lights[USER_BANK_LIGHT].value = 1.f;
                 osc[c].setWavebank(userWaveTableData[bankI],
@@ -184,7 +184,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __numWavesInTable = _mm_set1_ps(numWavesInTable);
 
         // LPG mode lights
-        switch ((VecLPG::Modes) percMode) {
+        switch ((VecLPG::Modes) lpgMode) {
             case VecLPG::Modes::BYPASS_MODE :
                 lights[LPG_RED_LIGHT].value = 0.f;
                 lights[LPG_GREEN_LIGHT].value = 0.f;
@@ -236,33 +236,33 @@ void Terrorform::process(const ProcessArgs &args) {
     }
 
     // Perc mode press / hold
-    percButtonPressed = params[LPG_SWITCH_PARAM].getValue() > 0.5f;
-    if (percButtonPressed) {
-        if (percButtonTimer.time < 0.5f) {
-            percButtonTimer.process(APP->engine->getSampleTime());
+    lpgButtonPressed = params[LPG_SWITCH_PARAM].getValue() > 0.5f;
+    if (lpgButtonPressed) {
+        if (lpgButtonTimer.time < 0.5f) {
+            lpgButtonTimer.process(args.sampleTime * args.sampleRate / 44100.f); // This makes no fucking sense!?
         }
 
-        if (percButtonTimer.time >= 0.5f && !percButtonHeldDown) {
-            percButtonHeldDown = true;
-            if (percMode > 0) {
-                percMode = 0;
+        if (lpgButtonTimer.time >= 0.5f && !lpgButtonHeldDown) {
+            lpgButtonHeldDown = true;
+            if (lpgMode > 0) {
+                lpgMode = 0;
             }
             else {
-                percMode = 1;
+                lpgMode = 1;
             }
         }
     }
 
     // Button has been released
-    if (!percButtonPressed && percButtonPrevState) {
-        if (!percButtonHeldDown && percMode != 0) {
-            percMode++;
-            percMode = percMode == 4 ? 1 : percMode;
+    if (!lpgButtonPressed && lpgButtonPrevState) {
+        if (!lpgButtonHeldDown && lpgMode != 0) {
+            lpgMode++;
+            lpgMode = lpgMode == 4 ? 1 : lpgMode;
         }
-        percButtonHeldDown = false;
-        percButtonTimer.reset();
+        lpgButtonHeldDown = false;
+        lpgButtonTimer.reset();
     }
-    percButtonPrevState = percButtonPressed;
+    lpgButtonPrevState = lpgButtonPressed;
 
     // Sync button logic
     weakSync1Enable = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
@@ -466,7 +466,7 @@ json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
-    json_object_set_new(rootJ, "percMode", json_integer(percMode));
+    json_object_set_new(rootJ, "lpgMode", json_integer(lpgMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
 
     char str[25];
@@ -500,17 +500,17 @@ json_t* Terrorform::dataToJson()  {
 void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
-    json_t *percModeJ = json_object_get(rootJ, "percMode");
+    json_t *lpgModeJ = json_object_get(rootJ, "lpgMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
-    percMode = json_integer_value(percModeJ);
+    lpgMode = json_integer_value(lpgModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
-    percMode = percMode > 3 ? 3 : percMode;
+    lpgMode = lpgMode > 3 ? 3 : lpgMode;
     syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
 
     int destBank;
@@ -727,9 +727,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     enhanceDepthKnob = createParamCentered<RoganMedGreen>(enhanceDepthPos, module, Terrorform::ENHANCE_DEPTH_PARAM);
     addParam(enhanceDepthKnob);
 
-    attackKnob = createParamCentered<RoganMedMustard>(percAttackPos, module, Terrorform::LPG_ATTACK_PARAM);
+    attackKnob = createParamCentered<RoganMedMustard>(lpgAttackPos, module, Terrorform::LPG_ATTACK_PARAM);
     addParam(attackKnob);
-    decayKnob = createParamCentered<RoganMedMustard>(percDecayPos, module, Terrorform::LPG_DECAY_PARAM);
+    decayKnob = createParamCentered<RoganMedMustard>(lpgDecayPos, module, Terrorform::LPG_DECAY_PARAM);
     addParam(decayKnob);
 
     vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
@@ -763,14 +763,14 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(enhanceDepthCV1);
     addParam(enhanceDepthCV2);
 
-    percAttackCV1 = createParamCentered<RoganSmallMustard>(percAttackCV1Pos, module, Terrorform::LPG_ATTACK_CV_1_PARAM);
-    percAttackCV2 = createParamCentered<RoganSmallMustard>(percAttackCV2Pos, module, Terrorform::LPG_ATTACK_CV_2_PARAM);
-    percDecayCV1 = createParamCentered<RoganSmallMustard>(percDecayCV1Pos, module, Terrorform::LPG_DECAY_CV_1_PARAM);
-    percDecayCV2 = createParamCentered<RoganSmallMustard>(percDecayCV2Pos, module, Terrorform::LPG_DECAY_CV_2_PARAM);
-    addParam(percAttackCV1);
-    addParam(percAttackCV2);
-    addParam(percDecayCV1);
-    addParam(percDecayCV2);
+    lpgAttackCV1 = createParamCentered<RoganSmallMustard>(lpgAttackCV1Pos, module, Terrorform::LPG_ATTACK_CV_1_PARAM);
+    lpgAttackCV2 = createParamCentered<RoganSmallMustard>(lpgAttackCV2Pos, module, Terrorform::LPG_ATTACK_CV_2_PARAM);
+    lpgDecayCV1 = createParamCentered<RoganSmallMustard>(lpgDecayCV1Pos, module, Terrorform::LPG_DECAY_CV_1_PARAM);
+    lpgDecayCV2 = createParamCentered<RoganSmallMustard>(lpgDecayCV2Pos, module, Terrorform::LPG_DECAY_CV_2_PARAM);
+    addParam(lpgAttackCV1);
+    addParam(lpgAttackCV2);
+    addParam(lpgDecayCV1);
+    addParam(lpgDecayCV2);
 
     addParam(createParamCentered<RoganSmallWhite>(vcaAPos, module, Terrorform::FM_A_VCA_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(vcaBPos, module, Terrorform::FM_B_VCA_ATTEN_PARAM));
@@ -1021,11 +1021,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     // Switches
-    percButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_SWITCH_PARAM);
-    addParam(percButton);
+    lpgButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_SWITCH_PARAM);
+    addParam(lpgButton);
 
-    percButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
-    addChild(percButtonLight);
+    lpgButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
+    addChild(lpgButtonLight);
 
     {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM);
@@ -1126,20 +1126,20 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         enhanceTypeCV2->visible = true;
         enhanceDepthCV1->visible = true;
         enhanceDepthCV2->visible = true;
-        percAttackCV1->visible = true;
-        percAttackCV2->visible = true;
-        percDecayCV1->visible = true;
-        percDecayCV2->visible = true;
+        lpgAttackCV1->visible = true;
+        lpgAttackCV2->visible = true;
+        lpgDecayCV1->visible = true;
+        lpgDecayCV2->visible = true;
 
         lfoButton->visible = true;
         zeroFreqButton->visible = true;
         userBankButton->visible = true;
-        percButton->visible = true;
+        lpgButton->visible = true;
 
         lfoButtonLight->visible = true;
         zeroFreqLight->visible = true;
         userBankLight->visible = true;
-        percButtonLight->visible = true;
+        lpgButtonLight->visible = true;
 
         editor->visible = false;
         inEditorMode = false;
@@ -1378,20 +1378,20 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         enhanceTypeCV2->visible = false;
         enhanceDepthCV1->visible = false;
         enhanceDepthCV2->visible = false;
-        percAttackCV1->visible = false;
-        percAttackCV2->visible = false;
-        percDecayCV1->visible = false;
-        percDecayCV2->visible = false;
+        lpgAttackCV1->visible = false;
+        lpgAttackCV2->visible = false;
+        lpgDecayCV1->visible = false;
+        lpgDecayCV2->visible = false;
 
         lfoButton->visible = false;
         zeroFreqButton->visible = false;
         userBankButton->visible = false;
-        percButton->visible = false;
+        lpgButton->visible = false;
 
         lfoButtonLight->visible = false;
         zeroFreqLight->visible = false;
         userBankLight->visible = false;
-        percButtonLight->visible = false;
+        lpgButtonLight->visible = false;
 
         editor->visible = true;
         inEditorMode = true;
