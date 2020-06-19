@@ -145,10 +145,11 @@ struct Terrorform : Module {
         LPG_RED_LIGHT,
         LPG_GREEN_LIGHT,
         LPG_BLUE_LIGHT,
+        LPG_LONG_TIME_LIGHT,
+        LPG_VELO_LIGHT,
+        LPG_TRIG_LIGHT,
         USER_BANK_LIGHT,
         LOAD_TABLE_LIGHT,
-        TRIGGER_1_LIGHT,
-        TRIGGER_2_LIGHT,
         WEAK_SYNC_1_LIGHT,
         WEAK_SYNC_2_LIGHT,
         TRUE_FM_LIGHT,
@@ -478,8 +479,12 @@ struct TerrorformWidget : ModuleWidget {
     Vec lfoButtonPos = Vec(121, 55);
     Vec zeroFreqButtonPos = Vec(179, 55);
     Vec userBankSwitchPos = Vec(150, 98);
-    Vec lpgModeSwitchPos = Vec(150, 209);
-    Vec lpgTrigSwitchPos = Vec(150, 234);
+
+    Vec lpgModeSwitchPos = Vec(150, 184);
+    Vec lpgLongTimeSwitchPos = Vec(150, 209);
+    Vec lpgVeloSwitchPos = Vec(141, 234);
+    Vec lpgTrigSwitchPos = Vec(159, 234);
+
     Vec weakSyncSwitch1Pos = Vec(110, 278);
     Vec weakSyncSwitch2Pos = Vec(190, 278);
     Vec trueFMButtonPos = Vec(81.64, 301);
