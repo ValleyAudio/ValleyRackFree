@@ -31,12 +31,15 @@ Terrorform::Terrorform() {
 
     configParam(Terrorform::LPG_ATTACK_PARAM, 0.0, 1.0, 0.0, "Lowpass Gate Attack");
     configParam(Terrorform::LPG_DECAY_PARAM, 0.0, 1.0, 0.5, "Lowpass Gate Decay");
-    configParam(Terrorform::LPG_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
-    configParam(Terrorform::LPG_TRIGGER_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Mode");
     configParam(Terrorform::LPG_ATTACK_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Attack CV1 Atten.");
     configParam(Terrorform::LPG_ATTACK_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Attack CV2 Atten.");
     configParam(Terrorform::LPG_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV1 Atten.");
     configParam(Terrorform::LPG_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV2 Atten.");
+
+    configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
+    configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Long Time Toggle");
+    configParam(Terrorform::LPG_VELOCITY_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Velocity Sensitive Toggle");
+    configParam(Terrorform::LPG_TRIGGER_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Toggle");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -184,7 +187,7 @@ void Terrorform::process(const ProcessArgs &args) {
         numWavesInTable = osc[0].getNumwaves() - 1.f;
         __numWavesInTable = _mm_set1_ps(numWavesInTable);
 
-        // LPG mode lights
+        // LPG lights
         switch ((VecLPG::Modes) lpgMode) {
             case VecLPG::Modes::BYPASS_MODE :
                 lights[LPG_RED_LIGHT].value = 0.f;
@@ -207,6 +210,8 @@ void Terrorform::process(const ProcessArgs &args) {
                 lights[LPG_BLUE_LIGHT].value = 1.f;
                 break;
         }
+
+        lights[LPG_LONG_TIME_LIGHT].value = params[LPG_LONG_TIME_SWITCH_PARAM].getValue() > 0.f;
 
         // Other button lights
         lights[TRUE_FM_LIGHT].value = trueFMEnabled;
@@ -237,7 +242,7 @@ void Terrorform::process(const ProcessArgs &args) {
     }
 
     // Perc mode press / hold
-    lpgButtonPressed = params[LPG_SWITCH_PARAM].getValue() > 0.5f;
+    lpgButtonPressed = params[LPG_MODE_SWITCH_PARAM].getValue() > 0.5f;
     if (lpgButtonPressed) {
         if (lpgButtonTimer.time < 0.5f) {
             lpgButtonTimer.process(args.sampleTime);
@@ -894,7 +899,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(shapeDepthText);
 
     // Enhance Text
-
     enhanceTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : enhanceNames[0]);
     enhanceBlurText = new DynamicText;
     enhanceBlurText2 = new DynamicText;
@@ -1022,13 +1026,36 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(syncMenu);
     }
 
-    // Switches
-    lpgButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_SWITCH_PARAM);
+    // LPG Buttons
+    lpgButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_MODE_SWITCH_PARAM);
     addParam(lpgButton);
+
+    lpgLongTimeButton = createParamCentered<LightLEDButton2>(lpgLongTimeSwitchPos, module, Terrorform::LPG_LONG_TIME_SWITCH_PARAM);
+    lpgLongTimeButton->momentary = false;
+    addParam(lpgLongTimeButton);
+
+    lpgVelocityButton = createParamCentered<LightLEDButton2>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELOCITY_SWITCH_PARAM);
+    lpgVelocityButton->momentary = false;
+    addParam(lpgVelocityButton);
+
+    lpgTrigButton = createParamCentered<LightLEDButton2>(lpgTrigSwitchPos, module, Terrorform::LPG_TRIGGER_SWITCH_PARAM);
+    lpgTrigButton->momentary = false;
+    addParam(lpgTrigButton);
+
 
     lpgButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
     addChild(lpgButtonLight);
 
+    lpgLongTimeButtonLight = createLightCentered<MediumLight<RedLight>>(lpgLongTimeSwitchPos, module, Terrorform::LPG_LONG_TIME_LIGHT);
+    addChild(lpgLongTimeButtonLight);
+
+    lpgVelocityButtonLight = createLightCentered<MediumLight<RedLight>>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELO_LIGHT);
+    addChild(lpgVelocityButtonLight);
+
+    lpgTrigButtonLight = createLightCentered<MediumLight<RedLight>>(lpgTrigSwitchPos, module, Terrorform::LPG_TRIGGER_LIGHT);
+    addChild(lpgTrigButtonLight);
+
+    // Sync, FM, and Enhancer Buttons
     {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM);
         newButton->momentary = false;

@@ -125,13 +125,12 @@ struct Terrorform : Module {
         FM_B1_ATTEN_PARAM,
         FM_B2_ATTEN_PARAM,
 
-        USER_BANK_SWITCH_PARAM,
-        LOAD_TABLE_SWITCH_PARAM,
-        LPG_SWITCH_PARAM,
-        LPG_TRIGGER_PARAM,
+        LPG_MODE_SWITCH_PARAM,
         LPG_LONG_TIME_SWITCH_PARAM,
         LPG_VELOCITY_SWITCH_PARAM,
         LPG_TRIGGER_SWITCH_PARAM,
+
+        USER_BANK_SWITCH_PARAM,
         WEAK_SYNC_1_SWITCH_PARAM,
         WEAK_SYNC_2_SWITCH_PARAM,
         TRUE_FM_SWITCH_PARAM,
@@ -145,9 +144,11 @@ struct Terrorform : Module {
         LPG_RED_LIGHT,
         LPG_GREEN_LIGHT,
         LPG_BLUE_LIGHT,
+
         LPG_LONG_TIME_LIGHT,
         LPG_VELO_LIGHT,
-        LPG_TRIG_LIGHT,
+        LPG_TRIGGER_LIGHT,
+
         USER_BANK_LIGHT,
         LOAD_TABLE_LIGHT,
         WEAK_SYNC_1_LIGHT,
@@ -466,15 +467,17 @@ struct TerrorformWidget : ModuleWidget {
     LightLEDButton2* userBankButton;
 
     LightLEDButton2* lpgButton;
-    LightLEDButton2* longTimeButton;
-    LightLEDButton2* velocityButton;
-    LightLEDButton2* trigButton;
-
+    LightLEDButton2* lpgLongTimeButton;
+    LightLEDButton2* lpgVelocityButton;
+    LightLEDButton2* lpgTrigButton;
 
     MediumLight<RedLight>* lfoButtonLight;
     MediumLight<RedLight>* zeroFreqLight;
     MediumLight<RedLight>* userBankLight;
     MediumLight<RedGreenBlueLight>* lpgButtonLight;
+    MediumLight<RedLight>* lpgLongTimeButtonLight;
+    MediumLight<RedLight>* lpgVelocityButtonLight;
+    MediumLight<RedLight>* lpgTrigButtonLight;
 
     Vec lfoButtonPos = Vec(121, 55);
     Vec zeroFreqButtonPos = Vec(179, 55);
@@ -482,7 +485,7 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec lpgModeSwitchPos = Vec(150, 184);
     Vec lpgLongTimeSwitchPos = Vec(150, 209);
-    Vec lpgVeloSwitchPos = Vec(141, 234);
+    Vec lpgVelocitySwitchPos = Vec(141, 234);
     Vec lpgTrigSwitchPos = Vec(159, 234);
 
     Vec weakSyncSwitch1Pos = Vec(110, 278);

@@ -100,7 +100,6 @@ public:
         __envelope.setTimeScale(_mm_div_ps(_mm_set1_ps(newSampleRate), _mm_set1_ps(44100.f)));
     }
 private:
-    __m128 __sampleRate;
     __m128 __zeros, __ones, __halfs, __quarters;
     __m128 __scale, __offset, __longOffset;
     VecAREnvelope __envelope;
