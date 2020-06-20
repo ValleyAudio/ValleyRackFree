@@ -146,7 +146,7 @@ struct Terrorform : Module {
         LPG_BLUE_LIGHT,
 
         LPG_LONG_TIME_LIGHT,
-        LPG_VELO_LIGHT,
+        LPG_VELOCITY_LIGHT,
         LPG_TRIGGER_LIGHT,
 
         USER_BANK_LIGHT,
@@ -242,7 +242,7 @@ struct Terrorform : Module {
     bool prevWeakSwitch1State = false;
     bool prevWeakSwitch2State = false;
 
-    // Percussion
+    // Lowpass Gate
     dsp::Timer lpgButtonTimer;
     int lpgMode = 0;
     bool lpgButtonPressed = false;
@@ -251,8 +251,11 @@ struct Terrorform : Module {
     __m128 __lpgVCAMode;
     __m128 __lpgFilterMode;
 
-    bool trig1ButtonState = false;
-    bool trig2ButtonState = false;
+    bool lpgLongTime = false;
+    bool lpgVelocitySensitive = false;
+    bool lpgTriggerMode = false;
+
+    __m128 __lpgVelocitySensitiveFlag;
 
     float trig1, trig2;
     __m128 __trig1, __trig2;
@@ -289,7 +292,7 @@ struct Terrorform : Module {
     __m128 __trigger1 , __trigger2;
 
     __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
-    __m128 __hundredths, __quarters;
+    __m128 __quarters, __tenths, __hundredths;
 
     int counter = 512;
     int samplySampler = 0;

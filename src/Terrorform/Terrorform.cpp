@@ -81,6 +81,7 @@ Terrorform::Terrorform() {
     __fives = _mm_set1_ps(5.f);
     __negFives = _mm_set1_ps(-5.f);
     __tens = _mm_set1_ps(10.f);
+    __tenths = _mm_set1_ps(0.1f);
     __hundredths = _mm_set1_ps(0.01f);
     __quarters = _mm_set1_ps(0.25f);
 
@@ -187,7 +188,7 @@ void Terrorform::process(const ProcessArgs &args) {
         numWavesInTable = osc[0].getNumwaves() - 1.f;
         __numWavesInTable = _mm_set1_ps(numWavesInTable);
 
-        // LPG lights
+        // LPG
         switch ((VecLPG::Modes) lpgMode) {
             case VecLPG::Modes::BYPASS_MODE :
                 lights[LPG_RED_LIGHT].value = 0.f;
@@ -211,7 +212,15 @@ void Terrorform::process(const ProcessArgs &args) {
                 break;
         }
 
-        lights[LPG_LONG_TIME_LIGHT].value = params[LPG_LONG_TIME_SWITCH_PARAM].getValue() > 0.f;
+        lpgLongTime = params[LPG_LONG_TIME_SWITCH_PARAM].getValue() > 0.f;
+        lpgVelocitySensitive = params[LPG_VELOCITY_SWITCH_PARAM].getValue() > 0.f;
+        lpgTriggerMode = params[LPG_TRIGGER_SWITCH_PARAM].getValue() > 0.f;
+
+        lights[LPG_LONG_TIME_LIGHT].value = (lpgLongTime ? 1.f : 0.f) * (lpgMode == 0 ? 0.5f : 1.f);
+        lights[LPG_VELOCITY_LIGHT].value = (lpgVelocitySensitive ? 1.f : 0.f) * (lpgMode == 0 ? 0.5f : 1.f);
+        lights[LPG_TRIGGER_LIGHT].value = (lpgTriggerMode ? 1.f : 0.f) * (lpgMode == 0 ? 0.5f : 1.f);
+
+        __lpgVelocitySensitiveFlag = lpgVelocitySensitive ? _mm_high_ps() : __zeros;
 
         // Other button lights
         lights[TRUE_FM_LIGHT].value = trueFMEnabled;
@@ -365,7 +374,7 @@ void Terrorform::process(const ProcessArgs &args) {
     for(auto c = 0; c < numActiveGroups; ++c) {
         g = c * 4;
 
-        // Sync and LPG
+        // Sync
         __sync1 = sync1IsMono ? _mm_set1_ps(sync1[0]) : _mm_load_ps(sync1 + g);
         __sync2 = sync2IsMono ? _mm_set1_ps(sync2[0]) : _mm_load_ps(sync2 + g);
         __sync1Pls = _mm_and_ps(_mm_cmple_ps(__prevSync1, __zeros), _mm_cmpgt_ps(__sync1, __zeros));
@@ -379,8 +388,16 @@ void Terrorform::process(const ProcessArgs &args) {
         __prevSync2 = __sync2;
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
 
+        // LPG
         __trigger1 = _mm_load_ps(trigger1 + g);
         __trigger2 = _mm_load_ps(trigger2 + g);
+        __trigger1 = _mm_mul_ps(__trigger1, __tenths);
+        __trigger2 = _mm_mul_ps(__trigger2, __tenths);
+
+        __trigger1 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger1, __zeros)),
+                                    __trigger1, __lpgVelocitySensitiveFlag);
+        __trigger2 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger2, __zeros)),
+                                    __trigger2, __lpgVelocitySensitiveFlag);
         lpg[c].setAttack(__attack, true);
         lpg[c].setDecay(__decay, true);
 
@@ -415,7 +432,6 @@ void Terrorform::process(const ProcessArgs &args) {
         __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
         __enhance = _mm_clamp_ps(__enhance, __zeros, __ones);
-
 
         osc[c].setFrequency(__freq);
         osc[c].mm_setScanPosition(__wave);
@@ -1049,7 +1065,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     lpgLongTimeButtonLight = createLightCentered<MediumLight<RedLight>>(lpgLongTimeSwitchPos, module, Terrorform::LPG_LONG_TIME_LIGHT);
     addChild(lpgLongTimeButtonLight);
 
-    lpgVelocityButtonLight = createLightCentered<MediumLight<RedLight>>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELO_LIGHT);
+    lpgVelocityButtonLight = createLightCentered<MediumLight<RedLight>>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELOCITY_LIGHT);
     addChild(lpgVelocityButtonLight);
 
     lpgTrigButtonLight = createLightCentered<MediumLight<RedLight>>(lpgTrigSwitchPos, module, Terrorform::LPG_TRIGGER_LIGHT);
