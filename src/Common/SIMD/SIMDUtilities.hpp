@@ -9,6 +9,7 @@
 #pragma once
 #include <pmmintrin.h>
 #include <iostream>
+#include <simd/sse_mathfun_extension.h>
 #define VALLEY_1F2 0.5
 #define VALLEY_1F3 0.1666666667
 #define VALLEY_1F4 0.04166666667
@@ -321,5 +322,9 @@ namespace valley {
         out = _mm_add_ps(out, _mm_mul_ps(x6, _mm_set1_ps((float)VALLEY_1F6)));
         out = _mm_add_ps(out, _mm_mul_ps(x7, _mm_set1_ps((float)VALLEY_1F7)));
         return _mm_add_ps(out, _mm_mul_ps(x8, _mm_set1_ps((float)VALLEY_1F8)));
+    }
+
+    inline __m128 _mm_power_ps(const __m128& x, const __m128& y) {
+        return sse_mathfun_exp_ps(_mm_mul_ps(y, sse_mathfun_log_ps(x)));
     }
 }

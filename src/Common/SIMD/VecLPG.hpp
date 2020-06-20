@@ -97,6 +97,7 @@ public:
     void setSampleRate(float newSampleRate) {
         _lpf1.setSampleRate(newSampleRate);
         _lpf2.setSampleRate(newSampleRate);
+        __envelope.setTimeScale(_mm_div_ps(_mm_set1_ps(newSampleRate), _mm_set1_ps(44100.f)));
     }
 private:
     __m128 __sampleRate;

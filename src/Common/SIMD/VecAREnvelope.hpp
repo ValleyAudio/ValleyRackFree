@@ -56,6 +56,10 @@ struct VecAREnvelope {
         return env;
     }
 
+    void setTimeScale(const __m128& tScale) {
+        s.setTimeScale(tScale);
+    }
+
     __m128 hasFinished() const {
         return _mm_cmplt_ps(env, s.epsilon);
     }

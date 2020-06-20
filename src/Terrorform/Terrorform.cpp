@@ -132,6 +132,7 @@ Terrorform::~Terrorform() {
 void Terrorform::process(const ProcessArgs &args) {
     ++counter;
     if(counter > 512) {
+        //printf("SRate = %f, STime = %f\n", args.sampleRate, args.sampleTime);
         readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
         if (readFromUserWaves) {
             maxNumBanks = TFORM_MAX_BANKS;
@@ -239,7 +240,7 @@ void Terrorform::process(const ProcessArgs &args) {
     lpgButtonPressed = params[LPG_SWITCH_PARAM].getValue() > 0.5f;
     if (lpgButtonPressed) {
         if (lpgButtonTimer.time < 0.5f) {
-            lpgButtonTimer.process(args.sampleTime * args.sampleRate / 44100.f); // This makes no fucking sense!?
+            lpgButtonTimer.process(args.sampleTime);
         }
 
         if (lpgButtonTimer.time >= 0.5f && !lpgButtonHeldDown) {
@@ -459,6 +460,7 @@ void Terrorform::onSampleRateChange() {
     for(auto i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setSampleRate(APP->engine->getSampleRate());
         enhancer[i].setSampleRate(APP->engine->getSampleRate());
+        lpg[i].setSampleRate(APP->engine->getSampleRate());
     }
 }
 

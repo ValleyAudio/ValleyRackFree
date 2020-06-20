@@ -19,11 +19,12 @@ struct VecSegment {
         seg = zeros;
         output = zeros;
         rate = ones;
+        __1_timeScale = ones;
     }
 
     __m128 process() {
         output = seg;
-        seg = _mm_mul_ps(seg, rate);
+        seg = _mm_mul_ps(seg, valley::_mm_power_ps(rate, __1_timeScale));
         return output;
     }
 
@@ -31,7 +32,13 @@ struct VecSegment {
         seg = x;
     }
 
+    void setTimeScale(const __m128& __tScale) {
+        __1_timeScale = _mm_div_ps(ones, __tScale);
+    }
+
     __m128 hasFinished() {
         return _mm_cmplt_ps(seg, epsilon);
     }
+private:
+    __m128 __1_timeScale;
 };
