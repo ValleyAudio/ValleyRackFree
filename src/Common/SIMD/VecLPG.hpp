@@ -100,6 +100,11 @@ public:
         _lpf2.setSampleRate(newSampleRate);
         __envelope.setTimeScale(_mm_div_ps(_mm_set1_ps(newSampleRate), _mm_set1_ps(44100.f)));
     }
+
+    void setTriggerMode(bool triggerMode) {
+        __envelope.inOneShotMode = triggerMode;
+    }
+
 private:
     __m128 __zeros, __ones, __halfs, __quarters;
     __m128 __scale, __offset, __longOffset;

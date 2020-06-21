@@ -400,6 +400,7 @@ void Terrorform::process(const ProcessArgs &args) {
                                     __trigger2, __lpgVelocitySensitiveFlag);
         lpg[c].setAttack(__attack, true);
         lpg[c].setDecay(__decay, true);
+        lpg[c].setTriggerMode(lpgTriggerMode);
 
         // FM
         __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);

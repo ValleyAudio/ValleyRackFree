@@ -39,7 +39,7 @@ struct VecAREnvelope {
         inputEpsilon = _mm_set1_ps(0.0001f);
         risingEpsilon = _mm_set1_ps(0.998f);
         fallingEpsilon = _mm_set1_ps(0.000031f);
-        inOneShotMode = true;
+        inOneShotMode = false;
     }
 
     __m128 process(const __m128& trigger) {
@@ -47,7 +47,7 @@ struct VecAREnvelope {
         risingEdge = _mm_cmpgt_ps(trigger, prevTrigger);
         if (inOneShotMode) {
             rising = _mm_switch_ps(rising, risingEdge, risingEdge);
-            fallingEdge = _mm_and_ps(rising, _mm_cmpgt_ps(env, risingEpsilon));
+            fallingEdge = _mm_and_ps(rising, _mm_andnot_ps(risingEdge, s.hasFinished()));
             rising = _mm_switch_ps(rising, zeros, fallingEdge);
         }
         else {
