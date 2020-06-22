@@ -17,6 +17,23 @@
 
 class Shaper {
 public:
+    enum Modes {
+        BEND_SHAPER_MODE,
+        TILT_SHAPER_MODE,
+        LEAN_SHAPER_MODE,
+        TWIST_SHAPER_MODE,
+        WRAP_SHAPER_MODE,
+        MIRROR_SHAPER_MODE,
+        REFLECT_SHAPER_MODE,
+        PULSE_SHAPER_MODE,
+        STEP4_SHAPER_MODE,
+        STEP8_SHAPER_MODE,
+        STEP16_SHAPER_MODE,
+        VARSTEP_SHAPER_MODE,
+        SOFTWRAP_SHAPER_MODE,
+        NUM_SHAPER_MODES
+    };
+
     Shaper();
     __m128 process(const __m128& a, const __m128& f);
     void setShapeMode(int mode);

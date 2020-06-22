@@ -213,6 +213,21 @@ struct Terrorform : Module {
     __m128 __numWavesInTable;
     float bankCV1, bankCV2;
     float waveCV1, waveCV2;
+    Shaper::Modes phasorShapeMap[Shaper::Modes::NUM_SHAPER_MODES] = {
+        Shaper::Modes::BEND_SHAPER_MODE,
+        Shaper::Modes::TILT_SHAPER_MODE,
+        Shaper::Modes::LEAN_SHAPER_MODE,
+        Shaper::Modes::TWIST_SHAPER_MODE,
+        Shaper::Modes::WRAP_SHAPER_MODE,
+        Shaper::Modes::MIRROR_SHAPER_MODE,
+        Shaper::Modes::REFLECT_SHAPER_MODE,
+        Shaper::Modes::PULSE_SHAPER_MODE,
+        Shaper::Modes::STEP4_SHAPER_MODE,
+        Shaper::Modes::STEP8_SHAPER_MODE,
+        Shaper::Modes::STEP16_SHAPER_MODE,
+        Shaper::Modes::VARSTEP_SHAPER_MODE,
+        Shaper::Modes::SOFTWRAP_SHAPER_MODE
+    };
 
     float rootShapeDepth;
     float* shapes;
@@ -295,7 +310,6 @@ struct Terrorform : Module {
     __m128 __quarters, __tenths, __hundredths;
 
     int counter = 512;
-    int samplySampler = 0;
 
     bool romIsLoading = false;
 
