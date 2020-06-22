@@ -105,10 +105,6 @@ void Shaper::lean(const __m128& a, const __m128& f) {
     __x = _mm_mul_ps(a, a);
     __x = _mm_mul_ps(__x, __x);
     __output = _mm_linterp_ps(a, __x, f);
-
-    /*__x = _mm_circle_ps(_mm_mul_ps(a, _mm_mul_ps(f, _mm_set1_ps(8.f))));
-    __output = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
-    __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);*/
 }
 
 void Shaper::lean2(const __m128& a, const __m128& f) {
@@ -137,6 +133,13 @@ void Shaper::wrap(const __m128& a, const __m128& f) {
     __xInt = _mm_cvttps_epi32(__x);
     __xIntF = _mm_cvtepi32_ps(__xInt);
     __output = _mm_sub_ps(__x, __xIntF);
+}
+
+void Shaper::softWrap(const __m128& a, const __m128& f) {
+    __x = _mm_sub_ps(_mm_mul_ps(a, __twos), __ones);
+    __x = _mm_circle_ps(_mm_mul_ps(__x, _mm_mul_ps(f, _mm_set1_ps(8.f))));
+    __output = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
+    __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);
 }
 
 void Shaper::mirror(const __m128& a, const __m128& f) {

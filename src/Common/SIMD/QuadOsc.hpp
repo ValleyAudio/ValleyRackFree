@@ -42,6 +42,7 @@ private:
     void twist(const __m128& a, const __m128& f);
     void wrap(const __m128& a, const __m128& f);
     void mirror(const __m128& a, const __m128& f);
+    void softWrap(const __m128& a, const __m128& f);
     void reflect(const __m128& a, const __m128& f);
     void pulse(const __m128& a, const __m128& f);
     void step4(const __m128& a, const __m128& f);
