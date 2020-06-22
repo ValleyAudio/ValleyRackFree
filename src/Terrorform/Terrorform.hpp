@@ -219,14 +219,14 @@ struct Terrorform : Module {
         Shaper::Modes::LEAN_SHAPER_MODE,
         Shaper::Modes::TWIST_SHAPER_MODE,
         Shaper::Modes::WRAP_SHAPER_MODE,
+        Shaper::Modes::SOFTWRAP_SHAPER_MODE,
         Shaper::Modes::MIRROR_SHAPER_MODE,
         Shaper::Modes::REFLECT_SHAPER_MODE,
         Shaper::Modes::PULSE_SHAPER_MODE,
         Shaper::Modes::STEP4_SHAPER_MODE,
         Shaper::Modes::STEP8_SHAPER_MODE,
         Shaper::Modes::STEP16_SHAPER_MODE,
-        Shaper::Modes::VARSTEP_SHAPER_MODE,
-        Shaper::Modes::SOFTWRAP_SHAPER_MODE
+        Shaper::Modes::VARSTEP_SHAPER_MODE
     };
 
     float rootShapeDepth;
