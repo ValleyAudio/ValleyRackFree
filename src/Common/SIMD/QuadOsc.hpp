@@ -18,20 +18,23 @@
 class Shaper {
 public:
     enum Modes {
-        BEND_SHAPER_MODE,
-        TILT_SHAPER_MODE,
-        LEAN_SHAPER_MODE,
-        TWIST_SHAPER_MODE,
-        WRAP_SHAPER_MODE,
-        MIRROR_SHAPER_MODE,
-        REFLECT_SHAPER_MODE,
-        PULSE_SHAPER_MODE,
-        STEP4_SHAPER_MODE,
-        STEP8_SHAPER_MODE,
-        STEP16_SHAPER_MODE,
-        VARSTEP_SHAPER_MODE,
-        SOFTWRAP_SHAPER_MODE,
-        NUM_SHAPER_MODES
+        BEND_MODE,
+        TILT_MODE,
+        LEAN_MODE,
+        TWIST_MODE,
+        WRAP_MODE,
+        MIRROR_MODE,
+        REFLECT_MODE,
+        PULSE_MODE,
+        STEP4_MODE,
+        STEP8_MODE,
+        STEP16_MODE,
+        VARSTEP_MODE,
+        SINEWRAP_MODE,
+        WOBBLE_X2_MODE,
+        WOBBLE_X4_MODE,
+        WOBBLE_X8_MODE,
+        NUM_MODES
     };
 
     Shaper();
@@ -59,13 +62,16 @@ private:
     void twist(const __m128& a, const __m128& f);
     void wrap(const __m128& a, const __m128& f);
     void mirror(const __m128& a, const __m128& f);
-    void softWrap(const __m128& a, const __m128& f);
     void reflect(const __m128& a, const __m128& f);
     void pulse(const __m128& a, const __m128& f);
     void step4(const __m128& a, const __m128& f);
     void step8(const __m128& a, const __m128& f);
     void step16(const __m128& a, const __m128& f);
     void varStep(const __m128& a, const __m128& f);
+    void sineWrap(const __m128& a, const __m128& f);
+    void wobbleX2(const __m128&a, const __m128& f);
+    void wobbleX4(const __m128&a, const __m128& f);
+    void wobbleX8(const __m128&a, const __m128& f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

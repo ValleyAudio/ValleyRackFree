@@ -213,20 +213,23 @@ struct Terrorform : Module {
     __m128 __numWavesInTable;
     float bankCV1, bankCV2;
     float waveCV1, waveCV2;
-    Shaper::Modes phasorShapeMap[Shaper::Modes::NUM_SHAPER_MODES] = {
-        Shaper::Modes::BEND_SHAPER_MODE,
-        Shaper::Modes::TILT_SHAPER_MODE,
-        Shaper::Modes::LEAN_SHAPER_MODE,
-        Shaper::Modes::TWIST_SHAPER_MODE,
-        Shaper::Modes::WRAP_SHAPER_MODE,
-        Shaper::Modes::SOFTWRAP_SHAPER_MODE,
-        Shaper::Modes::MIRROR_SHAPER_MODE,
-        Shaper::Modes::REFLECT_SHAPER_MODE,
-        Shaper::Modes::PULSE_SHAPER_MODE,
-        Shaper::Modes::STEP4_SHAPER_MODE,
-        Shaper::Modes::STEP8_SHAPER_MODE,
-        Shaper::Modes::STEP16_SHAPER_MODE,
-        Shaper::Modes::VARSTEP_SHAPER_MODE
+    Shaper::Modes phasorShapeMap[Shaper::Modes::NUM_MODES] = {
+        Shaper::Modes::BEND_MODE,
+        Shaper::Modes::TILT_MODE,
+        Shaper::Modes::LEAN_MODE,
+        Shaper::Modes::TWIST_MODE,
+        Shaper::Modes::WRAP_MODE,
+        Shaper::Modes::SINEWRAP_MODE,
+        Shaper::Modes::MIRROR_MODE,
+        Shaper::Modes::REFLECT_MODE,
+        Shaper::Modes::PULSE_MODE,
+        Shaper::Modes::STEP4_MODE,
+        Shaper::Modes::STEP8_MODE,
+        Shaper::Modes::STEP16_MODE,
+        Shaper::Modes::VARSTEP_MODE,
+        Shaper::Modes::WOBBLE_X2_MODE,
+        Shaper::Modes::WOBBLE_X4_MODE,
+        Shaper::Modes::WOBBLE_X8_MODE
     };
 
     float rootShapeDepth;
@@ -660,18 +663,18 @@ struct TerrorformWidget : ModuleWidget {
         "Grit", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM",
         "Bi Pulse", "Saw Gap 1", "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4",
         "FM5", "FM6", "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry3", "Resonant Saw", "Resonant Square", "Chirp",
+        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry 3", "Resonant Saw", "Resonant Square", "Chirp",
         "Distorted 1", "Electric Bass"
     };
 
     std::vector<std::string> shapeNames = {
-        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "MIRROR", "REFLECT",
-        "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP"
+        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "REFLECT",
+        "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "WOBBLE_X2", "WOBBLE_X4", "WOBBLE_X8"
     };
 
     std::vector<std::string> shapeMenuItems = {
-        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Reflect",
-        "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step"
+        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Soft Wrap", "Mirror", "Reflect",
+        "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Wobble X2", "Wobble X4", "Wobble X8"
     };
 
     std::vector<std::string> enhanceNames = {

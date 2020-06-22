@@ -15,7 +15,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::WAVE_CV_1_PARAM, -1.0, 1.0, 0.0, "Wave CV Atten. 1");
     configParam(Terrorform::WAVE_CV_2_PARAM, -1.0, 1.0, 0.0, "Wave CV Atten. 2");
 
-    configParam(Terrorform::SHAPE_TYPE_PARAM, 0.0, 11.0, 0.0, "Shape Type");
+    configParam(Terrorform::SHAPE_TYPE_PARAM, 0.0, Shaper::Modes::NUM_MODES - 1.0, 0.0, "Shape Type");
     configParam(Terrorform::SHAPE_DEPTH_PARAM, 0.0, 1.0, 0.0, "Shape Depth");
     configParam(Terrorform::SHAPE_TYPE_CV_1_PARAM, -1.0, 1.0, 0.0, "Shape Type CV Atten. 1");
     configParam(Terrorform::SHAPE_TYPE_CV_2_PARAM, -1.0, 1.0, 0.0, "Shape Type CV Atten. 2");
@@ -154,10 +154,10 @@ void Terrorform::process(const ProcessArgs &args) {
 
         shapeType = (inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.1f)
                     + (inputs[SHAPE_TYPE_INPUT_2].getVoltage() * params[SHAPE_TYPE_CV_2_PARAM].getValue() * 0.1f);
-        shapeType *= 11.f;
+        shapeType *= (Shaper::Modes::NUM_MODES - 1.f);
         shapeType += params[SHAPE_TYPE_PARAM].getValue();
-        shapeType = clamp(shapeType, 0.f, 11.f);
-        shapeTypeI = (int)shapeType;
+        shapeType = clamp(shapeType, 0.f, Shaper::Modes::NUM_MODES - 1.f);
+        shapeTypeI = (int)phasorShapeMap[(int)shapeType];
 
         enhanceType = (inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.1f)
                       + (inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.1f);
