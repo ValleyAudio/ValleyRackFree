@@ -66,6 +66,7 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case 9: step8(a, f); break;
         case 10: step16(a, f); break;
         case 11: varStep(a, f); break;
+        case 12: softWrap(a, f); break; // Appended here as not to break Dexter
         default: bend(a, f);
     }
     return __output;
