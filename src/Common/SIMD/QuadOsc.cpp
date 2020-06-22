@@ -229,6 +229,21 @@ void Shaper::sineWrap(const __m128& a, const __m128& f) {
 //     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
 // }
 
+void Shaper::buzzX2(const __m128&a, const __m128& f) {
+    __x = _mm_circle_ps(_mm_mul_ps(a, __twos));
+    __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
+}
+
+void Shaper::buzzX4(const __m128&a, const __m128& f) {
+    __x = _mm_circle_ps(_mm_mul_ps(a, __fours));
+    __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
+}
+
+void Shaper::buzzX8(const __m128&a, const __m128& f) {
+    __x = _mm_circle_ps(_mm_mul_ps(a, __eights));
+    __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
+}
+
 void Shaper::wobbleX2(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __twos));
     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));

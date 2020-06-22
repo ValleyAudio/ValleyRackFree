@@ -69,6 +69,9 @@ private:
     void step16(const __m128& a, const __m128& f);
     void varStep(const __m128& a, const __m128& f);
     void sineWrap(const __m128& a, const __m128& f);
+    void buzzX2(const __m128&a, const __m128& f);
+    void buzzX4(const __m128&a, const __m128& f);
+    void buzzX8(const __m128&a, const __m128& f);
     void wobbleX2(const __m128&a, const __m128& f);
     void wobbleX4(const __m128&a, const __m128& f);
     void wobbleX8(const __m128&a, const __m128& f);
