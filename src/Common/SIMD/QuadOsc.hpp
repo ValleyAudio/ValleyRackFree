@@ -31,9 +31,12 @@ public:
         STEP16_MODE,
         VARSTEP_MODE,
         SINEWRAP_MODE,
-        WOBBLE_X2_MODE,
-        WOBBLE_X4_MODE,
-        WOBBLE_X8_MODE,
+        BUZZ_X2_MODE,
+        BUZZ_X4_MODE,
+        BUZZ_X8_MODE,
+        WRINKLE_X2_MODE,
+        WRINKLE_X4_MODE,
+        WRINKLE_X8_MODE,
         NUM_MODES
     };
 
@@ -51,7 +54,7 @@ private:
     __m128 __aIntF, __xIntF, __yIntF;
 
     // Numbers
-    __m128 __third, __twoThird, __half, __minusHalf, __fourth, __eighth, __sixteenth;
+    __m128 __third, __twoThird, __half, __minusHalf, __fourth, __eighth, __sixteenth, __hundredth;
     __m128 __minus, __zeros, __ones, __twos, __threes, __fours, __eights, __nines, __sixteens;
 
     // Shaping functions
@@ -72,9 +75,9 @@ private:
     void buzzX2(const __m128&a, const __m128& f);
     void buzzX4(const __m128&a, const __m128& f);
     void buzzX8(const __m128&a, const __m128& f);
-    void wobbleX2(const __m128&a, const __m128& f);
-    void wobbleX4(const __m128&a, const __m128& f);
-    void wobbleX8(const __m128&a, const __m128& f);
+    void wrinkleX2(const __m128&a, const __m128& f);
+    void wrinkleX4(const __m128&a, const __m128& f);
+    void wrinkleX8(const __m128&a, const __m128& f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -46,6 +46,7 @@ Shaper::Shaper() {
     __eights = _mm_set1_ps(8.f);
     __nines = _mm_set1_ps(9.f);
     __sixteens = _mm_set1_ps(16.f);
+    __hundredth = _mm_set1_ps(0.01f);
 
     __fourth = _mm_set1_ps(1.f / 4.f);
     __eighth = _mm_set1_ps(1.f / 8.f);
@@ -67,9 +68,12 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case STEP16_MODE: step16(a, f); break;
         case VARSTEP_MODE: varStep(a, f); ;break;
         case SINEWRAP_MODE: sineWrap(a, f); break; // Appended here as not to break Dexter
-        case WOBBLE_X2_MODE: wobbleX2(a, f); break;
-        case WOBBLE_X4_MODE: wobbleX4(a, f); break;
-        case WOBBLE_X8_MODE: wobbleX8(a, f); break;
+        case BUZZ_X2_MODE: buzzX2(a, f); break;
+        case BUZZ_X4_MODE: buzzX4(a, f); break;
+        case BUZZ_X8_MODE: buzzX8(a, f); break;
+        case WRINKLE_X2_MODE: wrinkleX2(a, f); break;
+        case WRINKLE_X4_MODE: wrinkleX4(a, f); break;
+        case WRINKLE_X8_MODE: wrinkleX8(a, f); break;
         default: bend(a, f);
     }
     return __output;
@@ -80,12 +84,16 @@ void Shaper::setShapeMode(int mode) {
 }
 
 void Shaper::bend(const __m128& a, const __m128& f) {
-    __x = _mm_mul_ps(_mm_sub_ps(__ones, f), __half);
-    __mask = _mm_cmplt_ps(a, __x);
-    __denom = _mm_add_ps(_mm_and_ps(__mask, __x), _mm_andnot_ps(__mask, _mm_sub_ps(__ones, __x)));
-    __m = _mm_div_ps(__half, __denom);
-    __c = _mm_sub_ps(__half, _mm_mul_ps(__m, __x));
-    __output = _mm_add_ps(_mm_mul_ps(__m, a), _mm_andnot_ps(__mask, __c));
+    // __x = _mm_mul_ps(_mm_sub_ps(__ones, f), __half);
+    // __mask = _mm_cmplt_ps(a, __x);
+    // __denom = _mm_add_ps(_mm_and_ps(__mask, __x), _mm_andnot_ps(__mask, _mm_sub_ps(__ones, __x)));
+    // __m = _mm_div_ps(__half, __denom);
+    // __c = _mm_sub_ps(__half, _mm_mul_ps(__m, __x));
+    // __output = _mm_add_ps(_mm_mul_ps(__m, a), _mm_andnot_ps(__mask, __c));
+
+    __x = valley::_mm_sine_ps(_mm_mul_ps(a, _mm_set1_ps(2.f * M_PI)));
+    __x = _mm_circle_ps(__x);
+    __output = _mm_linterp_ps(a, __x, f);
 }
 
 void Shaper::tilt(const __m128& a, const __m128& f) {
@@ -217,18 +225,6 @@ void Shaper::sineWrap(const __m128& a, const __m128& f) {
     __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);
 }
 
-// void Shaper::wobble(const __m128&a, const __m128& f) {
-//     // __x = _mm_circle_ps(_mm_mul_ps(a, __fours));
-//     // __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
-//
-//     // __x = _mm_circle_ps(_mm_mul_ps(a, __eights));
-//     // __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
-//
-//     __x = _mm_circle_ps(_mm_mul_ps(a, __eights));
-//     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
-//     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
-// }
-
 void Shaper::buzzX2(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __twos));
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
@@ -244,7 +240,7 @@ void Shaper::buzzX8(const __m128&a, const __m128& f) {
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
 }
 
-void Shaper::wobbleX2(const __m128&a, const __m128& f) {
+void Shaper::wrinkleX2(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __twos));
     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
@@ -252,7 +248,7 @@ void Shaper::wobbleX2(const __m128&a, const __m128& f) {
     __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
 }
 
-void Shaper::wobbleX4(const __m128&a, const __m128& f) {
+void Shaper::wrinkleX4(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __fours));
     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
@@ -260,7 +256,7 @@ void Shaper::wobbleX4(const __m128&a, const __m128& f) {
     __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
 }
 
-void Shaper::wobbleX8(const __m128&a, const __m128& f) {
+void Shaper::wrinkleX8(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __eights));
     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));

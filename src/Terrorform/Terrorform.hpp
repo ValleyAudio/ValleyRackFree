@@ -227,9 +227,12 @@ struct Terrorform : Module {
         Shaper::Modes::STEP8_MODE,
         Shaper::Modes::STEP16_MODE,
         Shaper::Modes::VARSTEP_MODE,
-        Shaper::Modes::WOBBLE_X2_MODE,
-        Shaper::Modes::WOBBLE_X4_MODE,
-        Shaper::Modes::WOBBLE_X8_MODE
+        Shaper::Modes::BUZZ_X2_MODE,
+        Shaper::Modes::BUZZ_X4_MODE,
+        Shaper::Modes::BUZZ_X8_MODE,
+        Shaper::Modes::WRINKLE_X2_MODE,
+        Shaper::Modes::WRINKLE_X4_MODE,
+        Shaper::Modes::WRINKLE_X8_MODE
     };
 
     float rootShapeDepth;
@@ -669,12 +672,14 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> shapeNames = {
         "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "REFLECT",
-        "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "WOBBLE_X2", "WOBBLE_X4", "WOBBLE_X8"
+        "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4", "BUZZ_X8",
+        "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8"
     };
 
     std::vector<std::string> shapeMenuItems = {
         "Bend", "Tilt", "Lean", "Twist", "Wrap", "Soft Wrap", "Mirror", "Reflect",
-        "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Wobble X2", "Wobble X4", "Wobble X8"
+        "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4", "Buzz X8",
+        "Wrinkle X2", "Wrinkle X4", "Wrinkle X8"
     };
 
     std::vector<std::string> enhanceNames = {
