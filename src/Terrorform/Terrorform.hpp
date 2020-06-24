@@ -67,6 +67,8 @@ struct Terrorform : Module {
         FM_B2_INPUT,
         SYNC_1_INPUT,
         SYNC_2_INPUT,
+        ATTACK_1_INPUT,
+        ATTACK_2_INPUT,
         DECAY_1_INPUT,
         DECAY_2_INPUT,
         VELOCITY_1_INPUT,
@@ -264,11 +266,13 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Lowpass Gate
+    VecLPG lpg[kMaxNumGroups];
     dsp::Timer lpgButtonTimer;
     int lpgMode = 0;
     bool lpgButtonPressed = false;
     bool lpgButtonHeldDown = false;
     bool lpgButtonPrevState = false;
+    bool swapEnhancerAndLPG = false;
     __m128 __lpgVCAMode;
     __m128 __lpgFilterMode;
 
@@ -278,11 +282,11 @@ struct Terrorform : Module {
 
     __m128 __lpgVelocitySensitiveFlag;
 
-    float trig1, trig2;
-    __m128 __trig1, __trig2;
-    VecLPG lpg[kMaxNumGroups];
-    __m128 __attack, __decay;
-    bool swapEnhancerAndLPG = false;
+    float* attacks;
+    float* decays;
+    float attackParam, decayParam;
+    __m128 __attackParam, __attackSum;
+    __m128 __decayParam, __decaySum;
 
     // FM
     int fmMode = 0;
@@ -318,9 +322,6 @@ struct Terrorform : Module {
     int counter = 512;
 
     bool romIsLoading = false;
-
-    __m128 __a;
-    float* a;
 
     Terrorform();
     ~Terrorform();

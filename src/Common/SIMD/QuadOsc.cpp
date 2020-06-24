@@ -84,16 +84,12 @@ void Shaper::setShapeMode(int mode) {
 }
 
 void Shaper::bend(const __m128& a, const __m128& f) {
-    // __x = _mm_mul_ps(_mm_sub_ps(__ones, f), __half);
-    // __mask = _mm_cmplt_ps(a, __x);
-    // __denom = _mm_add_ps(_mm_and_ps(__mask, __x), _mm_andnot_ps(__mask, _mm_sub_ps(__ones, __x)));
-    // __m = _mm_div_ps(__half, __denom);
-    // __c = _mm_sub_ps(__half, _mm_mul_ps(__m, __x));
-    // __output = _mm_add_ps(_mm_mul_ps(__m, a), _mm_andnot_ps(__mask, __c));
-
-    __x = valley::_mm_sine_ps(_mm_mul_ps(a, _mm_set1_ps(2.f * M_PI)));
-    __x = _mm_circle_ps(__x);
-    __output = _mm_linterp_ps(a, __x, f);
+    __x = _mm_mul_ps(_mm_sub_ps(__ones, f), __half);
+    __mask = _mm_cmplt_ps(a, __x);
+    __denom = _mm_add_ps(_mm_and_ps(__mask, __x), _mm_andnot_ps(__mask, _mm_sub_ps(__ones, __x)));
+    __m = _mm_div_ps(__half, __denom);
+    __c = _mm_sub_ps(__half, _mm_mul_ps(__m, __x));
+    __output = _mm_add_ps(_mm_mul_ps(__m, a), _mm_andnot_ps(__mask, __c));
 }
 
 void Shaper::tilt(const __m128& a, const __m128& f) {
@@ -106,14 +102,6 @@ void Shaper::tilt(const __m128& a, const __m128& f) {
 }
 
 void Shaper::lean(const __m128& a, const __m128& f) {
-    /*__mask = _mm_cmplt_ps(f, __zeros);
-    __x = _mm_switch_ps(a, _mm_sub_ps(__ones, a), __mask);
-    __x = _mm_mul_ps(__x, __x);
-    __x = _mm_mul_ps(__x, __x);
-    __xx = _mm_switch_ps(__x, _mm_sub_ps(__ones, __x), __mask);
-    __ff = _mm_switch_ps(f, _mm_mul_ps(f, __minus), __mask);
-    __output = _mm_linterp_ps(a, __xx, __ff);*/
-
     __x = _mm_mul_ps(a, a);
     __x = _mm_mul_ps(__x, __x);
     __output = _mm_linterp_ps(a, __x, f);

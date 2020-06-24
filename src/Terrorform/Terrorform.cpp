@@ -98,7 +98,8 @@ Terrorform::Terrorform() {
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     shapes = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     enhances = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
-    a = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    attacks = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    decays = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
 
     // Fill user wavetables
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
@@ -123,7 +124,8 @@ Terrorform::~Terrorform() {
     aligned_free_16(waves);
     aligned_free_16(shapes);
     aligned_free_16(enhances);
-    aligned_free_16(a);
+    aligned_free_16(attacks);
+    aligned_free_16(decays);
 
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
@@ -312,6 +314,8 @@ void Terrorform::process(const ProcessArgs &args) {
     rootWave = params[WAVE_PARAM].getValue();
     rootShapeDepth = params[SHAPE_DEPTH_PARAM].getValue();
     rootEnhanceDepth = params[ENHANCE_DEPTH_PARAM].getValue();
+    attackParam = params[LPG_ATTACK_PARAM].getValue();
+    decayParam = params[LPG_DECAY_PARAM].getValue();
 
     pitchCV1 = params[VOCT_1_CV_PARAM].getValue();
     pitchCV2 = params[VOCT_2_CV_PARAM].getValue();
@@ -340,6 +344,14 @@ void Terrorform::process(const ProcessArgs &args) {
         enhances[i] = rootEnhanceDepth;
         enhances[i] += inputs[ENHANCE_DEPTH_INPUT_1].getPolyVoltage(i) * enhanceDepthCV1 * 0.1f;
         enhances[i] += inputs[ENHANCE_DEPTH_INPUT_2].getPolyVoltage(i) * enhanceDepthCV2 * 0.1f;
+
+        attacks[i] = attackParam;
+        attacks[i] += inputs[ATTACK_1_INPUT].getPolyVoltage(i);
+        attacks[i] += inputs[ATTACK_2_INPUT].getPolyVoltage(i);
+
+        decays[i] = decayParam;
+        decays[i] += inputs[DECAY_1_INPUT].getPolyVoltage(i);
+        decays[i] += inputs[DECAY_2_INPUT].getPolyVoltage(i);
     }
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
@@ -366,8 +378,8 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmAVCACV = _mm_set1_ps(fmAVCACV);
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
 
-    __attack = _mm_set1_ps(params[LPG_ATTACK_PARAM].getValue());
-    __decay = _mm_set1_ps(params[LPG_DECAY_PARAM].getValue());
+    __attackParam = _mm_set1_ps(attackParam);
+    __decayParam = _mm_set1_ps(decayParam);
 
     // Tick the oscillator
     int g = 0;
@@ -398,8 +410,10 @@ void Terrorform::process(const ProcessArgs &args) {
                                     __trigger1, __lpgVelocitySensitiveFlag);
         __trigger2 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger2, __zeros)),
                                     __trigger2, __lpgVelocitySensitiveFlag);
-        lpg[c].setAttack(__attack, true);
-        lpg[c].setDecay(__decay, true);
+
+
+        lpg[c].setAttack(_mm_load_ps(attacks + g), true);
+        lpg[c].setDecay(_mm_load_ps(decays + g), true);
         lpg[c].setTriggerMode(lpgTriggerMode);
 
         // FM
@@ -420,15 +434,15 @@ void Terrorform::process(const ProcessArgs &args) {
         __fmB = _mm_mul_ps(__fmB, __fmBVCA);
 
         __fmSum = _mm_add_ps(__fmA, __fmB);
-        __freq = _mm_load_ps(freqs);
+        __freq = _mm_load_ps(freqs + g);
         __freq = _mm_mul_ps(__freq, (lfoModeEnabled ? __hundredths : __ones));
         __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
         __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
         osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
 
-        __wave = _mm_load_ps(waves);
-        __shape = _mm_load_ps(shapes);
-        __enhance = _mm_load_ps(enhances);
+        __wave = _mm_load_ps(waves + g);
+        __shape = _mm_load_ps(shapes + g);
+        __enhance = _mm_load_ps(enhances + g);
 
         __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
         __shape = _mm_clamp_ps(__shape, __zeros, __ones);
