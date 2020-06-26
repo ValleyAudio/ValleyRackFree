@@ -71,7 +71,7 @@ public:
 
     void setAttack(const __m128& attack, bool longScale) {
         __offset = longScale ? __longOffset : __zeros;
-        __m128 x = _mm_mul_ps(attack, __scale);
+        __m128 x = _mm_mul_ps(_mm_clamp_ps(attack, __zeros, __ones), __scale);
         x = _mm_sub_ps(_mm_set1_ps(0.64f), _mm_mul_ps(_mm_set1_ps(0.64f), x));
         __attack = _mm_mul_ps(x, x);
         __attack = _mm_mul_ps(__attack, x);
@@ -84,7 +84,7 @@ public:
 
     void setDecay(const __m128& decay, bool longScale) {
         __offset = longScale ? __longOffset : __zeros;
-        __m128 x = _mm_mul_ps(decay, __scale);
+        __m128 x = _mm_mul_ps(_mm_clamp_ps(decay, __zeros, __ones), __scale);
         x = _mm_sub_ps(_mm_set1_ps(0.4f), _mm_mul_ps(_mm_set1_ps(0.4f), x));
         __decay = _mm_mul_ps(x, x);
         __decay = _mm_mul_ps(__decay, x);
