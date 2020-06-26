@@ -236,7 +236,7 @@ private:
     __m128 subSaw(const __m128& x, const __m128& param) {
         __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
         __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __eoc));
-        __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
+        __counter = _mm_switch_ps(__counter, __zeros, _mm_cmpgt_ps(__counter, __ones));
 
         __a = _mm_mul_ps(__phasor, __halfs);
         __a = _mm_add_ps(__a, _mm_mul_ps(__counter, __halfs));
@@ -253,7 +253,7 @@ private:
     __m128 subSquare(const __m128& x, const __m128& param) {
         __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
         __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, __eoc));
-        __counter = _mm_sub_ps(__counter, _mm_and_ps(__twos, _mm_cmpeq_ps(__counter, __twos)));
+        __counter = _mm_switch_ps(__counter, __zeros, _mm_cmpgt_ps(__counter, __ones));
 
         __a = _mm_mul_ps(__phasor, __halfs);
         __a = _mm_add_ps(__a, _mm_mul_ps(__counter, __halfs));
