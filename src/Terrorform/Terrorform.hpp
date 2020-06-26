@@ -71,8 +71,6 @@ struct Terrorform : Module {
         ATTACK_2_INPUT,
         DECAY_1_INPUT,
         DECAY_2_INPUT,
-        VELOCITY_1_INPUT,
-        VELOCITY_2_INPUT,
         TRIGGER_1_INPUT,
         TRIGGER_2_INPUT,
         NUM_INPUTS
@@ -285,6 +283,7 @@ struct Terrorform : Module {
     float* attacks;
     float* decays;
     float attackParam, decayParam;
+    float attackCV1Depth, attackCV2Depth, decayCV1Depth, decayCV2Depth;
     __m128 __attackParam, __attackSum;
     __m128 __decayParam, __decaySum;
 
@@ -463,8 +462,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec enhanceDepthCV2Pos = Vec(225, 224);
     Vec lpgAttackCV1Pos = Vec(99, 215);
     Vec lpgAttackCV2Pos = Vec(123, 234);
-    Vec lpgDecayCV1Pos = Vec(178, 234);
-    Vec lpgDecayCV2Pos = Vec(201, 215);
+    Vec lpgDecayCV1Pos = Vec(201, 215);
+    Vec lpgDecayCV2Pos = Vec(178, 234);
 
     RoganSmallBlue* vOct1CV;
     RoganSmallBlue* vOct2CV;

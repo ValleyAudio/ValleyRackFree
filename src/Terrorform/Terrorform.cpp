@@ -327,6 +327,10 @@ void Terrorform::process(const ProcessArgs &args) {
     shapeDepthCV2 = params[SHAPE_DEPTH_CV_2_PARAM].getValue();
     enhanceDepthCV1 = params[ENHANCE_DEPTH_CV_1_PARAM].getValue();
     enhanceDepthCV2 = params[ENHANCE_DEPTH_CV_2_PARAM].getValue();
+    attackCV1Depth = params[LPG_ATTACK_CV_1_PARAM].getValue();
+    attackCV2Depth = params[LPG_ATTACK_CV_2_PARAM].getValue();
+    decayCV1Depth = params[LPG_DECAY_CV_1_PARAM].getValue();
+    decayCV2Depth = params[LPG_DECAY_CV_2_PARAM].getValue();
 
     for(auto i = 0; i < numActiveChannels; ++i) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
@@ -346,12 +350,12 @@ void Terrorform::process(const ProcessArgs &args) {
         enhances[i] += inputs[ENHANCE_DEPTH_INPUT_2].getPolyVoltage(i) * enhanceDepthCV2 * 0.1f;
 
         attacks[i] = attackParam;
-        attacks[i] += inputs[ATTACK_1_INPUT].getPolyVoltage(i);
-        attacks[i] += inputs[ATTACK_2_INPUT].getPolyVoltage(i);
+        attacks[i] += inputs[ATTACK_1_INPUT].getPolyVoltage(i) * attackCV1Depth * 0.1f;
+        attacks[i] += inputs[ATTACK_2_INPUT].getPolyVoltage(i) * attackCV2Depth * 0.1f;
 
         decays[i] = decayParam;
-        decays[i] += inputs[DECAY_1_INPUT].getPolyVoltage(i);
-        decays[i] += inputs[DECAY_2_INPUT].getPolyVoltage(i);
+        decays[i] += inputs[DECAY_1_INPUT].getPolyVoltage(i) * decayCV1Depth * 0.1f;
+        decays[i] += inputs[DECAY_2_INPUT].getPolyVoltage(i) * decayCV2Depth * 0.1f;
     }
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
@@ -719,10 +723,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addInput(createInputCentered<PJ301MDarkSmall>(fmB2InputPos, module, Terrorform::FM_B2_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(syncInput1Pos, module, Terrorform::SYNC_1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(syncInput2Pos, module, Terrorform::SYNC_2_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(attackInput1Pos, module, Terrorform::DECAY_1_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(attackInput2Pos, module, Terrorform::DECAY_2_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(decayInput1Pos, module, Terrorform::VELOCITY_1_INPUT));
-    addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::VELOCITY_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(attackInput1Pos, module, Terrorform::ATTACK_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(attackInput2Pos, module, Terrorform::ATTACK_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput1Pos, module, Terrorform::DECAY_1_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::DECAY_2_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput1Pos, module, Terrorform::TRIGGER_1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput2Pos, module, Terrorform::TRIGGER_2_INPUT));
 
