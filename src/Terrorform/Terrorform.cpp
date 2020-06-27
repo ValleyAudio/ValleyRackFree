@@ -1244,7 +1244,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         auto numFrames = numSamples / numChannels;
         numFrames -= numFrames % TFORM_MAX_WAVELENGTH;
         numBlocks = numFrames / TFORM_MAX_WAVELENGTH;
+        numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
 
+        // Copy .wav data into table
         int readPos = 0;
         waves->resize(numBlocks);
         for (int i = 0; i < numBlocks; ++i) {
