@@ -1220,35 +1220,38 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         });
 
         drwav_uint64 numSamples = 0;
-        unsigned int channels = 1;
+        unsigned int numChannels = 1;
         unsigned int sampleRate = 44100;
         newTable = NULL;
 
+        // Open file
         char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
         if (path) {
-            newTable = drwav_open_file_and_read_f32(path, &channels, &sampleRate, &numSamples);
+            newTable = drwav_open_file_and_read_f32(path, &numChannels, &sampleRate, &numSamples);
             DEFER({
                 std::free(path);
             });
         }
 
+        // Prepare wave memory
         std::shared_ptr<std::vector<std::vector<float>>> waves = std::make_shared<std::vector<std::vector<float>>>();
-        if (newTable == NULL) {
+        if (newTable == NULL || numChannels < 1) {
             return waves;
         }
 
-        auto overflow = numSamples % TFORM_MAX_WAVELENGTH;
-        numSamples -= overflow;
-        numSamples = numSamples > TFORM_MAX_TABLE_SIZE ? TFORM_MAX_TABLE_SIZE : numSamples;
+        // Calculate required number of blocks
+        auto numBlocks = 0;
+        auto numFrames = numSamples / numChannels;
+        numFrames -= numFrames % TFORM_MAX_WAVELENGTH;
+        numBlocks = numFrames / TFORM_MAX_WAVELENGTH;
 
-        int numBlocks = (int) numSamples / (TFORM_MAX_WAVELENGTH * channels);
         int readPos = 0;
         waves->resize(numBlocks);
         for (int i = 0; i < numBlocks; ++i) {
             (*waves)[i].assign(256, 0.f);
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 (*waves)[i][j] = newTable[readPos];
-                readPos += channels;
+                readPos += numChannels;
             }
         }
         return waves;
