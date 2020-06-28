@@ -642,6 +642,7 @@ struct TerrorformWidget : ModuleWidget {
 
     TFormEditor* editor;
     float *newTable;
+    unsigned int numChannels;
 
     TerrorformDisplayColourModes displayStyle = CELL_RED_LED_COLOUR;
     TerrorformDisplayColourModes prevDisplayStyle = CELL_RED_LED_COLOUR;

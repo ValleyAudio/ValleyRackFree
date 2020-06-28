@@ -47,7 +47,7 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
 }
 
 void TFormWaveViewPane::step() {
-    selectedBankText->text = "Viewing wave " + std::to_string(selectedWave) + " in bank " + std::to_string(*selectedBank + 1);
+    selectedBankText->text = "Viewing wave " + std::to_string(selectedWave + 1) + " in bank " + std::to_string(*selectedBank + 1);
     waveDisplay->numWaves = bank.data.size();
     for (int i = 0; i < bank.data.size(); ++i) {
         memcpy(&waveDisplay->waveData[i], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);

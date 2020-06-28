@@ -1219,9 +1219,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             osdialog_filters_free(filters);
         });
 
+        numChannels = 1;
         drwav_uint64 numSamples = 0;
-        unsigned int numChannels = 1;
         unsigned int sampleRate = 44100;
+
+        if(newTable == NULL) {
+            drwav_free(newTable);
+        }
         newTable = NULL;
 
         // Open file
@@ -1235,16 +1239,40 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
         // Prepare wave memory
         std::shared_ptr<std::vector<std::vector<float>>> waves = std::make_shared<std::vector<std::vector<float>>>();
-        if (newTable == NULL || numChannels < 1) {
+        if (newTable == NULL) {
+            return waves;
+        }
+        if (numChannels < 1) {
+            drwav_free(newTable);
             return waves;
         }
 
-        // Calculate required number of blocks
+        // Calculate required number of blocks, and zero pad when too short
         auto numBlocks = 0;
         auto numFrames = numSamples / numChannels;
-        numFrames -= numFrames % TFORM_MAX_WAVELENGTH;
-        numBlocks = numFrames / TFORM_MAX_WAVELENGTH;
-        numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
+        bool needsZeroPadding = numFrames < 256;
+
+        if (!needsZeroPadding) {
+            numFrames -= numFrames % TFORM_MAX_WAVELENGTH;
+            numBlocks = numFrames / TFORM_MAX_WAVELENGTH;
+            numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
+        }
+        else {
+            printf("%llu\n", numSamples);
+            float *newTableTemp = new float[numSamples];
+            int newNumSamples = TFORM_MAX_WAVELENGTH * numChannels;
+
+            memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
+            drwav_free(newTable);
+            newTable = new float[newNumSamples];
+            memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
+            delete[] newTableTemp;
+
+            for (int i = numSamples; i < newNumSamples; ++i) {
+                newTable[i] = 0.f;
+            }
+            numBlocks = 1;
+        }
 
         // Copy .wav data into table
         int readPos = 0;
@@ -1268,7 +1296,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int wave = 0;
 
         for (int i = 0; i < tableLength; ++i) {
-            readPos = startPos + i;
+            readPos = (startPos + i) * numChannels;
             wave = i / TFORM_MAX_WAVELENGTH;
             writePos = i % TFORM_MAX_WAVELENGTH;
             module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
@@ -1278,6 +1306,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         module->userWaveTableNames[bank] = name;
         module->numUserWaveTables++;
         updateBankNames = true;
+        drwav_free(newTable);
     };
 
     editor = createWidget<TFormEditor>(Vec(31, 30));

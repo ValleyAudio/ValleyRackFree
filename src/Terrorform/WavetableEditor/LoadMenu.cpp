@@ -117,7 +117,6 @@ void TFormLoadMenu::step() {
         }
 
         unsigned long k = 0;
-        //for (unsigned long i = *startWaveChoice->choice; i <= *endWaveChoice->choice; ++i) {
         for (unsigned long i = startWaveField->value - 1; i < endWaveField->value; ++i) {
             for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 waveDisplay->waveData[k][j] = (*detectedWaves)[i][j];
