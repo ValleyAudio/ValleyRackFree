@@ -561,9 +561,12 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
     json_t *userWavesJ = json_object_get(rootJ, "userWaves");
     numUserWaveTables = (int) json_array_size(userWavesJ);
+    if (numUserWaveTables > 64) {
+        numUserWaveTables = 64;
+    }
 
-    for (auto bank = 0; bank < numUserWaveTables; ++bank) {
-        json_t* userWaveJ = json_array_get(userWavesJ, bank);
+    for (auto i = 0; i < numUserWaveTables; ++i) {
+        json_t* userWaveJ = json_array_get(userWavesJ, i);
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
         json_t* nameJ = json_object_get(userWaveJ, "name");
         json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
@@ -573,8 +576,11 @@ void Terrorform::dataFromJson(json_t *rootJ) {
         if (numWaves > 64) {
             numWaves = 64;
         }
+        if (numWaves < 0) {
+            numWaves = 0;
+        }
 
-        userWaveTableNames[bank] = std::string(json_string_value(nameJ));
+        userWaveTableNames[destBank] = std::string(json_string_value(nameJ));
         if (numWaves) {
             userWaveTableSizes[destBank] = numWaves;
             userWaveTableFilled[destBank] = true;
