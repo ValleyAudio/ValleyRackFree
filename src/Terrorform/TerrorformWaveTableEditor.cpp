@@ -35,7 +35,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     mainMenu->viewButton->onClick = [=]() {
         onGetBankCallback(*selectedBank, viewPane->bank);
         mainMenu->hide();
-        viewPane->view();
+        viewPane->show();
     };
 
     mainMenu->cloneButton->onClick = [=]() {
@@ -77,7 +77,6 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
         mainMenu->show();
     };
     viewPane->hide();
-    viewPane->visible = false;
     addChild(viewPane);
 
     // Clone menu
@@ -350,10 +349,12 @@ void TFormEditor::addMoveBankCallback(const std::function<void(int, int)>& onMov
 void TFormEditor::addGetBankCallback(const std::function<void(int, TerrorformWaveBank&)>& onGetBankCallback) {
     editMenu->onGetBankCallback = onGetBankCallback;
     editMenu->mainMenu->onGetBankCallback = onGetBankCallback;
+    editMenu->viewPane->onGetBankCallback = onGetBankCallback;
 }
 
 void TFormEditor::addRenameBankCallback(const std::function<void(int, const std::string&)>& onRenameBankCallback) {
     editMenu->mainMenu->onRenameBankCallback = onRenameBankCallback;
+    editMenu->viewPane->onRenameBankCallback = onRenameBankCallback;
 }
 
 void TFormEditor::addImportCallback(const std::function<void()>& onImportWaveTableCallback) {
