@@ -147,12 +147,6 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
         for (int col = 0; col < TFORM_EDITOR_COLS; ++col) {
             grid->slotButton[row][col]->onClick = [=]() {
                 *destBank = id;
-                if((*slotFilled)[id]) {
-                    filledText->visible = true;
-                }
-                else {
-                    filledText->visible = false;
-                }
             };
             grid->slotButton[row][col]->text = std::to_string(id + 1);
             grid->slotButton[row][col]->applyStyle(emptySlotStyle);
@@ -182,6 +176,7 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
     filledText->size = 12;
     filledText->horzAlignment = NVG_ALIGN_LEFT;
     filledText->text = "                   (Filled)";
+    filledText->visible = false;
     addChild(filledText);
 
     onView = [=]() {
@@ -189,6 +184,7 @@ TFormCloneMenuDestPage::TFormCloneMenuDestPage() {
         int col = *sourceBank % TFORM_EDITOR_COLS;
         grid->slotButton[row][col]->respondToMouse = false;
         grid->slotButton[row][col]->applyStyle(filledSlotStyle);
+        *destBank = (*sourceBank + 1) % TFORM_EDITOR_SLOTS;
     };
 }
 
@@ -202,6 +198,12 @@ void TFormCloneMenuDestPage::step() {
             grid->slotButton[row][col]->setHighlight((i == *sourceBank) || (i == *destBank));
         }
         sourceDestText->text = "Bank " + std::to_string(*sourceBank + 1) + " -> Bank " + std::to_string(*destBank + 1);
+        if((*slotFilled)[*destBank]) {
+            filledText->visible = true;
+        }
+        else {
+            filledText->visible = false;
+        }
     }
     Widget::step();
 }

@@ -72,12 +72,6 @@ TFormMoveMenuDestPage::TFormMoveMenuDestPage() {
         for (int col = 0; col < TFORM_EDITOR_COLS; ++col) {
             grid->slotButton[row][col]->onClick = [=]() {
                 destBank = id;
-                if ((*slotFilled)[id]) {
-                    filledText->show();
-                }
-                else {
-                    filledText->hide();
-                }
             };
             grid->slotButton[row][col]->text = std::to_string(id + 1);
             grid->slotButton[row][col]->applyStyle(emptySlotStyle);
@@ -146,6 +140,13 @@ void TFormMoveMenuDestPage::step() {
         row = i / TFORM_EDITOR_ROWS;
         col = i % TFORM_EDITOR_COLS;
         grid->slotButton[row][col]->setHighlight(i == sourceBank || i == destBank);
+
+    }
+    if ((*slotFilled)[destBank]) {
+        filledText->show();
+    }
+    else {
+        filledText->hide();
     }
     sourceDestText->text = "Bank " + std::to_string(sourceBank + 1) + " -> Bank " + std::to_string(destBank + 1);
     Widget::step();
