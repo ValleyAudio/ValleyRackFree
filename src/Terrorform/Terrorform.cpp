@@ -1199,11 +1199,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         zeroFreqButton->visible = true;
         userBankButton->visible = true;
         lpgButton->visible = true;
+        lpgLongTimeButton->visible = true;
 
         lfoButtonLight->visible = true;
         zeroFreqLight->visible = true;
         userBankLight->visible = true;
         lpgButtonLight->visible = true;
+        lpgLongTimeButtonLight->visible = true;
 
         editor->visible = false;
         inEditorMode = false;
@@ -1485,11 +1487,13 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         zeroFreqButton->visible = false;
         userBankButton->visible = false;
         lpgButton->visible = false;
+        lpgLongTimeButton->visible = false;
 
         lfoButtonLight->visible = false;
         zeroFreqLight->visible = false;
         userBankLight->visible = false;
         lpgButtonLight->visible = false;
+        lpgLongTimeButtonLight->visible = false;
 
         editor->visible = true;
         inEditorMode = true;

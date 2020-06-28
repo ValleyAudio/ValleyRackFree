@@ -21,7 +21,7 @@ TFormLoadMenu::TFormLoadMenu() {
     confirmButton = createNewMenuButton("Okay", triggerIngest, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
     addChild(confirmButton);
 
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5,27));
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5,27.f));
     waveDisplay->box.size.x = box.size.x - 3.f;
     waveDisplay->box.size.y = box.size.y - 27.f;
     addChild(waveDisplay);

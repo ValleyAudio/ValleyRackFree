@@ -9,7 +9,7 @@ TFormClearMenu::TFormClearMenu() {
         yesButton->visible = false;
         questionText->visible = false;
         clearedText->visible = true;
-        counter = 30;
+        counter = (int) std::ceil(APP->window->getLastFrameRate());
     };
     addChild(yesButton);
 

@@ -118,7 +118,7 @@ TFormEditorDefragMenu::TFormEditorDefragMenu() {
     defragDoneMessage->box.size = box.size;
     defragDoneMessage->text = "Defragmentation Complete";
     addChild(defragDoneMessage);
-    viewCounter = viewCounterMax;
+    viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
 }
 
 void TFormEditorDefragMenu::step() {
@@ -143,7 +143,7 @@ TFormPurgeMenu::TFormPurgeMenu() {
         yesButton->hide();
         questionText->hide();
         clearedText->show();
-        counter = 30;
+        counter = (int) std::ceil(APP->window->getLastFrameRate());
     };
     addChild(yesButton);
 
