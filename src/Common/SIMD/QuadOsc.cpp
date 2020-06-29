@@ -74,6 +74,12 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case WRINKLE_X2_MODE: wrinkleX2(a, f); break;
         case WRINKLE_X4_MODE: wrinkleX4(a, f); break;
         case WRINKLE_X8_MODE: wrinkleX8(a, f); break;
+        case SINE_DOWN_X2_MODE: sineDownX2(a, f); break;
+        case SINE_DOWN_X4_MODE: sineDownX4(a, f); break;
+        case SINE_DOWN_X8_MODE: sineDownX8(a, f); break;
+        case SINE_UP_X2_MODE: sineUpX2(a, f); break;
+        case SINE_UP_X4_MODE: sineUpX4(a, f); break;
+        case SINE_UP_X8_MODE: sineUpX8(a, f); break;
         default: bend(a, f);
     }
     return __output;
@@ -248,6 +254,65 @@ void Shaper::wrinkleX8(const __m128&a, const __m128& f) {
     __x = _mm_circle_ps(_mm_mul_ps(a, __eights));
     __x = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(a, _mm_mul_ps(__x, f));
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+
+void Shaper::sineDownX2(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(_mm_sub_ps(__ones, a), f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __twos));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+
+void Shaper::sineDownX4(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(_mm_sub_ps(__ones, a), f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __fours));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+void Shaper::sineDownX8(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(_mm_sub_ps(__ones, a), f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __eights));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+
+void Shaper::sineUpX2(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(a, f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __twos));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+
+void Shaper::sineUpX4(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(a, f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __fours));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
+    __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
+}
+
+void Shaper::sineUpX8(const __m128&a, const __m128& f) {
+    __x = _mm_mul_ps(a, f);
+    __y = _mm_circle_ps(_mm_mul_ps(a, __eights));
+    __y = valley::_mm_sine_ps(_mm_mul_ps(__y, _mm_set1_ps(M_PI)));
+    __y = _mm_mul_ps(__x, __y);
+    __output = _mm_add_ps(a, __y);
     __output = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__output, __twos), __ones));
     __output = _mm_mul_ps(_mm_add_ps(__output, __ones), __half);
 }

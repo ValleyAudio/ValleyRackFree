@@ -232,7 +232,13 @@ struct Terrorform : Module {
         Shaper::Modes::BUZZ_X8_MODE,
         Shaper::Modes::WRINKLE_X2_MODE,
         Shaper::Modes::WRINKLE_X4_MODE,
-        Shaper::Modes::WRINKLE_X8_MODE
+        Shaper::Modes::WRINKLE_X8_MODE,
+        Shaper::Modes::SINE_DOWN_X2_MODE,
+        Shaper::Modes::SINE_DOWN_X4_MODE,
+        Shaper::Modes::SINE_DOWN_X8_MODE,
+        Shaper::Modes::SINE_UP_X2_MODE,
+        Shaper::Modes::SINE_UP_X4_MODE,
+        Shaper::Modes::SINE_UP_X8_MODE
     };
 
     float rootShapeDepth;
@@ -674,13 +680,15 @@ struct TerrorformWidget : ModuleWidget {
     std::vector<std::string> shapeNames = {
         "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "REFLECT",
         "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4", "BUZZ_X8",
-        "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8"
+        "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8", "SINEDWNX2", "SINEDWNX4", "SINEDWNX8", "SINEUP_X2",
+        "SINEUP_X4", "SINEUP_X8"
     };
 
     std::vector<std::string> shapeMenuItems = {
         "Bend", "Tilt", "Lean", "Twist", "Wrap", "Soft Wrap", "Mirror", "Reflect",
         "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4", "Buzz X8",
-        "Wrinkle X2", "Wrinkle X4", "Wrinkle X8"
+        "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down x2", "Sine Down x4", "Sine Down x8",
+        "Sine Up x2", "Sine Up x4", "Sine Up x8"
     };
 
     std::vector<std::string> enhanceNames = {

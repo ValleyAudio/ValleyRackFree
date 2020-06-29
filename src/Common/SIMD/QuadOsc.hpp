@@ -37,6 +37,12 @@ public:
         WRINKLE_X2_MODE,
         WRINKLE_X4_MODE,
         WRINKLE_X8_MODE,
+        SINE_DOWN_X2_MODE,
+        SINE_DOWN_X4_MODE,
+        SINE_DOWN_X8_MODE,
+        SINE_UP_X2_MODE,
+        SINE_UP_X4_MODE,
+        SINE_UP_X8_MODE,
         NUM_MODES
     };
 
@@ -72,12 +78,18 @@ private:
     void step16(const __m128& a, const __m128& f);
     void varStep(const __m128& a, const __m128& f);
     void sineWrap(const __m128& a, const __m128& f);
-    void buzzX2(const __m128&a, const __m128& f);
-    void buzzX4(const __m128&a, const __m128& f);
-    void buzzX8(const __m128&a, const __m128& f);
-    void wrinkleX2(const __m128&a, const __m128& f);
-    void wrinkleX4(const __m128&a, const __m128& f);
-    void wrinkleX8(const __m128&a, const __m128& f);
+    void buzzX2(const __m128& a, const __m128& f);
+    void buzzX4(const __m128& a, const __m128& f);
+    void buzzX8(const __m128& a, const __m128& f);
+    void wrinkleX2(const __m128& a, const __m128& f);
+    void wrinkleX4(const __m128& a, const __m128& f);
+    void wrinkleX8(const __m128& a, const __m128& f);
+    void sineDownX2(const __m128& a, const __m128& f);
+    void sineDownX4(const __m128& a, const __m128& f);
+    void sineDownX8(const __m128& a, const __m128& f);
+    void sineUpX2(const __m128& a, const __m128& f);
+    void sineUpX4(const __m128& a, const __m128& f);
+    void sineUpX8(const __m128& a, const __m128& f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
