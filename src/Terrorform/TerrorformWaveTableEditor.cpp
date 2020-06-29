@@ -125,7 +125,7 @@ void TFormEditorDefragMenu::step() {
         --viewCounter;
     }
     if(viewCounter <= 0) {
-        viewCounter = viewCounterMax;
+        viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
         hide();
     }
     Widget::step();
@@ -244,6 +244,7 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
         exitButton->hide();
         purgeButton->hide();
         defragMenu->view();
+        defragMenu->viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
     };
 
     purgeButton->onClick = [=]() {

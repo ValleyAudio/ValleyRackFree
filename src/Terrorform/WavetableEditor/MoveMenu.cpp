@@ -185,7 +185,7 @@ TFormMoveMenu::TFormMoveMenu() {
         exit();
     };
     destPage->onExit = [=]() {
-        counter = 35;
+        counter = APP->window->getLastFrameRate();
         moveDoneText->text = "Bank " + std::to_string(*sourceBank + 1) + " moved";
         moveDoneText->show();
     };

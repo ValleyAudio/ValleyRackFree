@@ -35,7 +35,6 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
 
 struct TFormEditorDefragMenu : TFormMenu {
     PlainText* defragDoneMessage;
-    const int viewCounterMax = 40;
     int viewCounter;
 
     TFormEditorDefragMenu();
