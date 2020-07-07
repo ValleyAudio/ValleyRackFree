@@ -38,7 +38,7 @@ TFormClearMenu::TFormClearMenu() {
         yesButton->visible = true;
         questionText->visible = true;
         clearedText->visible = false;
-        questionText->text = "Do you really want to clear bank " + std::to_string(*selectedBank + 1) + "?";
+        questionText->text = "Do you really want to delete bank " + std::to_string(*selectedBank + 1) + "?";
     };
 }
 

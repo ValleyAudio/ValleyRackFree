@@ -156,7 +156,7 @@ TFormPurgeMenu::TFormPurgeMenu() {
     questionText->box.size.x = 238;
     questionText->size = 12;
     questionText->color = nvgRGB(0xEF, 0xEF, 0xEF);
-    questionText->text = "Do you really want to purge ALL banks?";
+    questionText->text = "Really delete ALL banks?";
     addChild(questionText);
 
     clearedText = createWidget<PlainText>(Vec(119, 97.5));
@@ -164,7 +164,7 @@ TFormPurgeMenu::TFormPurgeMenu() {
     clearedText->size = 16;
     clearedText->color = nvgRGB(0xEF, 0xEF, 0xEF);
     clearedText->vertAlignment = NVG_ALIGN_MIDDLE;
-    clearedText->text = "Cleared ALL banks";
+    clearedText->text = "Deleted ALL banks";
     clearedText->hide();
     addChild(clearedText);
 
@@ -188,13 +188,13 @@ void TFormPurgeMenu::step() {
 
 TFormEditorMainMenu::TFormEditorMainMenu() {
     box.size = Vec(238, 195);
-    Vec buttonSize = Vec(82, 32);
+    Vec buttonSize = Vec(92, 32);
     float gap = 8.f;
     float ySpacing = buttonSize.y + gap;
     float xSpacing = buttonSize.x + gap;
-    float xOffset = 33.f;
+    float xOffset = 23.f;
     float yOffset = 41.f;
-    float buttonFontSize = 18;
+    float buttonFontSize = 16;
 
     title = createWidget<PlainText>(Vec(box.getCenter().x, 20.f));
     editButton = createWidget<TFormEditorButton>(Vec(xOffset, yOffset));
@@ -218,7 +218,7 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
     importButton->text = "Load ROM";
     exportButton->text = "Save ROM";
     exitButton->text = "Exit";
-    purgeButton->text = "Purge";
+    purgeButton->text = "Delete All";
 
     editButton->style.fontSize = buttonFontSize;
     defragButton->style.fontSize = buttonFontSize;

@@ -5,7 +5,7 @@ TFormEditMainMenu::TFormEditMainMenu() {
     loadButton = createNewMenuButton("Load", NULL, buttonOffset, 21, buttonWidth, buttonHeight);
     loadButton->setFilled(true);
     addChild(loadButton);
-    clearButton = createNewMenuButton("Clear", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
+    clearButton = createNewMenuButton("Delete", NULL, buttonWidth + buttonOffset * 2, 21, buttonWidth, buttonHeight);
     clearButton->setFilled(true);
     addChild(clearButton);
     viewButton = createNewMenuButton("View", NULL, buttonWidth * 2 + buttonOffset * 3, 21, buttonWidth, buttonHeight);

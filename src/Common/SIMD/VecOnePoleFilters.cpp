@@ -28,6 +28,11 @@ void VecOnePoleLPFilter::setSampleRate(float sampleRate) {
     setCutoffFreq(_cutoffFreq);
 }
 
+void VecOnePoleLPFilter::setCutoff(const __m128& cutoff) {
+    _b = cutoff;
+    _a = _mm_sub_ps(_mm_set1_ps(1.f), _b);
+}
+
 void VecOnePoleLPFilter::setCutoffFreq(float cutoffFreq) {
     _cutoffFreq = cutoffFreq > _maxCutoffFreq ? _maxCutoffFreq : cutoffFreq;
     _b = _mm_set1_ps(expf(-_2M_PI * _cutoffFreq * _1_sampleRate));

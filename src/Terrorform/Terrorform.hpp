@@ -693,12 +693,14 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> enhanceNames = {
         "BITCRUSH", "QUANTIZE", "AND_INT", "XOR_INT", "AND_FLOAT", "OVERDRIVE",
-        "RING_MOD", "GRAIN", "SINE", "FOLD", "MIRROR", "SUB_SAW", "SUB_PULSE", "SUB_CHEBY", "SUB_GLTCH"
+        "RING_MOD", "SHARPEN", "SINE", "FOLD", "MIRROR", "SUB_SAW", "SUB_PULSE", "SUB_CHEBY",
+        "SUB_GLTCH"
     };
 
     std::vector<std::string> enhanceMenuItems = {
         "Bit Crush", "Quantize", "Bitwise AND Int", "Bitwise XOR Int", "Bitwise AND Float", "Overdrive",
-        "Ring Mod", "Grain", "Sine", "Fold", "Mirror", "Sub Saw", "Sub Pulse", "Sub Chebyshev", "Sub Glitch"
+        "Ring Mod", "Sharpen", "Sine", "Fold", "Mirror", "Sub Saw", "Sub Pulse", "Sub Chebyshev",
+        "Sub Glitch"
     };
 
     std::vector<std::string> syncNames = {

@@ -16,7 +16,7 @@ public:
         BIT_AND_FLOAT_MODE,
         OVERDRIVE_MODE,
         MULTIPLY_MODE,
-        GRAIN_MODE,
+        SHARPEN_MODE,
         CHEBYSHEV_MODE,
         FOLD_MODE,
         MIRROR_MODE,
@@ -78,7 +78,7 @@ public:
         p[BIT_AND_FLOAT_MODE] = &VecEnhancer::bitANDFloat;
         p[OVERDRIVE_MODE] = &VecEnhancer::overdrive;
         p[MULTIPLY_MODE] = &VecEnhancer::multiply;
-        p[GRAIN_MODE] = &VecEnhancer::grain;
+        p[SHARPEN_MODE] = &VecEnhancer::sharpen;
         p[FOLD_MODE] = &VecEnhancer::fold;
         p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
         p[MIRROR_MODE] = &VecEnhancer::mirror;
@@ -195,11 +195,12 @@ private:
 
     __m128 multiply(const __m128& x, const __m128& param) {
         __a = _mm_mul_ps(param, __sixteens);
-        __y = _mm_mul_ps(x, valley::_mm_cosine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(__phasor, __a)), _mm_set1_ps(M_PI))));
+        __y = _mm_mul_ps(x, valley::_mm_cosine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(__phasor, __a)),
+                         _mm_set1_ps(M_PI))));
         return _mm_linterp_ps(x, __y, _mm_clamp_ps(__a, __zeros, __ones));
     }
 
-    __m128 grain(const __m128& x, const __m128& param) {
+    __m128 sharpen(const __m128& x, const __m128& param) {
         __y = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(x, x), x), x);
         __y = _mm_switch_ps(__y, _mm_mul_ps(__y, __negOnes), _mm_cmplt_ps(x, __zeros));
         return _mm_linterp_ps(x, __y, param);
@@ -219,6 +220,9 @@ private:
         return _mm_linterp_ps(x, __y, _mm_clamp_ps(__a, __zeros, __ones));
     }
 
+    /** Similar to folding, but the wave arrives wraps round to negative. Uses cross fadeing to tame
+        the buzzing.
+    */
     __m128 mirror(const __m128& x, const __m128& param) {
         __a = _mm_mul_ps(param, __fours);
         __aInt = _mm_cvttps_epi32(_mm_add_ps(__a, __ones));

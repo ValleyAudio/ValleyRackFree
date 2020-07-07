@@ -8,6 +8,7 @@ struct VecOnePoleLPFilter {
     VecOnePoleLPFilter(float cutoffFreq);
     __m128 process(const __m128& input);
     void clear();
+    void setCutoff(const __m128& cutoff);
     void setCutoffFreq(float cutoffFreq);
     void setCutoffFreq(const __m128& cutoffFreq);
     void setCutoffFreqAlt(float cutoffFreq);
