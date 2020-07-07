@@ -83,6 +83,7 @@ struct Terrorform : Module {
         RAW_OUTPUT,
         ENHANCER_OUTPUT,
         ENVELOPE_OUTPUT,
+        SUB_OSC_OUTPUT,
         MAIN_OUTPUT,
         NUM_OUTPUTS
     };
@@ -99,6 +100,8 @@ struct Terrorform : Module {
         ENHANCE_DEPTH_PARAM,
         LPG_ATTACK_PARAM,
         LPG_DECAY_PARAM,
+        SKEW_PARAM,
+        SUB_OSC_LEVEL_PARAM,
 
         VOCT_1_CV_PARAM,
         VOCT_2_CV_PARAM,
@@ -436,8 +439,10 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeDepthPos = Vec(230, 138);
     Vec enhanceTypePos = Vec(79, 182);
     Vec enhanceDepthPos = Vec(221, 182);
-    Vec lpgAttackPos = Vec(125, 200);
-    Vec lpgDecayPos = Vec(175, 200);
+    Vec lpgAttackPos = Vec(125, 196);
+    Vec lpgDecayPos = Vec(175, 196);
+    Vec skewPos = Vec(43, 244);
+    Vec subPos = Vec(257, 244);
 
     RoganMedBlue* octaveKnob;
     RoganMedBlue* coarseKnob;
@@ -462,14 +467,14 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapeTypeCV2Pos = Vec(47, 172);
     Vec shapeDepthCV1Pos = Vec(258, 122);
     Vec shapeDepthCV2Pos = Vec(253, 172);
-    Vec enhanceTypeCV1Pos = Vec(37, 198);
-    Vec enhanceTypeCV2Pos = Vec(75, 224);
-    Vec enhanceDepthCV1Pos = Vec(263, 198);
-    Vec enhanceDepthCV2Pos = Vec(225, 224);
-    Vec lpgAttackCV1Pos = Vec(99, 215);
-    Vec lpgAttackCV2Pos = Vec(123, 234);
-    Vec lpgDecayCV1Pos = Vec(201, 215);
-    Vec lpgDecayCV2Pos = Vec(178, 234);
+    Vec enhanceTypeCV1Pos = Vec(33, 190);
+    Vec enhanceTypeCV2Pos = Vec(71, 220);
+    Vec enhanceDepthCV1Pos = Vec(267, 190);
+    Vec enhanceDepthCV2Pos = Vec(229, 220);
+    Vec lpgAttackCV1Pos = Vec(99, 211);
+    Vec lpgAttackCV2Pos = Vec(122, 230);
+    Vec lpgDecayCV1Pos = Vec(201, 211);
+    Vec lpgDecayCV2Pos = Vec(178, 230);
 
     RoganSmallBlue* vOct1CV;
     RoganSmallBlue* vOct2CV;
@@ -543,16 +548,16 @@ struct TerrorformWidget : ModuleWidget {
     Vec waveInput2Pos = Vec(col2X, 101);
 
     Vec shapeTypeInput1Pos = Vec(col1X, 133);
-    Vec shapeTypeInput2Pos = Vec(col1X, 171);
+    Vec shapeTypeInput2Pos = Vec(col1X, 165);
 
     Vec shapeDepthInput1Pos = Vec(col2X, 133);
-    Vec shapeDepthInput2Pos = Vec(col2X, 171);
+    Vec shapeDepthInput2Pos = Vec(col2X, 165);
 
-    Vec enhanceTypeInput1Pos = Vec(col1X, 227);
-    Vec enhanceTypeInput2Pos = Vec(39, 249);
+    Vec enhanceTypeInput1Pos = Vec(col1X, 209);
+    Vec enhanceTypeInput2Pos = Vec(col1X, 240);
 
-    Vec enhanceDepthInput1Pos = Vec(col2X, 227);
-    Vec enhanceDepthInput2Pos = Vec(261, 249);
+    Vec enhanceDepthInput1Pos = Vec(col2X, 209);
+    Vec enhanceDepthInput2Pos = Vec(col2X, 240);
 
     Vec vcaAInputPos = Vec(col1X, 271);
     Vec fmA1InputPos = Vec(col1X, 307);
@@ -561,15 +566,15 @@ struct TerrorformWidget : ModuleWidget {
     Vec fmB1InputPos = Vec(col2X, 307);
     Vec fmB2InputPos = Vec(col2X, 339);
 
-    Vec syncInput1Pos = Vec(88, 264);
-    Vec syncInput2Pos = Vec(212, 264);
+    Vec syncInput1Pos = Vec(89, 261);
+    Vec syncInput2Pos = Vec(211, 261);
 
-    Vec attackInput1Pos = Vec(93, 240);
-    Vec attackInput2Pos = Vec(112, 257);
-    Vec decayInput1Pos = Vec(207, 240);
-    Vec decayInput2Pos = Vec(188, 257);
-    Vec triggerInput1Pos = Vec(136, 264);
-    Vec triggerInput2Pos = Vec(164, 264);
+    Vec attackInput1Pos = Vec(93, 236);
+    Vec attackInput2Pos = Vec(112, 253);
+    Vec decayInput1Pos = Vec(207, 236);
+    Vec decayInput2Pos = Vec(188, 253);
+    Vec triggerInput1Pos = Vec(128, 273);
+    Vec triggerInput2Pos = Vec(172, 273);
 
     // Outputs
     Vec phasorOutPos =  Vec(67.9541, 331);
