@@ -36,6 +36,9 @@ Terrorform::Terrorform() {
     configParam(Terrorform::LPG_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV1 Atten.");
     configParam(Terrorform::LPG_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV2 Atten.");
 
+    configParam(Terrorform::SKEW_PARAM, 0.0, 0.1, 0.0, "Phasor Feedback Skew");
+    configParam(Terrorform::SUB_OSC_LEVEL_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Main Level");
+
     configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
     configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Long Time Toggle");
     configParam(Terrorform::LPG_VELOCITY_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Velocity Sensitive Toggle");
@@ -443,6 +446,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
         __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
         osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
+        osc[c].__inputPhase = _mm_add_ps(osc[c].__inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_set1_ps(params[SKEW_PARAM].getValue())));
 
         __wave = _mm_load_ps(waves + g);
         __shape = _mm_load_ps(shapes + g);
@@ -779,6 +783,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(attackKnob);
     decayKnob = createParamCentered<RoganMedMustard>(lpgDecayPos, module, Terrorform::LPG_DECAY_PARAM);
     addParam(decayKnob);
+
+    addParam(createParamCentered<RoganSmallWhite>(skewPos, module, Terrorform::SKEW_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(subPos, module, Terrorform::SUB_OSC_LEVEL_PARAM));
 
     vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
     vOct2CV = createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM);
