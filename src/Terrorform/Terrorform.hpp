@@ -35,6 +35,7 @@
 #include "TerrorformWaveTableEditor.hpp"
 #include "TerrorformWaveBank.hpp"
 #include "Enhancer.hpp"
+#include "TFormSubOsc.hpp"
 #include "osdialog.h"
 #include <cstdio>
 #include <fstream>
@@ -188,6 +189,10 @@ struct Terrorform : Module {
     __m128 __shapedPhasorOutput[kMaxNumGroups];
     __m128 __eocOutput[kMaxNumGroups];
 
+    TFormSubOsc subOsc[kMaxNumGroups];
+    __m128 __subOscOut;
+    __m128 __lpgInput;
+
     VecEnhancer enhancer[kMaxNumGroups];
     FreqLUT freqLUT;
 
@@ -216,6 +221,7 @@ struct Terrorform : Module {
     __m128 __numWavesInTable;
     float bankCV1, bankCV2;
     float waveCV1, waveCV2;
+
     Shaper::Modes phasorShapeMap[Shaper::Modes::NUM_MODES] = {
         Shaper::Modes::BEND_MODE,
         Shaper::Modes::TILT_MODE,

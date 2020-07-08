@@ -17,17 +17,20 @@ public:
 
     __m128 process(const __m128& phasor,
                    const __m128& eoc,
-                   const __m128& stepSize) {
+                   const __m128& stepSize,
+                   const __m128& direction) {
+
         __counter = _mm_add_ps(__counter, _mm_and_ps(__ones, eoc));
         __counter = _mm_switch_ps(__counter, __zeros, _mm_cmpgt_ps(__counter, __ones));
-å
+        __stepSize = _mm_mul_ps(stepSize, direction);
+
         __a = _mm_mul_ps(phasor, __halfs);
         __a = _mm_add_ps(__a, _mm_mul_ps(__counter, __halfs));
         __b = _mm_add_ps(__a, __halfs);
         __b = _mm_sub_ps(__b, _mm_and_ps(__ones, _mm_cmpge_ps(__b, __ones)));
         __y = _mm_switch_ps(__negOnes, __ones, _mm_cmplt_ps(__a, __halfs));
-        __y = _mm_add_ps(__y, _mm_polyblep_ps(__a, stepSize));
-        return _mm_sub_ps(__y, _mm_polyblep_ps(__b, stepSize));
+        __y = _mm_add_ps(__y, _mm_polyblep_ps(__a, __stepSize));
+        return _mm_sub_ps(__y, _mm_polyblep_ps(__b, __stepSize));
     }
 
     void reset() {
@@ -40,5 +43,5 @@ public:
 private:
     __m128 __zeros, __ones, __halfs, __negOnes;
     __m128 __a, __b, __y;
-    __m128 __counter;
-}
+    __m128 __counter, __stepSize;
+};

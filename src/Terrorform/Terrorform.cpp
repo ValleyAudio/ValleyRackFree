@@ -462,6 +462,7 @@ void Terrorform::process(const ProcessArgs &args) {
 
         osc[c].tick();
 
+        __subOscOut = subOsc[c].process(osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
         __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
@@ -470,14 +471,16 @@ void Terrorform::process(const ProcessArgs &args) {
         __preEnhanceOutput[c] = osc[c].getOutput();
 
         if (swapEnhancerAndLPG) {
-            __mainOutput[c] = lpg[c].process(__preEnhanceOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+            __lpgInput = _mm_add_ps(__preEnhanceOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
+            __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
             __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
             __mainOutput[c] = enhancer[c].process(__mainOutput[c], __enhance);
         }
         else {
             __mainOutput[c] = enhancer[c].process(__preEnhanceOutput[c], __enhance);
             __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-            __mainOutput[c] = lpg[c].process(__mainOutput[c], _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+            __lpgInput = _mm_add_ps(__mainOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
+            __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
 
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
