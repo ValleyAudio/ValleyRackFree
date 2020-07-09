@@ -490,8 +490,9 @@ void Terrorform::process(const ProcessArgs &args) {
         _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(__shapedPhasorOutput[c], __fives));
         _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
         _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), _mm_mul_ps(enhancer[c].output, __fives));
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
+        _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(__subOscOut, __fives));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
     }
 
     outputs[PHASOR_OUTPUT].setChannels(numActiveChannels);
@@ -693,7 +694,7 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Welcome to Janksville, the jankiest place on earth
-    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/Cell/TerrorformDark.svg",
+    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {/*"res/Cell/TerrorformDark.svg"*/"res/Cell/Inkscape/Cell10.svg",
                                                             "res/Cell/TerrorformLight.svg",
                                                             "res/Cell/TerrorformDarkLoader.svg",
                                                             "res/Cell/TerrorformLightLoader.svg"};
@@ -748,8 +749,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(shapedOutPos, module, Terrorform::SHAPED_PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(rawOutPos, module, Terrorform::RAW_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(enhancerOutPos, module, Terrorform::ENHANCER_OUTPUT));
-    addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(subOutPos, module, Terrorform::SUB_OSC_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(mainOutPos, module, Terrorform::MAIN_OUTPUT));
+    addOutput(createOutputCentered<PJ301MDarkSmallOut>(envOutPos, module, Terrorform::ENVELOPE_OUTPUT));
 
     // Knobs
     octaveKnob = createParamCentered<RoganMedBlue>(octavePos, module, Terrorform::OCTAVE_PARAM);

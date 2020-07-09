@@ -523,23 +523,23 @@ struct TerrorformWidget : ModuleWidget {
     Vec zeroFreqButtonPos = Vec(179, 55);
     Vec userBankSwitchPos = Vec(150, 98);
 
-    Vec lpgModeSwitchPos = Vec(150, 184);
-    Vec lpgLongTimeSwitchPos = Vec(150, 209);
-    Vec lpgVelocitySwitchPos = Vec(141, 234);
-    Vec lpgTrigSwitchPos = Vec(159, 234);
+    Vec lpgModeSwitchPos = Vec(150, 176);
+    Vec lpgLongTimeSwitchPos = Vec(150, 201);
+    Vec lpgVelocitySwitchPos = Vec(141, 226);
+    Vec lpgTrigSwitchPos = Vec(159, 226);
 
-    Vec weakSyncSwitch1Pos = Vec(110, 278);
-    Vec weakSyncSwitch2Pos = Vec(190, 278);
-    Vec trueFMButtonPos = Vec(81.64, 301);
-    Vec swapButtonPos = Vec(218.34, 301);
+    Vec weakSyncSwitch1Pos = Vec(108, 280);
+    Vec weakSyncSwitch2Pos = Vec(192, 280);
+    Vec trueFMButtonPos = Vec(81.64, 293);
+    Vec swapButtonPos = Vec(218.34, 293);
 
-    Vec vcaAPos = Vec(44, 278);
-    Vec fmA1Pos = Vec(44, 303);
-    Vec fmA2Pos = Vec(44, 328);
+    Vec vcaAPos = Vec(44, 280);
+    Vec fmA1Pos = Vec(44, 305);
+    Vec fmA2Pos = Vec(44, 330);
 
-    Vec vcaBPos = Vec(256, 278);
-    Vec fmB1Pos = Vec(256, 303);
-    Vec fmB2Pos = Vec(256, 328);
+    Vec vcaBPos = Vec(256, 280);
+    Vec fmB1Pos = Vec(256, 305);
+    Vec fmB2Pos = Vec(256, 330);
 
     // Jacks
     float col1X = 15.0;
@@ -565,12 +565,12 @@ struct TerrorformWidget : ModuleWidget {
     Vec enhanceDepthInput1Pos = Vec(col2X, 209);
     Vec enhanceDepthInput2Pos = Vec(col2X, 240);
 
-    Vec vcaAInputPos = Vec(col1X, 271);
-    Vec fmA1InputPos = Vec(col1X, 307);
-    Vec fmA2InputPos = Vec(col1X, 339);
-    Vec vcaBInputPos = Vec(col2X, 271);
-    Vec fmB1InputPos = Vec(col2X, 307);
-    Vec fmB2InputPos = Vec(col2X, 339);
+    Vec vcaAInputPos = Vec(col1X, 273);
+    Vec fmA1InputPos = Vec(col1X, 309);
+    Vec fmA2InputPos = Vec(col1X, 341);
+    Vec vcaBInputPos = Vec(col2X, 273);
+    Vec fmB1InputPos = Vec(col2X, 309);
+    Vec fmB2InputPos = Vec(col2X, 341);
 
     Vec syncInput1Pos = Vec(89, 261);
     Vec syncInput2Pos = Vec(211, 261);
@@ -588,19 +588,20 @@ struct TerrorformWidget : ModuleWidget {
     Vec shapedOutPos =  Vec(122.9541, 331);
     Vec rawOutPos =     Vec(150, 331);
     Vec enhancerOutPos = Vec(177.3541, 331);
-    Vec envOutPos =     Vec(204.6541, 331);
+    Vec subOutPos =     Vec(204.6541, 331);
     Vec mainOutPos =    Vec(231.9541, 331);
+    Vec envOutPos =     Vec(150, 255.5);
 
     // Text
-    Vec bankTextPos = Vec(97.46, 130.358);
-    Vec shapeTextPos = Vec(97.46, 143.211);
-    Vec enhanceTextPos = Vec(97.46, 156.065);
+    Vec bankTextPos = Vec(97.46, 126.358);
+    Vec shapeTextPos = Vec(97.46, 139.211);
+    Vec enhanceTextPos = Vec(97.46, 152.065);
 
-    Vec waveTextPos = Vec(202.897, 130.358);
-    Vec shapeDepthTextPos = Vec(202.897, 143.211);
-    Vec enhanceDepthTextPos = Vec(202.897, 156.065);
+    Vec waveTextPos = Vec(202.897, 126.358);
+    Vec shapeDepthTextPos = Vec(202.897, 139.211);
+    Vec enhanceDepthTextPos = Vec(202.897, 152.065);
 
-    Vec syncTextPos = Vec(149.829, 302);
+    Vec syncTextPos = Vec(149.829, 303);
 
     widget::Widget* panels[NUM_TRRFORM_PANELS];
     bool inEditorMode = false;
