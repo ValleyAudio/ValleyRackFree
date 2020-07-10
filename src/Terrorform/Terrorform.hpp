@@ -666,14 +666,30 @@ struct TerrorformWidget : ModuleWidget {
     TerrorformDisplayColourModes prevDisplayStyle = CELL_RED_LED_COLOUR;
 
     std::vector<std::string> bankNames = {
-        "OPAL", "BASIC", "TEE_EKS", "SIN_HARM", "ADD_SIN", "AM_HARM", "SWEEPHARM", "XFADE",
-        "ADD_SAW", "ADD_SQR", "ADD_BANK1", "ADD_BANK2", "ADD_BANK3", "ADD_BANK4", "OBOE",
-        "SAXOPHONE", "REED", "CELLO_1", "CELLO_2", "VIOLIN", "PIANO", "THEREMIN", "PLUCK",
-        "OVERTONE1", "OVERTONE2", "SYMMETRY", "CHIP_1", "CHIP_2", "BITCRUSH1", "BITCRUSH2",
-        "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
-        "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
-        "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
-        "PLAITS_3", "PLAITS_4", "GMTRY_1", "GMTRY_2", "GMTRY_3", "RESO_SAW", "RESO_SQR", "CHIRP"//,
+        "BASIC", "OPAL",  "TEE_EKS", "SAW_PHASE",
+        "SAW_GAP1", "SAW_GAP2", "PWM", "BI_PULSE",
+        "RESO_SAW", "RESO_SQR", "SINE_HARM", "AM_HARM",
+        "SWEEPHARM", "XFADE", "CHIRP", "ADD_SINE",
+        "ADD_SAW", "ADD_SQR", "ADD_BANK1", "ADD_BANK2",
+        "ADD_BANK3", "ADD_BANK4", "FOLD_SINE", "2_OP_RAND",
+        "2_OPFM1", "2_OPFM2", "FM1", "FM2",
+        "FM3", "FM4", "OBOE", "ALTOSAX",
+        "REED", "CELLO_1", "CELLO_2", "VIOLIN",
+        "PIANO", "EBASS", "PLUCK", "THEREMIN",
+        "SYMMETRY", "OVERTONE1", "OVERTONE2", "VOICE_1",
+        "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5",
+        "VOICE_6", "VOX_MACH", "CHIP_1", "CHIP_2",
+        "BITCRUSH1", "BITCRUSH2", "VIDEOGAME", "LINEAR",
+        "DISTORT", "GRIT", "GMTRY_1", "GMTRY_2",
+        "GMTRY_3", "PLAITS_1", "PLAITS_2", "PLAITS_3"
+        // "OPAL", "BASIC", "TEE_EKS", "SIN_HARM", "ADD_SIN", "AM_HARM", "SWEEPHARM", "XFADE",
+        // "ADD_SAW", "ADD_SQR", "ADD_BANK1", "ADD_BANK2", "ADD_BANK3", "ADD_BANK4", "OBOE",
+        // "SAXOPHONE", "REED", "CELLO_1", "CELLO_2", "VIOLIN", "PIANO", "THEREMIN", "PLUCK",
+        // "OVERTONE1", "OVERTONE2", "SYMMETRY", "CHIP_1", "CHIP_2", "BITCRUSH1", "BITCRUSH2",
+        // "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
+        // "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
+        // "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
+        // "PLAITS_3", "PLAITS_4", "GMTRY_1", "GMTRY_2", "GMTRY_3", "RESO_SAW", "RESO_SQR", "CHIRP"//,
         //"DISTRT_1", "EBASS"
     };
 
