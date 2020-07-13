@@ -36,7 +36,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::LPG_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV1 Atten.");
     configParam(Terrorform::LPG_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV2 Atten.");
 
-    configParam(Terrorform::SKEW_PARAM, 0.0, 0.1, 0.0, "Phasor Feedback Skew");
+    configParam(Terrorform::SKEW_PARAM, 0.0, 0.175, 0.0, "Phasor Feedback Skew");
     configParam(Terrorform::SUB_OSC_LEVEL_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Main Level");
     configParam(Terrorform::SUB_OSC_WAVE_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Wave");
 

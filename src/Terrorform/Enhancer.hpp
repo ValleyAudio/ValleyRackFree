@@ -20,9 +20,6 @@ public:
         CHEBYSHEV_MODE,
         FOLD_MODE,
         MIRROR_MODE,
-        SAW_SUB_MODE,
-        SQUARE_SUB_MODE,
-        CHEBYSHEV_SUB_MODE,
         GLITCH_SUB_MODE,
         NUM_MODES
     };
@@ -82,9 +79,6 @@ public:
         p[FOLD_MODE] = &VecEnhancer::fold;
         p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
         p[MIRROR_MODE] = &VecEnhancer::mirror;
-        p[SAW_SUB_MODE] = &VecEnhancer::subSaw;
-        p[SQUARE_SUB_MODE] = &VecEnhancer::subSquare;
-        p[CHEBYSHEV_SUB_MODE] = &VecEnhancer::subChebyshev;
         p[GLITCH_SUB_MODE] = &VecEnhancer::subGlitch;
     }
 
