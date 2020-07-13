@@ -74,6 +74,7 @@ struct Terrorform : Module {
         DECAY_2_INPUT,
         TRIGGER_1_INPUT,
         TRIGGER_2_INPUT,
+        SKEW_INPUT,
         NUM_INPUTS
     };
 
@@ -103,6 +104,7 @@ struct Terrorform : Module {
         LPG_DECAY_PARAM,
         SKEW_PARAM,
         SUB_OSC_LEVEL_PARAM,
+        SUB_OSC_WAVE_PARAM,
 
         VOCT_1_CV_PARAM,
         VOCT_2_CV_PARAM,
@@ -447,8 +449,9 @@ struct TerrorformWidget : ModuleWidget {
     Vec enhanceDepthPos = Vec(221, 182);
     Vec lpgAttackPos = Vec(125, 196);
     Vec lpgDecayPos = Vec(175, 196);
-    Vec skewPos = Vec(43, 244);
-    Vec subPos = Vec(257, 244);
+    Vec skewPos = Vec(64, 243.265);
+    Vec subOscLevelPos = Vec(236, 243.265);
+    Vec subOscWavePos = Vec(260, 245.265);
 
     RoganMedBlue* octaveKnob;
     RoganMedBlue* coarseKnob;
@@ -581,6 +584,8 @@ struct TerrorformWidget : ModuleWidget {
     Vec decayInput2Pos = Vec(188, 253);
     Vec triggerInput1Pos = Vec(128, 273);
     Vec triggerInput2Pos = Vec(172, 273);
+
+    Vec skewInputPos = Vec(40, 245.265);
 
     // Outputs
     Vec phasorOutPos =  Vec(67.9541, 331);

@@ -38,6 +38,7 @@ Terrorform::Terrorform() {
 
     configParam(Terrorform::SKEW_PARAM, 0.0, 0.1, 0.0, "Phasor Feedback Skew");
     configParam(Terrorform::SUB_OSC_LEVEL_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Main Level");
+    configParam(Terrorform::SUB_OSC_WAVE_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Wave");
 
     configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
     configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Long Time Toggle");
@@ -462,6 +463,7 @@ void Terrorform::process(const ProcessArgs &args) {
 
         osc[c].tick();
 
+        subOsc[c].setWave(_mm_set1_ps(params[SUB_OSC_WAVE_PARAM].getValue()));
         __subOscOut = subOsc[c].process(osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
@@ -743,6 +745,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addInput(createInputCentered<PJ301MDarkSmall>(decayInput2Pos, module, Terrorform::DECAY_2_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput1Pos, module, Terrorform::TRIGGER_1_INPUT));
     addInput(createInputCentered<PJ301MDarkSmall>(triggerInput2Pos, module, Terrorform::TRIGGER_2_INPUT));
+    addInput(createInputCentered<PJ301MDarkSmall>(skewInputPos, module, Terrorform::SKEW_INPUT));
 
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(phasorOutPos, module, Terrorform::PHASOR_OUTPUT));
     addOutput(createOutputCentered<PJ301MDarkSmallOut>(eocOutPos, module, Terrorform::END_OF_CYCLE_OUTPUT));
@@ -790,7 +793,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(decayKnob);
 
     addParam(createParamCentered<RoganSmallWhite>(skewPos, module, Terrorform::SKEW_PARAM));
-    addParam(createParamCentered<RoganSmallWhite>(subPos, module, Terrorform::SUB_OSC_LEVEL_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(subOscLevelPos, module, Terrorform::SUB_OSC_LEVEL_PARAM));
+    addParam(createParamCentered<RoganSmallWhite>(subOscWavePos, module, Terrorform::SUB_OSC_WAVE_PARAM));
 
     vOct1CV = createParamCentered<RoganSmallBlue>(vOct1CVPos, module, Terrorform::VOCT_1_CV_PARAM);
     vOct2CV = createParamCentered<RoganSmallBlue>(vOct2CVPos, module, Terrorform::VOCT_2_CV_PARAM);
