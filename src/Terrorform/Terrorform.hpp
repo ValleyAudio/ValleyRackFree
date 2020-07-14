@@ -687,27 +687,27 @@ struct TerrorformWidget : ModuleWidget {
         "BITCRUSH1", "BITCRUSH2", "VIDEOGAME", "LINEAR",
         "DISTORT", "GRIT", "GMTRY_1", "GMTRY_2",
         "GMTRY_3", "PLAITS_1", "PLAITS_2", "PLAITS_3"
-        // "OPAL", "BASIC", "TEE_EKS", "SIN_HARM", "ADD_SIN", "AM_HARM", "SWEEPHARM", "XFADE",
-        // "ADD_SAW", "ADD_SQR", "ADD_BANK1", "ADD_BANK2", "ADD_BANK3", "ADD_BANK4", "OBOE",
-        // "SAXOPHONE", "REED", "CELLO_1", "CELLO_2", "VIOLIN", "PIANO", "THEREMIN", "PLUCK",
-        // "OVERTONE1", "OVERTONE2", "SYMMETRY", "CHIP_1", "CHIP_2", "BITCRUSH1", "BITCRUSH2",
-        // "GRIT", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5", "VOICE_6", "PWM",
-        // "BI_PULSE", "SAW_GAP1", "SAW_GAP2", "SAW_PHASE", "VIDEOGAME", "FOLD_SINE", "FM1", "FM2", "FM3", "FM4",
-        // "FM5", "FM6", "2_OPFM1", "2_OPFM2", "2_OP_RAND", "VOX_MACH", "LINEAR_1", "PLAITS_2",
-        // "PLAITS_3", "PLAITS_4", "GMTRY_1", "GMTRY_2", "GMTRY_3", "RESO_SAW", "RESO_SQR", "CHIRP"//,
-        //"DISTRT_1", "EBASS"
     };
 
     std::vector<std::string> bankMenuItems = {
-        "Opal", "Basic", "Tee Eks", "Sine Harmonics", "Additive Sine", "AM Harmonics", "Sweep Harmonics", "X Fade",
-        "Additive Saw", "Additive Square", "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4",
-        "Oboe", "Saxophone", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Theremin", "Pluck",
-        "Overtone 1", "Overtone 2", "Symmetry", "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2",
-        "Grit", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM",
-        "Bi Pulse", "Saw Gap 1", "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4",
-        "FM5", "FM6", "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry 3", "Resonant Saw", "Resonant Square", "Chirp"//,
-        //"Distorted 1", "Electric Bass"
+        // "Opal", "Basic", "Tee Eks", "Sine Harmonics", "Additive Sine", "AM Harmonics", "Sweep Harmonics", "X Fade",
+        // "Additive Saw", "Additive Square", "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4",
+        // "Oboe", "Saxophone", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Theremin", "Pluck",
+        // "Overtone 1", "Overtone 2", "Symmetry", "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2",
+        // "Grit", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM",
+        // "Bi Pulse", "Saw Gap 1", "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4",
+        // "FM5", "FM6", "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
+        // "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry 3", "Resonant Saw", "Resonant Square", "Chirp"
+        "Basic", "Opal", "Tee Eks", "Saw Phase", "Saw Gap 1", "Saw Gap 2", "PWM", "Bi Pulse",
+        "Resonant Saw", "Resonant Square", "Sine Harmonics", "Amp. Mod. Harmonics",
+        "Sweep Harmonics", "X Fade", "Chirp", "Additive Sine", "Additive Saw", "Additive Square",
+        "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4", "Folding Sine",
+        "Two OP FM Random", "Two OP FM Bank 1", "Two OP FM Bank 2", "FM 1", "FM 2", "FM 3", "FM 4",
+        "Oboe", "Alto Sax", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Electric Bass", "Pluck",
+        "Theremin", "Symmetry", "Overtone 1", "Overtone 2", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5",
+        "Voice 6", "Vox Machine", "Chip 1", "Chip 2", "Bitcrush 1", "Bircrush 2", "Video Game", "Linear",
+        "Distorted", "Grit", "Geometry 1", "Geometry 2", "Geometry 3", "Plaits 1", "Plaits 2", "Plaits 3"
+
     };
 
     std::vector<std::string> shapeNames = {
