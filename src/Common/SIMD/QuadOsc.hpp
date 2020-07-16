@@ -31,6 +31,7 @@ public:
         STEP16_MODE,
         VARSTEP_MODE,
         SINEWRAP_MODE,
+        HARMONICS_MODE,
         BUZZ_X2_MODE,
         BUZZ_X4_MODE,
         BUZZ_X8_MODE,
@@ -54,7 +55,7 @@ private:
 
     // Common vars
     __m128 __aScale, __x, __y, __z, __f, __xx, __ff, __k, __mask, __midMask, __highMask;
-    __m128 __m, __c, __denom;
+    __m128 __m, __b, __c, __denom;
     __m128 __output;
     __m128i __aInt, __xInt, __yInt;
     __m128 __aIntF, __xIntF, __yIntF;
@@ -78,6 +79,7 @@ private:
     void step16(const __m128& a, const __m128& f);
     void varStep(const __m128& a, const __m128& f);
     void sineWrap(const __m128& a, const __m128& f);
+    void harmonics(const __m128& a, const __m128& f);
     void buzzX2(const __m128& a, const __m128& f);
     void buzzX4(const __m128& a, const __m128& f);
     void buzzX8(const __m128& a, const __m128& f);

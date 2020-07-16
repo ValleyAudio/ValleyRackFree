@@ -61,6 +61,7 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case TWIST_MODE: twist(a, f); break;
         case WRAP_MODE: wrap(a, f); break;
         case MIRROR_MODE: mirror(a, f); break;
+        case HARMONICS_MODE: harmonics(a, f); break;
         case REFLECT_MODE: reflect(a, f); break;
         case PULSE_MODE: pulse(a, f); break;
         case STEP4_MODE: step4(a, f); break;
@@ -213,10 +214,23 @@ void Shaper::varStep(const __m128& a, const __m128& f) {
 }
 
 void Shaper::sineWrap(const __m128& a, const __m128& f) {
+    __y = _mm_max_ps(f, _mm_set1_ps(0.0625f));
     __x = _mm_sub_ps(_mm_mul_ps(a, __twos), __ones);
-    __x = _mm_circle_ps(_mm_mul_ps(__x, _mm_mul_ps(f, __eights)));
+    __x = _mm_circle_ps(_mm_mul_ps(__x, _mm_mul_ps(__y, __eights)));
     __output = valley::_mm_sine_ps(_mm_mul_ps(__x, _mm_set1_ps(M_PI)));
     __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);
+    __output = _mm_linterp_ps(a, __output, _mm_min_ps(_mm_mul_ps(f, __eights), __ones));
+}
+
+void Shaper::harmonics(const __m128& a, const __m128& f) {
+    // TODO : Add cross fading sines here
+    __ff = _mm_mul_ps(f, __eights);
+    __aInt = _mm_cvttps_epi32(__ff);
+    __aIntF = _mm_cvtepi32_ps(__aInt);
+    __b = valley::_mm_sine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(a, __aIntF)), _mm_set1_ps(M_PI)));
+    __c = valley::_mm_sine_ps(_mm_mul_ps(_mm_circle_ps(_mm_mul_ps(a, _mm_add_ps(__aIntF, __ones))), _mm_set1_ps(M_PI)));
+    __ff = _mm_circle_ps(__ff);
+    __output = _mm_linterp_ps(__b, __c, __ff);
 }
 
 void Shaper::buzzX2(const __m128&a, const __m128& f) {
