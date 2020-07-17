@@ -719,7 +719,7 @@ struct TerrorformWidget : ModuleWidget {
     };
 
     std::vector<std::string> shapeMenuItems = {
-        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Soft Wrap", "Mirror", "Harmonics", "Reflect",
+        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Sine Wrap", "Harmonics", "Reflect",
         "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4", "Buzz X8",
         "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down x2", "Sine Down x4", "Sine Down x8",
         "Sine Up x2", "Sine Up x4", "Sine Up x8"
