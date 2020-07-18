@@ -243,7 +243,7 @@ __m128 VecAmalgam::bitHack(const __m128& x, const __m128& y, float paramA, float
 
 __m128 VecAmalgam::bitANDFloat(const __m128& x, const __m128& y, float paramA, float paramB) {
     __chance32 = __high;
-    int random = 0;
+    uint32_t random = 0;
     for(auto i = 0; i < 4; ++i) {
         random = mwcRand(_z[i], _w[i]);
         _k32[i] = (float)random / (float)UINT32_MAX > (0.5f - paramA * paramA * 0.5f) ? random : 0xFFFFFFFF;
@@ -266,7 +266,7 @@ __m128 VecAmalgam::bitInterleaveFloat(const __m128& x, const __m128& y, float pa
 
 __m128 VecAmalgam::bitHackFloat(const __m128& x, const __m128& y, float paramA, float paramB) {
     __chance32 = __high;
-    int random = 0;
+    uint32_t random = 0;
     for(auto i = 0; i < 4; ++i) {
         random = mwcRand(_z[i], _w[i]);
         _k32[i] = (float)random / (float)UINT32_MAX > (0.5f - paramA * paramA * 0.5f) ? random : 0xFFFFFFFF;

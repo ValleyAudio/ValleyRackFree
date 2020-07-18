@@ -14,6 +14,8 @@
 #include <cstdint>
 #include <vector>
 #include "SIMDUtilities.hpp"
+#include "../Utilities.hpp"
+#include "VecOnePoleFilters.hpp"
 
 class Shaper {
 public:
@@ -48,6 +50,7 @@ public:
     };
 
     Shaper();
+    ~Shaper();
     __m128 process(const __m128& a, const __m128& f);
     void setShapeMode(int mode);
 private:
@@ -63,6 +66,11 @@ private:
     // Numbers
     __m128 __third, __twoThird, __half, __minusHalf, __fourth, __eighth, __sixteenth, __hundredth;
     __m128 __minus, __zeros, __ones, __twos, __threes, __fours, __eights, __nines, __sixteens;
+    uint32_t _z[4];
+    uint32_t _w[4];
+    float* random;
+    __m128 __noise;
+    VecOnePoleLPFilter __filter1, __filter2;
 
     // Shaping functions
     void bend(const __m128& a, const __m128& f);
@@ -92,6 +100,7 @@ private:
     void sineUpX2(const __m128& a, const __m128& f);
     void sineUpX4(const __m128& a, const __m128& f);
     void sineUpX8(const __m128& a, const __m128& f);
+    void warble(const __m128& a, const __m128& f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

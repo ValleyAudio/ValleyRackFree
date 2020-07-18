@@ -51,6 +51,17 @@ Shaper::Shaper() {
     __fourth = _mm_set1_ps(1.f / 4.f);
     __eighth = _mm_set1_ps(1.f / 8.f);
     __sixteenth = _mm_set1_ps(1.f / 16.f);
+
+    std::srand(std::time(NULL));
+    for(auto i = 0; i < 4; ++i) {
+        _z[i] = std::rand();
+        _w[i] = std::rand();
+    }
+    random = (float*)aligned_alloc_16(sizeof(float) * 4);
+    __filter1.setSampleRate(44100);
+    __filter1.setCutoffFreq(40.f);
+    __filter2.setSampleRate(44100);
+    __filter2.setCutoffFreq(40.f);
 }
 
 __m128 Shaper::process(const __m128& a, const __m128& f) {
@@ -61,7 +72,8 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case TWIST_MODE: twist(a, f); break;
         case WRAP_MODE: wrap(a, f); break;
         case MIRROR_MODE: mirror(a, f); break;
-        case HARMONICS_MODE: harmonics(a, f); break;
+        //case HARMONICS_MODE: harmonics(a, f); break;
+        case HARMONICS_MODE: warble(a, f); break;
         case REFLECT_MODE: reflect(a, f); break;
         case PULSE_MODE: pulse(a, f); break;
         case STEP4_MODE: step4(a, f); break;
@@ -84,6 +96,10 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         default: bend(a, f);
     }
     return __output;
+}
+
+Shaper::~Shaper() {
+    aligned_free_16(random);
 }
 
 void Shaper::setShapeMode(int mode) {
@@ -222,8 +238,22 @@ void Shaper::sineWrap(const __m128& a, const __m128& f) {
     __output = _mm_linterp_ps(a, __output, _mm_min_ps(_mm_mul_ps(f, __eights), __ones));
 }
 
+void Shaper::warble(const __m128& a, const __m128& f) {
+    for (int i = 0; i < 4; ++i) {
+        random[i] = (float) mwcRand(_z[i], _w[i]) / (float)UINT32_MAX;
+        random[i] = random[i] * 4.f - 2.f;
+    }
+
+    __noise = _mm_load_ps(random);
+    __noise = __filter1.process(__noise);
+    __noise = __filter2.process(__noise);
+    __y = _mm_add_ps(a, _mm_mul_ps(__noise, f));
+    __y = _mm_circle_ps(_mm_sub_ps(_mm_mul_ps(__y, __twos), __ones));
+    __output = _mm_mul_ps(_mm_add_ps(__y, __ones), __half);
+
+}
+
 void Shaper::harmonics(const __m128& a, const __m128& f) {
-    // TODO : Add cross fading sines here
     __ff = _mm_sub_ps(_mm_max_ps(f, _mm_set1_ps(0.0625f)), _mm_set1_ps(0.0625f));
     __ff = _mm_mul_ps(__ff, _mm_set1_ps(6.4f));
     __m = _mm_min_ps(_mm_mul_ps(f, __sixteens), __ones);
