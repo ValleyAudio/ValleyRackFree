@@ -72,8 +72,8 @@ __m128 Shaper::process(const __m128& a, const __m128& f) {
         case TWIST_MODE: twist(a, f); break;
         case WRAP_MODE: wrap(a, f); break;
         case MIRROR_MODE: mirror(a, f); break;
-        //case HARMONICS_MODE: harmonics(a, f); break;
-        case HARMONICS_MODE: warble(a, f); break;
+        case HARMONICS_MODE: harmonics(a, f); break;
+        case WARBLE_MODE: warble(a, f); break;
         case REFLECT_MODE: reflect(a, f); break;
         case PULSE_MODE: pulse(a, f); break;
         case STEP4_MODE: step4(a, f); break;

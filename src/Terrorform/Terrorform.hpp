@@ -233,6 +233,7 @@ struct Terrorform : Module {
         Shaper::Modes::SINEWRAP_MODE,
         Shaper::Modes::MIRROR_MODE,
         Shaper::Modes::HARMONICS_MODE,
+        Shaper::Modes::WARBLE_MODE,
         Shaper::Modes::REFLECT_MODE,
         Shaper::Modes::PULSE_MODE,
         Shaper::Modes::STEP4_MODE,
@@ -691,14 +692,6 @@ struct TerrorformWidget : ModuleWidget {
     };
 
     std::vector<std::string> bankMenuItems = {
-        // "Opal", "Basic", "Tee Eks", "Sine Harmonics", "Additive Sine", "AM Harmonics", "Sweep Harmonics", "X Fade",
-        // "Additive Saw", "Additive Square", "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4",
-        // "Oboe", "Saxophone", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Theremin", "Pluck",
-        // "Overtone 1", "Overtone 2", "Symmetry", "Chip 1", "Chip 2", "Bit Crush 1", "Bit Crush 2",
-        // "Grit", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6", "PWM",
-        // "Bi Pulse", "Saw Gap 1", "Saw Gap 2", "Saw Phase", "Video Game", "Folding Sine", "FM1", "FM2", "FM3", "FM4",
-        // "FM5", "FM6", "Two OP FM1", "Two OP FM2", "Two OP Random", "Vox Machine", "Linear 1", "Plaits 2",
-        // "Plaits 3", "Plaits 4", "Geometry 1", "Geometry 2", "Geometry 3", "Resonant Saw", "Resonant Square", "Chirp"
         "Basic", "Opal", "Tee Eks", "Saw Phase", "Saw Gap 1", "Saw Gap 2", "PWM", "Bi Pulse",
         "Resonant Saw", "Resonant Square", "Sine Harmonics", "Amp. Mod. Harmonics",
         "Sweep Harmonics", "X Fade", "Chirp", "Additive Sine", "Additive Saw", "Additive Square",
@@ -712,17 +705,17 @@ struct TerrorformWidget : ModuleWidget {
     };
 
     std::vector<std::string> shapeNames = {
-        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "HARMONICS", "REFLECT",
-        "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4", "BUZZ_X8",
-        "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8", "SINEDWNX2", "SINEDWNX4", "SINEDWNX8", "SINEUP_X2",
-        "SINEUP_X4", "SINEUP_X8"
+        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "HARMONICS", "WARBLE",
+        "REFLECT", "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4",
+        "BUZZ_X8", "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8", "SINEDWNX2", "SINEDWNX4", "SINEDWNX8",
+        "SINEUP_X2", "SINEUP_X4", "SINEUP_X8"
     };
 
     std::vector<std::string> shapeMenuItems = {
-        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Sine Wrap", "Harmonics", "Reflect",
-        "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4", "Buzz X8",
-        "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down x2", "Sine Down x4", "Sine Down x8",
-        "Sine Up x2", "Sine Up x4", "Sine Up x8"
+        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Sine Wrap", "Harmonics", "Warble",
+        "Reflect", "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4",
+        "Buzz X8", "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down x2", "Sine Down x4",
+        "Sine Down x8", "Sine Up x2", "Sine Up x4", "Sine Up x8"
     };
 
     std::vector<std::string> enhanceNames = {

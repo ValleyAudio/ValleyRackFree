@@ -32,6 +32,7 @@ public:
         STEP8_MODE,
         STEP16_MODE,
         VARSTEP_MODE,
+        WARBLE_MODE,
         SINEWRAP_MODE,
         HARMONICS_MODE,
         BUZZ_X2_MODE,
