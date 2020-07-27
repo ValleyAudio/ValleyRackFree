@@ -143,6 +143,7 @@ struct Terrorform : Module {
         SWAP_SWITCH_PARAM,
         LFO_SWITCH_PARAM,
         ZERO_SWITCH_PARAM,
+        POST_PM_SHAPE_PARAM,
         NUM_PARAMS
     };
 
@@ -163,6 +164,7 @@ struct Terrorform : Module {
         SWAP_LIGHT,
         LFO_LIGHT,
         ZERO_LIGHT,
+        POST_PM_SHAPE_LIGHT,
         NUM_LIGHTS
     };
 
@@ -311,6 +313,7 @@ struct Terrorform : Module {
     float trueFMSwitchValue = 0.f;
     float prevTrueFMSwitchValue = 0.f;
     bool trueFMEnabled = false;
+    bool postPMShapeEnabled = false;
     bool lfoModeEnabled = false;
     bool zeroFreqEnabled = false;
     bool fmA1IsMono, fmA2IsMono;
@@ -535,7 +538,8 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec weakSyncSwitch1Pos = Vec(108, 280);
     Vec weakSyncSwitch2Pos = Vec(192, 280);
-    Vec trueFMButtonPos = Vec(81.64, 293);
+    Vec trueFMButtonPos = Vec(95.3443, 301);
+    Vec postPMShapeButtonPos = Vec(76.7443, 301);
     Vec swapButtonPos = Vec(218.34, 293);
 
     Vec vcaAPos = Vec(44, 280);
@@ -705,14 +709,14 @@ struct TerrorformWidget : ModuleWidget {
     };
 
     std::vector<std::string> shapeNames = {
-        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SOFT_WRAP", "MIRROR", "HARMONICS", "WARBLE",
+        "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SINE_WRAP", "MIRROR", "HARMONICS", "WARBLE",
         "REFLECT", "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4",
         "BUZZ_X8", "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8", "SINEDWNX2", "SINEDWNX4", "SINEDWNX8",
         "SINEUP_X2", "SINEUP_X4", "SINEUP_X8"
     };
 
     std::vector<std::string> shapeMenuItems = {
-        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Sine Wrap", "Harmonics", "Warble",
+        "Bend", "Tilt", "Lean", "Twist", "Wrap", "Sine Wrap", "Mirror", "Harmonics", "Warble",
         "Reflect", "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz X2", "Buzz X4",
         "Buzz X8", "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down x2", "Sine Down x4",
         "Sine Down x8", "Sine Up x2", "Sine Up x4", "Sine Up x8"

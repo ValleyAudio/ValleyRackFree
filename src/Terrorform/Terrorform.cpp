@@ -60,6 +60,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::SWAP_SWITCH_PARAM, 0.0, 1.0, 0.0, "Swap Enhancer and LPA order");
     configParam(Terrorform::LFO_SWITCH_PARAM, 0.0, 1.0, 0.0, "LFO Mode");
     configParam(Terrorform::ZERO_SWITCH_PARAM, 0.0, 1.0, 0.0, "Zero Frequency Mode");
+    configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Shape Post Phase Mod");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
@@ -165,6 +166,8 @@ void Terrorform::process(const ProcessArgs &args) {
         shapeType = clamp(shapeType, 0.f, Shaper::Modes::NUM_MODES - 1.f);
         shapeTypeI = (int)phasorShapeMap[(int)shapeType];
 
+        postPMShapeEnabled = params[POST_PM_SHAPE_PARAM].getValue() > 0.f;
+
         enhanceType = (inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.1f)
                       + (inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.1f);
         enhanceType *= (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
@@ -189,6 +192,7 @@ void Terrorform::process(const ProcessArgs &args) {
             osc[c].setShapeMethod(shapeTypeI);
             enhancer[c].setMode(enhanceTypeI);
             osc[c].setSyncMode(syncChoice);
+            osc[c].setPMPostShape(postPMShapeEnabled);
         }
 
         numWavesInTable = osc[0].getNumwaves() - 1.f;
@@ -230,6 +234,7 @@ void Terrorform::process(const ProcessArgs &args) {
 
         // Other button lights
         lights[TRUE_FM_LIGHT].value = trueFMEnabled;
+        lights[POST_PM_SHAPE_LIGHT].value = postPMShapeEnabled;
         lights[SWAP_LIGHT].value = params[SWAP_SWITCH_PARAM].getValue();
         lights[WEAK_SYNC_1_LIGHT].value = (float) weakSync1Enable;
         lights[WEAK_SYNC_2_LIGHT].value = (float) weakSync2Enable;
@@ -696,10 +701,10 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Welcome to Janksville, the jankiest place on earth
-    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {/*"res/Cell/TerrorformDark.svg"*/"res/Cell/Inkscape/Cell10.svg",
-                                                            "res/Cell/TerrorformLight.svg",
-                                                            "res/Cell/TerrorformDarkLoader.svg",
-                                                            "res/Cell/TerrorformLightLoader.svg"};
+    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {/*"res/Cell/TerrorformDark.svg"*/"res/Cell/Inkscape/Cell11_Dark.svg",
+                                                            "res/Cell/Inkscape/Cell11_Light.svg",
+                                                            "res/Cell/Inkscape/Cell11_DarkManager.svg",
+                                                            "res/Cell/Inkscape/Cell11_LightManager.svg"};
     setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[TRRFORM_DARK_PANEL_NORMAL])));
     for(auto i = 1; i < NUM_TRRFORM_PANELS; ++i) {
@@ -1130,6 +1135,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(newButton);
     }
     {
+        LightLEDButton* newButton = createParamCentered<LightLEDButton>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
+        newButton->momentary = false;
+        addChild(newButton);
+    }
+    {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
         newButton->momentary = false;
         addChild(newButton);
@@ -1159,6 +1169,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(trueFMButtonPos, module, Terrorform::TRUE_FM_LIGHT));
+    addChild(createLightCentered<MediumLight<RedLight>>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(swapButtonPos, module, Terrorform::SWAP_LIGHT));
 
     auto onExitEditor = [=]() {
@@ -1228,6 +1239,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         userBankLight->visible = true;
         lpgButtonLight->visible = true;
         lpgLongTimeButtonLight->visible = true;
+        lpgVelocityButton->visible = true;
+        lpgTrigButton->visible = true;
+        lpgVelocityButtonLight->visible = true;
+        lpgTrigButtonLight->visible = true;
 
         editor->visible = false;
         inEditorMode = false;
@@ -1333,7 +1348,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         drwav_free(newTable);
     };
 
-    editor = createWidget<TFormEditor>(Vec(31, 30));
+    editor = createWidget<TFormEditor>(Vec(31, 28));
     editor->box.size.x = 238;
     editor->box.size.y = 195;
     editor->visible = false;
@@ -1516,6 +1531,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         userBankLight->visible = false;
         lpgButtonLight->visible = false;
         lpgLongTimeButtonLight->visible = false;
+        lpgVelocityButton->visible = false;
+        lpgTrigButton->visible = false;
+        lpgVelocityButtonLight->visible = false;
+        lpgTrigButtonLight->visible = false;
 
         editor->visible = true;
         inEditorMode = true;

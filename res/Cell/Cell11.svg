@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 24.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!-- Generator: Adobe Illustrator 24.1.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1"
 	 id="svg8" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 380"
@@ -84,8 +84,8 @@
 	<text transform="matrix(0.7373 -0.6756 0.6756 0.7373 34.4599 216.6912)" class="st6 st7 st9">Enhance</text>
 </g>
 <g>
-	<text transform="matrix(0.7373 0.6756 -0.6756 0.7373 235.8457 203.8537)" class="st6 st7 st9">Depth</text>
-	<text transform="matrix(0.7373 0.6756 -0.6756 0.7373 238.4472 192.6742)" class="st6 st7 st9">Enhance</text>
+	<text transform="matrix(0.7373 0.6756 -0.6756 0.7373 235.8461 203.8537)" class="st6 st7 st9">Depth</text>
+	<text transform="matrix(0.7373 0.6756 -0.6756 0.7373 238.4476 192.6742)" class="st6 st7 st9">Enhance</text>
 </g>
 <text transform="matrix(1 0 0 1 167.733 117.0947)" class="st6 st7 st9">Wave</text>
 <text transform="matrix(1 0 0 1 197.9476 74.1336)" class="st6 st7 st9">Fine</text>
@@ -399,8 +399,8 @@
 		s2.3-5.1,5.1-5.1S110.1,157.7,110.1,160.6"/>
 </g>
 <g id="layer1_51_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path7705_20_" inkscape:connector-curvature="0" d="M96.3,133.4c0-5.4,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9s-4.4,9.9-9.9,9.9
-		S96.3,138.9,96.3,133.4"/>
+	<path id="path7705_20_" inkscape:connector-curvature="0" d="M96.3,133.4c0-5.4,4.4-9.9,9.9-9.9s9.9,4.4,9.9,9.9
+		c0,5.5-4.4,9.9-9.9,9.9S96.3,138.9,96.3,133.4"/>
 	<path id="path7707_30_" inkscape:connector-curvature="0" class="st32" d="M100.6,133.4c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
 		s-2.5,5.6-5.6,5.6S100.6,136.5,100.6,133.4"/>
 	<path id="path7711_30_" inkscape:connector-curvature="0" class="st32" d="M105.3,128.2h2v-4.5c-0.4-0.1-0.7-0.1-1.1-0.1
@@ -428,10 +428,10 @@
 	<path id="path7711_1_" inkscape:connector-curvature="0" class="st32" d="M201.7,120.8c-0.5,0-1-0.1-1.4-0.1c-0.6,0-1.2,0-1.8,0.1
 		v7.2h3.2V120.8z"/>
 </g>
-<text transform="matrix(0.9063 -0.4226 0.4226 0.9063 25.0677 150.5046)" class="st6 st7 st9">Shaper</text>
-<text transform="matrix(0.9063 -0.4226 0.4226 0.9063 34.1939 157.2153)" class="st6 st7 st9">Type</text>
+<text transform="matrix(0.9063 -0.4226 0.4226 0.9063 25.0677 150.5045)" class="st6 st7 st9">Shaper</text>
+<text transform="matrix(0.9063 -0.4226 0.4226 0.9063 34.1939 157.2152)" class="st6 st7 st9">Type</text>
 <text transform="matrix(0.9063 0.4226 -0.4226 0.9063 248.3268 138.6588)" class="st6 st7 st9">Shaper</text>
-<text transform="matrix(0.9063 0.4226 -0.4226 0.9063 246.2335 148.4874)" class="st6 st7 st9">Depth</text>
+<text transform="matrix(0.9063 0.4226 -0.4226 0.9063 246.2336 148.4874)" class="st6 st7 st9">Depth</text>
 <g id="layer1_56_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path7255_31_" inkscape:connector-curvature="0" class="st23" d="M296.9,366.8c-5.7,0-10.3-4.6-10.3-10.3
 		s4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3C307.2,362.2,302.6,366.8,296.9,366.8"/>
@@ -472,19 +472,23 @@
 	<path id="path7711_22_" inkscape:connector-curvature="0" class="st33" d="M232.1,310.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
 		v4.5h2V310.6z"/>
 </g>
-<text transform="matrix(1 0 0 1 98.6542 295.6334)" class="st6 st7 st10">Weak</text>
-<text transform="matrix(1 0 0 1 182.687 295.6334)" class="st6 st7 st10">Weak</text>
+<text transform="matrix(1 0 0 1 98.6542 292.6334)" class="st6 st7 st10">Weak</text>
+<text transform="matrix(1 0 0 1 182.687 292.6334)" class="st6 st7 st10">Weak</text>
 <text transform="matrix(1 0 0 1 209.1668 308.6336)" class="st6 st7 st10">Swap</text>
 <text transform="matrix(1 0 0 1 201.9668 316.6336)" class="st6 st7 st10">EH &amp; LPG</text>
 <g id="layer1_67_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path2706_5_" class="st29" d="M258.4,361.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
 		C261.4,368.5,258.4,365.5,258.4,361.8L258.4,361.8z"/>
 </g>
-<text transform="matrix(1 0 0 1 73.9529 308.6092)" class="st6 st7 st10">True</text>
-<text transform="matrix(1 0 0 1 76.4529 316.6092)" class="st6 st7 st10">FM</text>
+<text transform="matrix(1 0 0 1 87.6625 316.6092)" class="st6 st7 st10">True</text>
 <g id="layer1_78_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path2706_9_" class="st29" d="M121.7,361.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
-		C124.7,368.5,121.7,365.5,121.7,361.8L121.7,361.8z"/>
+	<path id="path2706_9_" class="st29" d="M135.4,369.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
+		C138.4,376.5,135.4,373.5,135.4,369.8L135.4,369.8z"/>
+</g>
+<text transform="matrix(1 0 0 1 69.3431 316.6092)" class="st6 st7 st10">Post</text>
+<g id="layer1_87_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	<path id="path2706_11_" class="st29" d="M116.8,369.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
+		C119.8,376.5,116.8,373.5,116.8,369.8L116.8,369.8z"/>
 </g>
 <text transform="matrix(1 0 0 1 114.0189 70.6625)" class="st6 st7 st10">LFO</text>
 <g id="layer1_71_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
@@ -676,8 +680,8 @@
 		s2.3-5.1,5.1-5.1S380.1,157.7,380.1,160.6"/>
 </g>
 <g id="layer1_74_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path7705_30_" inkscape:connector-curvature="0" d="M310.1,133.4c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9s4.4-9.9,9.9-9.9
-		S310.1,128,310.1,133.4"/>
+	<path id="path7705_30_" inkscape:connector-curvature="0" d="M310.1,133.4c0,5.5-4.4,9.9-9.9,9.9s-9.9-4.4-9.9-9.9
+		c0-5.5,4.4-9.9,9.9-9.9S310.1,128,310.1,133.4"/>
 	<path id="path7707_16_" inkscape:connector-curvature="0" class="st32" d="M305.8,133.4c0,3.1-2.5,5.6-5.6,5.6s-5.6-2.5-5.6-5.6
 		s2.5-5.6,5.6-5.6C303.3,127.8,305.8,130.3,305.8,133.4"/>
 	<path id="path7711_16_" inkscape:connector-curvature="0" class="st32" d="M301.1,123.6c-0.3,0-0.6,0-0.9,0c-0.4,0-0.7,0-1.1,0.1
@@ -755,8 +759,8 @@
 </g>
 <line class="st27" x1="192" y1="280" x2="211" y2="261.1"/>
 <g id="layer1_58_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path2706_3_" class="st29" d="M232.1,348.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
-		C235.1,355.5,232.1,352.5,232.1,348.8L232.1,348.8z"/>
+	<path id="path2706_3_" class="st29" d="M232.1,345.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
+		C235.1,352.5,232.1,349.5,232.1,345.8L232.1,345.8z"/>
 </g>
 <g id="layer1_72_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path7255_33_" inkscape:connector-curvature="0" class="st23" d="M300.9,391.8c-5.7,0-10.3-4.6-10.3-10.3
@@ -772,8 +776,8 @@
 </g>
 <line class="st27" x1="108.2" y1="280" x2="88.2" y2="262.1"/>
 <g id="layer1_28_" transform="translate(-46.755712,-68.824694)" inkscape:groupmode="layer" inkscape:label="Layer 1">
-	<path id="path2706_4_" class="st29" d="M148.1,348.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
-		C151.1,355.5,148.1,352.5,148.1,348.8L148.1,348.8z"/>
+	<path id="path2706_4_" class="st29" d="M148.1,345.8c0-3.7,3-6.7,6.7-6.7l0,0c3.7,0,6.7,3,6.7,6.7l0,0c0,3.7-3,6.7-6.7,6.7l0,0
+		C151.1,352.5,148.1,349.5,148.1,345.8L148.1,345.8z"/>
 </g>
 <g id="layer1_39_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path7255_19_" inkscape:connector-curvature="0" class="st23" d="M178.9,391.8c-5.7,0-10.3-4.6-10.3-10.3
@@ -902,14 +906,14 @@
 <line class="st27" x1="259.9" y1="245.3" x2="235.8" y2="243.3"/>
 <g id="layer1_86_" transform="translate(-89.945866,-120.5333)" inkscape:groupmode="layer" inkscape:label="Layer 1">
 	<path id="path7255_37_" inkscape:connector-curvature="0" class="st23" d="M129.9,376.1c-5.7,0-10.3-4.6-10.3-10.3
-		c0-5.7,4.6-10.3,10.3-10.3s10.3,4.6,10.3,10.3S135.5,376.1,129.9,376.1"/>
-	<path id="path7261_37_" inkscape:connector-curvature="0" class="st24" d="M129.9,373.8c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8
-		C137.9,370.3,134.4,373.8,129.9,373.8"/>
+		c0-5.7,4.6-10.3,10.3-10.3c5.7,0,10.3,4.6,10.3,10.3S135.5,376.1,129.9,376.1"/>
+	<path id="path7261_37_" inkscape:connector-curvature="0" class="st24" d="M129.9,373.8c-4.4,0-8-3.6-8-8s3.6-8,8-8
+		c4.4,0,8,3.6,8,8C137.9,370.3,134.4,373.8,129.9,373.8"/>
 	<path id="path1187_37_" inkscape:connector-curvature="0" class="st14" d="M129.9,373.7c-4.3,0-7.7-3.3-7.7-7.3s3.5-7.3,7.7-7.3
 		c4.3,0,7.7,3.3,7.7,7.3S134.1,373.7,129.9,373.7"/>
-	<path id="path861_37_" inkscape:connector-curvature="0" class="st25" d="M135,366.9c0,2.8-2.3,5.2-5.1,5.2c-2.8,0-5.1-2.3-5.1-5.2
+	<path id="path861_37_" inkscape:connector-curvature="0" class="st25" d="M135,366.9c0,2.8-2.3,5.2-5.1,5.2s-5.1-2.3-5.1-5.2
 		c0-2.8,2.3-5.2,5.1-5.2C132.8,361.7,135,364,135,366.9"/>
-	<path id="path7265_37_" inkscape:connector-curvature="0" d="M135,365.9c0,2.8-2.3,5.1-5.1,5.1c-2.8,0-5.1-2.3-5.1-5.1
+	<path id="path7265_37_" inkscape:connector-curvature="0" d="M135,365.9c0,2.8-2.3,5.1-5.1,5.1s-5.1-2.3-5.1-5.1
 		c0-2.8,2.3-5.1,5.1-5.1C132.8,360.7,135,363,135,365.9"/>
 </g>
 <g id="layer1_81_" transform="translate(-53.216485,-90.5345)" inkscape:groupmode="layer" inkscape:label="Layer 1">
