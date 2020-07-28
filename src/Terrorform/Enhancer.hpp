@@ -34,6 +34,7 @@ public:
         __eights = _mm_set1_ps(8.f);
         __sixteens = _mm_set1_ps(16.f);
         __sixtyFour = _mm_set1_ps(64.f);
+        _twoHundred = _mm_set1_ps(200.f);
 
         __negOnes = _mm_set1_ps(-1.f);
         __halfs = _mm_set1_ps(0.5f);
@@ -182,7 +183,7 @@ private:
     }
 
     __m128 overdrive(const __m128& x, const __m128& param) {
-        __a = _mm_mul_ps(__a, __sixtyFour);
+        __a = _mm_mul_ps(__a, _twoHundred);
         __a = _mm_add_ps(param, __ones);
         return vecDriveSignal(x, __a);
     }
@@ -294,7 +295,7 @@ private:
 
     int _mode;
     __m128 __scaler, __updateRate, __stepSize, __counter, __doSample;
-    __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour;
+    __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour, _twoHundred;
     __m128 __halfs, __quarters, __eighths;
     __m128 __a, __b, __x, __y, __z;
     __m128i __xInt, __yInt, __zInt, __aInt;
