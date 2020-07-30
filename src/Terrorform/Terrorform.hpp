@@ -182,8 +182,6 @@ struct Terrorform : Module {
     bool userWaveTableFilled[TFORM_MAX_BANKS];
     char numUserWaveTables = 0;
     std::vector<std::string> userWaveTableNames;
-
-    bool userWavesButtonState, prevUserWavesButtonState;
     bool readFromUserWaves;
 
     // Outputs
