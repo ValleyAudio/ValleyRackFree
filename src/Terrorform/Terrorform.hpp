@@ -684,9 +684,8 @@ struct TerrorformWidget : ModuleWidget {
         "FM3", "FM4", "OBOE", "ALTOSAX",
         "REED", "CELLO_1", "CELLO_2", "VIOLIN",
         "PIANO", "EBASS", "PLUCK", "THEREMIN",
-        "SYMMETRY", "OVERTONE1", "OVERTONE2", "VOICE_1",
-        "VOICE_2", "VOICE_3", "VOICE_4", "VOICE_5",
-        "VOICE_6", "VOX_MACH", "CHIP_1", "CHIP_2",
+        "OVERTONE1", "OVERTONE2", "VOICE_1", "VOICE_2", "VOICE_3", "VOICE_4",
+        "VOICE_5", "VOICE_6", "VOX_MACH", "SYMMETRY", "CHIP_1", "CHIP_2",
         "BITCRUSH1", "BITCRUSH2", "VIDEOGAME", "LINEAR",
         "DISTORT", "GRIT", "GMTRY_1", "GMTRY_2",
         "GMTRY_3", "PLAITS_1", "PLAITS_2", "PLAITS_3"
@@ -699,8 +698,8 @@ struct TerrorformWidget : ModuleWidget {
         "Additive Bank 1", "Additive Bank 2", "Additive Bank 3", "Additive Bank 4", "Folding Sine",
         "Two OP FM Random", "Two OP FM Bank 1", "Two OP FM Bank 2", "FM 1", "FM 2", "FM 3", "FM 4",
         "Oboe", "Alto Sax", "Reed", "Cello 1", "Cello 2", "Violin", "Piano", "Electric Bass", "Pluck",
-        "Theremin", "Symmetry", "Overtone 1", "Overtone 2", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5",
-        "Voice 6", "Vox Machine", "Chip 1", "Chip 2", "Bitcrush 1", "Bircrush 2", "Video Game", "Linear",
+        "Theremin", "Overtone 1", "Overtone 2", "Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5",
+        "Voice 6", "Vox Machine", "Symmetry", "Chip 1", "Chip 2", "Bitcrush 1", "Bircrush 2", "Video Game", "Linear",
         "Distorted", "Grit", "Geometry 1", "Geometry 2", "Geometry 3", "Plaits 1", "Plaits 2", "Plaits 3"
 
     };
