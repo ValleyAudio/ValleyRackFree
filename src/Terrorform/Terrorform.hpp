@@ -174,7 +174,12 @@ struct Terrorform : Module {
     static const int kMaxNumGroups = 4;
     int numActiveChannels = 0;
     int numActiveGroups = 0;
+
+    FreqLUT freqLUT;
     ScanningQuadOsc osc[kMaxNumGroups];
+    VecEnhancer enhancer[kMaxNumGroups];
+    VecLPG lpg[kMaxNumGroups];
+    TFormSubOsc subOsc[kMaxNumGroups];
 
     // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
@@ -190,13 +195,8 @@ struct Terrorform : Module {
     __m128 __phasorOutput[kMaxNumGroups];
     __m128 __shapedPhasorOutput[kMaxNumGroups];
     __m128 __eocOutput[kMaxNumGroups];
-
-    TFormSubOsc subOsc[kMaxNumGroups];
     __m128 __subOscOut;
     __m128 __lpgInput;
-
-    VecEnhancer enhancer[kMaxNumGroups];
-    FreqLUT freqLUT;
 
     float rootBank;
     float rootShapeType;
@@ -283,7 +283,6 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Lowpass Gate
-    VecLPG lpg[kMaxNumGroups];
     dsp::Timer lpgButtonTimer;
     int lpgMode = 0;
     bool lpgButtonPressed = false;
