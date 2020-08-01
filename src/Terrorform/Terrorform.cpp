@@ -69,6 +69,10 @@ Terrorform::Terrorform() {
         osc[i].setShape(0.0);
         osc[i].setShapeMethod(0);
         osc[i].enableSync(true);
+        mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
+        mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
+        rawOutDCBlock[i].setCutoffFreq(2.f);
+        rawOutDCBlock[i].setCutoffFreq(2.f);
     }
     bank = 0;
     shapeType = 0;
@@ -152,6 +156,7 @@ void Terrorform::process(const ProcessArgs &args) {
             maxNumBanks = NUM_TERRORFORM_WAVETABLES;
         }
 
+
         bank = (inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.1f)
                + (inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.1f);
         bank *= (float)(maxNumBanks - 1);
@@ -175,6 +180,8 @@ void Terrorform::process(const ProcessArgs &args) {
         enhanceType = clamp(enhanceType, 0.f, (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1));
         enhanceTypeI = (int)enhanceType;
 
+        lfoModeEnabled = params[LFO_SWITCH_PARAM].getValue() > 0.f;
+
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) lpgMode;
             if(readFromUserWaves) {
@@ -193,6 +200,8 @@ void Terrorform::process(const ProcessArgs &args) {
             enhancer[c].setMode(enhanceTypeI);
             osc[c].setSyncMode(syncChoice);
             osc[c].setPMPostShape(postPMShapeEnabled);
+            mainOutDCBlock[c].setCutoffFreq(lfoModeEnabled ? 0.f : 2.f);
+            rawOutDCBlock[c].setCutoffFreq(lfoModeEnabled ? 0.f : 2.f);
         }
 
         numWavesInTable = osc[0].getNumwaves() - 1.f;
@@ -306,8 +315,6 @@ void Terrorform::process(const ProcessArgs &args) {
         }
     }
     prevTrueFMSwitchValue = trueFMSwitchValue;
-
-    lfoModeEnabled = params[LFO_SWITCH_PARAM].getValue() > 0.f;
 
     if (!zeroFreqEnabled && params[ZERO_SWITCH_PARAM].getValue() > 0.f) {
         for (int i = 0; i < kMaxNumGroups; ++i) {
@@ -425,8 +432,8 @@ void Terrorform::process(const ProcessArgs &args) {
                                     __trigger2, __lpgVelocitySensitiveFlag);
 
 
-        lpg[c].setAttack(_mm_load_ps(attacks + g), true);
-        lpg[c].setDecay(_mm_load_ps(decays + g), true);
+        lpg[c].setAttack(_mm_load_ps(attacks + g), lpgLongTime);
+        lpg[c].setDecay(_mm_load_ps(decays + g), lpgLongTime);
         lpg[c].setTriggerMode(lpgTriggerMode);
 
         // FM
@@ -489,13 +496,13 @@ void Terrorform::process(const ProcessArgs &args) {
             __lpgInput = _mm_add_ps(__mainOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
             __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
-
+        __mainOutput[c] = mainOutDCBlock[c].process(__mainOutput[c]);
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
 
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
         _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(__shapedPhasorOutput[c], __fives));
-        _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), __preEnhanceOutput[c]);
+        _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), rawOutDCBlock[c].process(__preEnhanceOutput[c]));
         _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), _mm_mul_ps(enhancer[c].output, __fives));
         _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(__subOscOut, __fives));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
@@ -516,6 +523,8 @@ void Terrorform::onSampleRateChange() {
         osc[i].setSampleRate(APP->engine->getSampleRate());
         enhancer[i].setSampleRate(APP->engine->getSampleRate());
         lpg[i].setSampleRate(APP->engine->getSampleRate());
+        mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
+        rawOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
     }
 }
 

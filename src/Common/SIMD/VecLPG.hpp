@@ -45,7 +45,6 @@ public:
     }
 
     __m128 process(const __m128& x, const __m128& trigger) {
-        // TODO : Add one shot trigger mode;
         __env = __envelope.process(trigger);
         __vca = _mm_mul_ps(x, __env);
         __cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__env, __env), __env), __maxCutoff);

@@ -180,6 +180,8 @@ struct Terrorform : Module {
     VecEnhancer enhancer[kMaxNumGroups];
     VecLPG lpg[kMaxNumGroups];
     TFormSubOsc subOsc[kMaxNumGroups];
+    VecOnePoleHPFilter mainOutDCBlock[kMaxNumGroups];
+    VecOnePoleHPFilter rawOutDCBlock[kMaxNumGroups];
 
     // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
@@ -371,9 +373,9 @@ struct TerrorformDisplayStyleItem : MenuItem {
     void step() override;
 };
 
-struct TerrorformManagerPanel : OpaqueWidget {
-
-};
+// struct TerrorformManagerPanel : OpaqueWidget {
+//
+// };
 
 struct TerrorformManagerItem : MenuItem {
     std::function<void()> openMenu;
