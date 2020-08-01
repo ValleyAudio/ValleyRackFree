@@ -12,6 +12,7 @@
 #include <pmmintrin.h>
 #include <cmath>
 #include <cstdint>
+#include <ctime>
 #include <vector>
 #include "SIMDUtilities.hpp"
 #include "../Utilities.hpp"

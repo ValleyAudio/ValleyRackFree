@@ -1,5 +1,6 @@
 #pragma once
 #include "../../Valley.hpp"
+#include <functional>
 #include <app/LedDisplay.hpp>
 
 struct TFormTextField : TextField {
