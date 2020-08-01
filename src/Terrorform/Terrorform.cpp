@@ -71,8 +71,10 @@ Terrorform::Terrorform() {
         osc[i].enableSync(true);
         mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
         mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
+        enhancerOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
         rawOutDCBlock[i].setCutoffFreq(2.f);
         rawOutDCBlock[i].setCutoffFreq(2.f);
+        enhancerOutDCBlock[i].setCutoffFreq(2.f);
     }
     bank = 0;
     shapeType = 0;
@@ -496,16 +498,17 @@ void Terrorform::process(const ProcessArgs &args) {
             __lpgInput = _mm_add_ps(__mainOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
             __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
-        __mainOutput[c] = mainOutDCBlock[c].process(__mainOutput[c]);
+
+
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
 
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
         _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(__shapedPhasorOutput[c], __fives));
         _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), rawOutDCBlock[c].process(__preEnhanceOutput[c]));
-        _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), _mm_mul_ps(enhancer[c].output, __fives));
+        _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), enhancerOutDCBlock[c].process(_mm_mul_ps(enhancer[c].output, __fives)));
         _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(__subOscOut, __fives));
-        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), __mainOutput[c]);
+        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), mainOutDCBlock[c].process(__mainOutput[c]));
         _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
     }
 
@@ -525,6 +528,7 @@ void Terrorform::onSampleRateChange() {
         lpg[i].setSampleRate(APP->engine->getSampleRate());
         mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
         rawOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
+        enhancerOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
     }
 }
 

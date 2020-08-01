@@ -182,6 +182,7 @@ struct Terrorform : Module {
     TFormSubOsc subOsc[kMaxNumGroups];
     VecOnePoleHPFilter mainOutDCBlock[kMaxNumGroups];
     VecOnePoleHPFilter rawOutDCBlock[kMaxNumGroups];
+    VecOnePoleHPFilter enhancerOutDCBlock[kMaxNumGroups];
 
     // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
