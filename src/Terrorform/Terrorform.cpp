@@ -36,7 +36,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::LPG_DECAY_CV_1_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV1 Atten.");
     configParam(Terrorform::LPG_DECAY_CV_2_PARAM, -1.0, 1.0, 0.0, "LPG Decay CV2 Atten.");
 
-    configParam(Terrorform::SKEW_PARAM, 0.0, 0.175, 0.0, "Phasor Feedback Skew");
+    configParam(Terrorform::SKEW_PARAM, 0.0, 1.0, 0.0, "Phasor Feedback Skew");
     configParam(Terrorform::SUB_OSC_LEVEL_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Main Level");
     configParam(Terrorform::SUB_OSC_WAVE_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Wave");
 
@@ -111,6 +111,7 @@ Terrorform::Terrorform() {
     enhances = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     attacks = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     decays = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    skew = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
 
     // Fill user wavetables
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
@@ -137,6 +138,7 @@ Terrorform::~Terrorform() {
     aligned_free_16(enhances);
     aligned_free_16(attacks);
     aligned_free_16(decays);
+    aligned_free_16(skew);
 
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
@@ -269,6 +271,9 @@ void Terrorform::process(const ProcessArgs &args) {
         fmAVCAIsConnected = inputs[FM_A_VCA_INPUT].isConnected();
         fmBVCAIsConnected = inputs[FM_B_VCA_INPUT].isConnected();
 
+        skewParam = inputs[SKEW_INPUT].isConnected() ? 0.f : params[SKEW_PARAM].getValue() * 0.18f;
+        skewCV = inputs[SKEW_INPUT].isConnected() ? params[SKEW_PARAM].getValue() : 0.f;
+
         counter = 0;
     }
 
@@ -374,6 +379,9 @@ void Terrorform::process(const ProcessArgs &args) {
         decays[i] = decayParam;
         decays[i] += inputs[DECAY_1_INPUT].getPolyVoltage(i) * decayCV1Depth * 0.1f;
         decays[i] += inputs[DECAY_2_INPUT].getPolyVoltage(i) * decayCV2Depth * 0.1f;
+
+        skew[i] = skewParam;
+        skew[i] += inputs[SKEW_INPUT].getPolyVoltage(i) * skewCV * 0.018f;
     }
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
@@ -461,7 +469,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
         __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
         osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
-        osc[c].__inputPhase = _mm_add_ps(osc[c].__inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_set1_ps(params[SKEW_PARAM].getValue())));
+        osc[c].__inputPhase = _mm_add_ps(osc[c].__inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_load_ps(skew + g)));
 
         __wave = _mm_load_ps(waves + g);
         __shape = _mm_load_ps(shapes + g);

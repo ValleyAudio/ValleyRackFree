@@ -320,7 +320,7 @@ struct Terrorform : Module {
     bool fmB1IsMono, fmB2IsMono;
     bool fmAVCAIsMono, fmBVCAIsMono;
     bool fmAVCAIsConnected, fmBVCAIsConnected;
-    float fmA1Level, fmA2Level, fmB1Level, fmB2Level, fmAVCACV, fmBVCACV;
+    float fmA1Level, fmA2Level, fmB1Level, fmB2Level, fmAVCACV, fmBVCACV, skewParam, skewCV;
     float* fmA1;
     float* fmA2;
     float* fmB1;
@@ -331,6 +331,7 @@ struct Terrorform : Module {
     float* trigger2;
     float* velocity1;
     float* velocity2;
+    float* skew;
     __m128 __fmA, __fmB, __fmSum;
     __m128 __fmAVCA, __fmBVCA;
     __m128 __fmA1Level, __fmA2Level, __fmB1Level, __fmB2Level;
