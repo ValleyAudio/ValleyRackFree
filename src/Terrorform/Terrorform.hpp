@@ -479,9 +479,9 @@ struct TerrorformWidget : ModuleWidget {
     Vec waveCV1Pos = Vec(241, 76);
     Vec waveCV2Pos = Vec(232, 104);
     Vec shapeTypeCV1Pos = Vec(42, 122);
-    Vec shapeTypeCV2Pos = Vec(47, 172);
+    Vec shapeTypeCV2Pos = Vec(46, 169);
     Vec shapeDepthCV1Pos = Vec(258, 122);
-    Vec shapeDepthCV2Pos = Vec(253, 172);
+    Vec shapeDepthCV2Pos = Vec(253, 169);
     Vec enhanceTypeCV1Pos = Vec(33, 190);
     Vec enhanceTypeCV2Pos = Vec(71, 220);
     Vec enhanceDepthCV1Pos = Vec(267, 190);
