@@ -1593,9 +1593,11 @@ void TerrorformWidget::step() {
 
         std::replace(bankStr->begin(), bankStr->end(), ' ', '!');
 
-        if (dynamic_cast<Terrorform*>(module)->readFromUserWaves && !updateBankNames) {
+        if ((dynamic_cast<Terrorform*>(module)->readFromUserWaves != prevReadUserWavesState)
+            && !updateBankNames) {
             updateBankNames = true;
         }
+        prevReadUserWavesState = dynamic_cast<Terrorform*>(module)->readFromUserWaves;
 
         if (updateBankNames) {
             updateBankNames = false;

@@ -669,6 +669,7 @@ struct TerrorformWidget : ModuleWidget {
     unsigned long menuBankChoice = 0;
     bool bankMenuIsOpen = false;
     bool updateBankNames = false;
+    bool prevReadUserWavesState = false;
 
     TFormEditor* editor;
     float *newTable;
