@@ -511,12 +511,13 @@ struct TerrorformWidget : ModuleWidget {
     RoganSmallMustard* lpgDecayCV2;
 
     // Switches
-    LightLEDButton2* lfoButton;
-    LightLEDButton2* zeroFreqButton;
-    LightLEDButton2* userBankButton;
+    LightLEDButtonWithModeText* lfoButton;
+    LightLEDButtonWithModeText* zeroFreqButton;
+    LightLEDButtonWithModeText* userBankButton;
+    LightLEDButtonWithModeText* trueFMButton;
 
-    LightLEDButton2* lpgButton;
-    LightLEDButton2* lpgLongTimeButton;
+    LightLEDButtonWithModeText* lpgButton;
+    LightLEDButtonWithModeText* lpgLongTimeButton;
     LightLEDButton2* lpgVelocityButton;
     LightLEDButton2* lpgTrigButton;
 

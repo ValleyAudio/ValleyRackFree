@@ -40,8 +40,8 @@ Terrorform::Terrorform() {
     configParam(Terrorform::SUB_OSC_LEVEL_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Main Level");
     configParam(Terrorform::SUB_OSC_WAVE_PARAM, 0.0, 1.0, 0.0, "Sub Oscillator Wave");
 
-    configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to enable)");
-    configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Long Time Toggle");
+    configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to toggle)");
+    configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Time Range");
     configParam(Terrorform::LPG_VELOCITY_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Velocity Sensitive Toggle");
     configParam(Terrorform::LPG_TRIGGER_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Toggle");
 
@@ -526,6 +526,7 @@ void Terrorform::process(const ProcessArgs &args) {
     outputs[RAW_OUTPUT].setChannels(numActiveChannels);
     outputs[ENHANCER_OUTPUT].setChannels(numActiveChannels);
     outputs[ENVELOPE_OUTPUT].setChannels(numActiveChannels);
+    // TODO : Make Sub Osc output polyphonic
     outputs[MAIN_OUTPUT].setChannels(numActiveChannels);
 }
 
@@ -1110,10 +1111,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     // LPG Buttons
-    lpgButton = createParamCentered<LightLEDButton2>(lpgModeSwitchPos, module, Terrorform::LPG_MODE_SWITCH_PARAM);
+    lpgButton = createParamCentered<LightLEDButtonWithModeText>(lpgModeSwitchPos, module, Terrorform::LPG_MODE_SWITCH_PARAM);
     addParam(lpgButton);
 
-    lpgLongTimeButton = createParamCentered<LightLEDButton2>(lpgLongTimeSwitchPos, module, Terrorform::LPG_LONG_TIME_SWITCH_PARAM);
+    lpgLongTimeButton = createParamCentered<LightLEDButtonWithModeText>(lpgLongTimeSwitchPos, module, Terrorform::LPG_LONG_TIME_SWITCH_PARAM);
     lpgLongTimeButton->momentary = false;
     addParam(lpgLongTimeButton);
 
@@ -1151,9 +1152,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
 
     {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
+        trueFMButton = createParamCentered<LightLEDButtonWithModeText>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
+        trueFMButton->momentary = false;
+        addChild(trueFMButton);
     }
     {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
@@ -1166,11 +1167,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         addChild(newButton);
     }
 
-    lfoButton = createParamCentered<LightLEDButton2>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
+    lfoButton = createParamCentered<LightLEDButtonWithModeText>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
     lfoButton->momentary = false;
     addParam(lfoButton);
 
-    zeroFreqButton = createParamCentered<LightLEDButton2>(zeroFreqButtonPos, module, Terrorform::ZERO_SWITCH_PARAM);
+    zeroFreqButton = createParamCentered<LightLEDButtonWithModeText>(zeroFreqButtonPos, module, Terrorform::ZERO_SWITCH_PARAM);
     zeroFreqButton->momentary = false;
     addChild(zeroFreqButton);
 
@@ -1180,7 +1181,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     zeroFreqLight = createLightCentered<MediumLight<RedLight>>(zeroFreqButtonPos, module, Terrorform::ZERO_LIGHT);
     addChild(zeroFreqLight);
 
-    userBankButton = createParamCentered<LightLEDButton2>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
+    userBankButton = createParamCentered<LightLEDButtonWithModeText>(userBankSwitchPos, module, Terrorform::USER_BANK_SWITCH_PARAM);
     userBankButton->momentary = false;
     addParam(userBankButton);
 
@@ -1629,6 +1630,49 @@ void TerrorformWidget::step() {
         // Report slots filled to editor
         for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
             editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
+        }
+
+        // Button mode text
+        if (lfoButton->paramQuantity->getValue()) {
+            lfoButton->setModeText("On");
+        }
+        else {
+            lfoButton->setModeText("Off");
+        }
+
+        if (zeroFreqButton->paramQuantity->getValue()) {
+            zeroFreqButton->setModeText("On");
+        }
+        else {
+            zeroFreqButton->setModeText("Off");
+        }
+
+        if (userBankButton->paramQuantity->getValue()) {
+            userBankButton->setModeText("Yes");
+        }
+        else {
+            userBankButton->setModeText("No");
+        }
+
+        if (lpgLongTimeButton->paramQuantity->getValue()) {
+            lpgLongTimeButton->setModeText("Long");
+        }
+        else {
+            lpgLongTimeButton->setModeText("Short");
+        }
+
+        switch (dynamic_cast<Terrorform*>(module)->lpgMode) {
+            case 1: lpgButton->setModeText("VCA"); break;
+            case 2: lpgButton->setModeText("VCF"); break;
+            case 3: lpgButton->setModeText("VCA + VCF"); break;
+            default: lpgButton->setModeText("Bypassed"); break;
+        }
+
+        if (trueFMButton->paramQuantity->getValue()) {
+            trueFMButton->setModeText("True FM");
+        }
+        else {
+            trueFMButton->setModeText("Phase Mod");
         }
     }
     Widget::step();
