@@ -42,8 +42,8 @@ Terrorform::Terrorform() {
 
     configParam(Terrorform::LPG_MODE_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Mode (Hold to toggle)");
     configParam(Terrorform::LPG_LONG_TIME_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Time Range");
-    configParam(Terrorform::LPG_VELOCITY_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Velocity Sensitive Toggle");
-    configParam(Terrorform::LPG_TRIGGER_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Toggle");
+    configParam(Terrorform::LPG_VELOCITY_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Velocity Sensitivity");
+    configParam(Terrorform::LPG_TRIGGER_SWITCH_PARAM, 0.0, 1.0, 0.0, "LPG Trigger Mode");
 
     configParam(Terrorform::FM_A1_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A1 Level");
     configParam(Terrorform::FM_A2_ATTEN_PARAM, 0.0, 1.0, 0.0, "FM A2 Level");
@@ -56,11 +56,11 @@ Terrorform::Terrorform() {
     configParam(Terrorform::WEAK_SYNC_2_SWITCH_PARAM, 0.0, 1.0, 0.0, "Weak Sync 2");
 
     configParam(Terrorform::USER_BANK_SWITCH_PARAM, 0.0, 1.0, 0.0, "User Waves");
-    configParam(Terrorform::TRUE_FM_SWITCH_PARAM, 0.0, 1.0, 0.0, "True FM Mode");
-    configParam(Terrorform::SWAP_SWITCH_PARAM, 0.0, 1.0, 0.0, "Swap Enhancer and LPG order");
+    configParam(Terrorform::TRUE_FM_SWITCH_PARAM, 0.0, 1.0, 0.0, "FM Mode");
+    configParam(Terrorform::SWAP_SWITCH_PARAM, 0.0, 1.0, 0.0, "Enhancer & LPG order");
     configParam(Terrorform::LFO_SWITCH_PARAM, 0.0, 1.0, 0.0, "LFO Mode");
     configParam(Terrorform::ZERO_SWITCH_PARAM, 0.0, 1.0, 0.0, "Zero Frequency Mode");
-    configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Shape Post Phase Mod");
+    configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Phasor shaping");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
@@ -1011,6 +1011,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(syncBlurText2);
     addChild(syncText);
 
+    // Yeaaaahhhh I know all display stuff should be wrapped up in a class.
+    // I'll tidy up my room later mum!
     if (module) {
         auto setOnHoverColour = [=](DynamicText* backText, DynamicText* frontText,
                                     DynamicText* blurText1, DynamicText* blurText2) {
@@ -1118,14 +1120,25 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     lpgLongTimeButton->momentary = false;
     addParam(lpgLongTimeButton);
 
-    lpgVelocityButton = createParamCentered<LightLEDButton2>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELOCITY_SWITCH_PARAM);
+    lpgVelocityButton = createParamCentered<LightLEDButtonWithModeText>(lpgVelocitySwitchPos, module, Terrorform::LPG_VELOCITY_SWITCH_PARAM);
     lpgVelocityButton->momentary = false;
     addParam(lpgVelocityButton);
 
-    lpgTrigButton = createParamCentered<LightLEDButton2>(lpgTrigSwitchPos, module, Terrorform::LPG_TRIGGER_SWITCH_PARAM);
+    lpgTrigButton = createParamCentered<LightLEDButtonWithModeText>(lpgTrigSwitchPos, module, Terrorform::LPG_TRIGGER_SWITCH_PARAM);
     lpgTrigButton->momentary = false;
     addParam(lpgTrigButton);
 
+    phasorShapingOrderButton = createParamCentered<LightLEDButtonWithModeText>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
+    phasorShapingOrderButton->momentary = false;
+    addChild(phasorShapingOrderButton);
+
+    trueFMButton = createParamCentered<LightLEDButtonWithModeText>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
+    trueFMButton->momentary = false;
+    addChild(trueFMButton);
+
+    swapButton = createParamCentered<LightLEDButtonWithModeText>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
+    swapButton->momentary = false;
+    addChild(swapButton);
 
     lpgButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
     addChild(lpgButtonLight);
@@ -1147,22 +1160,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     }
     {
         LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
-
-    {
-        trueFMButton = createParamCentered<LightLEDButtonWithModeText>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
-        trueFMButton->momentary = false;
-        addChild(trueFMButton);
-    }
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
         newButton->momentary = false;
         addChild(newButton);
     }
@@ -1632,7 +1629,7 @@ void TerrorformWidget::step() {
             editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
         }
 
-        // Button mode text
+        // LFO button tooltip
         if (lfoButton->paramQuantity->getValue()) {
             lfoButton->setModeText("On");
         }
@@ -1640,6 +1637,7 @@ void TerrorformWidget::step() {
             lfoButton->setModeText("Off");
         }
 
+        // Zero freq button tooltip
         if (zeroFreqButton->paramQuantity->getValue()) {
             zeroFreqButton->setModeText("On");
         }
@@ -1647,6 +1645,7 @@ void TerrorformWidget::step() {
             zeroFreqButton->setModeText("Off");
         }
 
+        // User bank button tooltip
         if (userBankButton->paramQuantity->getValue()) {
             userBankButton->setModeText("Yes");
         }
@@ -1654,6 +1653,15 @@ void TerrorformWidget::step() {
             userBankButton->setModeText("No");
         }
 
+        // LPG mode button tooltip
+        switch (dynamic_cast<Terrorform*>(module)->lpgMode) {
+            case 1: lpgButton->setModeText("\nVCA"); break;
+            case 2: lpgButton->setModeText("\nVCF"); break;
+            case 3: lpgButton->setModeText("\nVCA + VCF"); break;
+            default: lpgButton->setModeText("\nBypassed"); break;
+        }
+
+        // LPG long time button tooltip
         if (lpgLongTimeButton->paramQuantity->getValue()) {
             lpgLongTimeButton->setModeText("Long");
         }
@@ -1661,18 +1669,44 @@ void TerrorformWidget::step() {
             lpgLongTimeButton->setModeText("Short");
         }
 
-        switch (dynamic_cast<Terrorform*>(module)->lpgMode) {
-            case 1: lpgButton->setModeText("VCA"); break;
-            case 2: lpgButton->setModeText("VCF"); break;
-            case 3: lpgButton->setModeText("VCA + VCF"); break;
-            default: lpgButton->setModeText("Bypassed"); break;
+        // LPG velocity sense button tooltip
+        if (lpgVelocityButton->paramQuantity->getValue()) {
+            lpgVelocityButton->setModeText("On");
+        }
+        else {
+            lpgVelocityButton->setModeText("Off (Full level)");
         }
 
+        // LPG trigger button tooltip
+        if (lpgTrigButton->paramQuantity->getValue()) {
+            lpgTrigButton->setModeText("On (Triggered)");
+        }
+        else {
+            lpgTrigButton->setModeText("Off (Gated)");
+        }
+
+        // Phasor shaping order button tooltip
+        if (phasorShapingOrderButton->paramQuantity->getValue()) {
+            phasorShapingOrderButton->setModeText("\nPost phase mod");
+        }
+        else {
+            phasorShapingOrderButton->setModeText("\nPre phase mod");
+        }
+
+        // FM mode button tooltip
         if (trueFMButton->paramQuantity->getValue()) {
             trueFMButton->setModeText("True FM");
         }
         else {
             trueFMButton->setModeText("Phase Mod");
+        }
+
+        // Enhancer-LPG swap button tooltip
+        if (swapButton->paramQuantity->getValue()) {
+            swapButton->setModeText("\nLPG -> Enhancer");
+        }
+        else {
+            swapButton->setModeText("\nEnhancer -> LPGswapButton");
         }
     }
     Widget::step();

@@ -514,12 +514,14 @@ struct TerrorformWidget : ModuleWidget {
     LightLEDButtonWithModeText* lfoButton;
     LightLEDButtonWithModeText* zeroFreqButton;
     LightLEDButtonWithModeText* userBankButton;
+    LightLEDButtonWithModeText* phasorShapingOrderButton;
     LightLEDButtonWithModeText* trueFMButton;
+    LightLEDButtonWithModeText* swapButton;
 
     LightLEDButtonWithModeText* lpgButton;
     LightLEDButtonWithModeText* lpgLongTimeButton;
-    LightLEDButton2* lpgVelocityButton;
-    LightLEDButton2* lpgTrigButton;
+    LightLEDButtonWithModeText* lpgVelocityButton;
+    LightLEDButtonWithModeText* lpgTrigButton;
 
     MediumLight<RedLight>* lfoButtonLight;
     MediumLight<RedLight>* zeroFreqLight;
