@@ -61,6 +61,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::LFO_SWITCH_PARAM, 0.0, 1.0, 0.0, "LFO Mode");
     configParam(Terrorform::ZERO_SWITCH_PARAM, 0.0, 1.0, 0.0, "Zero Frequency Mode");
     configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Phasor shaping");
+    configParam(Terrorform::DISPLAY_CV_SWITCH_PARAM, 0.0, 1.0, 0.0, "Display CV Offset");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
@@ -107,8 +108,11 @@ Terrorform::Terrorform() {
 
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    wavesCV = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     shapes = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    shapesCV = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     enhances = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
+    enhancesCV = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     attacks = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     decays = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     skew = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
@@ -134,8 +138,11 @@ Terrorform::Terrorform() {
 Terrorform::~Terrorform() {
     aligned_free_16(freqs);
     aligned_free_16(waves);
+    aligned_free_16(wavesCV);
     aligned_free_16(shapes);
+    aligned_free_16(shapesCV);
     aligned_free_16(enhances);
+    aligned_free_16(enhancesCV);
     aligned_free_16(attacks);
     aligned_free_16(decays);
     aligned_free_16(skew);
@@ -160,29 +167,36 @@ void Terrorform::process(const ProcessArgs &args) {
             maxNumBanks = NUM_TERRORFORM_WAVETABLES;
         }
 
+        displayCV = params[DISPLAY_CV_SWITCH_PARAM].getValue() > 0.5f;
 
-        bank = (inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.1f)
+        rootBank = params[BANK_PARAM].getValue();
+        bankCV = (inputs[BANK_INPUT_1].getVoltage() * params[BANK_CV_1_PARAM].getValue() * 0.1f)
                + (inputs[BANK_INPUT_2].getVoltage() * params[BANK_CV_2_PARAM].getValue() * 0.1f);
-        bank *= (float)(maxNumBanks - 1);
-        bank += params[BANK_PARAM].getValue();
+        bankCV *= (float)(maxNumBanks - 1);
+        bank = bankCV + rootBank;
         bank = clamp(bank, 0.f, (float)(maxNumBanks - 1));
         bankI = (int)bank;
+        bankDisplay = displayCV ? bank : rootBank;
 
-        shapeType = (inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.1f)
+        rootShapeType = params[SHAPE_TYPE_PARAM].getValue();
+        shapeTypeCV = (inputs[SHAPE_TYPE_INPUT_1].getVoltage() * params[SHAPE_TYPE_CV_1_PARAM].getValue() * 0.1f)
                     + (inputs[SHAPE_TYPE_INPUT_2].getVoltage() * params[SHAPE_TYPE_CV_2_PARAM].getValue() * 0.1f);
-        shapeType *= (Shaper::Modes::NUM_MODES - 1.f);
-        shapeType += params[SHAPE_TYPE_PARAM].getValue();
+        shapeTypeCV *= (Shaper::Modes::NUM_MODES - 1.f);
+        shapeType = shapeTypeCV + rootShapeType;
         shapeType = clamp(shapeType, 0.f, Shaper::Modes::NUM_MODES - 1.f);
         shapeTypeI = (int)phasorShapeMap[(int)shapeType];
+        shapeDisplay = displayCV ? shapeType : rootShapeType;
 
         postPMShapeEnabled = params[POST_PM_SHAPE_PARAM].getValue() > 0.f;
 
-        enhanceType = (inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.1f)
+        rootEnhanceType = params[ENHANCE_TYPE_PARAM].getValue();
+        enhanceTypeCV = (inputs[ENHANCE_TYPE_INPUT_1].getVoltage() * params[ENHANCE_TYPE_CV_1_PARAM].getValue() * 0.1f)
                       + (inputs[ENHANCE_TYPE_INPUT_2].getVoltage() * params[ENHANCE_TYPE_CV_2_PARAM].getValue() * 0.1f);
-        enhanceType *= (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
-        enhanceType += params[ENHANCE_TYPE_PARAM].getValue();
+        enhanceTypeCV *= (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1);
+        enhanceType = enhanceTypeCV + rootEnhanceType;
         enhanceType = clamp(enhanceType, 0.f, (float)(VecEnhancer::VecEnhancerModes::NUM_MODES - 1));
         enhanceTypeI = (int)enhanceType;
+        enhanceDisplay = displayCV ? enhanceType : rootEnhanceType;
 
         lfoModeEnabled = params[LFO_SWITCH_PARAM].getValue() > 0.f;
 
@@ -253,6 +267,7 @@ void Terrorform::process(const ProcessArgs &args) {
         lights[WEAK_SYNC_2_LIGHT].value = (float) weakSync2Enable;
         lights[LFO_LIGHT].value = (float) lfoModeEnabled;
         lights[ZERO_LIGHT].value = (float) zeroFreqEnabled;
+        lights[DISPLAY_CV_LIGHT].value = (float) displayCV;
 
         numActiveChannels = std::max(inputs[VOCT_1_INPUT].getChannels(),
                                      inputs[VOCT_2_INPUT].getChannels());
@@ -359,18 +374,18 @@ void Terrorform::process(const ProcessArgs &args) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
                                         rootPitch);
-        waves[i] = rootWave;
-        waves[i] += inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
-        waves[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
-        waves[i] *= numWavesInTable;
+        wavesCV[i] = inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
+        wavesCV[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
+        waves[i] = (rootWave + wavesCV[i]) * numWavesInTable;
 
-        shapes[i] = rootShapeDepth;
-        shapes[i] += inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV1 * 0.1f;
-        shapes[i] += inputs[SHAPE_DEPTH_INPUT_2].getPolyVoltage(i) * shapeDepthCV2 * 0.1f;
+        // shapes[i] = rootShapeDepth;
+        shapesCV[i] = inputs[SHAPE_DEPTH_INPUT_1].getPolyVoltage(i) * shapeDepthCV1 * 0.1f;
+        shapesCV[i] += inputs[SHAPE_DEPTH_INPUT_2].getPolyVoltage(i) * shapeDepthCV2 * 0.1f;
+        shapes[i] = rootShapeDepth + shapesCV[i];
 
-        enhances[i] = rootEnhanceDepth;
-        enhances[i] += inputs[ENHANCE_DEPTH_INPUT_1].getPolyVoltage(i) * enhanceDepthCV1 * 0.1f;
-        enhances[i] += inputs[ENHANCE_DEPTH_INPUT_2].getPolyVoltage(i) * enhanceDepthCV2 * 0.1f;
+        enhancesCV[i] = inputs[ENHANCE_DEPTH_INPUT_1].getPolyVoltage(i) * enhanceDepthCV1 * 0.1f;
+        enhancesCV[i] += inputs[ENHANCE_DEPTH_INPUT_2].getPolyVoltage(i) * enhanceDepthCV2 * 0.1f;
+        enhances[i] = rootEnhanceDepth + enhancesCV[i];
 
         attacks[i] = attackParam;
         attacks[i] += inputs[ATTACK_1_INPUT].getPolyVoltage(i) * attackCV1Depth * 0.1f;
@@ -383,6 +398,16 @@ void Terrorform::process(const ProcessArgs &args) {
         skew[i] = skewParam;
         skew[i] += inputs[SKEW_INPUT].getPolyVoltage(i) * skewCV * 0.018f;
     }
+
+    // Pass amounts up to display
+    waveAmountDisplay = rootWave;
+    waveAmountDisplay += (displayCV ? wavesCV[0] : 0.f);
+
+    shapeAmountDisplay = rootShapeDepth;
+    shapeAmountDisplay += (displayCV ? shapesCV[0] : 0.f);
+
+    enhanceAmountDisplay = rootEnhanceDepth;
+    enhanceAmountDisplay += (displayCV ? enhancesCV[0] : 0.f);
 
     sync1 = inputs[SYNC_1_INPUT].getVoltages();
     sync2 = inputs[SYNC_2_INPUT].getVoltages();
@@ -506,7 +531,6 @@ void Terrorform::process(const ProcessArgs &args) {
             __lpgInput = _mm_add_ps(__mainOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
             __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
-
 
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
 
@@ -716,6 +740,10 @@ void TerrorformDisplayStyleItem::step() {
 
 void TerrorformManagerItem::onAction(const event::Action &e) {
     openMenu();
+}
+
+void TerrorformDisplayCVItem::onAction(const event::Action &e) {
+    module->displayCV ^= true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1012,7 +1040,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(syncText);
 
     // Yeaaaahhhh I know all display stuff should be wrapped up in a class.
-    // I'll tidy up my room later mum!
+    // I'll tidy my room later mum!
     if (module) {
         auto setOnHoverColour = [=](DynamicText* backText, DynamicText* frontText,
                                     DynamicText* blurText1, DynamicText* blurText2) {
@@ -1128,18 +1156,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     lpgTrigButton->momentary = false;
     addParam(lpgTrigButton);
 
-    phasorShapingOrderButton = createParamCentered<LightLEDButtonWithModeText>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
-    phasorShapingOrderButton->momentary = false;
-    addChild(phasorShapingOrderButton);
-
-    trueFMButton = createParamCentered<LightLEDButtonWithModeText>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
-    trueFMButton->momentary = false;
-    addChild(trueFMButton);
-
-    swapButton = createParamCentered<LightLEDButtonWithModeText>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
-    swapButton->momentary = false;
-    addChild(swapButton);
-
     lpgButtonLight = createLightCentered<MediumLight<RedGreenBlueLight>>(lpgModeSwitchPos, module, Terrorform::LPG_RED_LIGHT);
     addChild(lpgButtonLight);
 
@@ -1153,16 +1169,25 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(lpgTrigButtonLight);
 
     // Sync, FM, and Enhancer Buttons
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
-    {
-        LightLEDButton* newButton = createParamCentered<LightLEDButton>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM);
-        newButton->momentary = false;
-        addChild(newButton);
-    }
+    weakSync1Button = createParamCentered<LightLEDButtonWithModeText>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM);
+    weakSync1Button->momentary = false;
+    addChild(weakSync1Button);
+
+    weakSync2Button = createParamCentered<LightLEDButtonWithModeText>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM);
+    weakSync2Button->momentary = false;
+    addChild(weakSync2Button);
+
+    phasorShapingOrderButton = createParamCentered<LightLEDButtonWithModeText>(postPMShapeButtonPos, module, Terrorform::POST_PM_SHAPE_PARAM);
+    phasorShapingOrderButton->momentary = false;
+    addChild(phasorShapingOrderButton);
+
+    trueFMButton = createParamCentered<LightLEDButtonWithModeText>(trueFMButtonPos, module, Terrorform::TRUE_FM_SWITCH_PARAM);
+    trueFMButton->momentary = false;
+    addChild(trueFMButton);
+
+    swapButton = createParamCentered<LightLEDButtonWithModeText>(swapButtonPos, module, Terrorform::SWAP_SWITCH_PARAM);
+    swapButton->momentary = false;
+    addChild(swapButton);
 
     lfoButton = createParamCentered<LightLEDButtonWithModeText>(lfoButtonPos, module, Terrorform::LFO_SWITCH_PARAM);
     lfoButton->momentary = false;
@@ -1184,6 +1209,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     userBankLight = createLightCentered<MediumLight<RedLight>>(userBankSwitchPos, module, Terrorform::USER_BANK_LIGHT);
     addChild(userBankLight);
+
+    displayCVButton = createParamCentered<LightLEDButtonWithModeText>(displayCVSwitchPos, module, Terrorform::DISPLAY_CV_SWITCH_PARAM);
+    displayCVButton->momentary = false;
+    addParam(displayCVButton);
+
+    displayCVLight = createLightCentered<MediumLight<RedLight>>(displayCVSwitchPos, module, Terrorform::DISPLAY_CV_LIGHT);
+    addChild(displayCVLight);
 
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch1Pos, module, Terrorform::WEAK_SYNC_1_LIGHT));
     addChild(createLightCentered<MediumLight<RedLight>>(weakSyncSwitch2Pos, module, Terrorform::WEAK_SYNC_2_LIGHT));
@@ -1418,62 +1450,6 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     Terrorform *module = dynamic_cast<Terrorform*>(this->module);
     assert(module);
 
-    // Panel style items
-    menu->addChild(construct<MenuLabel>());
-
-    MenuLabel* panelStyleLabel = new MenuLabel;
-    panelStyleLabel->text = "Panel style";
-    menu->addChild(panelStyleLabel);
-
-    TerrorformPanelStyleItem* darkPanelStyleItem = new TerrorformPanelStyleItem;
-    darkPanelStyleItem->text = "Dark";
-    darkPanelStyleItem->module = module;
-    darkPanelStyleItem->panelStyle = 0;
-    menu->addChild(darkPanelStyleItem);
-
-    TerrorformPanelStyleItem* lightPanelStyleItem = new TerrorformPanelStyleItem;
-    lightPanelStyleItem->text = "Light";
-    lightPanelStyleItem->module = module;
-    lightPanelStyleItem->panelStyle = 1;
-    menu->addChild(lightPanelStyleItem);
-
-    // Display style items
-    menu->addChild(construct<MenuLabel>());
-
-    MenuLabel* displayStyleLabel = new MenuLabel;
-    displayStyleLabel->text = "Display style";
-    menu->addChild(displayStyleLabel);
-
-    TerrorformDisplayStyleItem* redLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
-    redLEDDisplayStyleItem->text = "Red LED";
-    redLEDDisplayStyleItem->module = module;
-    redLEDDisplayStyleItem->displayStyle = 0;
-    menu->addChild(redLEDDisplayStyleItem);
-
-    TerrorformDisplayStyleItem* yellowLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
-    yellowLEDDisplayStyleItem->text = "Yellow LED";
-    yellowLEDDisplayStyleItem->module = module;
-    yellowLEDDisplayStyleItem->displayStyle = 1;
-    menu->addChild(yellowLEDDisplayStyleItem);
-
-    TerrorformDisplayStyleItem* greenLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
-    greenLEDDisplayStyleItem->text = "Green LED";
-    greenLEDDisplayStyleItem->module = module;
-    greenLEDDisplayStyleItem->displayStyle = 2;
-    menu->addChild(greenLEDDisplayStyleItem);
-
-    TerrorformDisplayStyleItem* blueLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
-    blueLEDDisplayStyleItem->text = "Blue LED";
-    blueLEDDisplayStyleItem->module = module;
-    blueLEDDisplayStyleItem->displayStyle = 3;
-    menu->addChild(blueLEDDisplayStyleItem);
-
-    TerrorformDisplayStyleItem* whiteLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
-    whiteLEDDisplayStyleItem->text = "White LED";
-    whiteLEDDisplayStyleItem->module = module;
-    whiteLEDDisplayStyleItem->displayStyle = 4;
-    menu->addChild(whiteLEDDisplayStyleItem);
-
     // Manager item
     menu->addChild(construct<MenuLabel>());
 
@@ -1481,6 +1457,7 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     managerLabel->text = "User Bank Manager";
     menu->addChild(managerLabel);
 
+    // Yeah, don't ask :')
     TerrorformManagerItem* managerItem = new TerrorformManagerItem;
     managerItem->text = "Open";
     managerItem->openMenu = [=]() {
@@ -1559,156 +1536,239 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         inEditorMode = true;
     };
     menu->addChild(managerItem);
+
+    // Display style items
+    menu->addChild(construct<MenuLabel>());
+
+    MenuLabel* displayStyleLabel = new MenuLabel;
+    displayStyleLabel->text = "Display style";
+    menu->addChild(displayStyleLabel);
+
+    TerrorformDisplayStyleItem* redLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    redLEDDisplayStyleItem->text = "Red LED";
+    redLEDDisplayStyleItem->module = module;
+    redLEDDisplayStyleItem->displayStyle = 0;
+    menu->addChild(redLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* yellowLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    yellowLEDDisplayStyleItem->text = "Yellow LED";
+    yellowLEDDisplayStyleItem->module = module;
+    yellowLEDDisplayStyleItem->displayStyle = 1;
+    menu->addChild(yellowLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* greenLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    greenLEDDisplayStyleItem->text = "Green LED";
+    greenLEDDisplayStyleItem->module = module;
+    greenLEDDisplayStyleItem->displayStyle = 2;
+    menu->addChild(greenLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* blueLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    blueLEDDisplayStyleItem->text = "Blue LED";
+    blueLEDDisplayStyleItem->module = module;
+    blueLEDDisplayStyleItem->displayStyle = 3;
+    menu->addChild(blueLEDDisplayStyleItem);
+
+    TerrorformDisplayStyleItem* whiteLEDDisplayStyleItem = new TerrorformDisplayStyleItem;
+    whiteLEDDisplayStyleItem->text = "White LED";
+    whiteLEDDisplayStyleItem->module = module;
+    whiteLEDDisplayStyleItem->displayStyle = 4;
+    menu->addChild(whiteLEDDisplayStyleItem);
+
+    // Panel style items
+    menu->addChild(construct<MenuLabel>());
+
+    MenuLabel* panelStyleLabel = new MenuLabel;
+    panelStyleLabel->text = "Panel style";
+    menu->addChild(panelStyleLabel);
+
+    TerrorformPanelStyleItem* darkPanelStyleItem = new TerrorformPanelStyleItem;
+    darkPanelStyleItem->text = "Dark";
+    darkPanelStyleItem->module = module;
+    darkPanelStyleItem->panelStyle = 0;
+    menu->addChild(darkPanelStyleItem);
+
+    TerrorformPanelStyleItem* lightPanelStyleItem = new TerrorformPanelStyleItem;
+    lightPanelStyleItem->text = "Light";
+    lightPanelStyleItem->module = module;
+    lightPanelStyleItem->panelStyle = 1;
+    menu->addChild(lightPanelStyleItem);
  }
 
 void TerrorformWidget::step() {
-    if (module) {
-        int panelStyleOffset = dynamic_cast<Terrorform*>(module)->panelStyle;
-        for (auto i = 0; i < NUM_TRRFORM_PANELS; ++i) {
-            panels[i]->visible = false;
-        }
-        if (inEditorMode) {
-            panels[TRRFORM_DARK_PANEL_EDITOR + panelStyleOffset]->visible = true;
-        }
-        else {
-            panels[TRRFORM_DARK_PANEL_NORMAL + panelStyleOffset]->visible = true;
-        }
+    if (module == nullptr) {
+        Widget::step();
+        return;
+    }
 
-        displayStyle = (TerrorformDisplayColourModes)(dynamic_cast<Terrorform*>(module)->displayStyle * 2);
-        if (displayStyle != prevDisplayStyle) {
-            changeDisplayStyle();
-        }
-        prevDisplayStyle = displayStyle;
+    Terrorform* tform = dynamic_cast<Terrorform*>(module);
 
-        // Display params
-        bankChoice = (int)(bankKnob->paramQuantity->getValue());
-        if (userBankButton->paramQuantity->getValue() > 0.5f) {
-            *bankStr = dynamic_cast<Terrorform*>(module)->userWaveTableNames[bankChoice];
-        }
-        else {
-            *bankStr = bankNames[bankChoice];
-        }
+    int panelStyleOffset = tform->panelStyle;
+    for (auto i = 0; i < NUM_TRRFORM_PANELS; ++i) {
+        panels[i]->visible = false;
+    }
+    if (inEditorMode) {
+        panels[TRRFORM_DARK_PANEL_EDITOR + panelStyleOffset]->visible = true;
+    }
+    else {
+        panels[TRRFORM_DARK_PANEL_NORMAL + panelStyleOffset]->visible = true;
+    }
 
-        std::replace(bankStr->begin(), bankStr->end(), ' ', '!');
+    displayStyle = (TerrorformDisplayColourModes)(tform->displayStyle * 2);
+    if (displayStyle != prevDisplayStyle) {
+        changeDisplayStyle();
+    }
+    prevDisplayStyle = displayStyle;
 
-        if ((dynamic_cast<Terrorform*>(module)->readFromUserWaves != prevReadUserWavesState)
-            && !updateBankNames) {
-            updateBankNames = true;
-        }
-        prevReadUserWavesState = dynamic_cast<Terrorform*>(module)->readFromUserWaves;
+    // Display params
+    bankChoice = tform->bankDisplay;
+    if (userBankButton->paramQuantity->getValue() > 0.5f) {
+        *bankStr = tform->userWaveTableNames[bankChoice];
+    }
+    else {
+        *bankStr = bankNames[bankChoice];
+    }
 
-        if (updateBankNames) {
-            updateBankNames = false;
-            if(dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
-                bankMenu->_items = dynamic_cast<Terrorform*>(module)->userWaveTableNames;
-            }
-            else if (!dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
-                bankMenu->_items = bankMenuItems;
-            }
-        }
+    std::replace(bankStr->begin(), bankStr->end(), ' ', '!');
 
-        wavePercent = (int)(waveKnob->paramQuantity->getValue() * 100.f);
-        *waveStr = std::to_string(wavePercent);
+    if ((tform->readFromUserWaves != prevReadUserWavesState)
+        && !updateBankNames) {
+        updateBankNames = true;
+    }
+    prevReadUserWavesState = tform->readFromUserWaves;
 
-        *shapeTypeStr = shapeNames[(int)(shapeTypeKnob->paramQuantity->getValue())];
-        shapeDepthPercent = (int)(shapeDepthKnob->paramQuantity->getValue() * 100.f);
-        *shapeDepthStr = std::to_string(shapeDepthPercent);
-
-        *enhanceTypeStr = enhanceNames[(int)(enhanceTypeKnob->paramQuantity->getValue())];
-        enhanceDepthPercent = (int)(enhanceDepthKnob->paramQuantity->getValue() * 100.f);
-        *enhanceDepthStr = std::to_string(enhanceDepthPercent);
-
-        int syncChoice = (int)dynamic_cast<Terrorform*>(module)->syncChoice;
-        *syncStr = syncNames[syncChoice];
-        if (syncMenu->_choice != syncChoice) {
-            syncMenu->_choice = syncChoice;
+    if (updateBankNames) {
+        updateBankNames = false;
+        if(tform->readFromUserWaves) {
+            bankMenu->_items = tform->userWaveTableNames;
         }
-
-        // Report slots filled to editor
-        for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
-            editor->setSlotFilledFlag(i, dynamic_cast<Terrorform*>(module)->userWaveTableFilled[i]);
-        }
-
-        // LFO button tooltip
-        if (lfoButton->paramQuantity->getValue()) {
-            lfoButton->setModeText("On");
-        }
-        else {
-            lfoButton->setModeText("Off");
-        }
-
-        // Zero freq button tooltip
-        if (zeroFreqButton->paramQuantity->getValue()) {
-            zeroFreqButton->setModeText("On");
-        }
-        else {
-            zeroFreqButton->setModeText("Off");
-        }
-
-        // User bank button tooltip
-        if (userBankButton->paramQuantity->getValue()) {
-            userBankButton->setModeText("Yes");
-        }
-        else {
-            userBankButton->setModeText("No");
-        }
-
-        // LPG mode button tooltip
-        switch (dynamic_cast<Terrorform*>(module)->lpgMode) {
-            case 1: lpgButton->setModeText("\nVCA"); break;
-            case 2: lpgButton->setModeText("\nVCF"); break;
-            case 3: lpgButton->setModeText("\nVCA + VCF"); break;
-            default: lpgButton->setModeText("\nBypassed"); break;
-        }
-
-        // LPG long time button tooltip
-        if (lpgLongTimeButton->paramQuantity->getValue()) {
-            lpgLongTimeButton->setModeText("Long");
-        }
-        else {
-            lpgLongTimeButton->setModeText("Short");
-        }
-
-        // LPG velocity sense button tooltip
-        if (lpgVelocityButton->paramQuantity->getValue()) {
-            lpgVelocityButton->setModeText("On");
-        }
-        else {
-            lpgVelocityButton->setModeText("Off (Full level)");
-        }
-
-        // LPG trigger button tooltip
-        if (lpgTrigButton->paramQuantity->getValue()) {
-            lpgTrigButton->setModeText("On (Triggered)");
-        }
-        else {
-            lpgTrigButton->setModeText("Off (Gated)");
-        }
-
-        // Phasor shaping order button tooltip
-        if (phasorShapingOrderButton->paramQuantity->getValue()) {
-            phasorShapingOrderButton->setModeText("\nPost phase mod");
-        }
-        else {
-            phasorShapingOrderButton->setModeText("\nPre phase mod");
-        }
-
-        // FM mode button tooltip
-        if (trueFMButton->paramQuantity->getValue()) {
-            trueFMButton->setModeText("True FM");
-        }
-        else {
-            trueFMButton->setModeText("Phase Mod");
-        }
-
-        // Enhancer-LPG swap button tooltip
-        if (swapButton->paramQuantity->getValue()) {
-            swapButton->setModeText("\nLPG -> Enhancer");
-        }
-        else {
-            swapButton->setModeText("\nEnhancer -> LPGswapButton");
+        else if (!dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
+            bankMenu->_items = bankMenuItems;
         }
     }
+
+    float waveValue = (float)(tform->waveAmountDisplay);
+    wavePercent = (int)(waveValue * 100.f);
+    wavePercent = clamp(wavePercent, 0, 100);
+    *waveStr = std::to_string(wavePercent);
+
+    *shapeTypeStr = shapeNames[(int)(tform->shapeDisplay)];
+    float shapeValue = (float)(tform->shapeAmountDisplay);
+    shapeDepthPercent = (int)(shapeValue * 100.f);
+    shapeDepthPercent = clamp(shapeDepthPercent, 0, 100);
+    *shapeDepthStr = std::to_string(shapeDepthPercent);
+
+    *enhanceTypeStr = enhanceNames[(int)(tform->enhanceDisplay)];
+    float enhanceValue = (float)(tform->enhanceAmountDisplay);
+    enhanceDepthPercent = (int)(enhanceValue * 100.f);
+    enhanceDepthPercent = clamp(enhanceDepthPercent, 0, 100);
+    *enhanceDepthStr = std::to_string(enhanceDepthPercent);
+
+    int syncChoice = (int)tform->syncChoice;
+    *syncStr = syncNames[syncChoice];
+    if (syncMenu->_choice != syncChoice) {
+        syncMenu->_choice = syncChoice;
+    }
+
+    // Report slots filled to editor
+    for (auto i = 0; i < TFORM_MAX_BANKS; ++i) {
+        editor->setSlotFilledFlag(i, tform->userWaveTableFilled[i]);
+    }
+
+    // LFO button tooltip
+    if (lfoButton->paramQuantity->getValue()) {
+        lfoButton->setModeText("On");
+    }
+    else {
+        lfoButton->setModeText("Off");
+    }
+
+    // Zero freq button tooltip
+    if (zeroFreqButton->paramQuantity->getValue()) {
+        zeroFreqButton->setModeText("On");
+    }
+    else {
+        zeroFreqButton->setModeText("Off");
+    }
+
+    // User bank button tooltip
+    if (userBankButton->paramQuantity->getValue()) {
+        userBankButton->setModeText("Yes");
+    }
+    else {
+        userBankButton->setModeText("No");
+    }
+
+    // LPG mode button tooltip
+    switch (tform->lpgMode) {
+        case 1: lpgButton->setModeText("\nVCA"); break;
+        case 2: lpgButton->setModeText("\nVCF"); break;
+        case 3: lpgButton->setModeText("\nVCA + VCF"); break;
+        default: lpgButton->setModeText("\nBypassed"); break;
+    }
+
+    // LPG long time button tooltip
+    if (lpgLongTimeButton->paramQuantity->getValue()) {
+        lpgLongTimeButton->setModeText("Long");
+    }
+    else {
+        lpgLongTimeButton->setModeText("Short");
+    }
+
+    // LPG velocity sense button tooltip
+    if (lpgVelocityButton->paramQuantity->getValue()) {
+        lpgVelocityButton->setModeText("On");
+    }
+    else {
+        lpgVelocityButton->setModeText("Off (Full level)");
+    }
+
+    // LPG trigger button tooltip
+    if (lpgTrigButton->paramQuantity->getValue()) {
+        lpgTrigButton->setModeText("On (Triggered)");
+    }
+    else {
+        lpgTrigButton->setModeText("Off (Gated)");
+    }
+
+    // Phasor shaping order button tooltip
+    if (phasorShapingOrderButton->paramQuantity->getValue()) {
+        phasorShapingOrderButton->setModeText("\nPost phase mod");
+    }
+    else {
+        phasorShapingOrderButton->setModeText("\nPre phase mod");
+    }
+
+    // Weak sync button tooltips
+    if (weakSync1Button->paramQuantity->getValue()) {
+        weakSync1Button->setModeText("On");
+    }
+    else {
+        weakSync1Button->setModeText("Off");
+    }
+
+    if (weakSync2Button->paramQuantity->getValue()) {
+        weakSync2Button->setModeText("On");
+    }
+    else {
+        weakSync2Button->setModeText("Off");
+    }
+
+    // FM mode button tooltip
+    if (trueFMButton->paramQuantity->getValue()) {
+        trueFMButton->setModeText("True FM");
+    }
+    else {
+        trueFMButton->setModeText("Phase Mod");
+    }
+
+    // Enhancer-LPG swap button tooltip
+    if (swapButton->paramQuantity->getValue()) {
+        swapButton->setModeText("\nLPG -> Enhancer");
+    }
+    else {
+        swapButton->setModeText("\nEnhancer -> LPGswapButton");
+    }
+
     Widget::step();
 }
 

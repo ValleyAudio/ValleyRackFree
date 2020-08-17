@@ -144,6 +144,7 @@ struct Terrorform : Module {
         LFO_SWITCH_PARAM,
         ZERO_SWITCH_PARAM,
         POST_PM_SHAPE_PARAM,
+        DISPLAY_CV_SWITCH_PARAM,
         NUM_PARAMS
     };
 
@@ -165,6 +166,7 @@ struct Terrorform : Module {
         LFO_LIGHT,
         ZERO_LIGHT,
         POST_PM_SHAPE_LIGHT,
+        DISPLAY_CV_LIGHT,
         NUM_LIGHTS
     };
 
@@ -207,10 +209,15 @@ struct Terrorform : Module {
 
     int maxNumBanks;
     float bank;
+    float bankCV;
     int bankI;
+
     float shapeType;
+    float shapeTypeCV;
     int shapeTypeI;
+
     float enhanceType;
+    float enhanceTypeCV;
     int enhanceTypeI;
 
     float rootPitch;
@@ -220,12 +227,21 @@ struct Terrorform : Module {
     float pitchCV2;
 
     float rootWave;
+    float* wavesCV;
     float* waves;
     float numWavesInTable;
     __m128 __wave;
     __m128 __numWavesInTable;
     float bankCV1, bankCV2;
     float waveCV1, waveCV2;
+
+    float bankDisplay;
+    float shapeDisplay;
+    float enhanceDisplay;
+
+    float waveAmountDisplay;
+    float shapeAmountDisplay;
+    float enhanceAmountDisplay;
 
     Shaper::Modes phasorShapeMap[Shaper::Modes::NUM_MODES] = {
         Shaper::Modes::BEND_MODE,
@@ -259,12 +275,14 @@ struct Terrorform : Module {
 
     float rootShapeDepth;
     float* shapes;
+    float* shapesCV;
     __m128 __shape;
     float shapeDepthCV1;
     float shapeDepthCV2;
 
     float rootEnhanceDepth;
     float* enhances;
+    float* enhancesCV;
     __m128 __enhance;
     float enhanceDepthCV1;
     float enhanceDepthCV2;
@@ -344,6 +362,7 @@ struct Terrorform : Module {
     int counter = 512;
 
     bool romIsLoading = false;
+    bool displayCV = false;
 
     Terrorform();
     ~Terrorform();
@@ -361,11 +380,15 @@ struct Terrorform : Module {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct TerrorformPanelStyleItem : MenuItem {
-    Terrorform* module;
-    int panelStyle;
+struct TerrorformManagerItem : MenuItem {
+    std::function<void()> openMenu;
     void onAction(const event::Action &e) override;
-    void step() override;
+};
+
+struct TerrorformDisplayCVItem : MenuItem {
+    Terrorform* module;
+    bool displayCV;
+    void onAction(const event::Action &e) override;
 };
 
 struct TerrorformDisplayStyleItem : MenuItem {
@@ -375,13 +398,11 @@ struct TerrorformDisplayStyleItem : MenuItem {
     void step() override;
 };
 
-// struct TerrorformManagerPanel : OpaqueWidget {
-//
-// };
-
-struct TerrorformManagerItem : MenuItem {
-    std::function<void()> openMenu;
+struct TerrorformPanelStyleItem : MenuItem {
+    Terrorform* module;
+    int panelStyle;
     void onAction(const event::Action &e) override;
+    void step() override;
 };
 
 struct TerrorformWidget : ModuleWidget {
@@ -514,9 +535,12 @@ struct TerrorformWidget : ModuleWidget {
     LightLEDButtonWithModeText* lfoButton;
     LightLEDButtonWithModeText* zeroFreqButton;
     LightLEDButtonWithModeText* userBankButton;
+    LightLEDButtonWithModeText* displayCVButton;
     LightLEDButtonWithModeText* phasorShapingOrderButton;
     LightLEDButtonWithModeText* trueFMButton;
     LightLEDButtonWithModeText* swapButton;
+    LightLEDButtonWithModeText* weakSync1Button;
+    LightLEDButtonWithModeText* weakSync2Button;
 
     LightLEDButtonWithModeText* lpgButton;
     LightLEDButtonWithModeText* lpgLongTimeButton;
@@ -526,6 +550,7 @@ struct TerrorformWidget : ModuleWidget {
     MediumLight<RedLight>* lfoButtonLight;
     MediumLight<RedLight>* zeroFreqLight;
     MediumLight<RedLight>* userBankLight;
+    MediumLight<RedLight>* displayCVLight;
     MediumLight<RedGreenBlueLight>* lpgButtonLight;
     MediumLight<RedLight>* lpgLongTimeButtonLight;
     MediumLight<RedLight>* lpgVelocityButtonLight;
@@ -533,7 +558,8 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec lfoButtonPos = Vec(121, 55);
     Vec zeroFreqButtonPos = Vec(179, 55);
-    Vec userBankSwitchPos = Vec(150, 98);
+    Vec userBankSwitchPos = Vec(150, 84);
+    Vec displayCVSwitchPos = Vec(150, 107);
 
     Vec lpgModeSwitchPos = Vec(150, 176);
     Vec lpgLongTimeSwitchPos = Vec(150, 201);
