@@ -1698,6 +1698,14 @@ void TerrorformWidget::step() {
         userBankButton->setModeText("No");
     }
 
+    // Display CV button tooltip
+    if (displayCVButton->paramQuantity->getValue()) {
+        displayCVButton->setModeText("Yes");
+    }
+    else {
+        displayCVButton->setModeText("No");
+    }
+
     // LPG mode button tooltip
     switch (tform->lpgMode) {
         case 1: lpgButton->setModeText("\nVCA"); break;
@@ -1766,7 +1774,7 @@ void TerrorformWidget::step() {
         swapButton->setModeText("\nLPG -> Enhancer");
     }
     else {
-        swapButton->setModeText("\nEnhancer -> LPGswapButton");
+        swapButton->setModeText("\nEnhancer -> LPG");
     }
 
     Widget::step();

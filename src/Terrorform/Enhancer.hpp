@@ -41,6 +41,9 @@ public:
         __quarters = _mm_set1_ps(0.25f);
         __eighths = _mm_set1_ps(0.125f);
 
+        __posEpsilon = _mm_set1_ps(0.00001f);
+        __negEpsilon = _mm_set1_ps(-0.00001f);
+
         __high = _mm_castsi128_ps(_mm_set1_epi32(0xFFFFFFFF));
         __flipFlop = __zeros;
         __trig = __zeros;
@@ -288,15 +291,17 @@ private:
         __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
         __trig = _mm_switch_ps(__trig,
                                _mm_sub_ps(__ones, __trig),
-                               _mm_and_ps(_mm_cmpgt_ps(x, __zeros), _mm_cmple_ps(__prev, __zeros)));
+                               _mm_and_ps(_mm_cmpgt_ps(x, __posEpsilon),
+                                          _mm_cmple_ps(__prev, __negEpsilon)));
         __prev = x;
-        return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, __twos), __ones)), x);
+        return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, _mm_set1_ps(1.5f)), _mm_set1_ps(0.75f))), x);
     }
 
     int _mode;
     __m128 __scaler, __updateRate, __stepSize, __counter, __doSample;
     __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour, _twoHundred;
     __m128 __halfs, __quarters, __eighths;
+    __m128 __posEpsilon, __negEpsilon;
     __m128 __a, __b, __x, __y, __z;
     __m128i __xInt, __yInt, __zInt, __aInt;
     __m128 __intMaxF, __invIntMaxF;
