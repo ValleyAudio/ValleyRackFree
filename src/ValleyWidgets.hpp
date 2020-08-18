@@ -4,6 +4,7 @@
 #include "Valley.hpp"
 #include "window.hpp"
 #include <functional>
+#include <settings.hpp>
 
 // Dynamic Panel
 
@@ -386,5 +387,61 @@ struct DynamicMenu : ChoiceButton {
 DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
                                const std::vector<std::string>& items,
                                bool isTransparent, bool showTick, int subMenuGroupSize);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Non-Value / Custom Text Tooltips
+
+struct NonValueParamTooltip : ui::Tooltip {
+    ParamWidget* paramWidget;
+    std::shared_ptr<std::string> nonValueText;
+
+    void step() override {
+    if (paramWidget->paramQuantity) {
+            // Quantity string
+            text = paramWidget->paramQuantity->getLabel();
+            text += ": ";
+
+            if (nonValueText) {
+                text += *nonValueText;
+            }
+
+            // Param description
+            std::string description = paramWidget->paramQuantity->description;
+            if (!description.empty()) {
+                text += "\n" + description;
+            }
+        }
+        Tooltip::step();
+        // Position at bottom-right of parameter
+        box.pos = paramWidget->getAbsoluteOffset(paramWidget->box.size).round();
+        // Fit inside parent (copied from Tooltip.cpp)
+        assert(parent);
+        box = box.nudge(parent->box.zeroPos());
+    }
+};
+
+struct ValleyRogan : Rogan {
+    std::shared_ptr<std::string> modeText;
+
+    ValleyRogan() {
+        modeText = std::make_shared<std::string>();
+    }
+
+    void onEnter(const event::Enter& e) override {
+        if (settings::paramTooltip && !tooltip && paramQuantity) {
+            NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+            paramTooltip->nonValueText = modeText;
+            paramTooltip->paramWidget = this;
+            APP->scene->addChild(paramTooltip);
+            tooltip = paramTooltip;
+        }
+    }
+
+    void setModeText(const std::string& newModeText) {
+        if (modeText) {
+            *modeText = newModeText;
+        }
+    }
+};
 
 #endif

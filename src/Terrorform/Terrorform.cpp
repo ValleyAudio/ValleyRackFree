@@ -511,7 +511,7 @@ void Terrorform::process(const ProcessArgs &args) {
         osc[c].tick();
 
         subOsc[c].setWave(_mm_set1_ps(params[SUB_OSC_WAVE_PARAM].getValue()));
-        __subOscOut = subOsc[c].process(osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
+        __subOscOut = subOsc[c].process(osc[c].getOutput(), osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
         __phasorOutput[c] = osc[c].getPhasor();
         __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
         __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
@@ -549,9 +549,9 @@ void Terrorform::process(const ProcessArgs &args) {
     outputs[SHAPED_PHASOR_OUTPUT].setChannels(numActiveChannels);
     outputs[RAW_OUTPUT].setChannels(numActiveChannels);
     outputs[ENHANCER_OUTPUT].setChannels(numActiveChannels);
-    outputs[ENVELOPE_OUTPUT].setChannels(numActiveChannels);
-    // TODO : Make Sub Osc output polyphonic
+    outputs[SUB_OSC_OUTPUT].setChannels(numActiveChannels);
     outputs[MAIN_OUTPUT].setChannels(numActiveChannels);
+    outputs[ENVELOPE_OUTPUT].setChannels(numActiveChannels);
 }
 
 void Terrorform::onSampleRateChange() {
@@ -821,21 +821,21 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     fineKnob = createParamCentered<RoganMedBlue>(finePos, module, Terrorform::FINE_PARAM);
     addParam(fineKnob);
 
-    bankKnob = createParamCentered<RoganMedPurple>(bankPos, module, Terrorform::BANK_PARAM);
+    bankKnob = createParamCentered<RoganMedPurpleWithModeText>(bankPos, module, Terrorform::BANK_PARAM);
     bankKnob->smooth = false;
     bankKnob->snap = true;
     addParam(bankKnob);
     waveKnob = createParamCentered<RoganMedPurple>(wavePos, module, Terrorform::WAVE_PARAM);
     addParam(waveKnob);
 
-    shapeTypeKnob = createParamCentered<RoganMedRed>(shapeTypePos, module, Terrorform::SHAPE_TYPE_PARAM);
+    shapeTypeKnob = createParamCentered<RoganMedRedWithModeText>(shapeTypePos, module, Terrorform::SHAPE_TYPE_PARAM);
     shapeTypeKnob->smooth = false;
     shapeTypeKnob->snap = true;
     addParam(shapeTypeKnob);
     shapeDepthKnob = createParamCentered<RoganMedRed>(shapeDepthPos, module, Terrorform::SHAPE_DEPTH_PARAM);
     addParam(shapeDepthKnob);
 
-    enhanceTypeKnob = createParamCentered<RoganMedGreen>(enhanceTypePos, module, Terrorform::ENHANCE_TYPE_PARAM);
+    enhanceTypeKnob = createParamCentered<RoganMedGreenWithModeText>(enhanceTypePos, module, Terrorform::ENHANCE_TYPE_PARAM);
     enhanceTypeKnob->smooth = false;
     enhanceTypeKnob->snap = true;
     addParam(enhanceTypeKnob);
@@ -1348,7 +1348,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
         }
         else {
-            printf("%llu\n", numSamples);
             float *newTableTemp = new float[numSamples];
             int newNumSamples = TFORM_MAX_WAVELENGTH * numChannels;
 
@@ -1619,7 +1618,8 @@ void TerrorformWidget::step() {
     }
     prevDisplayStyle = displayStyle;
 
-    // Display params
+    //// Display params
+    // Wavetable knobs and Display
     bankChoice = tform->bankDisplay;
     if (userBankButton->paramQuantity->getValue() > 0.5f) {
         *bankStr = tform->userWaveTableNames[bankChoice];
@@ -1645,17 +1645,32 @@ void TerrorformWidget::step() {
             bankMenu->_items = bankMenuItems;
         }
     }
+    bankKnobStep = (int)bankKnob->paramQuantity->getValue();
+    bankKnobTooltipText = std::to_string(bankKnobStep) + " " + bankMenu->_items[bankKnobStep];
+    bankKnob->setModeText(bankKnobTooltipText);
 
     float waveValue = (float)(tform->waveAmountDisplay);
     wavePercent = (int)(waveValue * 100.f);
     wavePercent = clamp(wavePercent, 0, 100);
     *waveStr = std::to_string(wavePercent);
 
+    // Shape Knob and Display
+    shapeTypeKnobStep = (int)shapeTypeKnob->paramQuantity->getValue();
+    shapeTypeKnobTooltipText = std::to_string(shapeTypeKnobStep) + " " +
+                               shapeMenu->_items[shapeTypeKnobStep];
+    shapeTypeKnob->setModeText(shapeTypeKnobTooltipText);
+
     *shapeTypeStr = shapeNames[(int)(tform->shapeDisplay)];
     float shapeValue = (float)(tform->shapeAmountDisplay);
     shapeDepthPercent = (int)(shapeValue * 100.f);
     shapeDepthPercent = clamp(shapeDepthPercent, 0, 100);
     *shapeDepthStr = std::to_string(shapeDepthPercent);
+
+    // Enhance Knob and Display
+    enhanceTypeKnobStep = (int)enhanceTypeKnob->paramQuantity->getValue();
+    enhanceTypeKnobTooltipText = std::to_string(enhanceTypeKnobStep) + " " +
+                                 enhanceMenu->_items[enhanceTypeKnobStep];
+    enhanceTypeKnob->setModeText(enhanceTypeKnobTooltipText);
 
     *enhanceTypeStr = enhanceNames[(int)(tform->enhanceDisplay)];
     float enhanceValue = (float)(tform->enhanceAmountDisplay);

@@ -2,36 +2,6 @@
 #define DSJ_VALLEY_COMPONENTS_HPP
 
 #include "ValleyWidgets.hpp"
-#include <settings.hpp>
-
-struct NonValueParamTooltip : ui::Tooltip {
-    ParamWidget* paramWidget;
-    std::shared_ptr<std::string> nonValueText;
-
-    void step() override {
-    if (paramWidget->paramQuantity) {
-            // Quantity string
-            text = paramWidget->paramQuantity->getLabel();
-            text += ": ";
-
-            if (nonValueText) {
-                text += *nonValueText;
-            }
-
-            // Param description
-            std::string description = paramWidget->paramQuantity->description;
-            if (!description.empty()) {
-                text += "\n" + description;
-            }
-        }
-        Tooltip::step();
-        // Position at bottom-right of parameter
-        box.pos = paramWidget->getAbsoluteOffset(paramWidget->box.size).round();
-        // Fit inside parent (copied from Tooltip.cpp)
-        assert(parent);
-        box = box.nudge(parent->box.zeroPos());
-    }
-};
 
 struct Rogan1PSBrightRed : Rogan {
     Rogan1PSBrightRed() {
@@ -81,6 +51,12 @@ struct RoganMedGreen : Rogan {
     }
 };
 
+struct RoganMedGreenWithModeText : ValleyRogan {
+    RoganMedGreenWithModeText() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenMed.svg")));
+    }
+};
+
 struct RoganSmallGreen : Rogan {
     RoganSmallGreen() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenSmall.svg")));
@@ -125,6 +101,12 @@ struct RoganMedRed : Rogan {
     }
 };
 
+struct RoganMedRedWithModeText : ValleyRogan {
+    RoganMedRedWithModeText() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedMed.svg")));
+    }
+};
+
 struct RoganSmallRed : Rogan {
     RoganSmallRed() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedSmall.svg")));
@@ -138,9 +120,13 @@ struct Rogan1PSPurple : Rogan {
 };
 
 struct RoganMedPurple : Rogan {
-    std::string nonValueText;
-
     RoganMedPurple() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSPurpleMed.svg")));
+    }
+};
+
+struct RoganMedPurpleWithModeText : ValleyRogan {
+    RoganMedPurpleWithModeText() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSPurpleMed.svg")));
     }
 };

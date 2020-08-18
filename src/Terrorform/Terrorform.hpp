@@ -483,11 +483,11 @@ struct TerrorformWidget : ModuleWidget {
     RoganMedBlue* octaveKnob;
     RoganMedBlue* coarseKnob;
     RoganMedBlue* fineKnob;
-    RoganMedPurple* bankKnob;
+    RoganMedPurpleWithModeText* bankKnob;
     RoganMedPurple* waveKnob;
-    RoganMedRed* shapeTypeKnob;
+    RoganMedRedWithModeText* shapeTypeKnob;
     RoganMedRed* shapeDepthKnob;
-    RoganMedGreen* enhanceTypeKnob;
+    RoganMedGreenWithModeText* enhanceTypeKnob;
     RoganMedGreen* enhanceDepthKnob;
     RoganMedMustard* attackKnob;
     RoganMedMustard* decayKnob;
@@ -700,6 +700,13 @@ struct TerrorformWidget : ModuleWidget {
     bool updateBankNames = false;
     bool prevReadUserWavesState = false;
 
+    unsigned long bankKnobStep = 0;
+    unsigned long shapeTypeKnobStep = 0;
+    unsigned long enhanceTypeKnobStep = 0;
+    std::string bankKnobTooltipText;
+    std::string shapeTypeKnobTooltipText;
+    std::string enhanceTypeKnobTooltipText;
+
     TFormEditor* editor;
     float *newTable;
     unsigned int numChannels;
@@ -754,12 +761,12 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> enhanceNames = {
         "BITCRUSH", "QUANTIZE", "AND_INT", "XOR_INT", "AND_FLOAT", "OVERDRIVE",
-        "RING_MOD", "SHARPEN", "SINE", "FOLD", "MIRROR", "SUB_GLTCH"
+        "RING_MOD", "SHARPEN", "SINE", "FOLD", "MIRROR"
     };
 
     std::vector<std::string> enhanceMenuItems = {
         "Bit Crush", "Quantize", "Bitwise AND Int", "Bitwise XOR Int", "Bitwise AND Float", "Overdrive",
-        "Ring Mod", "Sharpen", "Sine", "Fold", "Mirror", "Sub Glitch"
+        "Ring Mod", "Sharpen", "Sine", "Fold", "Mirror"
     };
 
     std::vector<std::string> syncNames = {

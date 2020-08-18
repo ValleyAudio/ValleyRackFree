@@ -20,7 +20,7 @@ public:
         CHEBYSHEV_MODE,
         FOLD_MODE,
         MIRROR_MODE,
-        GLITCH_SUB_MODE,
+        //GLITCH_SUB_MODE,
         NUM_MODES
     };
 
@@ -83,7 +83,7 @@ public:
         p[FOLD_MODE] = &VecEnhancer::fold;
         p[CHEBYSHEV_MODE] = &VecEnhancer::chebyshev;
         p[MIRROR_MODE] = &VecEnhancer::mirror;
-        p[GLITCH_SUB_MODE] = &VecEnhancer::subGlitch;
+        //p[GLITCH_SUB_MODE] = &VecEnhancer::subGlitch;
     }
 
     inline __m128 process(const __m128& x, const __m128& param) {
@@ -287,15 +287,15 @@ private:
     /** Quick and dirty way of creating a sub oscillator signal: just switch from low to high every
         time the input signal (x) cross zero
     */
-    __m128 subGlitch(const __m128& x, const __m128& param) {
-        __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
-        __trig = _mm_switch_ps(__trig,
-                               _mm_sub_ps(__ones, __trig),
-                               _mm_and_ps(_mm_cmpgt_ps(x, __posEpsilon),
-                                          _mm_cmple_ps(__prev, __negEpsilon)));
-        __prev = x;
-        return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, _mm_set1_ps(1.5f)), _mm_set1_ps(0.75f))), x);
-    }
+    // __m128 subGlitch(const __m128& x, const __m128& param) {
+    //     __filter.setCutoffFreq(_mm_mul_ps(_mm_mul_ps(param, param), _mm_set1_ps(22050.f)));
+    //     __trig = _mm_switch_ps(__trig,
+    //                            _mm_sub_ps(__ones, __trig),
+    //                            _mm_and_ps(_mm_cmpgt_ps(x, __posEpsilon),
+    //                                       _mm_cmple_ps(__prev, __negEpsilon)));
+    //     __prev = x;
+    //     return _mm_add_ps(__filter.process(_mm_sub_ps(_mm_mul_ps(__trig, _mm_set1_ps(1.5f)), _mm_set1_ps(0.75f))), x);
+    // }
 
     int _mode;
     __m128 __scaler, __updateRate, __stepSize, __counter, __doSample;
