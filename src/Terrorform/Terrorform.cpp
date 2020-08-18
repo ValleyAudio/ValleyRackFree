@@ -751,10 +751,11 @@ void TerrorformDisplayCVItem::onAction(const event::Action &e) {
 TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Welcome to Janksville, the jankiest place on earth
-    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {/*"res/Cell/TerrorformDark.svg"*/"res/Cell/Inkscape/Cell11_Dark.svg",
-                                                            "res/Cell/Inkscape/Cell11_Light.svg",
-                                                            "res/Cell/Inkscape/Cell11_DarkManager.svg",
-                                                            "res/Cell/Inkscape/Cell11_LightManager.svg"};
+    const std::string panelFilenames[NUM_TRRFORM_PANELS] = {"res/TerrorformDark.svg",
+                                                            "res/TerrorformLight.svg",
+                                                            "res/TerrorformDarkManager.svg",
+                                                            "res/TerrorformLightManager.svg"};
+
     setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[TRRFORM_DARK_PANEL_NORMAL])));
     for(auto i = 1; i < NUM_TRRFORM_PANELS; ++i) {
@@ -1282,12 +1283,14 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         lfoButton->visible = true;
         zeroFreqButton->visible = true;
         userBankButton->visible = true;
+        displayCVButton->visible = true;
         lpgButton->visible = true;
         lpgLongTimeButton->visible = true;
 
         lfoButtonLight->visible = true;
         zeroFreqLight->visible = true;
         userBankLight->visible = true;
+        displayCVLight->visible = true;
         lpgButtonLight->visible = true;
         lpgLongTimeButtonLight->visible = true;
         lpgVelocityButton->visible = true;
@@ -1301,7 +1304,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<std::vector<float>>> {
         const char FILE_FILTERS[] = "WAV File (.wav):wav";
-        std::string dir = asset::user("");
         std::string filename;
 
         osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
@@ -1319,9 +1321,15 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         newTable = NULL;
 
         // Open file
+        if (dir.empty()) {
+            dir = asset::user("");
+        }
         char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
         if (path) {
             newTable = drwav_open_file_and_read_f32(path, &numChannels, &sampleRate, &numSamples);
+            std::string filepath(path);
+            dir = extractDirectoryFromFilePath(filepath);
+            std::cout << dir << std::endl;
             DEFER({
                 std::free(path);
             });
@@ -1518,12 +1526,14 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         lfoButton->visible = false;
         zeroFreqButton->visible = false;
         userBankButton->visible = false;
+        displayCVButton->visible = false;
         lpgButton->visible = false;
         lpgLongTimeButton->visible = false;
 
         lfoButtonLight->visible = false;
         zeroFreqLight->visible = false;
         userBankLight->visible = false;
+        displayCVLight->visible = false;
         lpgButtonLight->visible = false;
         lpgLongTimeButtonLight->visible = false;
         lpgVelocityButton->visible = false;

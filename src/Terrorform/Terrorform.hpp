@@ -708,6 +708,7 @@ struct TerrorformWidget : ModuleWidget {
     std::string enhanceTypeKnobTooltipText;
 
     TFormEditor* editor;
+    std::string dir;
     float *newTable;
     unsigned int numChannels;
 
