@@ -44,14 +44,16 @@ struct VecAREnvelope {
 
     __m128 process(const __m128& trigger) {
         // Generate edge triggers that set start values when trigger changes
-        risingEdge = _mm_cmpgt_ps(trigger, prevTrigger);
+        risingEdge = _mm_and_ps(_mm_cmpgt_ps(trigger, inputEpsilon),
+                                _mm_cmple_ps(prevTrigger, inputEpsilon));
         if (inOneShotMode) {
             rising = _mm_switch_ps(rising, risingEdge, risingEdge);
             fallingEdge = _mm_and_ps(rising, _mm_andnot_ps(risingEdge, s.hasFinished()));
             rising = _mm_switch_ps(rising, zeros, fallingEdge);
         }
         else {
-            fallingEdge = _mm_cmplt_ps(trigger, prevTrigger);
+            fallingEdge = _mm_and_ps(_mm_cmple_ps(trigger, inputEpsilon),
+                                     _mm_cmpgt_ps(prevTrigger, inputEpsilon));
             rising = _mm_cmpgt_ps(trigger, zeros);
         }
 
