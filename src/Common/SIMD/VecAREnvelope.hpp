@@ -37,7 +37,7 @@ struct VecAREnvelope {
         riseRate = _mm_set1_ps(0.99f);
         fallRate = _mm_set1_ps(0.99f);
         inputEpsilon = _mm_set1_ps(0.0001f);
-        risingEpsilon = _mm_set1_ps(0.998f);
+        risingEpsilon = _mm_set1_ps(0.002f);
         fallingEpsilon = _mm_set1_ps(0.000031f);
         inOneShotMode = false;
     }
@@ -61,6 +61,9 @@ struct VecAREnvelope {
         // Now set a start value when an edge is detected
         s.setStartValue(_mm_switch_ps(s.seg, _mm_sub_ps(targetValue, s.seg), risingEdge));
         s.setStartValue(_mm_switch_ps(s.seg, _mm_sub_ps(targetValue, s.seg), fallingEdge));
+
+        s.epsilon = _mm_switch_ps(s.epsilon, risingEpsilon, risingEdge);
+        s.epsilon = _mm_switch_ps(s.epsilon, fallingEpsilon, fallingEdge);
 
         s.rate = _mm_switch_ps(fallRate, riseRate, rising);
         s.process();
