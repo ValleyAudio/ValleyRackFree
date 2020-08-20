@@ -4,7 +4,7 @@
 // Contact: valley.audio.soft@gmail.com
 // Date: 8/2/2019
 //
-// Copyright 2098 Dale Johnson. Redistribution and use in source and binary forms, with or without
+// Copyright 2019 Dale Johnson. Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met: 1. Redistributions of
 // source code must retain the above copyright notice, this list of conditions and the following
 // disclaimer. 2. Redistributions in binary form must reproduce the above copyright notice, this
@@ -358,11 +358,13 @@ struct Terrorform : Module {
 
     __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
     __m128 __quarters, __tenths, __hundredths;
+    __m128 __fullLevel, __halfLevel;
 
     int counter = 512;
 
     bool romIsLoading = false;
     bool displayCV = false;
+    bool minus6dB = false;
 
     Terrorform();
     ~Terrorform();
@@ -385,9 +387,8 @@ struct TerrorformManagerItem : MenuItem {
     void onAction(const event::Action &e) override;
 };
 
-struct TerrorformDisplayCVItem : MenuItem {
+struct TerrorformOutputLevelItem : MenuItem {
     Terrorform* module;
-    bool displayCV;
     void onAction(const event::Action &e) override;
 };
 

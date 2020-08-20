@@ -96,6 +96,8 @@ Terrorform::Terrorform() {
     __tenths = _mm_set1_ps(0.1f);
     __hundredths = _mm_set1_ps(0.01f);
     __quarters = _mm_set1_ps(0.25f);
+    __halfLevel = _mm_set1_ps(2.5f);
+    __fullLevel = __fives;
 
     __sync1 = __zeros;
     __sync2 = __zeros;
@@ -532,7 +534,7 @@ void Terrorform::process(const ProcessArgs &args) {
             __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
 
-        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], __fives);
+        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], minus6dB ? __halfLevel : __fullLevel);
 
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
@@ -742,8 +744,8 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
     openMenu();
 }
 
-void TerrorformDisplayCVItem::onAction(const event::Action &e) {
-    module->displayCV ^= true;
+void TerrorformOutputLevelItem::onAction(const event::Action &e) {
+    module->minus6dB ^= true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1453,6 +1455,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(editor);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void TerrorformWidget::appendContextMenu(Menu *menu) {
     Terrorform *module = dynamic_cast<Terrorform*>(this->module);
     assert(module);
@@ -1545,6 +1549,17 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         inEditorMode = true;
     };
     menu->addChild(managerItem);
+
+    // Output level item
+    menu->addChild(construct<MenuLabel>());
+
+    MenuLabel* outputLevelLabel = new MenuLabel;
+    outputLevelLabel->text = "Output level";
+    menu->addChild(outputLevelLabel);
+
+    TerrorformOutputLevelItem* outputLevelItem = createMenuItem<TerrorformOutputLevelItem>("Reduce level by -6dB", CHECKMARK(module->minus6dB));
+    outputLevelItem->module = module;
+    menu->addChild(outputLevelItem);
 
     // Display style items
     menu->addChild(construct<MenuLabel>());
