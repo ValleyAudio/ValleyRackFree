@@ -189,7 +189,7 @@ protected:
     __m128i __aInt;
     __m128i __bInt;
 
-    __m128 __lowSamp, __highSamp, __frac, __output;
+    __m128 __lowSamp, __highSamp, __frac, __output, __outputLevel;
     Shaper _shaper;
     void calcStepSize();
     __m128 (*shapeMethod)(const __m128&, const __m128&);

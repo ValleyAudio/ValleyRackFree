@@ -573,6 +573,7 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
     json_object_set_new(rootJ, "lpgMode", json_integer(lpgMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
+    json_object_set_new(rootJ, "reduceOutputLevel", json_integer(minus6dB));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -584,7 +585,7 @@ json_t* Terrorform::dataToJson()  {
             continue;
         }
 
-        json_object_set_new(userWaveJ, "name", json_string(userWaveTableNames[bank].c_str()));
+        json_object_set_new(userWaveJ, "shortname", json_string(userWaveTableNames[bank].c_str()));
         json_t* tableJ = json_array();
         for (auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
             json_t* waveJ = json_array();
@@ -607,11 +608,13 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
     json_t *lpgModeJ = json_object_get(rootJ, "lpgMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
+    json_t *reduceOutputLevelJ = json_object_get(rootJ, "reduceOutputLevel");
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
     lpgMode = json_integer_value(lpgModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
+    minus6dB = json_integer_value(reduceOutputLevelJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
@@ -631,7 +634,7 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     for (auto i = 0; i < numUserWaveTables; ++i) {
         json_t* userWaveJ = json_array_get(userWavesJ, i);
         json_t* destBankJ = json_object_get(userWaveJ, "bank");
-        json_t* nameJ = json_object_get(userWaveJ, "name");
+        json_t* nameJ = json_object_get(userWaveJ, "shortname");
         json_t* tableJ = json_object_get(userWaveJ, "waveTableData");
 
         destBank = json_integer_value(destBankJ);

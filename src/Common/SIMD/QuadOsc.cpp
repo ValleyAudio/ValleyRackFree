@@ -401,6 +401,7 @@ QuadOsc::QuadOsc() {
     __syncing = __zeros;
     __syncSource = __zeros;
     __syncState = __zeros;
+    __outputLevel = __ones;
     _PMPostShape = false;
     _weakSync = false;
     _sync = false;
@@ -463,6 +464,7 @@ void QuadOsc::tick() {
     __highSamp = _mm_load_ps(_highSample);
     __frac = _mm_sub_ps(__readPhase, _mm_cvtepi32_ps(__aInt));
     __output = _mm_linterp_ps(__lowSamp, __highSamp, __frac);
+    __output = _mm_mul_ps(__output, __outputLevel);
 
     // Advance wave read position
     __a = _mm_add_ps(__a, __stepSize);
@@ -480,12 +482,9 @@ void QuadOsc::sync(const __m128& syncSource) {
     __syncState = _mm_cmpgt_ps(syncSource, __zeros);
     __syncSource = _mm_and_ps(__syncState, _mm_andnot_ps(__syncing, __syncState));
 
-    // TODO: Externalise weak sync
-    // if(_weakSync) {
-    //     __syncSource = _mm_and_ps(__syncSource, _mm_cmplt_ps(__a, __quarter));
-    // }
     if(!_sync) {
         __dir = __ones;
+        __outputLevel = __ones;
     }
     else {
         switch((SyncModes) _syncMode) {
@@ -600,6 +599,7 @@ void QuadOsc::setPMPostShape(bool PMPostShape) {
 void QuadOsc::setSyncMode(int syncMode) {
     if(_syncMode != syncMode) {
         _syncMode = syncMode;
+        __outputLevel = __ones;
         onChangeSyncMode();
     }
 }
@@ -710,6 +710,8 @@ void QuadOsc::holdSync(const __m128& syncSource) {
 }
 
 void QuadOsc::oneShot(const __m128& syncSource) {
+    __outputLevel = _mm_switch_ps(__outputLevel, __zeros, __mtMask);
+    __outputLevel = _mm_switch_ps(__outputLevel, __ones, syncSource);
     __dir = _mm_switch_ps(__dir, __zeros, __mtMask);
     __dir = _mm_switch_ps(__dir, __ones, syncSource);
     __a = _mm_switch_ps(__a, __zeros, syncSource);
@@ -717,6 +719,8 @@ void QuadOsc::oneShot(const __m128& syncSource) {
 }
 
 void QuadOsc::lockShot(const __m128& syncSource) {
+    __outputLevel = _mm_switch_ps(__outputLevel, __zeros, __mtMask);
+    __outputLevel = _mm_switch_ps(__outputLevel, __ones, syncSource);
     __dir = _mm_switch_ps(__dir, __zeros, __mtMask);
     __dir = _mm_switch_ps(__dir, __ones, syncSource);
     __a = _mm_switch_ps(__zeros, __a, _mm_cmpeq_ps(__dir, __ones));
@@ -814,6 +818,7 @@ void ScanningQuadOsc::tick() {
     __highSamp = _mm_load_ps(_highSample2);
     __result2 = _mm_linterp_ps(__lowSamp, __highSamp, __frac);
     __output = _mm_linterp_ps(__result1, __result2, __fade);
+    __output = _mm_mul_ps(__output, __outputLevel);
 
     // Advance wave read position
     __aPrev = __a;
@@ -822,15 +827,8 @@ void ScanningQuadOsc::tick() {
     // Wrap wave position
     __mtMask = _mm_cmpge_ps(__a, __ones);
     __ltMask = _mm_cmplt_ps(__a, __zeros);
-    //__eoc = _mm_and_ps(__ones, __mtMask);
-    //__eoc = _mm_or_ps(__eoc, _mm_and_ps(__ones, __ltMask));
     __a = _mm_add_ps(__a, _mm_and_ps(__ones, __ltMask));
     __a = _mm_sub_ps(__a, _mm_and_ps(__ones, __mtMask));
-
-    // __eoc = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__a, __aPrev)),
-    //                       _mm_and_ps(__ones, _mm_cmplt_ps(__a, __aPrev)),
-    //                       _mm_cmpgt_ps(__dir, __zeros));
-
     __eoc = _mm_or_ps(_mm_and_ps(__ones, __ltMask), _mm_and_ps(__ones, __mtMask));
 }
 
