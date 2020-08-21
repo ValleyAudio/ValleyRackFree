@@ -569,6 +569,7 @@ void Terrorform::onSampleRateChange() {
 
 json_t* Terrorform::dataToJson()  {
     json_t *rootJ = json_object();
+    json_object_set_new(rootJ, "version", json_integer(VALLEY_VERSION));
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
     json_object_set_new(rootJ, "lpgMode", json_integer(lpgMode));
@@ -604,6 +605,7 @@ json_t* Terrorform::dataToJson()  {
 }
 
 void Terrorform::dataFromJson(json_t *rootJ) {
+    json_t *versionJ = json_object_get(rootJ, "version");
     json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
     json_t *displayStyleJ = json_object_get(rootJ, "displayStyle");
     json_t *lpgModeJ = json_object_get(rootJ, "lpgMode");
@@ -1334,7 +1336,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             newTable = drwav_open_file_and_read_f32(path, &numChannels, &sampleRate, &numSamples);
             std::string filepath(path);
             dir = extractDirectoryFromFilePath(filepath);
-            std::cout << dir << std::endl;
+            
             DEFER({
                 std::free(path);
             });
