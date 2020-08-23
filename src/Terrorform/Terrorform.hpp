@@ -189,6 +189,7 @@ struct Terrorform : Module {
     // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
     char userWaveTableSizes[TFORM_MAX_BANKS];
+    int userWaveTableWavelengths[TFORM_MAX_BANKS];
     bool userWaveTableFilled[TFORM_MAX_BANKS];
     char numUserWaveTables = 0;
     std::vector<std::string> userWaveTableNames;

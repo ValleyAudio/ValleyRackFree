@@ -104,7 +104,7 @@ TFormNumberField::TFormNumberField() {
     textColor = nvgRGB(0xCF, 0xCF, 0xCF);
     multiline = false;
     minimum = 1;
-    maximum = 64;
+    maximum = TFORM_MAX_NUM_WAVES;
     value = minimum;
     enabled = true;
     selected = false;

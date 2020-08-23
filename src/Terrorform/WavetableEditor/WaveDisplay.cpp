@@ -5,26 +5,10 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
     onColor = nvgRGBA(0xDF, 0x00, 0x00, 0xFF);
     bgColor = nvgRGBA(0xDF, 0x00, 0x00, 0x7F);
 
-    // offColor = nvgRGBA(0x00, 0x7F, 0x3F, 0x6F);
-    // onColor = nvgRGBA(0x00, 0xFF, 0x9F, 0xFF);
-    // bgColor = nvgRGBA(0x00, 0xFF, 0x9F, 0x4F);
-
-    // offColor = nvgRGBA(0x70, 0x40, 0x00, 0x6F);
-    // onColor = nvgRGBA(0xFF, 0xC0, 0x00, 0xFF);
-    // bgColor = nvgRGBA(0xFF, 0xC0, 0x00, 0x4F);
-
-    // offColor = nvgRGBA(0xAF, 0x00, 0x00, 0x6F);
-    // onColor = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
-    // bgColor = nvgRGBA(0xFF, 0x00, 0x00, 0x4F);
-
-    // offColor = nvgRGBA(0x00, 0x4C, 0xDF, 0x6F);
-    // onColor = nvgRGBA(0x00, 0xC0, 0xFF, 0xFF);
-    // bgColor = nvgRGBA(0x00, 0xC0, 0xFF, 0x4F);
-
     selectedWave = 0;
     waveSliderPos = 0.f;
     normSliderPos = 0.f;
-    numWaves = 64;
+    numWaves = TFORM_MAX_NUM_WAVES;
 
     for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
         for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -93,8 +77,8 @@ void TFormEditorWaveDisplay::drawWaveLine(int w, const NVGcolor& color, const Dr
     pW = dimetricProject(1.f, 0.f, z);
     pW = scalePoint(pW);
     nvgMoveTo(args.vg, pW.x, pW.y);
-    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-        pW = dimetricProject(1.f - (float) i / (TFORM_MAX_WAVELENGTH - 1.f), -waveData[w][i] * 0.75f, z);
+    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
+        pW = dimetricProject(1.f - (float) i / (TFORM_WAVELENGTH_CAP - 1.f), -waveData[w][i] * 0.75f, z);
         pW = scalePoint(pW);
         nvgLineTo(args.vg, pW.x, pW.y);
     }
@@ -116,8 +100,8 @@ void TFormEditorWaveDisplay::drawWaveFilled(int w, const NVGcolor& color, const 
     pW = scalePoint(pW);
 
     nvgMoveTo(args.vg, pW.x, pW.y);
-    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-        pW = dimetricProject(1.f - (float) i / (TFORM_MAX_WAVELENGTH - 1.f), -waveData[w][i] * 0.75f, z);
+    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
+        pW = dimetricProject(1.f - (float) i / (TFORM_WAVELENGTH_CAP - 1.f), -waveData[w][i] * 0.75f, z);
         pW = scalePoint(pW);
         nvgLineTo(args.vg, pW.x, pW.y);
     }
@@ -131,7 +115,7 @@ void TFormEditorWaveDisplay::drawWaveFilled(int w, const NVGcolor& color, const 
 void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
     float startX = 3;
     float endX = box.size.x;
-    float xScale = (endX - startX) / 255.f;
+    float xScale = (endX - startX) / ((float)TFORM_WAVELENGTH_CAP - 1.f);
     float yOffset =  box.size.y - 18;
     float yScale = 14.f;
 
@@ -143,7 +127,7 @@ void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
     // Waveform fill
     nvgBeginPath(args.vg);
     nvgMoveTo(args.vg, startX, yOffset);
-    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
         nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[w][i] * yScale + yOffset);
     }
     nvgLineTo(args.vg, endX, yOffset);
@@ -156,7 +140,7 @@ void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
     nvgLineCap(args.vg, NVG_ROUND);
     nvgLineJoin(args.vg, NVG_ROUND);
     nvgMoveTo(args.vg, startX, yOffset);
-    for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
         nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[w][i] * yScale + yOffset);
     }
     nvgLineTo(args.vg, endX, yOffset);

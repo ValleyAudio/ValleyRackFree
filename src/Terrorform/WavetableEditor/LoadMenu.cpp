@@ -75,7 +75,7 @@ TFormLoadMenu::TFormLoadMenu() {
     endWaveField = createWidget<TFormNumberField>(Vec(89, 21));
     endWaveField->box.size.x = 20;
     endWaveField->box.size.y = buttonHeight;
-    endWaveField->setValue(64);
+    endWaveField->setValue(TFORM_MAX_NUM_WAVES);
     endWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
@@ -84,7 +84,7 @@ TFormLoadMenu::TFormLoadMenu() {
 
     onView = [=]() {
         startWaveField->setValue(1);
-        nameField->text = "Bank_" + std::to_string(*selectedBank);
+        nameField->text = "Bank_" + std::to_string(*selectedBank + 1);
     };
 }
 

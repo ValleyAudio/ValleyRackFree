@@ -40,7 +40,7 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
     endWaveField = createWidget<TFormNumberField>(Vec(89, 21));
     endWaveField->box.size.x = 20;
     endWaveField->box.size.y = buttonHeight;
-    endWaveField->setValue(64);
+    endWaveField->setValue(TFORM_MAX_NUM_WAVES);
     endWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;

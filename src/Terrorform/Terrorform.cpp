@@ -124,7 +124,9 @@ Terrorform::Terrorform() {
         userWaveTableData[bank] = new float*[TFORM_MAX_NUM_WAVES];
         userWaveTableFilled[bank] = false;
         userWaveTableSizes[bank] = 1;
+        userWaveTableWavelengths[bank] = TFORM_WAVELENGTH_CAP;
         userWaveTableNames.push_back("EMPTY_" + std::to_string(bank + 1));
+
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
             userWaveTableData[bank][wave] = new float[TFORM_MAX_WAVELENGTH];
             for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -160,7 +162,6 @@ Terrorform::~Terrorform() {
 void Terrorform::process(const ProcessArgs &args) {
     ++counter;
     if(counter > 512) {
-        //printf("SRate = %f, STime = %f\n", args.sampleRate, args.sampleTime);
         readFromUserWaves = params[USER_BANK_SWITCH_PARAM].getValue() > 0.5f;
         if (readFromUserWaves) {
             maxNumBanks = TFORM_MAX_BANKS;
@@ -208,7 +209,7 @@ void Terrorform::process(const ProcessArgs &args) {
                 lights[USER_BANK_LIGHT].value = 1.f;
                 osc[c].setWavebank(userWaveTableData[bankI],
                                    userWaveTableSizes[bankI],
-                                   TFORM_MAX_WAVELENGTH);
+                                   userWaveTableWavelengths[bankI]);
             }
             else {
                 lights[USER_BANK_LIGHT].value = 0.f;
@@ -582,7 +583,6 @@ json_t* Terrorform::dataToJson()  {
         json_t* userWaveJ = json_object();
         json_object_set_new(userWaveJ, "bank", json_integer(bank));
         if(userWaveTableFilled[bank] == false) {
-            json_object_set_new(userWaveJ, "numWaves", json_integer(0));
             continue;
         }
 
@@ -590,7 +590,7 @@ json_t* Terrorform::dataToJson()  {
         json_t* tableJ = json_array();
         for (auto wave = 0; wave < userWaveTableSizes[bank]; ++wave) {
             json_t* waveJ = json_array();
-            for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+            for (auto i = 0; i < userWaveTableWavelengths[bank]; ++i) {
                 sprintf(str, "%e", userWaveTableData[bank][wave][i]);
                 json_t* valueJ = json_string(str);
                 json_array_append_new(waveJ, valueJ);
@@ -629,8 +629,8 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
     json_t *userWavesJ = json_object_get(rootJ, "userWaves");
     numUserWaveTables = (int) json_array_size(userWavesJ);
-    if (numUserWaveTables > 64) {
-        numUserWaveTables = 64;
+    if (numUserWaveTables > TFORM_MAX_NUM_WAVES) {
+        numUserWaveTables = TFORM_MAX_NUM_WAVES;
     }
 
     for (auto i = 0; i < numUserWaveTables; ++i) {
@@ -641,8 +641,8 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 
         destBank = json_integer_value(destBankJ);
         numWaves = (int) json_array_size(tableJ);
-        if (numWaves > 64) {
-            numWaves = 64;
+        if (numWaves > TFORM_MAX_NUM_WAVES) {
+            numWaves = TFORM_MAX_NUM_WAVES;
         }
         if (numWaves < 0) {
             numWaves = 0;
@@ -655,11 +655,15 @@ void Terrorform::dataFromJson(json_t *rootJ) {
         }
         else {
             userWaveTableSizes[destBank] = 1;
+            userWaveTableWavelengths[destBank] = TFORM_WAVELENGTH_CAP;
         }
 
+        json_t *waveJ = json_array_get(tableJ, 0);
+        userWaveTableWavelengths[destBank] = (int) json_array_size(waveJ);
+
         for (auto wave = 0; wave < numWaves; ++wave) {
-            json_t *waveJ = json_array_get(tableJ, wave);
-            for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+            waveJ = json_array_get(tableJ, wave);
+            for(auto i = 0; i < userWaveTableWavelengths[destBank]; ++i) {
                 json_t *valueJ = json_array_get(waveJ, i);
                 userWaveTableData[destBank][wave][i] = atof(json_string_value(valueJ));
             }
@@ -676,6 +680,7 @@ void Terrorform::clearBank(int bankNum) {
     userWaveTableFilled[bankNum] = false;
     userWaveTableSizes[bankNum] = 1;
     userWaveTableNames[bankNum] = "EMPTY_" + std::to_string(bankNum + 1);
+    userWaveTableWavelengths[bankNum] = TFORM_WAVELENGTH_CAP;
 }
 
 void Terrorform::clearUserWaveTables() {
@@ -697,6 +702,7 @@ void Terrorform::cloneBank(int sourceBank, int destBank, int startWave, int endW
     userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
     userWaveTableSizes[destBank] =  (endWave - startWave) + 1;
     userWaveTableNames[destBank] = userWaveTableNames[sourceBank];
+    userWaveTableWavelengths[destBank] = userWaveTableWavelengths[sourceBank];
 }
 
 void Terrorform::moveBank(int sourceBank, int destBank) {
@@ -709,6 +715,7 @@ void Terrorform::moveBank(int sourceBank, int destBank) {
     userWaveTableSizes[destBank] = userWaveTableSizes[sourceBank];
     userWaveTableFilled[destBank] = userWaveTableFilled[sourceBank];
     userWaveTableNames[destBank] = userWaveTableNames[sourceBank];
+    userWaveTableWavelengths[destBank] = userWaveTableWavelengths[sourceBank];
     clearBank(sourceBank);
 }
 
@@ -1336,7 +1343,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             newTable = drwav_open_file_and_read_f32(path, &numChannels, &sampleRate, &numSamples);
             std::string filepath(path);
             dir = extractDirectoryFromFilePath(filepath);
-            
+
             DEFER({
                 std::free(path);
             });
@@ -1355,16 +1362,16 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         // Calculate required number of blocks, and zero pad when too short
         auto numBlocks = 0;
         auto numFrames = numSamples / numChannels;
-        bool needsZeroPadding = numFrames < 256;
+        bool needsZeroPadding = numFrames < TFORM_WAVELENGTH_CAP;
 
         if (!needsZeroPadding) {
-            numFrames -= numFrames % TFORM_MAX_WAVELENGTH;
-            numBlocks = numFrames / TFORM_MAX_WAVELENGTH;
+            numFrames -= numFrames % TFORM_WAVELENGTH_CAP;
+            numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
             numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
         }
         else {
             float *newTableTemp = new float[numSamples];
-            int newNumSamples = TFORM_MAX_WAVELENGTH * numChannels;
+            int newNumSamples = TFORM_WAVELENGTH_CAP * numChannels;
 
             memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
             drwav_free(newTable);
@@ -1382,8 +1389,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int readPos = 0;
         waves->resize(numBlocks);
         for (int i = 0; i < numBlocks; ++i) {
-            (*waves)[i].assign(256, 0.f);
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            (*waves)[i].assign(TFORM_WAVELENGTH_CAP, 0.f);
+            for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
                 (*waves)[i][j] = newTable[readPos];
                 readPos += numChannels;
             }
@@ -1393,21 +1400,22 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     auto ingestNewTable = [=](int bank, int startWave, int endWave, const std::string name) {
         int numWaves = (endWave - startWave) + 1;
-        int tableLength = numWaves * TFORM_MAX_WAVELENGTH;
+        int tableLength = numWaves * TFORM_WAVELENGTH_CAP;
         int readPos = 0;
-        int startPos = startWave * TFORM_MAX_WAVELENGTH;
+        int startPos = startWave * TFORM_WAVELENGTH_CAP;
         int writePos = 0;
         int wave = 0;
 
         for (int i = 0; i < tableLength; ++i) {
             readPos = (startPos + i) * numChannels;
-            wave = i / TFORM_MAX_WAVELENGTH;
-            writePos = i % TFORM_MAX_WAVELENGTH;
+            wave = i / TFORM_WAVELENGTH_CAP;
+            writePos = i % TFORM_WAVELENGTH_CAP;
             module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
         }
         module->userWaveTableSizes[bank] = numWaves;
         module->userWaveTableFilled[bank] = true;
         module->userWaveTableNames[bank] = name;
+        module->userWaveTableWavelengths[bank] = TFORM_WAVELENGTH_CAP;
         module->numUserWaveTables++;
         updateBankNames = true;
         drwav_free(newTable);
@@ -1431,8 +1439,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
         waveBank.data.resize(module->userWaveTableSizes[bank]);
         for (unsigned long i = 0; i < waveBank.data.size(); ++i) {
-            waveBank.data[i].resize(TFORM_MAX_WAVELENGTH);
-            memcpy(waveBank.data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_MAX_WAVELENGTH);
+            waveBank.data[i].resize(TFORM_WAVELENGTH_CAP);
+            memcpy(waveBank.data[i].data(), module->userWaveTableData[bank][i], sizeof(float) * TFORM_WAVELENGTH_CAP);
         }
         waveBank.name = module->userWaveTableNames[bank];
     });
@@ -1896,8 +1904,22 @@ void TerrorformWidget::exportWavetables() {
     if (outFile.is_open()) {
         outFile.seekp(0);
         outFile.write("T401VWT", sizeof(char) * 7);
+        outFile.write(" Hello, I see you're looking at my binary ", sizeof(char) * 42);
+
+        char pluginVersionLower = VALLEY_VERSION & (char)255;
+        char pluginVersionUpper = VALLEY_VERSION >> 8;
+        outFile.write((char*) &pluginVersionLower, sizeof(char));
+        outFile.write((char*) &pluginVersionUpper, sizeof(char));
+
         outFile.write(&tform->numUserWaveTables, sizeof(char));
         outFile.write((char*) &userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
+
+        char wavelength[2];
+        for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+            wavelength[0] = tform->userWaveTableWavelengths[b] & 0xFF;
+            wavelength[1] = tform->userWaveTableWavelengths[b] >> 8;
+            outFile.write((char*) &wavelength, sizeof(char) * 2);
+        }
 
         for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
             for (unsigned long j = 0; j < tform->userWaveTableNames[b].size(); ++j) {
@@ -1907,8 +1929,11 @@ void TerrorformWidget::exportWavetables() {
         }
 
         for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+            if (!tform->userWaveTableFilled[b]) {
+                continue;
+            }
             for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
-                for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+                for (int j = 0; j < tform->userWaveTableWavelengths[b]; ++j) {
                     outFile.write(reinterpret_cast<char*>(&tform->userWaveTableData[b][w][j]), sizeof(float));
                 }
             }
@@ -1957,13 +1982,25 @@ void TerrorformWidget::importWavetables() {
         printf("Not a valid Valley Wavetable ROM\n");
         return;
     }
-    pos += sizeof(char) * 7;
+    pos += sizeof(char) * 7; // Jump ahead 7 bytes
+    pos += sizeof(char) * 42; // Jump ahead another 42 bytes
+
+    // char pluginVersion[2];
+    // inFile.read((char*) &pluginVersion, sizeof(char) * 2);
+    // pos += sizeof(char) * 2;
+    int pluginVersion = inFile.get();
+    pluginVersion |= inFile.get() << 8;
+    if (pluginVersion > VALLEY_VERSION) {
+        printf("This wavetable ROM file was created with a newer version of Terroform (v%d), and is incompatible with this version (v%d)\n", pluginVersion, VALLEY_VERSION);
+        printf("Please upgrade this module to use this ROM file\n");
+        return;
+    }
 
     // Get number of tables and their respective sizes
     inFile.seekg(pos);
     inFile.read(&tform->numUserWaveTables, sizeof(char));
     inFile.read((char*) &tform->userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
-    pos += sizeof(char) * TFORM_MAX_BANKS;
+    pos += sizeof(char) * TFORM_MAX_BANKS; // Jump ahead 64 bytes
 
     for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
         tform->userWaveTableFilled[b] = true;
@@ -1971,6 +2008,14 @@ void TerrorformWidget::importWavetables() {
             tform->userWaveTableSizes[b] = 1;
             tform->userWaveTableFilled[b] = false;
         }
+    }
+
+    // Read in wavetable cycle lengths
+    int wavelength;
+    for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+        wavelength = inFile.get();
+        wavelength |= inFile.get() << 8;
+        tform->userWaveTableWavelengths[b] = wavelength;
     }
 
     // Read in wavetable names (probably not the CS way but it gets around pesky memory errors)
@@ -1989,8 +2034,11 @@ void TerrorformWidget::importWavetables() {
 
     // Read in the wavetable data
     for (int b = 0; b < TFORM_MAX_BANKS; ++b) {
+        if (!tform->userWaveTableFilled[b]) {
+            continue;
+        }
         for (int w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            for (int j = 0; j < tform->userWaveTableWavelengths[b]; ++j) {
                 inFile.read(reinterpret_cast<char*>(&tform->userWaveTableData[b][w][j]), sizeof(float));
             }
         }
