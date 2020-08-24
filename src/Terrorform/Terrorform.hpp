@@ -357,7 +357,7 @@ struct Terrorform : Module {
     __m128 __fmAVCACV, __fmBVCACV;
     __m128 __trigger1 , __trigger2;
 
-    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens;
+    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens, __negTens;
     __m128 __quarters, __tenths, __hundredths;
     __m128 __fullLevel, __halfLevel;
 
@@ -372,6 +372,8 @@ struct Terrorform : Module {
 
     void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
+    void onReset() override; // For some stupid reason some buttons don't reset?!??!?!
+
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
     void clearBank(int bankNum);

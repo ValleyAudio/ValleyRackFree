@@ -5,8 +5,8 @@ Terrorform::Terrorform() {
     configParam(Terrorform::OCTAVE_PARAM, -3.0, 3.0, 0.0, "Octave");
     configParam(Terrorform::COARSE_PARAM, -1.0, 1.0, 0.0, "Coarse Tune");
     configParam(Terrorform::FINE_PARAM, -0.041666, 0.041666, 0.0, "Fine Tune");
-    configParam(Terrorform::VOCT_1_CV_PARAM, -1.0, 1.0, 0.0, "VOct 1 Atten.");
-    configParam(Terrorform::VOCT_2_CV_PARAM, -1.0, 1.0, 0.0, "VOct 2 Atten.");
+    configParam(Terrorform::VOCT_1_CV_PARAM, -1.0, 1.0, 1.0, "VOct 1 Atten.");
+    configParam(Terrorform::VOCT_2_CV_PARAM, -1.0, 1.0, 1.0, "VOct 2 Atten.");
 
     configParam(Terrorform::BANK_PARAM, 0.0, NUM_TERRORFORM_WAVETABLES - 1.f, 0.0, "Bank");
     configParam(Terrorform::WAVE_PARAM, 0.0, 1.0, 0.0, "Wave");
@@ -93,6 +93,7 @@ Terrorform::Terrorform() {
     __fives = _mm_set1_ps(5.f);
     __negFives = _mm_set1_ps(-5.f);
     __tens = _mm_set1_ps(10.f);
+    __negTens = _mm_set1_ps(-10.f);
     __tenths = _mm_set1_ps(0.1f);
     __hundredths = _mm_set1_ps(0.01f);
     __quarters = _mm_set1_ps(0.25f);
@@ -202,6 +203,19 @@ void Terrorform::process(const ProcessArgs &args) {
         enhanceDisplay = displayCV ? enhanceType : rootEnhanceType;
 
         lfoModeEnabled = params[LFO_SWITCH_PARAM].getValue() > 0.f;
+
+        // Sync button logic
+        weakSync1Enable = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
+        weakSync2Enable = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
+        __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
+        __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
+
+        if (!zeroFreqEnabled && (params[ZERO_SWITCH_PARAM].getValue() > 0.f)) {
+            for (int i = 0; i < kMaxNumGroups; ++i) {
+                osc[i].resetPhase();
+            }
+        }
+        zeroFreqEnabled = params[ZERO_SWITCH_PARAM].getValue() > 0.f;
 
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) lpgMode;
@@ -324,12 +338,6 @@ void Terrorform::process(const ProcessArgs &args) {
     }
     lpgButtonPrevState = lpgButtonPressed;
 
-    // Sync button logic
-    weakSync1Enable = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
-    weakSync2Enable = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
-    __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
-    __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
-
     // Misc button logic
     swapEnhancerAndLPG = params[SWAP_SWITCH_PARAM].getValue() > 0.f;
     trueFMSwitchValue = params[TRUE_FM_SWITCH_PARAM].getValue();
@@ -340,13 +348,6 @@ void Terrorform::process(const ProcessArgs &args) {
         }
     }
     prevTrueFMSwitchValue = trueFMSwitchValue;
-
-    if (!zeroFreqEnabled && params[ZERO_SWITCH_PARAM].getValue() > 0.f) {
-        for (int i = 0; i < kMaxNumGroups; ++i) {
-            osc[i].resetPhase();
-        }
-    }
-    zeroFreqEnabled = params[ZERO_SWITCH_PARAM].getValue() > 0.f;
 
     // Pitch, wave, shape and ehancement CV
     rootPitch = (int) params[OCTAVE_PARAM].getValue();
@@ -435,10 +436,7 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmB2Level = _mm_set1_ps(fmB2Level);
     __fmAVCACV = _mm_set1_ps(fmAVCACV);
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
-
-    __attackParam = _mm_set1_ps(attackParam);
-    __decayParam = _mm_set1_ps(decayParam);
-
+    
     // Tick the oscillator
     int g = 0;
     for(auto c = 0; c < numActiveGroups; ++c) {
@@ -536,6 +534,7 @@ void Terrorform::process(const ProcessArgs &args) {
         }
 
         __mainOutput[c] = _mm_mul_ps(__mainOutput[c], minus6dB ? __halfLevel : __fullLevel);
+        __mainOutput[c] = _mm_min_ps(_mm_max_ps(__mainOutput[c], __negTens), __tens);
 
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
         _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
@@ -566,6 +565,20 @@ void Terrorform::onSampleRateChange() {
         rawOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
         enhancerOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
     }
+}
+
+void Terrorform::onReset() {
+    params[WEAK_SYNC_1_SWITCH_PARAM].setValue(0.f);
+    params[WEAK_SYNC_2_SWITCH_PARAM].setValue(0.f);
+    params[ZERO_SWITCH_PARAM].setValue(0.f);
+    params[POST_PM_SHAPE_PARAM].setValue(0.f);
+    params[TRUE_FM_SWITCH_PARAM].setValue(0.f);
+    params[SWAP_SWITCH_PARAM].setValue(0.f);
+
+    minus6dB = false;
+    lpgMode = 0;
+
+    Module::onReset();
 }
 
 json_t* Terrorform::dataToJson()  {
@@ -1379,6 +1392,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
             delete[] newTableTemp;
 
+            // Zero pad
             for (int i = numSamples; i < newNumSamples; ++i) {
                 newTable[i] = 0.f;
             }
@@ -1906,11 +1920,6 @@ void TerrorformWidget::exportWavetables() {
         outFile.write("T401VWT", sizeof(char) * 7);
         outFile.write(" Hello, I see you're looking at my binary ", sizeof(char) * 42);
 
-        char pluginVersionLower = VALLEY_VERSION & (char)255;
-        char pluginVersionUpper = VALLEY_VERSION >> 8;
-        outFile.write((char*) &pluginVersionLower, sizeof(char));
-        outFile.write((char*) &pluginVersionUpper, sizeof(char));
-
         outFile.write(&tform->numUserWaveTables, sizeof(char));
         outFile.write((char*) &userWaveTableSizes, sizeof(char) * TFORM_MAX_BANKS);
 
@@ -1984,17 +1993,6 @@ void TerrorformWidget::importWavetables() {
     }
     pos += sizeof(char) * 7; // Jump ahead 7 bytes
     pos += sizeof(char) * 42; // Jump ahead another 42 bytes
-
-    // char pluginVersion[2];
-    // inFile.read((char*) &pluginVersion, sizeof(char) * 2);
-    // pos += sizeof(char) * 2;
-    int pluginVersion = inFile.get();
-    pluginVersion |= inFile.get() << 8;
-    if (pluginVersion > VALLEY_VERSION) {
-        printf("This wavetable ROM file was created with a newer version of Terroform (v%d), and is incompatible with this version (v%d)\n", pluginVersion, VALLEY_VERSION);
-        printf("Please upgrade this module to use this ROM file\n");
-        return;
-    }
 
     // Get number of tables and their respective sizes
     inFile.seekg(pos);

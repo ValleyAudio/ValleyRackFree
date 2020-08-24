@@ -9,7 +9,7 @@ using namespace rack;
 
 #define TFORM_MAX_BANKS 64
 #define TFORM_MAX_NUM_WAVES 64
-#define TFORM_MAX_WAVELENGTH 2048
+#define TFORM_MAX_WAVELENGTH 256
 #define TFORM_WAVELENGTH_CAP 256
 
 extern Plugin *pluginInstance;
