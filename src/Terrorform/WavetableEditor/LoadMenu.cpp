@@ -12,16 +12,16 @@ TFormLoadMenu::TFormLoadMenu() {
         ingestNewTable(startWaveField->value - 1, endWaveField->value - 1);
     };
 
+    confirmButton = createNewMenuButton("Okay", triggerIngest, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
+    addChild(confirmButton);
+
     cancelButton = createNewMenuButton("Cancel", NULL, buttonWidth * 4 + buttonOffset * 5, 3, buttonWidth, buttonHeight);
     cancelButton->onClick = [=]() {
         hide();
     };
     addChild(cancelButton);
 
-    confirmButton = createNewMenuButton("Okay", triggerIngest, buttonWidth * 4 + buttonOffset * 5, 21, buttonWidth, buttonHeight);
-    addChild(confirmButton);
-
-    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5,27.f));
+    waveDisplay = createWidget<TFormEditorWaveDisplay>(Vec(1.5, 27.f));
     waveDisplay->box.size.x = box.size.x - 3.f;
     waveDisplay->box.size.y = box.size.y - 27.f;
     addChild(waveDisplay);
