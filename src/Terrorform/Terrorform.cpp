@@ -436,7 +436,7 @@ void Terrorform::process(const ProcessArgs &args) {
     __fmB2Level = _mm_set1_ps(fmB2Level);
     __fmAVCACV = _mm_set1_ps(fmAVCACV);
     __fmBVCACV = _mm_set1_ps(fmBVCACV);
-    
+
     // Tick the oscillator
     int g = 0;
     for(auto c = 0; c < numActiveGroups; ++c) {
@@ -577,6 +577,7 @@ void Terrorform::onReset() {
 
     minus6dB = false;
     lpgMode = 0;
+    syncChoice = 0;
 
     Module::onReset();
 }
