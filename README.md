@@ -1,18 +1,16 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 1.0.0
+3rd party plugins for VCV Rack version 1.1.0
 
 ### Version
 
-1.0 Beta
-
-Beta version of new v1.0 modules.
+1.1.0
 
 ### Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have 1.0.0 to run these modules.
+You must have 1.1.0 to use these modules.
 
 ### Modules
 
@@ -24,15 +22,12 @@ sounds, as well as be able to be tuned and excited at very short reverb times. I
 well known Dattorro (1997) plate reverb algorithm.
 * Amalgam - A signal masher and multipler
 * Interzone - A complete, monophonic, virtual analogue synth voice
+* Terrorform - A wavetable oscillator based of the operator section of Dexter, but far more enhanced. Allows for loading of user wavetables.
 
 ![Valley](./ValleyImg.png)
 
 ### Installation
-The latest release will be always available from the official Rack [Plugin Manager](https://vcvrack.com/plugins.html). However if you prefer, you can download and extract the .zip file from this git repository under releases, then place the extracted folder in:
-
-    * Mac - ~/Documents/Rack/plugins
-    * Windows - /My Documents/Rack/plugins
-    * Linux - ~/.Rack/plugins
+The latest release will be always available from the official Rack [Plugin Manager](https://vcvrack.com/plugins.html).
 
 ## Usage
 

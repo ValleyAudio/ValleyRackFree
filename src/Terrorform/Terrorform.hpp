@@ -305,6 +305,7 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Lowpass Gate
+    bool gateInputIsMono;
     dsp::Timer lpgButtonTimer;
     int lpgMode = 0;
     bool lpgButtonPressed = false;
@@ -365,7 +366,7 @@ struct Terrorform : Module {
 
     bool romIsLoading = false;
     bool displayCV = false;
-    bool minus6dB = false;
+    bool minus12dB = false;
 
     Terrorform();
     ~Terrorform();

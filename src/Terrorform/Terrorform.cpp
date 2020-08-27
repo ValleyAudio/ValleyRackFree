@@ -61,7 +61,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::LFO_SWITCH_PARAM, 0.0, 1.0, 0.0, "LFO Mode");
     configParam(Terrorform::ZERO_SWITCH_PARAM, 0.0, 1.0, 0.0, "Zero Frequency Mode");
     configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Phasor shaping");
-    configParam(Terrorform::DISPLAY_CV_SWITCH_PARAM, 0.0, 1.0, 0.0, "Display CV Offset");
+    configParam(Terrorform::DISPLAY_CV_SWITCH_PARAM, 0.0, 1.0, 1.0, "Display CV Offset");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
@@ -97,7 +97,7 @@ Terrorform::Terrorform() {
     __tenths = _mm_set1_ps(0.1f);
     __hundredths = _mm_set1_ps(0.01f);
     __quarters = _mm_set1_ps(0.25f);
-    __halfLevel = _mm_set1_ps(2.5f);
+    __halfLevel = _mm_set1_ps(1.25f);
     __fullLevel = __fives;
 
     __sync1 = __zeros;
@@ -292,6 +292,7 @@ void Terrorform::process(const ProcessArgs &args) {
         numActiveGroups = (int) std::ceil((float) numActiveChannels / 4.f);
         numActiveGroups = numActiveGroups < 1 ? 1 : numActiveGroups;
 
+        gateInputIsMono = inputs[TRIGGER_1_INPUT].isMonophonic() & inputs[TRIGGER_2_INPUT].isMonophonic();
         sync1IsMono = inputs[SYNC_1_INPUT].isMonophonic();
         sync2IsMono = inputs[SYNC_2_INPUT].isMonophonic();
         fmA1IsMono = inputs[FM_A1_INPUT].isMonophonic();
@@ -457,8 +458,8 @@ void Terrorform::process(const ProcessArgs &args) {
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
 
         // LPG
-        __trigger1 = _mm_load_ps(trigger1 + g);
-        __trigger2 = _mm_load_ps(trigger2 + g);
+        __trigger1 = gateInputIsMono ? _mm_set1_ps(trigger1[0]) : _mm_load_ps(trigger1 + g);
+        __trigger2 = gateInputIsMono ? _mm_set1_ps(trigger2[0]) : _mm_load_ps(trigger2 + g);
         __trigger1 = _mm_mul_ps(__trigger1, __tenths);
         __trigger2 = _mm_mul_ps(__trigger2, __tenths);
 
@@ -466,7 +467,6 @@ void Terrorform::process(const ProcessArgs &args) {
                                     __trigger1, __lpgVelocitySensitiveFlag);
         __trigger2 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger2, __zeros)),
                                     __trigger2, __lpgVelocitySensitiveFlag);
-
 
         lpg[c].setAttack(_mm_load_ps(attacks + g), lpgLongTime);
         lpg[c].setDecay(_mm_load_ps(decays + g), lpgLongTime);
@@ -533,7 +533,7 @@ void Terrorform::process(const ProcessArgs &args) {
             __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
         }
 
-        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], minus6dB ? __halfLevel : __fullLevel);
+        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], minus12dB ? __halfLevel : __fullLevel);
         __mainOutput[c] = _mm_min_ps(_mm_max_ps(__mainOutput[c], __negTens), __tens);
 
         _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
@@ -575,7 +575,7 @@ void Terrorform::onReset() {
     params[TRUE_FM_SWITCH_PARAM].setValue(0.f);
     params[SWAP_SWITCH_PARAM].setValue(0.f);
 
-    minus6dB = false;
+    minus12dB = false;
     lpgMode = 0;
     syncChoice = 0;
 
@@ -589,7 +589,7 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "displayStyle", json_integer(displayStyle));
     json_object_set_new(rootJ, "lpgMode", json_integer(lpgMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
-    json_object_set_new(rootJ, "reduceOutputLevel", json_integer(minus6dB));
+    json_object_set_new(rootJ, "reduceOutputLevel", json_integer(minus12dB));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -630,7 +630,7 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     displayStyle = json_integer_value(displayStyleJ);
     lpgMode = json_integer_value(lpgModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
-    minus6dB = json_integer_value(reduceOutputLevelJ);
+    minus12dB = json_integer_value(reduceOutputLevelJ);
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
@@ -771,7 +771,7 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 }
 
 void TerrorformOutputLevelItem::onAction(const event::Action &e) {
-    module->minus6dB ^= true;
+    module->minus12dB ^= true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1585,7 +1585,7 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     outputLevelLabel->text = "Output level";
     menu->addChild(outputLevelLabel);
 
-    TerrorformOutputLevelItem* outputLevelItem = createMenuItem<TerrorformOutputLevelItem>("Reduce level by -6dB", CHECKMARK(module->minus6dB));
+    TerrorformOutputLevelItem* outputLevelItem = createMenuItem<TerrorformOutputLevelItem>("Reduce level by 12dB", CHECKMARK(module->minus12dB));
     outputLevelItem->module = module;
     menu->addChild(outputLevelItem);
 
