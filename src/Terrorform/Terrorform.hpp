@@ -170,6 +170,17 @@ struct Terrorform : Module {
         NUM_LIGHTS
     };
 
+    enum VoicingModes {
+        AUTO_VOICING,
+        UNISON_8X2_VOICING,
+        UNISON_5X3_VOICING,
+        UNISON_4X4_VOICING,
+        UNISON_3X5_VOICING,
+        UNISON_2X8_VOICING,
+        UNISON_1X16_VOICING,
+        NUM_VOICING_MODES
+    };
+
     int panelStyle = 0;
     int displayStyle = 0;
 
@@ -178,6 +189,7 @@ struct Terrorform : Module {
     int numActiveGroups = 0;
 
     FreqLUT freqLUT;
+    VoicingModes voicingMode;
     ScanningQuadOsc osc[kMaxNumGroups];
     VecEnhancer enhancer[kMaxNumGroups];
     VecLPG lpg[kMaxNumGroups];
@@ -389,6 +401,17 @@ struct Terrorform : Module {
 struct TerrorformManagerItem : MenuItem {
     std::function<void()> openMenu;
     void onAction(const event::Action &e) override;
+};
+
+struct TerrorformVoicingValueItem : MenuItem {
+    Terrorform* module;
+    Terrorform::VoicingModes voicingMode;
+    void onAction(const event::Action &e) override;
+};
+
+struct TerrorformVoicingItem : MenuItem {
+    Terrorform* module;
+    Menu* createChildMenu() override;
 };
 
 struct TerrorformOutputLevelItem : MenuItem {

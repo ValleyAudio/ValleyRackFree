@@ -748,14 +748,37 @@ void Terrorform::defragmentBanks() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TerrorformPanelStyleItem::onAction(const event::Action &e) {
-    module->panelStyle = panelStyle;
+void TerrorformManagerItem::onAction(const event::Action &e) {
+    openMenu();
 }
 
-void TerrorformPanelStyleItem::step() {
-    rightText = (module->panelStyle == panelStyle) ? "✔" : "";
-    MenuItem::step();
+void TerrorformVoicingValueItem::onAction(const event::Action &e) {
+    module->voicingMode = voicingMode;
 }
+
+Menu* TerrorformVoicingItem::createChildMenu() {
+    Menu* menu = new Menu;
+    std::vector<Terrorform::Terrorform::VoicingModes> voicingModes = {Terrorform::AUTO_VOICING, Terrorform::UNISON_8X2_VOICING, Terrorform::UNISON_5X3_VOICING,
+                                              Terrorform::UNISON_4X4_VOICING, Terrorform::UNISON_3X5_VOICING,
+                                              Terrorform::UNISON_2X8_VOICING, Terrorform::UNISON_1X16_VOICING};
+    std::vector<std::string> voicingNames = {"Auto (Normal)", "Unison 8x2", "Unison 5x3",
+                                             "Unison 4x4", "Unison 3x5", "Unison 2x8", "Unison 1x16"};
+    for (size_t i = 0; i < Terrorform::NUM_VOICING_MODES; ++i) {
+        TerrorformVoicingValueItem* item = new TerrorformVoicingValueItem;
+        item->text = voicingNames[i];
+        item->rightText = RIGHT_ARROW;
+        item->module = module;
+        item->voicingMode = voicingModes[i];
+        menu->addChild(item);
+    }
+    return menu;
+}
+
+
+void TerrorformOutputLevelItem::onAction(const event::Action &e) {
+    module->minus12dB ^= true;
+}
+
 
 void TerrorformDisplayStyleItem::onAction(const event::Action &e) {
     module->displayStyle = displayStyle;
@@ -766,12 +789,14 @@ void TerrorformDisplayStyleItem::step() {
     MenuItem::step();
 }
 
-void TerrorformManagerItem::onAction(const event::Action &e) {
-    openMenu();
+
+void TerrorformPanelStyleItem::onAction(const event::Action &e) {
+    module->panelStyle = panelStyle;
 }
 
-void TerrorformOutputLevelItem::onAction(const event::Action &e) {
-    module->minus12dB ^= true;
+void TerrorformPanelStyleItem::step() {
+    rightText = (module->panelStyle == panelStyle) ? "✔" : "";
+    MenuItem::step();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1577,6 +1602,15 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         inEditorMode = true;
     };
     menu->addChild(managerItem);
+
+    // Voicing modes
+    menu->addChild(construct<MenuLabel>());
+
+    TerrorformVoicingItem* voicingModeItem = new TerrorformVoicingItem;
+    voicingModeItem->text = "Polyphony Voicing mode";
+    voicingModeItem->rightText = RIGHT_ARROW;
+    voicingModeItem->module = module;
+    menu->addChild(voicingModeItem);
 
     // Output level item
     menu->addChild(construct<MenuLabel>());
