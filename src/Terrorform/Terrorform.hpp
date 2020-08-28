@@ -172,12 +172,12 @@ struct Terrorform : Module {
 
     enum VoicingModes {
         AUTO_VOICING,
-        UNISON_8X2_VOICING,
-        UNISON_5X3_VOICING,
-        UNISON_4X4_VOICING,
-        UNISON_3X5_VOICING,
-        UNISON_2X8_VOICING,
-        UNISON_1X16_VOICING,
+        MONO_UNISON_3_VOICING,
+        MONO_UNISON_5_VOICING,
+        MONO_UNISON_7_VOICING,
+        MONO_UNISON_8_VOICING,
+        MONO_UNISON_12_VOICING,
+        MONO_UNISON_16_VOICING,
         NUM_VOICING_MODES
     };
 
@@ -187,9 +187,14 @@ struct Terrorform : Module {
     static const int kMaxNumGroups = 4;
     int numActiveChannels = 0;
     int numActiveGroups = 0;
+    float spread = 0.01f;
+    float spreadPitches[kMaxNumGroups * 4] = {
+        0, -1, -0.866666667, -0.733333333, -0.6, -0.466666667, -0.333333333, -0.2,
+        0.066666667, 0.2, 0.333333333, 0.466666667, 0.6, 0.733333333, 0.866666667, 1
+    };
 
     FreqLUT freqLUT;
-    VoicingModes voicingMode;
+    VoicingModes voicingMode = AUTO_VOICING;
     ScanningQuadOsc osc[kMaxNumGroups];
     VecEnhancer enhancer[kMaxNumGroups];
     VecLPG lpg[kMaxNumGroups];
@@ -317,7 +322,8 @@ struct Terrorform : Module {
     bool prevWeakSwitch2State = false;
 
     // Lowpass Gate
-    bool gateInputIsMono;
+    bool gateInput1IsMono;
+    bool gateInput2IsMono;
     dsp::Timer lpgButtonTimer;
     int lpgMode = 0;
     bool lpgButtonPressed = false;
@@ -386,6 +392,7 @@ struct Terrorform : Module {
     void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
     void onReset() override; // For some stupid reason some buttons don't reset?!??!?!
+    void manageVoices();
 
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
@@ -407,6 +414,7 @@ struct TerrorformVoicingValueItem : MenuItem {
     Terrorform* module;
     Terrorform::VoicingModes voicingMode;
     void onAction(const event::Action &e) override;
+    void step() override;
 };
 
 struct TerrorformVoicingItem : MenuItem {

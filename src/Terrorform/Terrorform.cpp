@@ -85,6 +85,8 @@ Terrorform::Terrorform() {
     rootShapeDepth = 0.f;
     rootEnhanceDepth = 0.f;
 
+    spread = 0.1f;
+
     __zeros = _mm_set1_ps(0.f);
     __ones = _mm_set1_ps(1.f);
     __negOnes = _mm_set1_ps(-1.f);
@@ -286,13 +288,8 @@ void Terrorform::process(const ProcessArgs &args) {
         lights[ZERO_LIGHT].value = (float) zeroFreqEnabled;
         lights[DISPLAY_CV_LIGHT].value = (float) displayCV;
 
-        numActiveChannels = std::max(inputs[VOCT_1_INPUT].getChannels(),
-                                     inputs[VOCT_2_INPUT].getChannels());
-        numActiveChannels = numActiveChannels < 1 ? 1 : numActiveChannels;
-        numActiveGroups = (int) std::ceil((float) numActiveChannels / 4.f);
-        numActiveGroups = numActiveGroups < 1 ? 1 : numActiveGroups;
-
-        gateInputIsMono = inputs[TRIGGER_1_INPUT].isMonophonic() & inputs[TRIGGER_2_INPUT].isMonophonic();
+        gateInput1IsMono = inputs[TRIGGER_1_INPUT].isMonophonic();
+        gateInput2IsMono = inputs[TRIGGER_2_INPUT].isMonophonic();
         sync1IsMono = inputs[SYNC_1_INPUT].isMonophonic();
         sync2IsMono = inputs[SYNC_2_INPUT].isMonophonic();
         fmA1IsMono = inputs[FM_A1_INPUT].isMonophonic();
@@ -306,6 +303,8 @@ void Terrorform::process(const ProcessArgs &args) {
 
         skewParam = inputs[SKEW_INPUT].isConnected() ? 0.f : params[SKEW_PARAM].getValue() * 0.18f;
         skewCV = inputs[SKEW_INPUT].isConnected() ? params[SKEW_PARAM].getValue() : 0.f;
+
+        manageVoices();
 
         counter = 0;
     }
@@ -378,7 +377,7 @@ void Terrorform::process(const ProcessArgs &args) {
     for(auto i = 0; i < numActiveChannels; ++i) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
-                                        rootPitch);
+                                        rootPitch + spreadPitches[i] * spread);
         wavesCV[i] = inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
         wavesCV[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
         waves[i] = (rootWave + wavesCV[i]) * numWavesInTable;
@@ -458,8 +457,8 @@ void Terrorform::process(const ProcessArgs &args) {
         osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
 
         // LPG
-        __trigger1 = gateInputIsMono ? _mm_set1_ps(trigger1[0]) : _mm_load_ps(trigger1 + g);
-        __trigger2 = gateInputIsMono ? _mm_set1_ps(trigger2[0]) : _mm_load_ps(trigger2 + g);
+        __trigger1 = gateInput1IsMono ? _mm_set1_ps(trigger1[0]) : _mm_load_ps(trigger1 + g);
+        __trigger2 = gateInput2IsMono ? _mm_set1_ps(trigger2[0]) : _mm_load_ps(trigger2 + g);
         __trigger1 = _mm_mul_ps(__trigger1, __tenths);
         __trigger2 = _mm_mul_ps(__trigger2, __tenths);
 
@@ -685,6 +684,34 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     }
 }
 
+void Terrorform::manageVoices() {
+    if (voicingMode == MONO_UNISON_3_VOICING) {
+        numActiveChannels = 3;
+    }
+    else if (voicingMode == MONO_UNISON_5_VOICING) {
+        numActiveChannels = 5;
+    }
+    else if (voicingMode == MONO_UNISON_7_VOICING) {
+        numActiveChannels = 7;
+    }
+    else if (voicingMode == MONO_UNISON_8_VOICING) {
+        numActiveChannels = 8;
+    }
+    else if (voicingMode == MONO_UNISON_12_VOICING) {
+        numActiveChannels = 12;
+    }
+    else if (voicingMode == MONO_UNISON_16_VOICING) {
+        numActiveChannels = 16;
+    }
+    else {
+        numActiveChannels = std::max(inputs[VOCT_1_INPUT].getChannels(),
+                                     inputs[VOCT_2_INPUT].getChannels());
+    }
+    numActiveChannels = numActiveChannels < 1 ? 1 : numActiveChannels;
+    numActiveGroups = (int) std::ceil((float) numActiveChannels / 4.f);
+    numActiveGroups = numActiveGroups < 1 ? 1 : numActiveGroups;
+}
+
 void Terrorform::clearBank(int bankNum) {
     for (int wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
         for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
@@ -756,23 +783,40 @@ void TerrorformVoicingValueItem::onAction(const event::Action &e) {
     module->voicingMode = voicingMode;
 }
 
+void TerrorformVoicingValueItem::step() {
+    rightText = (module->voicingMode == voicingMode) ? "✔" : "";
+    MenuItem::step();
+}
+
 Menu* TerrorformVoicingItem::createChildMenu() {
     Menu* menu = new Menu;
-    std::vector<Terrorform::Terrorform::VoicingModes> voicingModes = {Terrorform::AUTO_VOICING, Terrorform::UNISON_8X2_VOICING, Terrorform::UNISON_5X3_VOICING,
-                                              Terrorform::UNISON_4X4_VOICING, Terrorform::UNISON_3X5_VOICING,
-                                              Terrorform::UNISON_2X8_VOICING, Terrorform::UNISON_1X16_VOICING};
-    std::vector<std::string> voicingNames = {"Auto (Normal)", "Unison 8x2", "Unison 5x3",
-                                             "Unison 4x4", "Unison 3x5", "Unison 2x8", "Unison 1x16"};
-    for (size_t i = 0; i < Terrorform::NUM_VOICING_MODES; ++i) {
+    std::vector<std::string> voicingNames = {"Auto (based on V/Oct input)",
+                                             "Mono Unison 3 Voices",
+                                             "Mono Unison 5 Voices",
+                                             "Mono Unison 7 Voices",
+                                             "Mono Unison 8 Voices",
+                                             "Mono Unison 12 Voices",
+                                             "Mono Unison 16 Voices"};
+
+    std::vector<Terrorform::VoicingModes> voicingModes =  {Terrorform::VoicingModes::AUTO_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_3_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_5_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_7_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_8_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_12_VOICING,
+                                                           Terrorform::VoicingModes::MONO_UNISON_16_VOICING};
+
+
+    for (size_t i = 0; i < Terrorform::VoicingModes::NUM_VOICING_MODES; ++i) {
         TerrorformVoicingValueItem* item = new TerrorformVoicingValueItem;
         item->text = voicingNames[i];
-        item->rightText = RIGHT_ARROW;
         item->module = module;
         item->voicingMode = voicingModes[i];
         menu->addChild(item);
     }
     return menu;
 }
+
 
 
 void TerrorformOutputLevelItem::onAction(const event::Action &e) {
@@ -1607,7 +1651,7 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<MenuLabel>());
 
     TerrorformVoicingItem* voicingModeItem = new TerrorformVoicingItem;
-    voicingModeItem->text = "Polyphony Voicing mode";
+    voicingModeItem->text = "Number of voices";
     voicingModeItem->rightText = RIGHT_ARROW;
     voicingModeItem->module = module;
     menu->addChild(voicingModeItem);
