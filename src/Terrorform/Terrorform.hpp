@@ -170,17 +170,6 @@ struct Terrorform : Module {
         NUM_LIGHTS
     };
 
-    enum VoicingModes {
-        AUTO_VOICING,
-        MONO_UNISON_3_VOICING,
-        MONO_UNISON_5_VOICING,
-        MONO_UNISON_7_VOICING,
-        MONO_UNISON_8_VOICING,
-        MONO_UNISON_12_VOICING,
-        MONO_UNISON_16_VOICING,
-        NUM_VOICING_MODES
-    };
-
     int panelStyle = 0;
     int displayStyle = 0;
 
@@ -194,7 +183,7 @@ struct Terrorform : Module {
     };
 
     FreqLUT freqLUT;
-    VoicingModes voicingMode = AUTO_VOICING;
+    int numVoices = 0;
     ScanningQuadOsc osc[kMaxNumGroups];
     VecEnhancer enhancer[kMaxNumGroups];
     VecLPG lpg[kMaxNumGroups];
@@ -412,7 +401,7 @@ struct TerrorformManagerItem : MenuItem {
 
 struct TerrorformVoicingValueItem : MenuItem {
     Terrorform* module;
-    Terrorform::VoicingModes voicingMode;
+    int numVoices;
     void onAction(const event::Action &e) override;
     void step() override;
 };
@@ -440,6 +429,8 @@ struct TerrorformPanelStyleItem : MenuItem {
     void onAction(const event::Action &e) override;
     void step() override;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct TerrorformWidget : ModuleWidget {
     int errorDisplayTime = 30 * 5;
@@ -709,6 +700,9 @@ struct TerrorformWidget : ModuleWidget {
     DynamicText* enhanceDepthBlurText2;
     DynamicText* syncBlurText;
     DynamicText* syncBlurText2;
+
+    PlainText* rightHandVOctText;
+    Vec rightHandVOctTextPos = Vec(284.5, 51.5);
 
     std::shared_ptr<std::string> bankStr;
     std::shared_ptr<std::string> shapeTypeStr;

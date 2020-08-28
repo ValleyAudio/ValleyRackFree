@@ -685,27 +685,12 @@ void Terrorform::dataFromJson(json_t *rootJ) {
 }
 
 void Terrorform::manageVoices() {
-    if (voicingMode == MONO_UNISON_3_VOICING) {
-        numActiveChannels = 3;
-    }
-    else if (voicingMode == MONO_UNISON_5_VOICING) {
-        numActiveChannels = 5;
-    }
-    else if (voicingMode == MONO_UNISON_7_VOICING) {
-        numActiveChannels = 7;
-    }
-    else if (voicingMode == MONO_UNISON_8_VOICING) {
-        numActiveChannels = 8;
-    }
-    else if (voicingMode == MONO_UNISON_12_VOICING) {
-        numActiveChannels = 12;
-    }
-    else if (voicingMode == MONO_UNISON_16_VOICING) {
-        numActiveChannels = 16;
-    }
-    else {
+    if (numVoices == 0) {
         numActiveChannels = std::max(inputs[VOCT_1_INPUT].getChannels(),
                                      inputs[VOCT_2_INPUT].getChannels());
+    }
+    else {
+        numActiveChannels = numVoices;
     }
     numActiveChannels = numActiveChannels < 1 ? 1 : numActiveChannels;
     numActiveGroups = (int) std::ceil((float) numActiveChannels / 4.f);
@@ -780,44 +765,27 @@ void TerrorformManagerItem::onAction(const event::Action &e) {
 }
 
 void TerrorformVoicingValueItem::onAction(const event::Action &e) {
-    module->voicingMode = voicingMode;
+    module->numVoices = numVoices;
 }
 
 void TerrorformVoicingValueItem::step() {
-    rightText = (module->voicingMode == voicingMode) ? "✔" : "";
+    rightText = (module->numVoices == numVoices) ? "✔" : "";
     MenuItem::step();
 }
 
 Menu* TerrorformVoicingItem::createChildMenu() {
     Menu* menu = new Menu;
-    std::vector<std::string> voicingNames = {"Auto (based on V/Oct input)",
-                                             "Mono Unison 3 Voices",
-                                             "Mono Unison 5 Voices",
-                                             "Mono Unison 7 Voices",
-                                             "Mono Unison 8 Voices",
-                                             "Mono Unison 12 Voices",
-                                             "Mono Unison 16 Voices"};
+    std::string autoText = "Auto";
 
-    std::vector<Terrorform::VoicingModes> voicingModes =  {Terrorform::VoicingModes::AUTO_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_3_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_5_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_7_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_8_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_12_VOICING,
-                                                           Terrorform::VoicingModes::MONO_UNISON_16_VOICING};
-
-
-    for (size_t i = 0; i < Terrorform::VoicingModes::NUM_VOICING_MODES; ++i) {
+    for (size_t i = 0; i < 17; ++i) {
         TerrorformVoicingValueItem* item = new TerrorformVoicingValueItem;
-        item->text = voicingNames[i];
+        item->text = (i == 0 ? autoText : std::to_string(i));
         item->module = module;
-        item->voicingMode = voicingModes[i];
+        item->numVoices = i;
         menu->addChild(item);
     }
     return menu;
 }
-
-
 
 void TerrorformOutputLevelItem::onAction(const event::Action &e) {
     module->minus12dB ^= true;
@@ -995,6 +963,15 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addParam(createParamCentered<RoganSmallWhite>(fmA2Pos, module, Terrorform::FM_A2_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(fmB1Pos, module, Terrorform::FM_B1_ATTEN_PARAM));
     addParam(createParamCentered<RoganSmallWhite>(fmB2Pos, module, Terrorform::FM_B2_ATTEN_PARAM));
+
+    // Right Hand VOct Text
+    rightHandVOctText = new PlainText;
+    rightHandVOctText->box.pos = rightHandVOctTextPos;
+    rightHandVOctText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    rightHandVOctText->text = "VOct";
+    rightHandVOctText->size = 12;
+    rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    addChild(rightHandVOctText);
 
     // Back text
     auto makeBackText = [=](const Vec& pos, int length, const NVGalign& align) {
@@ -1650,11 +1627,11 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     // Voicing modes
     menu->addChild(construct<MenuLabel>());
 
-    TerrorformVoicingItem* voicingModeItem = new TerrorformVoicingItem;
-    voicingModeItem->text = "Number of voices";
-    voicingModeItem->rightText = RIGHT_ARROW;
-    voicingModeItem->module = module;
-    menu->addChild(voicingModeItem);
+    TerrorformVoicingItem* numVoicesItem = new TerrorformVoicingItem;
+    numVoicesItem->text = "Number of voices";
+    numVoicesItem->rightText = RIGHT_ARROW;
+    numVoicesItem->module = module;
+    menu->addChild(numVoicesItem);
 
     // Output level item
     menu->addChild(construct<MenuLabel>());
@@ -1741,6 +1718,13 @@ void TerrorformWidget::step() {
     }
     else {
         panels[TRRFORM_DARK_PANEL_NORMAL + panelStyleOffset]->visible = true;
+    }
+
+    if (tform->panelStyle) {
+        rightHandVOctText->color = nvgRGB(0x00, 0x00, 0x00);
+    }
+    else {
+        rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     }
 
     displayStyle = (TerrorformDisplayColourModes)(tform->displayStyle * 2);
