@@ -589,6 +589,7 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "lpgMode", json_integer(lpgMode));
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
     json_object_set_new(rootJ, "reduceOutputLevel", json_integer(minus12dB));
+    json_object_set_new(rootJ, "spreadActive", json_integer(spreadActive));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -624,12 +625,18 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *lpgModeJ = json_object_get(rootJ, "lpgMode");
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
     json_t *reduceOutputLevelJ = json_object_get(rootJ, "reduceOutputLevel");
+    json_t *spreadActiveJ = json_object_get(rootJ, "spreadActive");
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
     lpgMode = json_integer_value(lpgModeJ);
     syncChoice = json_integer_value(syncChoiceJ);
     minus12dB = json_integer_value(reduceOutputLevelJ);
+
+    // Key was not present during late beta testing
+    if (spreadActiveJ) {
+        spreadActive = json_integer_value(spreadActiveJ);
+    }
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
@@ -1721,7 +1728,7 @@ void TerrorformWidget::step() {
     }
 
     if (tform->panelStyle) {
-        rightHandVOctText->color = nvgRGB(0x00, 0x00, 0x00);
+        rightHandVOctText->color = nvgRGB(0x1E, 0x1E, 0x1E);
     }
     else {
         rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);

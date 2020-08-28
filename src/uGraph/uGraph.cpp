@@ -5,9 +5,9 @@
 // Date: 5/12/2017
 //
 // UGraph, a port of "Mutable Instruments Grids" for VCV Rack
-// Original author: Olivier Gillet (ol.gillet@gmail.com)
+// Original author: Emilie Gillet (emilie.o.gillet@gmail.com)
 // https://github.com/pichenettes/eurorack/tree/master/grids
-// Copyright 2012 Olivier Gillet.
+// Copyright 2012 Emilie Gillet.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -120,10 +120,10 @@ struct UGraph : Module {
 
     enum SequencerMode {
         HENRI,
-        OLIVIER,
+        ORIGINAL,
         EUCLIDEAN
     };
-    SequencerMode sequencerMode = OLIVIER;
+    SequencerMode sequencerMode = ORIGINAL;
     int inEuclideanMode = 0;
 
     unsigned long sequencerModeChoice = 0;
@@ -299,7 +299,7 @@ void UGraph::step() {
 
     switch(sequencerModeChoice) {
         case 0:
-            grids.setPatternMode(PATTERN_OLIVIER);
+            grids.setPatternMode(PATTERN_ORIGINAL);
             inEuclideanMode = 0;
             break;
         case 1:
@@ -575,7 +575,7 @@ UGraphDynamicText* createUGraphDynamicText(const Vec& pos, int size, int* colour
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct UGraphWidget : ModuleWidget {
-    const std::string seqModeItemText[3] = {"Olivier", "Henri", "Euclid"};
+    const std::string seqModeItemText[3] = {"Original", "Henri", "Euclid"};
     const std::string clockResText[3] = {"4 PPQN", "8 PPQN", "24 PPQN"};
     SvgPanel* lightPanel;
     UGraphWidget(UGraph *module);

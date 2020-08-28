@@ -176,6 +176,7 @@ struct Terrorform : Module {
     static const int kMaxNumGroups = 4;
     int numActiveChannels = 0;
     int numActiveGroups = 0;
+    bool spreadActive = false;
     float spread = 0.01f;
     float spreadPitches[kMaxNumGroups * 4] = {
         0, -1, -0.866666667, -0.733333333, -0.6, -0.466666667, -0.333333333, -0.2,

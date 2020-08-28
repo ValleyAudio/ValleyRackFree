@@ -5,9 +5,9 @@
 // Date: 5/12/2017
 //
 // Topograph, a port of "Mutable Instruments Grids" for VCV Rack
-// Original author: Olivier Gillet (ol.gillet@gmail.com)
+// Original author: Emilie Gillet (emilie.o.gillet@gmail.com)
 // https://github.com/pichenettes/eurorack/tree/master/grids
-// Copyright 2012 Olivier Gillet.
+// Copyright 2012 Emilie Gillet.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -120,7 +120,7 @@ struct Topograph : Module {
 
     enum SequencerMode {
         HENRI,
-        OLIVIER,
+        ORIGINAL,
         EUCLIDEAN
     };
     SequencerMode sequencerMode = HENRI;
@@ -213,8 +213,8 @@ struct Topograph : Module {
                 case HENRI:
                     grids.setPatternMode(PATTERN_HENRI);
                     break;
-                case OLIVIER:
-                    grids.setPatternMode(PATTERN_OLIVIER);
+                case ORIGINAL:
+                    grids.setPatternMode(PATTERN_ORIGINAL);
                     break;
                 case EUCLIDEAN:
                     grids.setPatternMode(PATTERN_EUCLIDEAN);
@@ -636,8 +636,8 @@ struct TopographSequencerModeItem : MenuItem {
             case Topograph::HENRI:
                 module->grids.setPatternMode(PATTERN_HENRI);
                 break;
-            case Topograph::OLIVIER:
-                module->grids.setPatternMode(PATTERN_OLIVIER);
+            case Topograph::ORIGINAL:
+                module->grids.setPatternMode(PATTERN_ORIGINAL);
                 break;
             case Topograph::EUCLIDEAN:
                 module->grids.setPatternMode(PATTERN_EUCLIDEAN);
@@ -724,8 +724,8 @@ void TopographWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Sequencer Mode"));
     menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Henri", &TopographSequencerModeItem::module,
                                                          module, &TopographSequencerModeItem::sequencerMode, Topograph::HENRI));
-    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Olivier", &TopographSequencerModeItem::module,
-                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::OLIVIER));
+    menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Original", &TopographSequencerModeItem::module,
+                                                         module, &TopographSequencerModeItem::sequencerMode, Topograph::ORIGINAL));
     menu->addChild(construct<TopographSequencerModeItem>(&MenuItem::text, "Euclidean", &TopographSequencerModeItem::module,
                                                          module, &TopographSequencerModeItem::sequencerMode, Topograph::EUCLIDEAN));
 
