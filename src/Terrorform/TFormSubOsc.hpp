@@ -61,7 +61,8 @@ public:
 
         __output = _mm_linterp_ps(__sine, __saw, __wave1);
         __output = _mm_linterp_ps(__output, __square, __wave2);
-        return _mm_linterp_ps(__output, __glitch, __wave3);
+        __output = _mm_linterp_ps(__output, __glitch, __wave3);
+        return __output;
     }
 
     void setWave(const __m128& param) {
@@ -81,12 +82,14 @@ public:
         __counter = __zeros;
     }
 
+    __m128 __output;
+
 private:
     __m128 __zeros, __ones, __twos, __threes, __halfs, __negOnes, __pi;
     __m128 __posEpsilon, __negEpsilon;
     __m128 __a, __b, __c, __y;
     __m128 __counter, __stepSize, __trig, __prev;
-    __m128 __square, __saw, __sine, __glitch, __output;
+    __m128 __square, __saw, __sine, __glitch;
     __m128 __wave1, __wave2, __wave3;
     VecOnePoleLPFilter __filter;
 };
