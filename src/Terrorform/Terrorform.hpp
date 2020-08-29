@@ -30,7 +30,7 @@
 #include "../Common/SIMD/QuadOsc.hpp"
 #include "../Common/SIMD/VecLPG.hpp"
 #include "../Common/FreqLUT.hpp"
-#include "../../dep/dr_wav.h"
+#include "../dep/dr_wav.h"
 #include "TerrorformWavetableROM.hpp"
 #include "TerrorformWaveTableEditor.hpp"
 #include "TerrorformWaveBank.hpp"
