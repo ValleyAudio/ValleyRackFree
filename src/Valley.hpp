@@ -5,7 +5,7 @@ using namespace rack;
 
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
-#define VALLEY_NAME "ValleyDev"
+#define VALLEY_NAME "Valley"
 
 #define TFORM_MAX_BANKS 64
 #define TFORM_MAX_NUM_WAVES 64
