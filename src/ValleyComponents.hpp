@@ -51,6 +51,12 @@ struct RoganMedGreen : Rogan {
     }
 };
 
+struct RoganMedGreenWithModeText : ValleyRogan {
+    RoganMedGreenWithModeText() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenMed.svg")));
+    }
+};
+
 struct RoganSmallGreen : Rogan {
     RoganSmallGreen() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenSmall.svg")));
@@ -95,6 +101,12 @@ struct RoganMedRed : Rogan {
     }
 };
 
+struct RoganMedRedWithModeText : ValleyRogan {
+    RoganMedRedWithModeText() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedMed.svg")));
+    }
+};
+
 struct RoganSmallRed : Rogan {
     RoganSmallRed() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedSmall.svg")));
@@ -113,6 +125,12 @@ struct RoganMedPurple : Rogan {
     }
 };
 
+struct RoganMedPurpleWithModeText : ValleyRogan {
+    RoganMedPurpleWithModeText() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSPurpleMed.svg")));
+    }
+};
+
 struct RoganSmallPurple : Rogan {
     RoganSmallPurple() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSPurpleSmall.svg")));
@@ -122,6 +140,12 @@ struct RoganSmallPurple : Rogan {
 struct Rogan1PSMustard : Rogan {
     Rogan1PSMustard() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustard.svg")));
+    }
+};
+
+struct RoganMedMustard : Rogan {
+    RoganMedMustard() {
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustardMed.svg")));
     }
 };
 
@@ -213,6 +237,8 @@ struct DynRoganMedPurple : DynamicSvgKnob {
     }
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct LightLEDButton : DynamicSwitchWidget {
     LightLEDButton() {
         momentary = true;
@@ -220,52 +246,95 @@ struct LightLEDButton : DynamicSwitchWidget {
     }
 };
 
-struct RedDynamicLight : DynamicModuleLightWidget {
-	RedDynamicLight() {
-		addBaseColor(SCHEME_RED);
-	}
+struct LightLEDButton2 : SvgSwitch {
+    std::function<void()> onClick;
+    LightLEDButton2() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+    }
+    void onDragEnd(const event::DragEnd& e) override {
+        if(onClick) {
+            onClick();
+        }
+        SvgSwitch::onDragEnd(e);
+    }
 };
 
+struct LightLEDButton3 : SvgSwitch {
+    std::function<void()> onClick;
+    LightLEDButton3() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton.svg")));
+    }
+};
+
+struct LightLEDButtonWithModeText : SvgSwitch {
+    std::function<void()> onClick;
+    std::shared_ptr<std::string> modeText;
+
+    LightLEDButtonWithModeText() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+        modeText = std::make_shared<std::string>();
+    }
+
+    void onDragEnd(const event::DragEnd& e) override {
+        if(onClick) {
+            onClick();
+        }
+        SvgSwitch::onDragEnd(e);
+    }
+
+    void onEnter(const event::Enter& e) override {
+        if (settings::paramTooltip && !tooltip && paramQuantity) {
+            NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+            paramTooltip->nonValueText = modeText;
+            paramTooltip->paramWidget = this;
+            APP->scene->addChild(paramTooltip);
+            tooltip = paramTooltip;
+        }
+    }
+
+    void setModeText(const std::string& newModeText) {
+        if (modeText) {
+            *modeText = newModeText;
+        }
+    }
+};
+
+struct RedDynamicLight : DynamicModuleLightWidget {
+    RedDynamicLight() {
+    addBaseColor(SCHEME_RED);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct PJ301MDarkPort : SvgPort {
-	PJ301MDarkPort() {
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDark.svg")));
-		/*background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
+    PJ301MDarkPort() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDark.svg")));
-	}
+    }
 };
 
 struct PJ301MDarkSmall : SvgPort {
-	PJ301MDarkSmall() {
-		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg"));
-		background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
+    PJ301MDarkSmall() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmall.svg")));
-	}
+    }
 };
 
 struct PJ301MDarkSmallOut : SvgPort {
-	PJ301MDarkSmallOut() {
-		/*background->svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg"));
-		background->wrap();
-		box.size = background->box.size;
-        shadow->box.size = background->box.size;
-    	shadow->box.pos = Vec(0, background->box.size.y * 0.1);*/
+    PJ301MDarkSmallOut() {
         setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MDarkSmallOut.svg")));
-	}
+    }
 };
 
 struct ValleySlider : SvgSlider {
     Vec margin = Vec(-1, -0.55);
     ValleySlider() {
         background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
-		background->wrap();
-		background->box.pos = margin;
-		box.size = background->box.size.plus(margin.mult(2));
+    background->wrap();
+    background->box.pos = margin;
+    box.size = background->box.size.plus(margin.mult(2));
     }
 };
 
@@ -273,64 +342,64 @@ struct ValleyStepSlider : SvgStepSlider {
     Vec margin = Vec(-1, -0.55);
     ValleyStepSlider() {
         background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
-		background->wrap();
-		background->box.pos = margin;
-		box.size = background->box.size.plus(margin.mult(2));
+    background->wrap();
+    background->box.pos = margin;
+    box.size = background->box.size.plus(margin.mult(2));
     }
 };
 
 struct RedSlider : ValleySlider {
-	RedSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderRed.svg"));
-		handle->wrap();
+    RedSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderRed.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 struct OrangeSlider : ValleySlider {
-	OrangeSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderOrange.svg"));
-		handle->wrap();
+    OrangeSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderOrange.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 struct YellowSlider : ValleySlider {
-	YellowSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
-		handle->wrap();
+    YellowSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 struct GreenSlider : ValleySlider {
-	GreenSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
-		handle->wrap();
+    GreenSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 struct BlueSlider : ValleySlider {
-	BlueSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderBlue.svg"));
-		handle->wrap();
+    BlueSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderBlue.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 struct YellowStepSlider : ValleyStepSlider {
-	YellowStepSlider() {
-		handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderYellow.svg"));
-		handle->wrap();
+    YellowStepSlider() {
+    handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderYellow.svg"));
+    handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 0.5).plus(margin);
-		minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
-	}
+    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+    }
 };
 
 #endif // DSJ_VALLEY_COMPONENTS_HPP

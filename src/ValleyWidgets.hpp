@@ -4,6 +4,7 @@
 #include "Valley.hpp"
 #include "window.hpp"
 #include <functional>
+#include <settings.hpp>
 
 // Dynamic Panel
 
@@ -151,6 +152,18 @@ struct SvgStepSlider : app::SvgSlider {
 	void onChange(const event::Change& e) override;
 };
 
+struct PlainText : TransparentWidget {
+    std::string text;
+    std::shared_ptr<Font> font;
+    NVGcolor color;
+    NVGalign horzAlignment;
+    NVGalign vertAlignment;
+    int size;
+
+    PlainText();
+    void draw(const DrawArgs &args) override;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic text
 
@@ -278,22 +291,34 @@ private:
 struct DynamicItem : MenuItem {
     unsigned long _itemNumber;
     unsigned long* _choice;
+    std::function<void(int)> updateChoice;
     DynamicItem(unsigned long itemNumber);
     void onAction(const event::Action &e) override;
+    void step() override;
 };
 
 struct DynamicChoice : ChoiceButton {
-    unsigned long* _choice;
-    std::vector<std::string> _items;
-    std::shared_ptr<std::string> _text;
-    std::shared_ptr<Font> _font;
-    int* _visibility;
-    int _textSize;
     DynamicViewMode _viewMode;
     DynamicChoice();
     void step() override;
     void onAction(const event::Action &e) override;
+    void onEnter(const event::Enter &e) override;
+    void onLeave(const event::Leave &e) override;
     void draw(const DrawArgs &args) override;
+
+    unsigned long* _choice;
+    long _oldChoice;
+    std::vector<std::string> _items;
+    std::shared_ptr<std::string> _text;
+    std::shared_ptr<Font> _font;
+    bool _transparent;
+    int* _visibility;
+    int _textSize;
+
+    std::function<void()> onMouseEnter;
+    std::function<void()> onMouseLeave;
+    std::function<void()> onOpen;
+    std::function<void(int)> updateChoice;
 };
 
 DynamicChoice* createDynamicChoice(const Vec& pos,
@@ -313,5 +338,110 @@ T *createValleyKnob(Vec pos, Module *module, int paramId, float minAngle, float 
     }
 	return o;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Dynamic Menu (An improved dynamic choice)
+
+struct DynamicMenuItem : MenuItem {
+    DynamicMenuItem(int itemNumber);
+    void onAction(const event::Action &e) override;
+    int* _choice;
+    int _itemNumber;
+    bool _showTick;
+    void step() override;
+    std::function<void(int)> setChoice;
+};
+
+struct DynamicSubMenu : MenuItem {
+    Menu* createChildMenu() override;
+	std::vector<std::string> items;
+	int itemOffset;
+	int* choice;
+	bool showTick;
+	std::function<void(int)> setChoice;
+};
+
+struct DynamicMenu : ChoiceButton {
+    DynamicMenu();
+    void step() override;
+    void onAction(const event::Action &e) override;
+    void onEnter(const event::Enter &e) override;
+    void onLeave(const event::Leave &e) override;
+    void draw(const DrawArgs &args) override;
+
+    int _choice;
+	int _subMenuGroupSize;
+    std::vector<std::string> _items;
+    std::shared_ptr<std::string> _text;
+    std::shared_ptr<Font> _font;
+    bool _isTransparent;
+    bool _showTick;
+    int _textSize;
+
+    std::function<void()> onMouseEnter;
+    std::function<void()> onMouseLeave;
+    std::function<void()> onOpen;
+    std::function<void(int)> setChoice;
+};
+
+DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
+                               const std::vector<std::string>& items,
+                               bool isTransparent, bool showTick, int subMenuGroupSize);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Non-Value / Custom Text Tooltips
+
+struct NonValueParamTooltip : ui::Tooltip {
+    ParamWidget* paramWidget;
+    std::shared_ptr<std::string> nonValueText;
+
+    void step() override {
+    if (paramWidget->paramQuantity) {
+            // Quantity string
+            text = paramWidget->paramQuantity->getLabel();
+            text += ": ";
+
+            if (nonValueText) {
+                text += *nonValueText;
+            }
+
+            // Param description
+            std::string description = paramWidget->paramQuantity->description;
+            if (!description.empty()) {
+                text += "\n" + description;
+            }
+        }
+        Tooltip::step();
+        // Position at bottom-right of parameter
+        box.pos = paramWidget->getAbsoluteOffset(paramWidget->box.size).round();
+        // Fit inside parent (copied from Tooltip.cpp)
+        assert(parent);
+        box = box.nudge(parent->box.zeroPos());
+    }
+};
+
+struct ValleyRogan : Rogan {
+    std::shared_ptr<std::string> modeText;
+
+    ValleyRogan() {
+        modeText = std::make_shared<std::string>();
+    }
+
+    void onEnter(const event::Enter& e) override {
+        if (settings::paramTooltip && !tooltip && paramQuantity) {
+            NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+            paramTooltip->nonValueText = modeText;
+            paramTooltip->paramWidget = this;
+            APP->scene->addChild(paramTooltip);
+            tooltip = paramTooltip;
+        }
+    }
+
+    void setModeText(const std::string& newModeText) {
+        if (modeText) {
+            *modeText = newModeText;
+        }
+    }
+};
 
 #endif

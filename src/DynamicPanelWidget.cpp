@@ -31,12 +31,5 @@ void DynamicPanelWidget::step() {
     if (isNear(APP->window->pixelRatio, 1.0)) {
         oversample = 2.f;
     }
-    /*if(mode != nullptr){
-        if(*mode != oldMode) {
-            visiblePanel->setSvg(panels[*mode]);
-            oldMode = *mode;
-            dirty = true;
-        }
-    }*/
     visiblePanel->setSvg(panels[0]);
 }

@@ -26,46 +26,13 @@
 
 #include <cmath>
 #include <string>
-#include "QuadOsc.hpp"
-#include "../Common/Wavetables/Wavetables.hpp"
+#include "../Common/SIMD/QuadOsc.hpp"
+#include "DexterWavetableROM.hpp"
 
 const int kNumOperators = 4;
 const int kNumAlgorithms = 23;
 
-static float** wavetables[NUM_VALLEY_WAVETABLES] = {
-    wavetable_opal, wavetable_basic, wavetable_TeeEks, wavetable_sineHarmonics, wavetable_additiveSine, wavetable_amHarmonic,
-    wavetable_sweepHarmonic, wavetable_additiveSaw, wavetable_additiveSquare, wavetable_additiveBank,
-    wavetable_oboe, wavetable_altosax, wavetable_cello1, wavetable_cello2, wavetable_violin,
-    wavetable_piano, wavetable_theremin, wavetable_pluck, wavetable_overtone1,
-    wavetable_overtone2, wavetable_symetric, wavetable_chip1, wavetable_chip2,
-    wavetable_bitcrush1, wavetable_bitcrush2, wavetable_voice1, wavetable_voice2,
-    wavetable_voice3, wavetable_voice4, wavetable_voice5, wavetable_pwm,
-    wavetable_biPulse, wavetable_sawGap, wavetable_sawGap2, wavetable_vgame
-};
-
-static long* wavetable_lengths[NUM_VALLEY_WAVETABLES] = {
-    wavetable_opal_lengths, wavetable_basic_lengths, wavetable_TeeEks_lengths, wavetable_sineHarmonics_lengths, wavetable_additiveSine_lengths, wavetable_amHarmonic_lengths,
-    wavetable_sweepHarmonic_lengths, wavetable_additiveSaw_lengths, wavetable_additiveSquare_lengths, wavetable_additiveBank_lengths,
-    wavetable_oboe_lengths, wavetable_altosax_lengths, wavetable_cello1_lengths, wavetable_cello2_lengths, wavetable_violin_lengths,
-    wavetable_piano_lengths, wavetable_theremin_lengths, wavetable_pluck_lengths, wavetable_overtone1_lengths,
-    wavetable_overtone2_lengths, wavetable_symetric_lengths, wavetable_chip1_lengths, wavetable_chip2_lengths,
-    wavetable_bitcrush1_lengths, wavetable_bitcrush2_lengths, wavetable_voice1_lengths, wavetable_voice2_lengths,
-    wavetable_voice3_lengths, wavetable_voice4_lengths, wavetable_voice5_lengths, wavetable_pwm_lengths,
-    wavetable_biPulse_lengths, wavetable_sawGap_lengths, wavetable_sawGap2_lengths, wavetable_vgame_lengths
-};
-
-static int32_t wavetable_sizes[NUM_VALLEY_WAVETABLES] = {
-    WAVETABLE_OPAL_NUM, WAVETABLE_BASIC_NUM, WAVETABLE_TEEEKS_NUM, WAVETABLE_SINEHARMONICS_NUM, WAVETABLE_ADDITIVESINE_NUM, WAVETABLE_AMHARMONIC_NUM,
-    WAVETABLE_SWEEPHARMONIC_NUM, WAVETABLE_ADDITIVESAW_NUM, WAVETABLE_ADDITIVESQUARE_NUM, WAVETABLE_ADDITIVEBANK_NUM,
-    WAVETABLE_OBOE_NUM, WAVETABLE_ALTOSAX_NUM, WAVETABLE_CELLO1_NUM, WAVETABLE_CELLO2_NUM, WAVETABLE_VIOLIN_NUM,
-    WAVETABLE_PIANO_NUM, WAVETABLE_THEREMIN_NUM, WAVETABLE_PLUCK_NUM, WAVETABLE_OVERTONE1_NUM,
-    WAVETABLE_OVERTONE2_NUM, WAVETABLE_SYMETRIC_NUM, WAVETABLE_CHIP1_NUM, WAVETABLE_CHIP2_NUM,
-    WAVETABLE_BITCRUSH1_NUM, WAVETABLE_BITCRUSH2_NUM, WAVETABLE_VOICE1_NUM, WAVETABLE_VOICE2_NUM,
-    WAVETABLE_VOICE3_NUM, WAVETABLE_VOICE4_NUM, WAVETABLE_VOICE5_NUM, WAVETABLE_PWM_NUM,
-    WAVETABLE_BIPULSE_NUM, WAVETABLE_SAWGAP_NUM, WAVETABLE_SAWGAP2_NUM, WAVETABLE_VGAME_NUM
-};
-
-static std::string waveTableNames[NUM_VALLEY_WAVETABLES] = {
+static std::string waveTableNames[NUM_DEXTER_WAVETABLES] = {
     "Opal", "Basic", "TeeEks", "SinHarm", "AddSin", "AMHarm", "SwpHarm", "AddSaw", "AddSqr", "AddBank", "Oboe", "Sax", "Cello1",
     "Cello2", "Violin", "Piano", "Thrmin", "Pluck", "OvrTne1", "OvrTne2", "Sym", "Chip1",
     "Chip2", "BitCrsh1", "BitCrsh2", "Voice1", "Voice2", "Voice3", "Voice4", "Voice5", "PWM",
@@ -129,25 +96,27 @@ private:
          NUM_COLS
     };
 
-    float _inLevels[4];
-    float _opLevels[4];
-    bool _opPreFade[4];
-    __m128 __opLevel[4];
-    __m128 __opOut[4];
-    __m128 __opAuxOut[4];
+    float _inLevels[kNumOperators];
+    float _opLevels[kNumOperators];
+    bool _opPreFade[kNumOperators];
+    __m128 __opLevel[kNumOperators];
+    __m128 __opOut[kNumOperators];
+    __m128 __opAuxOut[kNumOperators];
     __m128 __op1Eoc, __op2Eoc, __op3Eoc, __op4Eoc;
-    __m128 __opExtFM[4];
-    __m128 __opExtSync[4];
-    __m128 __opSyncEnable[4];
+    __m128 __opExtFM[kNumOperators];
+    __m128 __opExtSync[kNumOperators];
+    __m128 __opSyncEnable[kNumOperators];
+
 
     __m128 __matrix[NUM_ROWS][NUM_COLS]; // Row = Source, Col = Dest
     __m128 __op1Col, __op2Col, __op3Col, __op4Col, __mainCol, __bCol;
     OpSyncSource _opSyncSource;
-    __m128 __opSyncSignal[4];
-    __m128 __opSyncIn[4];
+    __m128 __opSyncSignal[kNumOperators];
+    __m128 __opSyncIn[kNumOperators];
     __m128 __ones, __zeros, __five;
-    __m128 __outputLevels[4];
+    __m128 __outputLevels[kNumOperators];
     __m128 __aOutLevel, __bOutLevel;
+    bool _weakSync[kNumOperators];
     bool extSyncing;
 
     float _brightness;

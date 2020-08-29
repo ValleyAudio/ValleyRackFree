@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 template<typename T>
 T linterp(T a, T b, T f) {
@@ -22,3 +23,5 @@ T semitone(T x) {
 }
 
 uint32_t mwcRand(uint32_t& w, uint32_t& z);
+
+std::string extractDirectoryFromFilePath(const std::string& filepath); 

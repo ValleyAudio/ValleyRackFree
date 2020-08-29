@@ -4,9 +4,9 @@
 // Author: Dale Johnson (valley.audio.soft@gmail.com)
 // Date: 4/12/2017
 //
-// Copyright 2011 Olivier Gillet.
+// Copyright 2011 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

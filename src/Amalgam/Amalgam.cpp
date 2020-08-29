@@ -272,7 +272,7 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     modeBackText->horzAlignment = NVG_ALIGN_CENTER;
     modeBackText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
     modeBackText->text = make_shared<std::string>("~~~~~~~~");
-    modeBackText->customColor = nvgRGB(0x4F,0x00,0x00);
+    modeBackText->customColor = nvgRGB(0x3F,0x00,0x00);
     addChild(modeBackText);
 
     DynamicFrameText* modeText = new DynamicFrameText;
@@ -297,25 +297,40 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     addChild(modeText);
 
     DynamicFrameText* modeBlurText = new DynamicFrameText;
+    DynamicFrameText* modeBlurText2 = new DynamicFrameText;
     modeBlurText->size = 13;
-    modeBlurText->blur = 8.f;
+    modeBlurText->blur = 10.f;
     modeBlurText->box.pos = Vec(75, 95.5);
     modeBlurText->box.size = Vec(82, 14);
     modeBlurText->visibility = nullptr;
     modeBlurText->viewMode = ACTIVE_LOW_VIEW;
     modeBlurText->horzAlignment = NVG_ALIGN_CENTER;
-    modeBlurText->customColor = nvgRGB(0xFF, 0x7F, 0x7F);
+    modeBlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
     modeBlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+
+    modeBlurText2->size = 13;
+    modeBlurText2->blur = 8.f;
+    modeBlurText2->box.pos = Vec(75, 95.5);
+    modeBlurText2->box.size = Vec(82, 14);
+    modeBlurText2->visibility = nullptr;
+    modeBlurText2->viewMode = ACTIVE_LOW_VIEW;
+    modeBlurText2->horzAlignment = NVG_ALIGN_CENTER;
+    modeBlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
+    modeBlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
     if(module) {
         modeBlurText->itemHandle = &module->iAmalgamType;
+        modeBlurText2->itemHandle = &module->iAmalgamType;
         for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
             modeBlurText->addItem(module->modeNames[i]);
+            modeBlurText2->addItem(module->modeNames[i]);
         }
     }
     else {
         modeBlurText->addItem("NVRGONNA");
+        modeBlurText2->addItem("NVRGONNA");
     }
     addChild(modeBlurText);
+    addChild(modeBlurText2);
 
     DynamicText* paramABackText = new DynamicText;
     paramABackText->size = 12;
@@ -351,25 +366,40 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     addChild(paramAText);
 
     DynamicFrameText* paramABlurText = new DynamicFrameText;
+    DynamicFrameText* paramABlurText2 = new DynamicFrameText;
     paramABlurText->size = 12;
-    paramABlurText->blur = 8.f;
+    paramABlurText->blur = 10.f;
     paramABlurText->box.pos = Vec(75, 177);
     paramABlurText->box.size = Vec(82, 14);
     paramABlurText->visibility = nullptr;
     paramABlurText->viewMode = ACTIVE_LOW_VIEW;
     paramABlurText->horzAlignment = NVG_ALIGN_CENTER;
-    paramABlurText->customColor = nvgRGB(0xFF, 0x7F, 0x7F);
+    paramABlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
     paramABlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+
+    paramABlurText2->size = 12;
+    paramABlurText2->blur = 8.f;
+    paramABlurText2->box.pos = Vec(75, 177);
+    paramABlurText2->box.size = Vec(82, 14);
+    paramABlurText2->visibility = nullptr;
+    paramABlurText2->viewMode = ACTIVE_LOW_VIEW;
+    paramABlurText2->horzAlignment = NVG_ALIGN_CENTER;
+    paramABlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
+    paramABlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
     if(module) {
         paramABlurText->itemHandle = &module->iAmalgamType;
+        paramABlurText2->itemHandle = &module->iAmalgamType;
         for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
             paramABlurText->addItem(module->paramANames[i]);
+            paramABlurText2->addItem(module->paramANames[i]);
         }
     }
     else {
         paramABlurText->addItem("GIVE_YOU");
+        paramABlurText2->addItem("GIVE_YOU");
     }
     addChild(paramABlurText);
+    addChild(paramABlurText2);
 
     DynamicText* paramBBackText = new DynamicText;
     paramBBackText->size = 12;
@@ -380,7 +410,7 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     paramBBackText->horzAlignment = NVG_ALIGN_CENTER;
     paramBBackText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
     paramBBackText->text = make_shared<std::string>("~~~~~~~~");
-    paramBBackText->customColor = nvgRGB(0x4F,0x00,0x00);
+    paramBBackText->customColor = nvgRGB(0x3F,0x00,0x00);
     addChild(paramBBackText);
 
     DynamicFrameText* paramBText = new DynamicFrameText;
@@ -405,25 +435,40 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     addChild(paramBText);
 
     DynamicFrameText* paramBBlurText = new DynamicFrameText;
+    DynamicFrameText* paramBBlurText2 = new DynamicFrameText;
     paramBBlurText->size = 12;
-    paramBBlurText->blur = 8.f;
+    paramBBlurText->blur = 10.f;
     paramBBlurText->box.pos = Vec(75, 249);
     paramBBlurText->box.size = Vec(82, 14);
     paramBBlurText->visibility = nullptr;
     paramBBlurText->viewMode = ACTIVE_LOW_VIEW;
     paramBBlurText->horzAlignment = NVG_ALIGN_CENTER;
-    paramBBlurText->customColor = nvgRGB(0xFF, 0x7F, 0x7F);
+    paramBBlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
     paramBBlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
+
+    paramBBlurText2->size = 12;
+    paramBBlurText2->blur = 8.f;
+    paramBBlurText2->box.pos = Vec(75, 249);
+    paramBBlurText2->box.size = Vec(82, 14);
+    paramBBlurText2->visibility = nullptr;
+    paramBBlurText2->viewMode = ACTIVE_LOW_VIEW;
+    paramBBlurText2->horzAlignment = NVG_ALIGN_CENTER;
+    paramBBlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
+    paramBBlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
     if(module) {
         paramBBlurText->itemHandle = &module->iAmalgamType;
+        paramBBlurText2->itemHandle = &module->iAmalgamType;
         for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
             paramBBlurText->addItem(module->paramBNames[i]);
+            paramBBlurText2->addItem(module->paramBNames[i]);
         }
     }
     else {
         paramBBlurText->addItem("UP");
+        paramBBlurText2->addItem("UP");
     }
     addChild(paramBBlurText);
+    addChild(paramBBlurText2);
 
 
     {

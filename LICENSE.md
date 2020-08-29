@@ -1,5 +1,5 @@
 ValleyRackFree
-Copyright (C) 2019, Valley Audio Soft, Dale Johnson
+Copyright (C) 2020, Valley Audio Soft, Dale Johnson
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

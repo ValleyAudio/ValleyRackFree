@@ -3,22 +3,36 @@
 DynamicItem::DynamicItem(unsigned long itemNumber) {
     _itemNumber = itemNumber;
     _choice = nullptr;
+    updateChoice = nullptr;
 }
 
 void DynamicItem::onAction(const event::Action &e) {
     if(_choice != nullptr) {
         *_choice = _itemNumber;
+        if(updateChoice) {
+            updateChoice(_itemNumber);
+        }
     }
+}
+
+void DynamicItem::step() {
+    if(_choice != nullptr) {
+        rightText = (*_choice == _itemNumber) ? "✔" : "";
+    }
+    MenuItem::step();
 }
 
 DynamicChoice::DynamicChoice() {
     _choice = nullptr;
+    _oldChoice = -1;
     _visibility = nullptr;
     _viewMode = ACTIVE_HIGH_VIEW;
     //_font = Font::load(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     _font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     _text = std::make_shared<std::string>("");
     _textSize = 14;
+    _transparent = false;
+    updateChoice = nullptr;
 }
 
 void DynamicChoice::onAction(const event::Action &e) {
@@ -30,9 +44,26 @@ void DynamicChoice::onAction(const event::Action &e) {
         item->_choice = _choice;
         item->_itemNumber = i;
         item->text = _items[i];
+        item->updateChoice = updateChoice;
         menu->addChild(item);
     }
+    if(onOpen) {
+        onOpen();
+    }
 }
+
+void DynamicChoice::onEnter(const event::Enter &e) {
+    if(onMouseEnter) {
+        onMouseEnter();
+    }
+}
+
+void DynamicChoice::onLeave(const event::Leave &e) {
+    if(onMouseLeave) {
+        onMouseLeave();
+    }
+}
+
 
 void DynamicChoice::step() {
     if(_visibility != nullptr) {
@@ -55,6 +86,9 @@ void DynamicChoice::step() {
 }
 
 void DynamicChoice::draw(const DrawArgs &args) {
+    if(_transparent) {
+        return;
+    }
     nvgBeginPath(args.vg);
     NVGcolor bgColor = nvgRGB(0x1A, 0x1A, 0x1A);
     nvgFillColor(args.vg, bgColor);

@@ -166,11 +166,11 @@ private:
     inline float PolyBLEP(float t, float dt) {
         if(t < dt) {
             t /= dt;
-            return t+t - t*t - 1.f;
+            return t + t - t * t - 1.f;
         }
         else if(t > (1.f - dt)) {
             t = (t - 1.f) / dt;
-            return t*t + t + t + 1.f;
+            return t * t + t + t + 1.f;
         }
         return 0.f;
     }

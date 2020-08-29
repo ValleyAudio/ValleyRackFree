@@ -26,13 +26,11 @@
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
-#include "FreqLUT.hpp"
+#include "../Common/FreqLUT.hpp"
 #include "Osc4Core_SIMD.hpp"
 #include "Chords.hpp"
-#include "RoutingMatrix.hpp"
+#include "DexterRoutingMatrix.hpp"
 #include <algorithm>
-#define NUM_OP_WAVES 1
-#define NUM_WAVE_TABLES 1
 
 float vOct2Freq(float vOct) {
     return 261.6255f * powf(2.0, vOct);
@@ -267,7 +265,7 @@ struct Dexter : Module {
     FourVoiceOPCore::OpSyncSource opSyncSource = FourVoiceOPCore::PARENT_SYNC_SOURCE;
 
     FourVoiceOPCore coreA, coreB;
-    RoutingMatrix modMatrix[kNumOperators];
+    DexterRoutingMatrix modMatrix[kNumOperators];
 
     float results[4] = {0.f, 0.f, 0.f, 0.f};
     __m128 __leftOut, __rightOut;
