@@ -92,8 +92,4 @@ Dattorro, J. (1997). Effect design part 1: Reverberator and other filters, J. Au
 
 ## License
 
-Topograph & µGraph are covered by GPL-3.0
-
-Topograph's and µGraph's dependencies "Oneshot" and "Metronome" are covered by BSD-3-Clause
-
-Dexter and Plateau are covered by BSD-3-Clause
+This plugin is licensed under GPL-3
