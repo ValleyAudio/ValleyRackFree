@@ -76,6 +76,8 @@ Terrorform::Terrorform() {
         rawOutDCBlock[i].setCutoffFreq(2.f);
         rawOutDCBlock[i].setCutoffFreq(2.f);
         enhancerOutDCBlock[i].setCutoffFreq(2.f);
+        unisonDrifters[i].__phaseOffset = _mm_loadu_ps(drifterPhases + i * 4);
+        unisonDrifters[i].setFrequency(_mm_loadu_ps(drifterFreqs + i * 4));
     }
     bank = 0;
     shapeType = 0;
@@ -85,7 +87,7 @@ Terrorform::Terrorform() {
     rootShapeDepth = 0.f;
     rootEnhanceDepth = 0.f;
 
-    spread = 0.1f;
+    spread = 0.0f;
 
     __zeros = _mm_set1_ps(0.f);
     __ones = _mm_set1_ps(1.f);
@@ -377,7 +379,7 @@ void Terrorform::process(const ProcessArgs &args) {
     for(auto i = 0; i < numActiveChannels; ++i) {
         freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
                                         inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
-                                        rootPitch + spreadPitches[i] * spread);
+                                        rootPitch);
         wavesCV[i] = inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
         wavesCV[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
         waves[i] = (rootWave + wavesCV[i]) * numWavesInTable;
@@ -439,7 +441,7 @@ void Terrorform::process(const ProcessArgs &args) {
 
     // Tick the oscillator
     int g = 0;
-    for(auto c = 0; c < numActiveGroups; ++c) {
+    for(int c = 0; c < numActiveGroups; ++c) {
         g = c * 4;
 
         // Sync
@@ -493,6 +495,7 @@ void Terrorform::process(const ProcessArgs &args) {
         __freq = _mm_mul_ps(__freq, (lfoModeEnabled ? __hundredths : __ones));
         __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
         __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
+
         osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
         osc[c].__inputPhase = _mm_add_ps(osc[c].__inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_load_ps(skew + g)));
 
@@ -590,6 +593,7 @@ json_t* Terrorform::dataToJson()  {
     json_object_set_new(rootJ, "syncChoice", json_integer(syncChoice));
     json_object_set_new(rootJ, "reduceOutputLevel", json_integer(minus12dB));
     json_object_set_new(rootJ, "spreadActive", json_integer(spreadActive));
+    json_object_set_new(rootJ, "numVoices", json_integer(numVoices));
 
     char str[25];
     json_t* userWavesJ = json_array();
@@ -626,6 +630,7 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     json_t *syncChoiceJ = json_object_get(rootJ, "syncChoice");
     json_t *reduceOutputLevelJ = json_object_get(rootJ, "reduceOutputLevel");
     json_t *spreadActiveJ = json_object_get(rootJ, "spreadActive");
+    json_t *numVoicesJ = json_object_get(rootJ, "numVoices");
 
     panelStyle = json_integer_value(panelStyleJ);
     displayStyle = json_integer_value(displayStyleJ);
@@ -636,6 +641,9 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     // Key was not present during late beta testing
     if (spreadActiveJ) {
         spreadActive = json_integer_value(spreadActiveJ);
+    }
+    if (numVoicesJ) {
+        numVoices = json_integer_value(numVoicesJ);
     }
 
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
@@ -793,6 +801,12 @@ Menu* TerrorformVoicingItem::createChildMenu() {
     }
     return menu;
 }
+
+
+void TerrorformSpreadVoicesItem::onAction(const event::Action &e) {
+    module->spreadActive ^= true;
+}
+
 
 void TerrorformOutputLevelItem::onAction(const event::Action &e) {
     module->minus12dB ^= true;
@@ -1634,6 +1648,10 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
     // Voicing modes
     menu->addChild(construct<MenuLabel>());
 
+    MenuLabel* voicingLabel = new MenuLabel;
+    voicingLabel->text = "Voicing";
+    menu->addChild(voicingLabel);
+
     TerrorformVoicingItem* numVoicesItem = new TerrorformVoicingItem;
     numVoicesItem->text = "Number of voices";
     numVoicesItem->rightText = RIGHT_ARROW;
@@ -1734,14 +1752,14 @@ void TerrorformWidget::step() {
         rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     }
 
+    //// Display params
+    // Wavetable knobs and Display
     displayStyle = (TerrorformDisplayColourModes)(tform->displayStyle * 2);
     if (displayStyle != prevDisplayStyle) {
         changeDisplayStyle();
     }
     prevDisplayStyle = displayStyle;
 
-    //// Display params
-    // Wavetable knobs and Display
     bankChoice = tform->bankDisplay;
     if (userBankButton->paramQuantity->getValue() > 0.5f) {
         *bankStr = tform->userWaveTableNames[bankChoice];

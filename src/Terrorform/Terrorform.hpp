@@ -36,6 +36,7 @@
 #include "TerrorformWaveBank.hpp"
 #include "Enhancer.hpp"
 #include "TFormSubOsc.hpp"
+#include "VecSineLFO.hpp"
 #include "osdialog.h"
 #include <cstdio>
 #include <fstream>
@@ -192,6 +193,11 @@ struct Terrorform : Module {
     VecOnePoleHPFilter mainOutDCBlock[kMaxNumGroups];
     VecOnePoleHPFilter rawOutDCBlock[kMaxNumGroups];
     VecOnePoleHPFilter enhancerOutDCBlock[kMaxNumGroups];
+    VecSineLFO unisonDrifters[kMaxNumGroups];
+    float drifterPhases[kMaxNumGroups * 4] = {0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375,
+                                              0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375};
+    float drifterFreqs[kMaxNumGroups * 4] = {0.00625, 0.0125, 0.01875, 0.025, 0.03125, 0.0375, 0.04375,
+                                             0.05, 0.05625, 0.0625, 0.06875, 0.075, 0.08125, 0.0875, 0.09375, 0.1};
 
     // User wave table data
     float** userWaveTableData[TFORM_MAX_BANKS];
@@ -410,6 +416,11 @@ struct TerrorformVoicingValueItem : MenuItem {
 struct TerrorformVoicingItem : MenuItem {
     Terrorform* module;
     Menu* createChildMenu() override;
+};
+
+struct TerrorformSpreadVoicesItem : MenuItem {
+    Terrorform* module;
+    void onAction(const event::Action &e) override;
 };
 
 struct TerrorformOutputLevelItem : MenuItem {
@@ -704,6 +715,7 @@ struct TerrorformWidget : ModuleWidget {
 
     PlainText* rightHandVOctText;
     Vec rightHandVOctTextPos = Vec(284.5, 51.5);
+    bool spreadActive = false;
 
     std::shared_ptr<std::string> bankStr;
     std::shared_ptr<std::string> shapeTypeStr;
@@ -779,15 +791,15 @@ struct TerrorformWidget : ModuleWidget {
 
     std::vector<std::string> shapeNames = {
         "BEND", "TILT", "LEAN", "TWIST", "WRAP", "SINE_WRAP", "MIRROR", "HARMONICS", "WARBLE",
-        "REFLECT", "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ_X2", "BUZZ_X4",
-        "BUZZ_X8", "WRINKLE_X2", "WRINKLE_X4", "WRINKLE_X8", "SINEDWNX2", "SINEDWNX4", "SINEDWNX8",
-        "SINEUP_X2", "SINEUP_X4", "SINEUP_X8"
+        "REFLECT", "PULSE", "STEP_4", "STEP_8", "STEP_16", "VAR_STEP", "BUZZ", "BUZZ_X2",
+        "BUZZ_X4", "WRINKLE", "WRINKLE_X2", "WRINKLE_X4", "SINE_DOWN", "SINEDWNX2", "SINEDWNX4",
+        "SINE_UP", "SINEUP_X2", "SINEUP_X4"
     };
 
     std::vector<std::string> shapeMenuItems = {
         "Bend", "Tilt", "Lean", "Twist", "Wrap", "Sine Wrap", "Mirror", "Harmonics", "Warble",
         "Reflect", "Pulse", "Step 4", "Step 8", "Step 16", "Variable Step", "Buzz", "Buzz x2",
-        "Buzz x4", "Wrinkle X2", "Wrinkle X4", "Wrinkle X8", "Sine Down", "Sine Down x2",
+        "Buzz x4", "Wrinkle", "Wrinkle x2", "Wrinkle x4", "Sine Down", "Sine Down x2",
         "Sine Down x4", "Sine Up", "Sine Up x2", "Sine Up x4"
     };
 
