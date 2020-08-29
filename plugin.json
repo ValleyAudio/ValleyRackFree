@@ -75,7 +75,7 @@
       "name": "Terrorform",
       "description": "",
       "tags": [
-        "Oscillator", "Polyphonic"
+        "Oscillator", "Polyphonic", "Synth voice", "Waveshaper", "LFO"
       ]
     }
   ]
