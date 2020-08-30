@@ -1761,6 +1761,7 @@ void TerrorformWidget::step() {
     prevDisplayStyle = displayStyle;
 
     bankChoice = tform->bankDisplay;
+    bankChoice = clamp(bankChoice, 0, NUM_TERRORFORM_WAVETABLES - 1);
     if (userBankButton->paramQuantity->getValue() > 0.5f) {
         *bankStr = tform->userWaveTableNames[bankChoice];
     }
@@ -1800,7 +1801,14 @@ void TerrorformWidget::step() {
                                shapeMenu->_items[shapeTypeKnobStep];
     shapeTypeKnob->setModeText(shapeTypeKnobTooltipText);
 
-    *shapeTypeStr = shapeNames[(int)(tform->shapeDisplay)];
+    int nameIndex = (int)(tform->shapeDisplay);
+    nameIndex = clamp(nameIndex, 0, shapeNames.size() - 1);
+
+    // TODO : Make display widget that handles this internally
+    if (shapeTypeStr) {
+        *shapeTypeStr = shapeNames[nameIndex];
+    }
+
     float shapeValue = (float)(tform->shapeAmountDisplay);
     shapeDepthPercent = (int)(shapeValue * 100.f);
     shapeDepthPercent = clamp(shapeDepthPercent, 0, 100);
@@ -1812,7 +1820,14 @@ void TerrorformWidget::step() {
                                  enhanceMenu->_items[enhanceTypeKnobStep];
     enhanceTypeKnob->setModeText(enhanceTypeKnobTooltipText);
 
-    *enhanceTypeStr = enhanceNames[(int)(tform->enhanceDisplay)];
+    nameIndex = (int)(tform->enhanceDisplay);
+    nameIndex = clamp(nameIndex, 0, enhanceNames.size() - 1);
+
+    // TODO : Make display widget that handles this internally
+    if (enhanceTypeStr) {
+        *enhanceTypeStr = enhanceNames[nameIndex];
+    }
+
     float enhanceValue = (float)(tform->enhanceAmountDisplay);
     enhanceDepthPercent = (int)(enhanceValue * 100.f);
     enhanceDepthPercent = clamp(enhanceDepthPercent, 0, 100);
