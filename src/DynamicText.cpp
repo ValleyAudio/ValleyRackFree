@@ -29,10 +29,13 @@ void DynamicText::draw(const DrawArgs &args) {
         textColor = customColor;
     }
 
-    nvgFillColor(args.vg, textColor);
-    nvgTextAlign(args.vg, horzAlignment | vertAlignment);
-    nvgFontBlur(args.vg, blur);
-    nvgText(args.vg, textPos.x, textPos.y, text->c_str(), NULL);
+    if (text) {
+        nvgFillColor(args.vg, textColor);
+        nvgTextAlign(args.vg, horzAlignment | vertAlignment);
+        nvgFontBlur(args.vg, blur);
+        nvgText(args.vg, textPos.x, textPos.y, text->c_str(), NULL);
+    }
+
 }
 
 void DynamicText::step() {
