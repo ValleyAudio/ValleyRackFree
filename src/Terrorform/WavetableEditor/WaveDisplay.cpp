@@ -9,12 +9,9 @@ TFormEditorWaveDisplay::TFormEditorWaveDisplay() {
     waveSliderPos = 0.f;
     normSliderPos = 0.f;
     numWaves = TFORM_MAX_NUM_WAVES;
+    waveCycleSize = TFORM_WAVELENGTH_CAP;
 
-    for (auto w = 0; w < TFORM_MAX_NUM_WAVES; ++w) {
-        for (auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
-            waveData[w][i] = 0.f;
-        }
-    }
+    waveData.assign(numWaves * waveCycleSize, 0.f);
 }
 
 void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
@@ -49,7 +46,10 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
             drawWaveLine(w, offColor, args);
         }
     }
-    drawWaveBox(selectedWave, args);
+    int w1 = (int) normSliderPos;
+    int w2 = w1 + 1;
+    w2 = w2 > (numWaves - 1) ? w1 : w2;
+    drawWaveBox(w1, w2, normSliderPos, args);
 
     triPos = dimetricProject(0.f, 0.f, (1.f - normSliderPos * dZ));
     triPos = scalePoint(triPos);
@@ -66,7 +66,12 @@ void TFormEditorWaveDisplay::draw(const DrawArgs& args) {
 }
 
 void TFormEditorWaveDisplay::drawWaveLine(int w, const NVGcolor& color, const DrawArgs& args) {
+    if (waveData.size() < 1) {
+        return;
+    }
+
     float z = numWaves > 1 ? (1.f - w * dZ) : 0.5f;
+    int index = w * waveCycleSize;
 
     nvgBeginPath(args.vg);
     nvgStrokeWidth(args.vg, 1.0);
@@ -77,8 +82,8 @@ void TFormEditorWaveDisplay::drawWaveLine(int w, const NVGcolor& color, const Dr
     pW = dimetricProject(1.f, 0.f, z);
     pW = scalePoint(pW);
     nvgMoveTo(args.vg, pW.x, pW.y);
-    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
-        pW = dimetricProject(1.f - (float) i / (TFORM_WAVELENGTH_CAP - 1.f), -waveData[w][i] * 0.75f, z);
+    for (int i = 0; i < waveCycleSize; ++i) {
+        pW = dimetricProject(1.f - (float) i / (waveCycleSize - 1.f), -waveData[index + i] * 0.75f, z);
         pW = scalePoint(pW);
         nvgLineTo(args.vg, pW.x, pW.y);
     }
@@ -92,7 +97,12 @@ void TFormEditorWaveDisplay::drawWaveLine(int w, const NVGcolor& color, const Dr
 }
 
 void TFormEditorWaveDisplay::drawWaveFilled(int w, const NVGcolor& color, const DrawArgs& args) {
+    if (waveData.size() < 1) {
+        return;
+    }
+
     float z = numWaves > 1 ? (1.f - w * dZ) : 0.5f;
+    int index = w * waveCycleSize;
 
     nvgBeginPath(args.vg);
     nvgFillColor(args.vg, color);
@@ -100,8 +110,8 @@ void TFormEditorWaveDisplay::drawWaveFilled(int w, const NVGcolor& color, const 
     pW = scalePoint(pW);
 
     nvgMoveTo(args.vg, pW.x, pW.y);
-    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
-        pW = dimetricProject(1.f - (float) i / (TFORM_WAVELENGTH_CAP - 1.f), -waveData[w][i] * 0.75f, z);
+    for (int i = 0; i < waveCycleSize; ++i) {
+        pW = dimetricProject(1.f - (float) i / (waveCycleSize - 1.f), -waveData[index + i] * 0.75f, z);
         pW = scalePoint(pW);
         nvgLineTo(args.vg, pW.x, pW.y);
     }
@@ -112,10 +122,15 @@ void TFormEditorWaveDisplay::drawWaveFilled(int w, const NVGcolor& color, const 
     nvgFill(args.vg);
 }
 
-void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
+void TFormEditorWaveDisplay::drawWaveBox(int w1, int w2, float f, const DrawArgs& args) {
+    if (waveData.size() < 1) {
+        return;
+    }
+
+    float normF = std::fmod(f, 1.f);
     float startX = 3;
     float endX = box.size.x;
-    float xScale = (endX - startX) / ((float)TFORM_WAVELENGTH_CAP - 1.f);
+    float xScale = (endX - startX) / ((float)waveCycleSize - 1.f);
     float yOffset =  box.size.y - 18;
     float yScale = 14.f;
 
@@ -125,10 +140,15 @@ void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
     float boxY = box.size.y - boxHeight - 3.f;
 
     // Waveform fill
+    int idx1 = w1 * waveCycleSize;
+    int idx2 = w2 * waveCycleSize;
+
+    float sampleData = 0.f;
     nvgBeginPath(args.vg);
     nvgMoveTo(args.vg, startX, yOffset);
-    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
-        nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[w][i] * yScale + yOffset);
+    for (int i = 0; i < waveCycleSize; ++i) {
+        sampleData = waveData[idx1 + i] * (1.f - normF) + waveData[idx2 + i] * normF;
+        nvgLineTo(args.vg, startX + (float) i * xScale, -sampleData * yScale + yOffset);
     }
     nvgLineTo(args.vg, endX, yOffset);
     nvgFillColor(args.vg, bgColor);
@@ -140,8 +160,9 @@ void TFormEditorWaveDisplay::drawWaveBox(int w, const DrawArgs& args) {
     nvgLineCap(args.vg, NVG_ROUND);
     nvgLineJoin(args.vg, NVG_ROUND);
     nvgMoveTo(args.vg, startX, yOffset);
-    for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
-        nvgLineTo(args.vg, startX + (float) i * xScale, -waveData[w][i] * yScale + yOffset);
+    for (int i = 0; i < waveCycleSize; ++i) {
+        sampleData = waveData[idx1 + i] * (1.f - normF) + waveData[idx2 + i] * normF;
+        nvgLineTo(args.vg, startX + (float) i * xScale, -sampleData * yScale + yOffset);
     }
     nvgLineTo(args.vg, endX, yOffset);
     nvgStrokeWidth(args.vg, 1.0);
@@ -184,4 +205,16 @@ Vec TFormEditorWaveDisplay::scalePoint(const Vec& p) const {
     newP.y *= mY;
     newP.x = box.size.x - newP.x - xOffset;
     return newP;
+}
+
+void TFormEditorWaveDisplay::setWaveCycleSize(int newWaveCycleSize) {
+    waveCycleSize = newWaveCycleSize;
+    if (waveCycleSize < 1) {
+        numWaves = 0;
+    }
+    else {
+        numWaves = std::floor(waveData.size() / waveCycleSize);
+    }
+    normSliderPos = (waveSliderPos / box.size.y) * (float)(numWaves - 1);
+    selectedWave = (int) (normSliderPos + 0.5f);
 }

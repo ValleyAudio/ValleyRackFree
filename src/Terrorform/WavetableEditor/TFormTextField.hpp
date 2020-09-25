@@ -45,6 +45,8 @@ struct TFormNumberField : TextField {
     void onDragMove(const event::DragMove& e) override;
     void onEnter(const event::Enter& e) override;
     void onLeave(const event::Leave& e) override;
+
+    void setMaximum(int newMaximum);
     void setValue(int newValue);
 private:
     void updateText(const std::string& newText);

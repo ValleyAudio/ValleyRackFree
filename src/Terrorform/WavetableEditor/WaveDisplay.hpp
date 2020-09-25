@@ -11,20 +11,23 @@ struct TFormEditorWaveDisplay : TransparentWidget {
     Vec pW, triPos;
 
     int numWaves;
+    int waveCycleSize;
     float waveSliderPos;
     float normSliderPos;
     int selectedWave;
 
-    float waveData[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH];
+    // float waveData[TFORM_MAX_NUM_WAVES][TFORM_MAX_WAVELENGTH];
+    std::vector<float> waveData;
 
     TFormEditorWaveDisplay();
     void draw(const DrawArgs& args) override;
     void drawWaveLine(int w, const NVGcolor& color, const DrawArgs& args);
     void drawWaveFilled(int w, const NVGcolor& color, const DrawArgs& args);
-    void drawWaveBox(int w, const DrawArgs& args);
+    void drawWaveBox(int w1, int w2, float f, const DrawArgs& args);
     Vec dimetricProject(float x, float y, float z) const;
     Vec scalePoint(const Vec& p) const;
     void moveSliderPos(float sliderDelta);
+    void setWaveCycleSize(int newWaveCycleSize);
 };
 
 #endif

@@ -177,6 +177,9 @@ void TFormNumberField::onAction(const event::Action& e) {
 void TFormNumberField::onDragMove(const event::DragMove& e) {
     int newValue = value - (int) e.mouseDelta.y;
     setValue(newValue);
+    if (onChangeCallback) {
+        onChangeCallback();
+    }
 }
 
 void TFormNumberField::onEnter(const event::Enter& e) {
@@ -194,6 +197,16 @@ void TFormNumberField::onLeave(const event::Leave& e) {
     bgColor = nvgRGB(0x00, 0x00, 0x00);
     textColor = nvgRGB(0xCF, 0xCF, 0xCF);
 };
+
+void TFormNumberField::setMaximum(int newMaximum) {
+    if (newMaximum < 1) {
+        return;
+    }
+    maximum = newMaximum;
+    if (value > maximum) {
+        setValue(maximum);
+    }
+}
 
 void TFormNumberField::setValue(int newValue) {
     if (newValue >= minimum && newValue <= maximum) {

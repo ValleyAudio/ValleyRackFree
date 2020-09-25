@@ -1,25 +1,26 @@
-#include "TFormEditorNumberChoice.hpp"
+#include "TFormEditorChoice.hpp"
 
-TFormEditorNumberItem::TFormEditorNumberItem(unsigned long itemNumber) {
+TFormEditorChoiceItem::TFormEditorChoiceItem(unsigned long itemNumber) {
     _itemNumber = itemNumber;
 }
 
-void TFormEditorNumberItem::onAction(const event::Action &e) {
+void TFormEditorChoiceItem::onAction(const event::Action &e) {
     *choice = _itemNumber;
 }
 
-void TFormEditorNumberItem::step() {
-    if(choice) {
-        if(*choice == _itemNumber) {
-            rightText = (*choice == _itemNumber) ? "✔" : "";
-        }
+void TFormEditorChoiceItem::onDragEnd(const event::DragEnd &e) {
+    if (onChangeCallback) {
+        onChangeCallback();
     }
-    MenuItem::step();
 }
 
-TFormEditorNumberChoice::TFormEditorNumberChoice() {
-    range = 0;
+void TFormEditorChoiceItem::addOnChangeCallback(const std::function<void()>& onChangeCallback) {
+    this->onChangeCallback = onChangeCallback;
+}
+
+TFormEditorChoice::TFormEditorChoice() {
     choice = std::make_shared<unsigned long>(0);
+    maxItems = 0;
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     boxOnEnterColor = nvgRGB(0xEF, 0xEF, 0xEF);
     boxOnLeaveColor = nvgRGB(0xAF, 0xAF, 0xAF);
@@ -32,31 +33,33 @@ TFormEditorNumberChoice::TFormEditorNumberChoice() {
     textColor = nvgRGB(0xEF, 0xEF, 0xEF);
 }
 
-void TFormEditorNumberChoice::onAction(const event::Action &e) {
+void TFormEditorChoice::onAction(const event::Action &e) {
     Menu* menu = createMenu();
     menu->box.pos = getAbsoluteOffset(Vec(0, box.size.y)).round();
 	menu->box.size.x = box.size.x;
 
-    for(unsigned long i = 0; i < range; ++i) {
-        TFormEditorNumberItem *item = new TFormEditorNumberItem(i);
+    for(unsigned long i = 0; i < maxItems; ++i) {
+        TFormEditorChoiceItem *item = new TFormEditorChoiceItem(i);
         item->_itemNumber = i;
         item->choice = choice;
-        item->text = std::to_string(i + 1);
+        item->rightText = (*choice == i) ? "✔" : "";
+        item->text = items[i];
+        item->addOnChangeCallback(onChangeCallback);
         menu->addChild(item);
     }
 }
 
-void TFormEditorNumberChoice::onEnter(const event::Enter &e) {
+void TFormEditorChoice::onEnter(const event::Enter &e) {
     boxColor = boxOnEnterColor;
     arrowColor = arrowOnEnterColor;
 }
 
-void TFormEditorNumberChoice::onLeave(const event::Leave &e) {
+void TFormEditorChoice::onLeave(const event::Leave &e) {
     boxColor = boxOnLeaveColor;
     arrowColor = arrowOnLeaveColor;
 }
 
-void TFormEditorNumberChoice::draw(const DrawArgs& args) {
+void TFormEditorChoice::draw(const DrawArgs& args) {
     nvgBeginPath(args.vg);
     nvgStrokeColor(args.vg, boxColor);
     nvgStrokeWidth(args.vg, 1.f);
@@ -71,7 +74,7 @@ void TFormEditorNumberChoice::draw(const DrawArgs& args) {
     nvgFillColor(args.vg, textColor);
     nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
     if(choice) {
-        nvgText(args.vg, textPos.x, textPos.y, std::to_string(*choice + 1).c_str(), NULL);
+        nvgText(args.vg, textPos.x, textPos.y, items[*choice].c_str(), NULL);
     }
     else {
         nvgText(args.vg, textPos.x, textPos.y, "--", NULL);
@@ -85,4 +88,8 @@ void TFormEditorNumberChoice::draw(const DrawArgs& args) {
     nvgLineTo(args.vg, box.size.x - 2, 4);
     nvgFill(args.vg);
     nvgClosePath(args.vg);
+}
+
+int TFormEditorChoice::getChoice() const {
+    return *choice;
 }

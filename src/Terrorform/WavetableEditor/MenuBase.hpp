@@ -3,7 +3,7 @@
 #include "../../Valley.hpp"
 #include "../../ValleyComponents.hpp"
 #include "TFormEditorButton.hpp"
-#include "TFormEditorNumberChoice.hpp"
+#include "TFormEditorChoice.hpp"
 #include "TFormEditorGrid.hpp"
 #include "WaveDisplay.hpp"
 

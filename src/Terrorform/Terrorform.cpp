@@ -133,8 +133,8 @@ Terrorform::Terrorform() {
         userWaveTableNames.push_back("EMPTY_" + std::to_string(bank + 1));
 
         for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
-            userWaveTableData[bank][wave] = new float[TFORM_MAX_WAVELENGTH];
-            for(auto i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+            userWaveTableData[bank][wave] = new float[TFORM_WAVELENGTH_CAP];
+            for(auto i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
                 userWaveTableData[bank][wave][i] = 0.f;
             }
         }
@@ -714,7 +714,7 @@ void Terrorform::manageVoices() {
 
 void Terrorform::clearBank(int bankNum) {
     for (int wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
-        for (int i = 0; i < TFORM_MAX_WAVELENGTH; ++i) {
+        for (int i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
             userWaveTableData[bankNum][wave][i] = 0.0;
         }
     }
@@ -734,7 +734,7 @@ void Terrorform::cloneBank(int sourceBank, int destBank, int startWave, int endW
     int k = startWave;
     float a = 0.f;
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
             a = k <= endWave ? userWaveTableData[sourceBank][k][j] : 0.f;
             userWaveTableData[destBank][i][j] = a;
         }
@@ -748,7 +748,7 @@ void Terrorform::cloneBank(int sourceBank, int destBank, int startWave, int endW
 
 void Terrorform::moveBank(int sourceBank, int destBank) {
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
             userWaveTableData[destBank][i][j] = userWaveTableData[sourceBank][i][j];
             userWaveTableData[sourceBank][i][j] = 0.f;
         }
@@ -1397,7 +1397,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         inEditorMode = false;
     };
 
-    auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<std::vector<float>>> {
+    // TODO : Allow for loading of bigger wav files (2048 * 64 or 131,072 samples max).
+    // This will let users load their beloved Serum wavetables
+    auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<float>> {
         const char FILE_FILTERS[] = "WAV File (.wav):wav";
         std::string filename;
 
@@ -1431,7 +1433,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         }
 
         // Prepare wave memory
-        std::shared_ptr<std::vector<std::vector<float>>> waves = std::make_shared<std::vector<std::vector<float>>>();
+        std::shared_ptr<std::vector<float>> waves = std::make_shared<std::vector<float>>();
         if (newTable == NULL) {
             return waves;
         }
@@ -1441,59 +1443,114 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         }
 
         // Calculate required number of blocks, and zero pad when too short
-        auto numBlocks = 0;
+        // auto numBlocks = 0;
+        // auto numFrames = numSamples / numChannels;
+        // bool needsZeroPadding = numFrames < TFORM_WAVELENGTH_CAP;
+        //
+        // if (!needsZeroPadding) {
+        //     numFrames -= numFrames % TFORM_WAVELENGTH_CAP;
+        //     numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
+        //     numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
+        // }
+        // else {
+        //     float *newTableTemp = new float[numSamples];
+        //     int newNumSamples = TFORM_WAVELENGTH_CAP * numChannels;
+        //
+        //     memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
+        //     drwav_free(newTable);
+        //     newTable = new float[newNumSamples];
+        //     memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
+        //     delete[] newTableTemp;
+        //
+        //     // Zero pad
+        //     for (int i = numSamples; i < newNumSamples; ++i) {
+        //         newTable[i] = 0.f;
+        //     }
+        //     numBlocks = 1;
+        // }
+
         auto numFrames = numSamples / numChannels;
-        bool needsZeroPadding = numFrames < TFORM_WAVELENGTH_CAP;
+        bool needsZeroPadding = numFrames % 2048;
+        if (needsZeroPadding) {
+             float *newTableTemp = new float[numSamples];
+             int padding = 2048 - (numFrames % 2048);
+             int newNumSamples = numSamples + padding * numChannels;
 
-        if (!needsZeroPadding) {
-            numFrames -= numFrames % TFORM_WAVELENGTH_CAP;
-            numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
-            numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
+             memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
+             drwav_free(newTable);
+             newTable = new float[newNumSamples];
+             memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
+             delete[] newTableTemp;
+
+             // Zero pad
+             for (int i = numSamples; i < newNumSamples; ++i) {
+                 newTable[i] = 0.f;
+             }
+             numSamples = newNumSamples;
+             numFrames = numSamples / numChannels;
         }
-        else {
-            float *newTableTemp = new float[numSamples];
-            int newNumSamples = TFORM_WAVELENGTH_CAP * numChannels;
+        auto numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
 
-            memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
-            drwav_free(newTable);
-            newTable = new float[newNumSamples];
-            memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
-            delete[] newTableTemp;
-
-            // Zero pad
-            for (int i = numSamples; i < newNumSamples; ++i) {
-                newTable[i] = 0.f;
-            }
-            numBlocks = 1;
-        }
-
-        // Copy .wav data into table
+        // Copy .wav data into loader
         int readPos = 0;
-        waves->resize(numBlocks);
-        for (int i = 0; i < numBlocks; ++i) {
-            (*waves)[i].assign(TFORM_WAVELENGTH_CAP, 0.f);
-            for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
-                (*waves)[i][j] = newTable[readPos];
-                readPos += numChannels;
-            }
+        int index = 0;
+        // waves->resize(numBlocks * TFORM_WAVELENGTH_CAP);
+        // for (int i = 0; i < numBlocks; ++i) {
+        //     index = i * TFORM_WAVELENGTH_CAP;
+        //     for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
+        //         (*waves)[index + j] = newTable[readPos];
+        //         readPos += numChannels;
+        //     }
+        // }
+        waves->resize(numFrames);
+        for (int i = 0; i < numFrames; ++i) {
+            (*waves)[i] = newTable[readPos];
+            readPos += numChannels;
         }
         return waves;
     };
 
-    auto ingestNewTable = [=](int bank, int startWave, int endWave, const std::string name) {
+    // TODO : Add downsampling ratio argument
+    auto ingestNewTable = [=](int bank, int startWave, int endWave, int downSampleRatio,
+                              const std::string name) -> void {
         int numWaves = (endWave - startWave) + 1;
+        numWaves = numWaves > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numWaves;
+
         int tableLength = numWaves * TFORM_WAVELENGTH_CAP;
         int readPos = 0;
         int startPos = startWave * TFORM_WAVELENGTH_CAP;
         int writePos = 0;
         int wave = 0;
 
-        for (int i = 0; i < tableLength; ++i) {
-            readPos = (startPos + i) * numChannels;
+        // TODO : Implement wavetable downsampler.
+        //dsp::Decimator<8,1> downsampler;
+
+        // for (int i = 0; i < tableLength; ++i) {
+        //     readPos = (startPos + i) * numChannels;
+        //     wave = i / TFORM_WAVELENGTH_CAP;
+        //     writePos = i % TFORM_WAVELENGTH_CAP;
+        //     module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
+        // }
+
+        float amp = 1.f;
+        for (int i = 0; i < tableLength; i++) {
+            readPos = (startPos + i * downSampleRatio) * numChannels;
+            readPos += downSampleRatio / 2;
             wave = i / TFORM_WAVELENGTH_CAP;
             writePos = i % TFORM_WAVELENGTH_CAP;
-            module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
+            // if (writePos < 2) {
+            //     amp = writePos / 2.f;
+            // }
+            // else if (writePos >= (TFORM_WAVELENGTH_CAP - 2)) {
+            //     amp = ((TFORM_WAVELENGTH_CAP) - writePos) / 2.f;
+            // }
+            // else {
+            //     amp = 1.f;
+            // }
+            module->userWaveTableData[bank][wave][writePos] = newTable[readPos] * amp;
         }
+
+
         module->userWaveTableSizes[bank] = numWaves;
         module->userWaveTableFilled[bank] = true;
         module->userWaveTableNames[bank] = name;

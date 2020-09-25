@@ -30,8 +30,8 @@ TFormWaveViewPane::TFormWaveViewPane() {
 
     waveData.resize(TFORM_MAX_NUM_WAVES);
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-        waveData[i].resize(TFORM_MAX_WAVELENGTH);
-        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        waveData[i].resize(TFORM_WAVELENGTH_CAP);
+        for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
             waveData[i][j] = 0.f;
         }
     }
@@ -71,11 +71,11 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
 void TFormWaveViewPane::step() {
     selectedBankText->text = "Viewing wave " + std::to_string(selectedWave + 1) +
                              " of " + std::to_string(bank.data.size());
-    waveDisplay->numWaves = bank.data.size();
-    for (int i = 0; i < bank.data.size(); ++i) {
-        memcpy(&waveDisplay->waveData[i], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
-    }
-    selectedWave = waveDisplay->selectedWave;
+    // waveDisplay->numWaves = bank.data.size();
+    // for (int i = 0; i < bank.data.size(); ++i) {
+    //     memcpy(&waveDisplay->waveData[i], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+    // }
+    // selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 

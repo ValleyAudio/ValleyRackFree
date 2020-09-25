@@ -3,18 +3,22 @@
 #include "../../Valley.hpp"
 #include "../../ValleyComponents.hpp"
 
-struct TFormEditorNumberItem : MenuItem {
+struct TFormEditorChoiceItem : MenuItem {
     unsigned long _itemNumber;
     std::shared_ptr<unsigned long> choice;
 
-    TFormEditorNumberItem(unsigned long itemNumber);
+    std::function<void()> onChangeCallback;
+
+    TFormEditorChoiceItem(unsigned long itemNumber);
     void onAction(const event::Action &e) override;
-    void step() override;
+    void onDragEnd(const event::DragEnd &e) override;
+    void addOnChangeCallback(const std::function<void()>& onChangeCallback);
 };
 
-struct TFormEditorNumberChoice : ChoiceButton {
+struct TFormEditorChoice : ChoiceButton {
     std::shared_ptr<unsigned long> choice;
-    unsigned long range;
+    std::vector<std::string> items;
+    int maxItems;
 
     std::shared_ptr<Font> font;
     NVGcolor boxColor;
@@ -25,11 +29,14 @@ struct TFormEditorNumberChoice : ChoiceButton {
     NVGcolor arrowOnEnterColor;
     NVGcolor arrowOnLeaveColor;
 
-    TFormEditorNumberChoice();
+    std::function<void()> onChangeCallback;
+
+    TFormEditorChoice();
     void onAction(const event::Action &e) override;
     void onEnter(const event::Enter &e) override;
     void onLeave(const event::Leave &e) override;
     void draw(const DrawArgs& args) override;
+    int getChoice() const;
 };
 
 #endif

@@ -4,7 +4,7 @@ TFormLoadMenu::TFormLoadMenu() {
     box.size = Vec(238, 195);
 
     ingestNewTable = [=](int startWave, int endWave) {
-        onIngestTableCallback(*selectedBank, startWave, endWave, nameField->getText());
+        onIngestTableCallback(*selectedBank, startWave, endWave, downSampleRatio, nameField->getText());
         hide();
     };
 
@@ -27,6 +27,8 @@ TFormLoadMenu::TFormLoadMenu() {
     addChild(waveDisplay);
     waveSliderPos = 0.f;
     selectedWave = 0;
+    maxDownSampleRatio = 1;
+    downSampleRatio = maxDownSampleRatio;
 
     waveLineColor = nvgRGB(0xAF, 0xAF, 0xAF);
     waveFillColor = nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F);
@@ -62,6 +64,14 @@ TFormLoadMenu::TFormLoadMenu() {
     endWaveFieldLabel->text = "End:";
     addChild(endWaveFieldLabel);
 
+    cycleSizeLabel = createWidget<PlainText>(Vec(113, 22));
+    cycleSizeLabel->box.size.x = buttonWidth;
+    cycleSizeLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
+    cycleSizeLabel->size = 12;
+    cycleSizeLabel->horzAlignment = NVG_ALIGN_LEFT;
+    cycleSizeLabel->text = "Cycle:";
+    addChild(cycleSizeLabel);
+
     startWaveField = createWidget<TFormNumberField>(Vec(40, 21));
     startWaveField->box.size.x = 20;
     startWaveField->box.size.y = buttonHeight;
@@ -69,6 +79,7 @@ TFormLoadMenu::TFormLoadMenu() {
     startWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
+        updateWaveDisplay();
     };
     addChild(startWaveField);
 
@@ -79,17 +90,58 @@ TFormLoadMenu::TFormLoadMenu() {
     endWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
+        updateWaveDisplay();
     };
     addChild(endWaveField);
 
+    cycleSizeMenu = createWidget<TFormEditorChoice>(Vec(148, 21));
+    cycleSizeMenu->box.size.x = 40;
+    cycleSizeMenu->box.size.y = buttonHeight;
+    cycleSizeMenu->items.push_back("256");
+    cycleSizeMenu->items.push_back("512");
+    cycleSizeMenu->items.push_back("1024");
+    cycleSizeMenu->items.push_back("2048");
+    cycleSizeMenu->maxItems = 4;
+    cycleSizeMenu->onChangeCallback = [=]() {
+        updateWaveDisplay();
+    };
+    addChild(cycleSizeMenu);
+
+    maxWaves = 0;
+    waveDisplayNeedsUpdate = true;
+
     onView = [=]() {
+        maxWaves = detectedWaves->size() / TFORM_WAVELENGTH_CAP;
+        maxWaves = maxWaves > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : maxWaves;
+        startWaveField->setMaximum(maxWaves);
+        endWaveField->setMaximum(maxWaves);
+        endWaveField->setValue(maxWaves);
+        *cycleSizeMenu->choice = 0;
+
+        maxDownSampleRatio = detectedWaves->size() / 256;
+        maxDownSampleRatio = maxDownSampleRatio > 8 ? 8 : maxDownSampleRatio;
+
+        if (maxDownSampleRatio >= 8) {
+            cycleSizeMenu->maxItems = 4;
+        }
+        else if (maxDownSampleRatio >= 4) {
+            cycleSizeMenu->maxItems = 3;
+        }
+        else if (maxDownSampleRatio >= 2) {
+            cycleSizeMenu->maxItems = 2;
+        }
+        else {
+            cycleSizeMenu->maxItems = 1;
+        }
+
         startWaveField->setValue(1);
         nameField->text = "Bank_" + std::to_string(*selectedBank + 1);
+        updateWaveDisplay();
     };
 }
 
 void TFormLoadMenu::draw(const DrawArgs& args) {
-    std::string strDetectedWaves = "Found " + std::to_string(detectedWaves->size()) + " waves";
+    std::string strDetectedWaves = "Found " + std::to_string(maxWaves) + " waves";
     nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
     nvgFontFaceId(args.vg, font->handle);
     nvgTextLetterSpacing(args.vg, 0.0);
@@ -109,27 +161,56 @@ void TFormLoadMenu::draw(const DrawArgs& args) {
 }
 
 void TFormLoadMenu::step() {
-    if(detectedWaves) {
-        for (unsigned long i = 0; i < (*detectedWaves).size(); ++i) {
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
-                waveDisplay->waveData[i][j] = 0.f;
-            }
-        }
-
-        unsigned long k = 0;
-        for (unsigned long i = startWaveField->value - 1; i < endWaveField->value; ++i) {
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
-                waveDisplay->waveData[k][j] = (*detectedWaves)[i][j];
-            }
-            ++k;
-        }
-    }
-
-    waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
     selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
 void TFormLoadMenu::onDragMove(const event::DragMove& e) {
     waveDisplay->moveSliderPos(e.mouseDelta.y);
+}
+
+void TFormLoadMenu::updateWaveDisplay() {
+    if (detectedWaves == nullptr) {
+        return;
+    }
+
+    int waveLength = TFORM_WAVELENGTH_CAP;
+    switch (cycleSizeMenu->getChoice()) {
+        case 0 :
+            downSampleRatio = 1;
+            waveLength = 256;
+            break;
+        case 1 :
+            downSampleRatio = 2;
+            waveLength = 512;
+            break;
+        case 2 :
+            downSampleRatio = 4;
+            waveLength = 1024;
+            break;
+        case 3 :
+            downSampleRatio = 8;
+            waveLength = 2048;
+            break;
+    }
+
+    maxWaves = detectedWaves->size() / waveLength;
+    maxWaves = maxWaves > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : maxWaves;
+    startWaveField->setMaximum(maxWaves);
+    endWaveField->setMaximum(maxWaves);
+
+    int numWaves = endWaveField->value - (startWaveField->value - 1);
+    int startOffset = (startWaveField->value - 1) * waveLength;
+    size_t numSamplesToCopy = numWaves * waveLength;
+
+    waveDisplay->waveData.clear();
+    waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
+
+    // TODO 2 : Do some safety checks to make sure we don't go out of bounds of 'detectedWaves'
+    //     We want to predict where we start and end in 'detectedWaves', and zero pad if necessary
+
+    for (int i = 0; i < numSamplesToCopy; ++i) {
+        waveDisplay->waveData[i] = (*detectedWaves)[i + startOffset];
+    }
+    waveDisplay->setWaveCycleSize(waveLength);
 }

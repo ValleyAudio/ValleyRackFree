@@ -15,11 +15,15 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     mainMenu->selectedBank = selectedBank;
     mainMenu->loadButton->onClick = [=]() {
         if (onLoadWAVCallback) {
-            std::shared_ptr<std::vector<std::vector<float>>> detectedWaves = onLoadWAVCallback();
+            std::shared_ptr<std::vector<float>> detectedWaves = onLoadWAVCallback();
             if (detectedWaves->size() > 0) {
-                loadMenu->endWaveField->maximum = detectedWaves->size();
-                loadMenu->startWaveField->maximum = detectedWaves->size();
-                loadMenu->endWaveField->setValue(detectedWaves->size());
+                // Jeez what the fuck am I doing here? Why not just derive the size from the
+                // cycle length and total size? We know we have to downsample to 256, so
+                // base everything around 256
+                // loadMenu->endWaveField->maximum = detectedWaves->size();
+                // loadMenu->startWaveField->maximum = detectedWaves->size();
+                // loadMenu->endWaveField->setValue(detectedWaves->size());
+
                 loadMenu->detectedWaves = detectedWaves;
                 mainMenu->hide();
                 loadMenu->view();
@@ -326,11 +330,11 @@ void TFormEditor::addOnExitCallback(const std::function<void()>& onExitCallback)
     mainMenu->exitButton->onClick = onExitCallback;
 }
 
-void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<std::vector<float>>>()>& onLoadWAVCallback) {
+void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<float>>()>& onLoadWAVCallback) {
     editMenu->onLoadWAVCallback = onLoadWAVCallback;
 }
 
-void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int, const std::string&)>& onIngestTableCallback) {
+void TFormEditor::addIngestTableCallback(const std::function<void(int, int, int, int, const std::string&)>& onIngestTableCallback) {
     editMenu->loadMenu->onIngestTableCallback = onIngestTableCallback;
 }
 

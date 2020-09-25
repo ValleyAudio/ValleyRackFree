@@ -59,8 +59,8 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
 
     waveData.resize(TFORM_MAX_NUM_WAVES);
     for (int i = 0; i < TFORM_MAX_NUM_WAVES; ++i) {
-        waveData[i].resize(TFORM_MAX_WAVELENGTH);
-        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        waveData[i].resize(TFORM_WAVELENGTH_CAP);
+        for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
             waveData[i][j] = 0.f;
         }
     }
@@ -79,12 +79,12 @@ void TFormCloneMenuSourcePage::step() {
         return;
     }
 
-    for (int i = startWaveField->value - 1; i < endWaveField->value; ++i) {
-        memcpy(&waveDisplay->waveData[j], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
-        ++j;
-    }
-    waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
-    selectedWave = waveDisplay->selectedWave;
+    // for (int i = startWaveField->value - 1; i < endWaveField->value; ++i) {
+    //     memcpy(&waveDisplay->waveData[j], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
+    //     ++j;
+    // }
+    // waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
+    // selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
