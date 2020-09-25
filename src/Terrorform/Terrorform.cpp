@@ -1532,7 +1532,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         //     module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
         // }
 
-        float amp = 1.f;
         for (int i = 0; i < tableLength; i++) {
             readPos = (startPos + i * downSampleRatio) * numChannels;
             readPos += downSampleRatio / 2;
@@ -1547,7 +1546,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             // else {
             //     amp = 1.f;
             // }
-            module->userWaveTableData[bank][wave][writePos] = newTable[readPos] * amp;
+            module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
         }
 
 
