@@ -71,11 +71,7 @@ void TFormWaveViewPane::draw(const DrawArgs& args) {
 void TFormWaveViewPane::step() {
     selectedBankText->text = "Viewing wave " + std::to_string(selectedWave + 1) +
                              " of " + std::to_string(bank.data.size());
-    // waveDisplay->numWaves = bank.data.size();
-    // for (int i = 0; i < bank.data.size(); ++i) {
-    //     memcpy(&waveDisplay->waveData[i], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
-    // }
-    // selectedWave = waveDisplay->selectedWave;
+    selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
@@ -87,6 +83,21 @@ void TFormWaveViewPane::onShow(const event::Show& e) {
     if (onGetBankCallback) {
         onGetBankCallback(*selectedBank, bank);
         nameField->text = bank.name;
+
+        size_t numSamplesToCopy = bank.data.size() * TFORM_WAVELENGTH_CAP;
+
+        waveDisplay->waveData.clear();
+        waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
+
+        int index = 0;
+        for (int i = 0; i < bank.data.size(); ++i) {
+            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+                index = i * TFORM_WAVELENGTH_CAP + j;
+                waveDisplay->waveData[index] =  bank.data[i][j];
+            }
+        }
+
+        waveDisplay->setWaveCycleSize(TFORM_WAVELENGTH_CAP);
     }
     recurseEvent(&Widget::onShow, e);
 }

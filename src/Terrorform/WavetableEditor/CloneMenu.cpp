@@ -34,6 +34,7 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
     startWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
+        updateWaveDisplay();
     };
     addChild(startWaveField);
 
@@ -44,6 +45,7 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
     endWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
+        updateWaveDisplay();
     };
     addChild(endWaveField);
 
@@ -69,22 +71,17 @@ TFormCloneMenuSourcePage::TFormCloneMenuSourcePage() {
         startWaveField->setValue(1);
         endWaveField->setValue(bank.data.size());
         endWaveField->maximum = bank.data.size();
+        updateWaveDisplay();
     };
 }
 
 void TFormCloneMenuSourcePage::step() {
-    int j = 0;
-
-    if(bank.data.size() == 0) {
-        return;
-    }
-
     // for (int i = startWaveField->value - 1; i < endWaveField->value; ++i) {
     //     memcpy(&waveDisplay->waveData[j], bank.data[i].data(), sizeof(float) * TFORM_MAX_WAVELENGTH);
     //     ++j;
     // }
     // waveDisplay->numWaves = endWaveField->value - (startWaveField->value - 1);
-    // selectedWave = waveDisplay->selectedWave;
+    selectedWave = waveDisplay->selectedWave;
     Widget::step();
 }
 
@@ -110,6 +107,29 @@ void TFormCloneMenuSourcePage::draw(const DrawArgs& args) {
 
 void TFormCloneMenuSourcePage::onDragMove(const event::DragMove& e) {
     waveDisplay->moveSliderPos(e.mouseDelta.y);
+}
+
+void TFormCloneMenuSourcePage::updateWaveDisplay() {
+    if (bank.data.size() == 0) {
+        return;
+    }
+
+    int numWaves = endWaveField->value - (startWaveField->value - 1);
+    size_t numSamplesToCopy = numWaves * TFORM_WAVELENGTH_CAP;
+    waveDisplay->waveData.clear();
+    waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
+
+    int k = 0;
+    int index = 0;
+    for (int i = startWaveField->value - 1; i < endWaveField->value; ++i) {
+        for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+            index = k * TFORM_WAVELENGTH_CAP + j;
+            waveDisplay->waveData[index] =  bank.data[i][j];
+        }
+        ++k;
+    }
+
+    waveDisplay->setWaveCycleSize(TFORM_WAVELENGTH_CAP);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
