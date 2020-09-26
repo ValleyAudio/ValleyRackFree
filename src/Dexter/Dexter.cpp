@@ -411,8 +411,8 @@ void Dexter::step() {
 
         coreA._mm_setFrequency(op, __opLowFreq[op]);
         coreB._mm_setFrequency(op, __opHighFreq[op]);
-        coreA.setWavebank(op, opWaveBank[op]);
-        coreB.setWavebank(op, opWaveBank[op]);
+        // coreA.setWavebank(op, opWaveBank[op]);
+        // coreB.setWavebank(op, opWaveBank[op]);
         coreA.setWavePosition(op, opWave[op]);
         coreB.setWavePosition(op, opWave[op]);
         opShapeMode[op] = opMenuShapeMode[op] + modMatrix[op].getDestinationValue(SHAPE_MODE_DEST);

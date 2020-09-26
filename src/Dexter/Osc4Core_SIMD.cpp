@@ -154,6 +154,8 @@ void FourVoiceOPCore::_mm_setFrequency(int opNum, const __m128& frequency) {
     _op[opNum].setFrequency(frequency);
 }
 
+// TODO : Use BINARY method of reading in wavetable data
+
 void FourVoiceOPCore::setWavebank(int opNum, int bankNum) {
     float** wavebank;
     int32_t numWaves;
@@ -162,7 +164,7 @@ void FourVoiceOPCore::setWavebank(int opNum, int bankNum) {
     wavebank = wavetables[bankNum];
     numWaves = wavetable_sizes[bankNum];
     tableSize = wavetable_lengths[bankNum][0];
-    _op[opNum].setWavebank(wavebank, numWaves, tableSize);
+    // _op[opNum].setWavebank(wavebank, numWaves, tableSize);
 }
 
 void FourVoiceOPCore::setWavePosition(int opNum, float position) {

@@ -200,7 +200,7 @@ struct Terrorform : Module {
                                              0.05, 0.05625, 0.0625, 0.06875, 0.075, 0.08125, 0.0875, 0.09375, 0.1};
 
     // User wave table data
-    float** userWaveTableData[TFORM_MAX_BANKS];
+    float* userWaveTableData[TFORM_MAX_BANKS];
     char userWaveTableSizes[TFORM_MAX_BANKS];
     int userWaveTableWavelengths[TFORM_MAX_BANKS];
     bool userWaveTableFilled[TFORM_MAX_BANKS];
@@ -224,7 +224,12 @@ struct Terrorform : Module {
     int maxNumBanks;
     float bank;
     float bankCV;
-    int bankI;
+    int bankI = -1;
+    bool wavebankChanged = true;
+
+    float** romWaveTableData;
+    char romWaveTableSize = 0;
+    int romWaveTableLength;
 
     float shapeType;
     float shapeTypeCV;
@@ -389,6 +394,7 @@ struct Terrorform : Module {
     void onSampleRateChange() override;
     void onReset() override; // For some stupid reason some buttons don't reset?!??!?!
     void manageVoices();
+    void changeBank(int newBank);
 
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;

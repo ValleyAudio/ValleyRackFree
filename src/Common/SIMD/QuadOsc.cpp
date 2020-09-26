@@ -384,6 +384,7 @@ QuadOsc::QuadOsc() {
     _lowSample = (float*) aligned_alloc_16(4 * sizeof(float));
     _highSample = (float*) aligned_alloc_16(4 * sizeof(float));
     _output = (float*) aligned_alloc_16(4 * sizeof(float));
+    _tabSize = 0;
 
     __samplerate = _mm_set1_ps(44100.f);
     __nyquist = _mm_set1_ps(22050.f);
@@ -805,10 +806,14 @@ void ScanningQuadOsc::tick() {
 
     // Do linear interpolation
     for(auto j = 0; j < 4; ++j) {
-        _lowSample[j] = _wavebank[_lowBank[j]][_aPos[j]];
-        _lowSample2[j] = _wavebank[_highBank[j]][_aPos[j]];
-        _highSample[j] = _wavebank[_lowBank[j]][_bPos[j]];
-        _highSample2[j] = _wavebank[_highBank[j]][_bPos[j]];
+        // _lowSample[j] = _wavebank[_lowBank[j]][_aPos[j]];
+        // _lowSample2[j] = _wavebank[_highBank[j]][_aPos[j]];
+        // _highSample[j] = _wavebank[_lowBank[j]][_bPos[j]];
+        // _highSample2[j] = _wavebank[_highBank[j]][_bPos[j]];
+        _lowSample[j] = _wavebank[_lowBank[j] * _tabSize + _aPos[j]];
+        _lowSample2[j] = _wavebank[_highBank[j] * _tabSize +_aPos[j]];
+        _highSample[j] = _wavebank[_lowBank[j] * _tabSize +_bPos[j]];
+        _highSample2[j] = _wavebank[_highBank[j] * _tabSize +_bPos[j]];
     }
 
     __lowSamp = _mm_load_ps(_lowSample);
@@ -832,11 +837,21 @@ void ScanningQuadOsc::tick() {
     __eoc = _mm_or_ps(_mm_and_ps(__ones, __ltMask), _mm_and_ps(__ones, __mtMask));
 }
 
-void ScanningQuadOsc::setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize) {
+// void ScanningQuadOsc::setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize) {
+//     _wavebank = wavebank;
+//     _numWaves = numWaves;
+//     __numWaves = _mm_set1_epi32(numWaves);
+//     __numWaves_1 = _mm_sub_epi32(__numWaves, _mm_set1_epi32(1));
+//     __tabSize = _mm_set1_ps((float)tableSize);
+//     __tabSize_1 = _mm_sub_ps(__tabSize, __ones);
+// }
+
+void ScanningQuadOsc::setWavebank(float* wavebank, int32_t numWaves, int32_t tableSize) {
     _wavebank = wavebank;
     _numWaves = numWaves;
     __numWaves = _mm_set1_epi32(numWaves);
     __numWaves_1 = _mm_sub_epi32(__numWaves, _mm_set1_epi32(1));
+    _tabSize = tableSize;
     __tabSize = _mm_set1_ps((float)tableSize);
     __tabSize_1 = _mm_sub_ps(__tabSize, __ones);
 }

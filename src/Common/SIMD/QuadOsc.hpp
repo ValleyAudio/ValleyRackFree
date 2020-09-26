@@ -169,6 +169,7 @@ protected:
     float* _lowSample;
     float* _highSample;
     float* _output;
+    int32_t _tabSize;
     float _shape;
     bool _PMPostShape;
     int32_t _syncMode;
@@ -221,12 +222,14 @@ public:
     ScanningQuadOsc& operator=(const ScanningQuadOsc&) = delete;
 
     void tick() override;
-    void setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize);
+    // void setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize);
+    void setWavebank(float* wavebank, int32_t numWaves, int32_t tableSize);
     void setScanPosition(float position);
     void mm_setScanPosition(const __m128& position);
     int32_t getNumwaves() const;
 private:
-    float**  _wavebank;
+    // float**  _wavebank;
+    float* _wavebank;
     int32_t _numWaves;
     __m128i __numWaves, __numWaves_1;
 
