@@ -1,7 +1,14 @@
-# ValleyRackFree Change
-Log
+# ValleyRackFree Change Log
 
 ## Changes
+
+### 1.1.1
+
+    • [Update] Add the ability to load larger wavelength tables into Terrorform
+
+### 1.1.0
+
+    • [New Module] Terrorform, a shapeshifting, complex wavetable voice
 
 ### 0.6.9
 
