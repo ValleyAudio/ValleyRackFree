@@ -1,37 +1,67 @@
 #pragma once
 
-#include "../Common/Wavetables/Wavetables.hpp"
+#include <common.hpp>
 #define NUM_DEXTER_WAVETABLES 35
 
-static float** wavetables[NUM_DEXTER_WAVETABLES] = {
-    wavetable_opal, wavetable_basic, wavetable_TeeEks, wavetable_sineHarmonics,
-    wavetable_additiveSine, wavetable_amHarmonic, wavetable_sweepHarmonic, wavetable_additiveSaw,
-    wavetable_additiveSquare, wavetable_additiveBank, wavetable_oboe, wavetable_altosax,
-    wavetable_cello1, wavetable_cello2, wavetable_violin, wavetable_piano, wavetable_theremin,
-    wavetable_pluck, wavetable_overtone1, wavetable_overtone2, wavetable_symetric, wavetable_chip1,
-    wavetable_chip2, wavetable_bitcrush1, wavetable_bitcrush2, wavetable_voice1, wavetable_voice2,
-    wavetable_voice3, wavetable_voice4, wavetable_voice5, wavetable_pwm, wavetable_biPulse,
-    wavetable_sawGap, wavetable_sawGap2, wavetable_vgame
+BINARY(ADD_BANK1_bin);
+BINARY(ADD_SAW_bin);
+BINARY(ADD_SINE_bin);
+BINARY(ADD_SQR_bin);
+BINARY(ALTOSAX_bin);
+BINARY(AM_HARM_bin);
+BINARY(BASIC_bin);
+BINARY(BI_PULSE_bin);
+BINARY(BITCRUSH1_bin);
+BINARY(BITCRUSH2_bin);
+BINARY(CELLO_1_bin);
+BINARY(CELLO_2_bin);
+BINARY(CHIP_1_bin);
+BINARY(CHIP_2_bin);
+BINARY(OBOE_bin);
+BINARY(OPAL_bin);
+BINARY(OVERTONE1_bin);
+BINARY(OVERTONE2_bin);
+BINARY(PIANO_bin);
+BINARY(PLUCK_bin);
+BINARY(PWM_bin);
+BINARY(SAW_GAP1_bin);
+BINARY(SAW_GAP2_bin);
+BINARY(SINE_HARM_bin);
+BINARY(SWEEPHARM_bin);
+BINARY(SYMMETRY_bin);
+BINARY(TEE_EKS_bin);
+BINARY(THEREMIN_bin);
+BINARY(VIDEOGAME_bin);
+BINARY(VIOLIN_bin);
+BINARY(VOICE_1_bin);
+BINARY(VOICE_2_bin);
+BINARY(VOICE_3_bin);
+BINARY(VOICE_4_bin);
+BINARY(VOICE_5_bin);
+
+static unsigned char* dexterWavetables[NUM_DEXTER_WAVETABLES] = {
+    OPAL_bin, BASIC_bin, TEE_EKS_bin, SINE_HARM_bin,
+    ADD_SINE_bin, AM_HARM_bin, SWEEPHARM_bin, ADD_SAW_bin,
+    ADD_SQR_bin, ADD_BANK1_bin, OBOE_bin, ALTOSAX_bin,
+    CELLO_1_bin, CELLO_2_bin, VIOLIN_bin, PIANO_bin, THEREMIN_bin,
+    PLUCK_bin, OVERTONE1_bin, OVERTONE2_bin, SYMMETRY_bin, CHIP_1_bin,
+    CHIP_2_bin, BITCRUSH1_bin, BITCRUSH2_bin, VOICE_1_bin, VOICE_2_bin,
+    VOICE_3_bin, VOICE_4_bin, VOICE_5_bin, PWM_bin, BI_PULSE_bin,
+    SAW_GAP1_bin, SAW_GAP2_bin, VIDEOGAME_bin
 };
 
-static long* wavetable_lengths[NUM_DEXTER_WAVETABLES] = {
-    wavetable_opal_lengths, wavetable_basic_lengths, wavetable_TeeEks_lengths, wavetable_sineHarmonics_lengths,
-    wavetable_additiveSine_lengths, wavetable_amHarmonic_lengths, wavetable_sweepHarmonic_lengths, wavetable_additiveSaw_lengths,
-    wavetable_additiveSquare_lengths, wavetable_additiveBank_lengths, wavetable_oboe_lengths, wavetable_altosax_lengths,
-    wavetable_cello1_lengths, wavetable_cello2_lengths, wavetable_violin_lengths, wavetable_piano_lengths, wavetable_theremin_lengths,
-    wavetable_pluck_lengths, wavetable_overtone1_lengths, wavetable_overtone2_lengths, wavetable_symetric_lengths, wavetable_chip1_lengths,
-    wavetable_chip2_lengths, wavetable_bitcrush1_lengths, wavetable_bitcrush2_lengths, wavetable_voice1_lengths, wavetable_voice2_lengths,
-    wavetable_voice3_lengths, wavetable_voice4_lengths, wavetable_voice5_lengths, wavetable_pwm_lengths, wavetable_biPulse_lengths,
-    wavetable_sawGap_lengths, wavetable_sawGap2_lengths, wavetable_vgame_lengths
+static int32_t wavetable_lengths[NUM_DEXTER_WAVETABLES] = {
+    4096, 1024, 8192, 8192, 8192, 8192, 2048, 8192,
+    8192, 8192, 600, 600, 600, 600, 600, 600,
+    600, 600, 600, 600, 600, 600, 600, 600,
+    600, 600, 600, 600, 600, 600, 1024, 1024,
+    1024, 1024, 600
 };
 
 static int32_t wavetable_sizes[NUM_DEXTER_WAVETABLES] = {
-    WAVETABLE_OPAL_NUM, WAVETABLE_BASIC_NUM, WAVETABLE_TEEEKS_NUM, WAVETABLE_SINEHARMONICS_NUM,
-    WAVETABLE_ADDITIVESINE_NUM, WAVETABLE_AMHARMONIC_NUM, WAVETABLE_SWEEPHARMONIC_NUM, WAVETABLE_ADDITIVESAW_NUM,
-    WAVETABLE_ADDITIVESQUARE_NUM, WAVETABLE_ADDITIVEBANK_NUM, WAVETABLE_OBOE_NUM, WAVETABLE_ALTOSAX_NUM,
-    WAVETABLE_CELLO1_NUM, WAVETABLE_CELLO2_NUM, WAVETABLE_VIOLIN_NUM, WAVETABLE_PIANO_NUM, WAVETABLE_THEREMIN_NUM,
-    WAVETABLE_PLUCK_NUM, WAVETABLE_OVERTONE1_NUM, WAVETABLE_OVERTONE2_NUM, WAVETABLE_SYMETRIC_NUM, WAVETABLE_CHIP1_NUM,
-    WAVETABLE_CHIP2_NUM, WAVETABLE_BITCRUSH1_NUM, WAVETABLE_BITCRUSH2_NUM, WAVETABLE_VOICE1_NUM, WAVETABLE_VOICE2_NUM,
-    WAVETABLE_VOICE3_NUM, WAVETABLE_VOICE4_NUM, WAVETABLE_VOICE5_NUM, WAVETABLE_PWM_NUM, WAVETABLE_BIPULSE_NUM,
-    WAVETABLE_SAWGAP_NUM, WAVETABLE_SAWGAP2_NUM, WAVETABLE_VGAME_NUM
+    8, 256, 8, 16, 16, 64, 124, 16,
+    16, 8, 13, 8, 8, 8, 14, 30,
+    8, 9, 8, 8, 14, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 64, 64,
+    64, 128, 8
 };

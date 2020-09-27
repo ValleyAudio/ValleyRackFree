@@ -389,7 +389,7 @@ void Dexter::step() {
 
         opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].getValue();
         opWaveBank[op] = opWaveBankKnob[op] + modMatrix[op].getDestinationValue(WAVE_BANK_DEST);
-        opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_VALLEY_WAVETABLES - 1);
+        opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_DEXTER_WAVETABLES - 1);
 
         opWave[op] = params[opParams[op][OP_WAVE_PARAM]].getValue();
         opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
@@ -411,8 +411,8 @@ void Dexter::step() {
 
         coreA._mm_setFrequency(op, __opLowFreq[op]);
         coreB._mm_setFrequency(op, __opHighFreq[op]);
-        // coreA.setWavebank(op, opWaveBank[op]);
-        // coreB.setWavebank(op, opWaveBank[op]);
+        coreA.setWavebank(op, opWaveBank[op]);
+        coreB.setWavebank(op, opWaveBank[op]);
         coreA.setWavePosition(op, opWave[op]);
         coreB.setWavePosition(op, opWave[op]);
         opShapeMode[op] = opMenuShapeMode[op] + modMatrix[op].getDestinationValue(SHAPE_MODE_DEST);

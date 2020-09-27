@@ -67,7 +67,7 @@ Terrorform::Terrorform() {
         // osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
         osc[i].setWavebank((float*)BINARY_START(wavetables[0]),
                            wavetable_sizes[0],
-                           wavetable_lengths[0][0]);
+                           wavetable_lengths[0]);
         osc[i].setScanPosition(0.f);
         osc[i].setSampleRate(APP->engine->getSampleRate());
         osc[i].setShape(0.0);
@@ -255,7 +255,7 @@ void Terrorform::process(const ProcessArgs &args) {
                 lights[USER_BANK_LIGHT].value = 0.f;
                 osc[c].setWavebank((float*)BINARY_START(wavetables[bankI]),
                                    wavetable_sizes[bankI],
-                                   wavetable_lengths[bankI][0]);
+                                   wavetable_lengths[bankI]);
                 wavebankChanged = false;
             }
             osc[c].setShapeMethod(shapeTypeI);
