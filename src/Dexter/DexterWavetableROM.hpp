@@ -3,51 +3,51 @@
 #include <common.hpp>
 #define NUM_DEXTER_WAVETABLES 35
 
-BINARY(ADD_BANK1_bin);
-BINARY(ADD_SAW_bin);
-BINARY(ADD_SINE_bin);
-BINARY(ADD_SQR_bin);
-BINARY(ALTOSAX_bin);
-BINARY(AM_HARM_bin);
-BINARY(BASIC_bin);
-BINARY(BI_PULSE_bin);
-BINARY(BITCRUSH1_bin);
-BINARY(BITCRUSH2_bin);
-BINARY(CELLO_1_bin);
-BINARY(CELLO_2_bin);
-BINARY(CHIP_1_bin);
-BINARY(CHIP_2_bin);
-BINARY(OBOE_bin);
-BINARY(OPAL_bin);
-BINARY(OVERTONE1_bin);
-BINARY(OVERTONE2_bin);
-BINARY(PIANO_bin);
-BINARY(PLUCK_bin);
-BINARY(PWM_bin);
-BINARY(SAW_GAP1_bin);
-BINARY(SAW_GAP2_bin);
-BINARY(SINE_HARM_bin);
-BINARY(SWEEPHARM_bin);
-BINARY(SYMMETRY_bin);
-BINARY(TEE_EKS_bin);
-BINARY(THEREMIN_bin);
-BINARY(VIDEOGAME_bin);
-BINARY(VIOLIN_bin);
-BINARY(VOICE_1_bin);
-BINARY(VOICE_2_bin);
-BINARY(VOICE_3_bin);
-BINARY(VOICE_4_bin);
-BINARY(VOICE_5_bin);
+BINARY(src_ADD_BANK1_bin);
+BINARY(src_ADD_SAW_bin);
+BINARY(src_ADD_SINE_bin);
+BINARY(src_ADD_SQR_bin);
+BINARY(src_ALTOSAX_bin);
+BINARY(src_AM_HARM_bin);
+BINARY(src_BASIC_bin);
+BINARY(src_BI_PULSE_bin);
+BINARY(src_BITCRUSH1_bin);
+BINARY(src_BITCRUSH2_bin);
+BINARY(src_CELLO_1_bin);
+BINARY(src_CELLO_2_bin);
+BINARY(src_CHIP_1_bin);
+BINARY(src_CHIP_2_bin);
+BINARY(src_OBOE_bin);
+BINARY(src_OPAL_bin);
+BINARY(src_OVERTONE1_bin);
+BINARY(src_OVERTONE2_bin);
+BINARY(src_PIANO_bin);
+BINARY(src_PLUCK_bin);
+BINARY(src_PWM_bin);
+BINARY(src_SAW_GAP1_bin);
+BINARY(src_SAW_GAP2_bin);
+BINARY(src_SINE_HARM_bin);
+BINARY(src_SWEEPHARM_bin);
+BINARY(src_SYMMETRY_bin);
+BINARY(src_TEE_EKS_bin);
+BINARY(src_THEREMIN_bin);
+BINARY(src_VIDEOGAME_bin);
+BINARY(src_VIOLIN_bin);
+BINARY(src_VOICE_1_bin);
+BINARY(src_VOICE_2_bin);
+BINARY(src_VOICE_3_bin);
+BINARY(src_VOICE_4_bin);
+BINARY(src_VOICE_5_bin);
 
 static unsigned char* dexterWavetables[NUM_DEXTER_WAVETABLES] = {
-    OPAL_bin, BASIC_bin, TEE_EKS_bin, SINE_HARM_bin,
-    ADD_SINE_bin, AM_HARM_bin, SWEEPHARM_bin, ADD_SAW_bin,
-    ADD_SQR_bin, ADD_BANK1_bin, OBOE_bin, ALTOSAX_bin,
-    CELLO_1_bin, CELLO_2_bin, VIOLIN_bin, PIANO_bin, THEREMIN_bin,
-    PLUCK_bin, OVERTONE1_bin, OVERTONE2_bin, SYMMETRY_bin, CHIP_1_bin,
-    CHIP_2_bin, BITCRUSH1_bin, BITCRUSH2_bin, VOICE_1_bin, VOICE_2_bin,
-    VOICE_3_bin, VOICE_4_bin, VOICE_5_bin, PWM_bin, BI_PULSE_bin,
-    SAW_GAP1_bin, SAW_GAP2_bin, VIDEOGAME_bin
+    src_OPAL_bin, src_BASIC_bin, src_TEE_EKS_bin, src_SINE_HARM_bin,
+    src_ADD_SINE_bin, src_AM_HARM_bin, src_SWEEPHARM_bin, src_ADD_SAW_bin,
+    src_ADD_SQR_bin, src_ADD_BANK1_bin, src_OBOE_bin, src_ALTOSAX_bin,
+    src_CELLO_1_bin, src_CELLO_2_bin, src_VIOLIN_bin, src_PIANO_bin, src_THEREMIN_bin,
+    src_PLUCK_bin, src_OVERTONE1_bin, src_OVERTONE2_bin, src_SYMMETRY_bin, src_CHIP_1_bin,
+    src_CHIP_2_bin, src_BITCRUSH1_bin, src_BITCRUSH2_bin, src_VOICE_1_bin, src_VOICE_2_bin,
+    src_VOICE_3_bin, src_VOICE_4_bin, src_VOICE_5_bin, src_PWM_bin, src_BI_PULSE_bin,
+    src_SAW_GAP1_bin, src_SAW_GAP2_bin, src_VIDEOGAME_bin
 };
 
 static int32_t wavetable_lengths[NUM_DEXTER_WAVETABLES] = {
