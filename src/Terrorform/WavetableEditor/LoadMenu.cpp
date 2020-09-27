@@ -104,6 +104,8 @@ TFormLoadMenu::TFormLoadMenu() {
     cycleSizeMenu->maxItems = 4;
     cycleSizeMenu->onChangeCallback = [=]() {
         updateWaveDisplay();
+        endWaveField->setValue(maxWaves);
+        updateWaveDisplay();
     };
     addChild(cycleSizeMenu);
 
