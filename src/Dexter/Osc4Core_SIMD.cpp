@@ -159,7 +159,7 @@ void FourVoiceOPCore::setWavebank(int opNum, int bankNum) {
     int32_t numWaves;
     int32_t tableSize;
 
-    wavebank = (float*)BINARY_START(dexterWavetables[bankNum]);
+    wavebank = dexterWavetables[bankNum];
     numWaves = wavetable_sizes[bankNum];
     tableSize = wavetable_lengths[bankNum];
     _op[opNum].setWavebank(wavebank, numWaves, tableSize);

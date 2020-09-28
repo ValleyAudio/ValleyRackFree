@@ -12,6 +12,10 @@ LDFLAGS +=
 
 # Add .cpp and .c files to the build
 SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c src/*/*/*.cpp src/*/*/*/c)
+
+# Must include the VCV plugin Makefile framework
+RACK_DIR ?= ../..
+
 BINARIES += src/ADD_BANK1.bin
 BINARIES += src/ADD_BANK2.bin
 BINARIES += src/ADD_BANK3.bin
@@ -77,8 +81,6 @@ BINARIES += src/VOICE_6.bin
 BINARIES += src/VOX_MACH.bin
 BINARIES += src/XFADE.bin
 
-# Must include the VCV plugin Makefile framework
-RACK_DIR ?= ../..
 
 # Convenience target for including files in the distributable release
 #.PHONY: dist

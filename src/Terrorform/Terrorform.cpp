@@ -64,10 +64,7 @@ Terrorform::Terrorform() {
     configParam(Terrorform::DISPLAY_CV_SWITCH_PARAM, 0.0, 1.0, 1.0, "Display CV Offset");
 
     for(int i = 0; i < kMaxNumGroups; ++i) {
-        // osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0][0]);
-        osc[i].setWavebank((float*)BINARY_START(wavetables[0]),
-                           wavetable_sizes[0],
-                           wavetable_lengths[0]);
+        osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0]);
         osc[i].setScanPosition(0.f);
         osc[i].setSampleRate(APP->engine->getSampleRate());
         osc[i].setShape(0.0);
@@ -129,18 +126,6 @@ Terrorform::Terrorform() {
 
     // Fill user wavetables
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
-        // userWaveTableData[bank] = new float*[TFORM_MAX_NUM_WAVES];
-        // userWaveTableFilled[bank] = false;
-        // userWaveTableSizes[bank] = 1;
-        // userWaveTableWavelengths[bank] = TFORM_WAVELENGTH_CAP;
-        // userWaveTableNames.push_back("EMPTY_" + std::to_string(bank + 1));
-        //
-        // for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
-        //     userWaveTableData[bank][wave] = new float[TFORM_WAVELENGTH_CAP];
-        //     for(auto i = 0; i < TFORM_WAVELENGTH_CAP; ++i) {
-        //         userWaveTableData[bank][wave][i] = 0.f;
-        //     }
-        // }
         userWaveTableData[bank] = new float[TFORM_MAX_NUM_WAVES * TFORM_WAVELENGTH_CAP];
         userWaveTableFilled[bank] = false;
         userWaveTableSizes[bank] = 1;
@@ -153,8 +138,6 @@ Terrorform::Terrorform() {
     numUserWaveTables = 0;
 
     readFromUserWaves = false;
-
-    //changeBank(0);
 }
 
 Terrorform::~Terrorform() {
@@ -253,7 +236,7 @@ void Terrorform::process(const ProcessArgs &args) {
             }
             else if (wavebankChanged) {
                 lights[USER_BANK_LIGHT].value = 0.f;
-                osc[c].setWavebank((float*)BINARY_START(wavetables[bankI]),
+                osc[c].setWavebank(wavetables[bankI],
                                    wavetable_sizes[bankI],
                                    wavetable_lengths[bankI]);
                 wavebankChanged = false;

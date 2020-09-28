@@ -67,22 +67,22 @@ BINARY(src_VOICE_6_bin);
 BINARY(src_VOX_MACH_bin);
 BINARY(src_XFADE_bin);
 
-static unsigned char* wavetables[NUM_TERRORFORM_WAVETABLES] = {
-    src_BASIC_bin, src_OPAL_bin, src_TEE_EKS_bin, src_SAW_PHASE_bin,
-    src_SAW_GAP1_bin, src_SAW_GAP2_bin, src_PWM_bin, src_BI_PULSE_bin,
-    src_RESO_SAW_bin, src_RESO_SQR_bin, src_SINE_HARM_bin, src_AM_HARM_bin,
-    src_SWEEPHARM_bin, src_XFADE_bin, src_CHIRP_bin, src_ADD_SINE_bin,
-    src_ADD_SAW_bin, src_ADD_SQR_bin, src_ADD_BANK1_bin, src_ADD_BANK2_bin,
-    src_ADD_BANK3_bin, src_ADD_BANK4_bin, src_FOLD_SINE_bin, src_TWO_OP_RAND_bin,
-    src_TWO_OPFM1_bin, src_TWO_OPFM2_bin, src_FM1_bin, src_FM2_bin,
-    src_FM3_bin, src_FM4_bin, src_OBOE_bin, src_ALTOSAX_bin,
-    src_REED_bin, src_CELLO_1_bin, src_CELLO_2_bin, src_VIOLIN_bin,
-    src_PIANO_bin, src_EBASS_bin, src_PLUCK_bin, src_THEREMIN_bin, src_OVERTONE1_bin,
-    src_OVERTONE2_bin, src_VOICE_1_bin, src_VOICE_2_bin, src_VOICE_3_bin, src_VOICE_4_bin,
-    src_VOICE_5_bin, src_VOICE_6_bin, src_VOX_MACH_bin, src_SYMMETRY_bin, src_CHIP_1_bin, src_CHIP_2_bin,
-    src_BITCRUSH1_bin, src_BITCRUSH2_bin, src_VIDEOGAME_bin, src_LINEAR_bin,
-    src_DISTORT_bin, src_GRIT_bin, src_GMTRY_1_bin, src_GMTRY_2_bin,
-    src_GMTRY_3_bin, src_PLAITS_1_bin, src_PLAITS_2_bin, src_PLAITS_3_bin
+static float* wavetables[NUM_TERRORFORM_WAVETABLES] = {
+    (float*)BINARY_START(src_BASIC_bin), (float*)BINARY_START(src_OPAL_bin), (float*)BINARY_START(src_TEE_EKS_bin), (float*)BINARY_START(src_SAW_PHASE_bin),
+    (float*)BINARY_START(src_SAW_GAP1_bin), (float*)BINARY_START(src_SAW_GAP2_bin), (float*)BINARY_START(src_PWM_bin), (float*)BINARY_START(src_BI_PULSE_bin),
+    (float*)BINARY_START(src_RESO_SAW_bin), (float*)BINARY_START(src_RESO_SQR_bin), (float*)BINARY_START(src_SINE_HARM_bin), (float*)BINARY_START(src_AM_HARM_bin),
+    (float*)BINARY_START(src_SWEEPHARM_bin), (float*)BINARY_START(src_XFADE_bin), (float*)BINARY_START(src_CHIRP_bin), (float*)BINARY_START(src_ADD_SINE_bin),
+    (float*)BINARY_START(src_ADD_SAW_bin), (float*)BINARY_START(src_ADD_SQR_bin), (float*)BINARY_START(src_ADD_BANK1_bin), (float*)BINARY_START(src_ADD_BANK2_bin),
+    (float*)BINARY_START(src_ADD_BANK3_bin), (float*)BINARY_START(src_ADD_BANK4_bin), (float*)BINARY_START(src_FOLD_SINE_bin), (float*)BINARY_START(src_TWO_OP_RAND_bin),
+    (float*)BINARY_START(src_TWO_OPFM1_bin), (float*)BINARY_START(src_TWO_OPFM2_bin), (float*)BINARY_START(src_FM1_bin), (float*)BINARY_START(src_FM2_bin),
+    (float*)BINARY_START(src_FM3_bin), (float*)BINARY_START(src_FM4_bin), (float*)BINARY_START(src_OBOE_bin), (float*)BINARY_START(src_ALTOSAX_bin),
+    (float*)BINARY_START(src_REED_bin), (float*)BINARY_START(src_CELLO_1_bin), (float*)BINARY_START(src_CELLO_2_bin), (float*)BINARY_START(src_VIOLIN_bin),
+    (float*)BINARY_START(src_PIANO_bin), (float*)BINARY_START(src_EBASS_bin), (float*)BINARY_START(src_PLUCK_bin), (float*)BINARY_START(src_THEREMIN_bin), (float*)BINARY_START(src_OVERTONE1_bin),
+    (float*)BINARY_START(src_OVERTONE2_bin), (float*)BINARY_START(src_VOICE_1_bin), (float*)BINARY_START(src_VOICE_2_bin), (float*)BINARY_START(src_VOICE_3_bin), (float*)BINARY_START(src_VOICE_4_bin),
+    (float*)BINARY_START(src_VOICE_5_bin), (float*)BINARY_START(src_VOICE_6_bin), (float*)BINARY_START(src_VOX_MACH_bin), (float*)BINARY_START(src_SYMMETRY_bin), (float*)BINARY_START(src_CHIP_1_bin), (float*)BINARY_START(src_CHIP_2_bin),
+    (float*)BINARY_START(src_BITCRUSH1_bin), (float*)BINARY_START(src_BITCRUSH2_bin), (float*)BINARY_START(src_VIDEOGAME_bin), (float*)BINARY_START(src_LINEAR_bin),
+    (float*)BINARY_START(src_DISTORT_bin), (float*)BINARY_START(src_GRIT_bin), (float*)BINARY_START(src_GMTRY_1_bin), (float*)BINARY_START(src_GMTRY_2_bin),
+    (float*)BINARY_START(src_GMTRY_3_bin), (float*)BINARY_START(src_PLAITS_1_bin), (float*)BINARY_START(src_PLAITS_2_bin), (float*)BINARY_START(src_PLAITS_3_bin)
 };
 
 // Yeah I know, it's magical
