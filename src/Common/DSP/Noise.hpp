@@ -6,7 +6,7 @@
 class WhiteNoise {
 public:
 #ifdef ARCH_WIN
-    WhiteNoise() :_rand(_time(0)),
+    WhiteNoise() :_rand(time(0)),
                   _uniform(-1.0, 1.0) {
         _value = 0.f;
     }
