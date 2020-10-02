@@ -227,20 +227,20 @@ void Terrorform::process(const ProcessArgs &args) {
 
         for(auto c = 0; c < kMaxNumGroups; ++c) {
             lpg[c].mode = (VecLPG::Modes) lpgMode;
-            if(readFromUserWaves && wavebankChanged) {
+
+            if(readFromUserWaves) {
                 lights[USER_BANK_LIGHT].value = 1.f;
                 osc[c].setWavebank(userWaveTableData[bankI],
                                    userWaveTableSizes[bankI],
                                    userWaveTableWavelengths[bankI]);
-                wavebankChanged = false;
             }
-            else if (wavebankChanged) {
+            else {
                 lights[USER_BANK_LIGHT].value = 0.f;
                 osc[c].setWavebank(wavetables[bankI],
                                    wavetable_sizes[bankI],
                                    wavetable_lengths[bankI]);
-                wavebankChanged = false;
             }
+
             osc[c].setShapeMethod(shapeTypeI);
             enhancer[c].setMode(enhanceTypeI);
             osc[c].setSyncMode(syncChoice);
