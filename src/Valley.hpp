@@ -1,5 +1,5 @@
 #include "rack.hpp"
-#define VALLEY_VERSION 112
+#define VALLEY_VERSION 113
 #define DR_WAV_IMPLEMENTATION
 using namespace rack;
 

@@ -1,13 +1,21 @@
 #pragma once
 #include <random>
 #include <cmath>
+#include <ctime>
 
 class WhiteNoise {
 public:
-    WhiteNoise() :_rand(_seed()),
+#ifdef ARCH_WIN
+    WhiteNoise() :_rand(_time(0)),
                   _uniform(-1.0, 1.0) {
         _value = 0.f;
     }
+#else
+    WhiteNoise() :_rand(_seed()),
+              _uniform(-1.0, 1.0) {
+        _value = 0.f;
+    }
+#endif
 
     inline float process() {
         _value = _uniform(_rand);
