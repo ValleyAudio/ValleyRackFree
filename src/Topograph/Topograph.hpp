@@ -87,7 +87,8 @@ struct Topograph : Module {
    dsp::SchmittTrigger runInputTrig;
    bool initExtReset = true;
    int running = 0;
-   bool extClock = false;
+   bool externalClockConnected = false;
+   bool inExternalClockMode = false;
    bool advStep = false;
    long seqStep = 0;
    float swing = 0.5;
@@ -168,20 +169,28 @@ struct Topograph : Module {
    void dataFromJson(json_t *rootJ) override;
    void process(const ProcessArgs &args) override;
    void onSampleRateChange() override;
+   void onReset() override;
    void updateUI();
    void updateOutputs();
-   void onReset() override;
+};
+
+struct TempoKnob : Rogan1PSBlue {
+    bool randomizationAllowed = true;
+    void randomize();
 };
 
 struct TopographWidget : ModuleWidget {
     TopographWidget(Topograph *topograph);
     void appendContextMenu(Menu* menu) override;
     void step() override;
+
     SvgPanel* lightPanel;
+    TempoKnob* tempoKnob;
     PlainText* tempoText;
     PlainText* mapXText;
     PlainText* mapYText;
     PlainText* chaosText;
     NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
+    bool isInExtClockMode = false;
 };

@@ -160,12 +160,12 @@ void Topograph::process(const ProcessArgs &args) {
             initExtReset = false;
         }
         numTicks = ticks_granularity[extClockResolution];
-        extClock = true;
+        inExternalClockMode = true;
     }
     else {
         initExtReset = true;
         numTicks = ticks_granularity[2];
-        extClock = false;
+        inExternalClockMode = false;
         metro.process();
     }
 
@@ -182,8 +182,10 @@ void Topograph::process(const ProcessArgs &args) {
     chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
     chaos = clamp(chaos, 0.f, 1.f);
 
+    externalClockConnected = inputs[CLOCK_INPUT].isConnected();
+
     if (running) {
-        if (extClock) {
+        if (inExternalClockMode) {
             if (clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
                 advStep = true;
             }
@@ -264,7 +266,7 @@ void Topograph::updateOutputs() {
             }
         }
     }
-    else if(extClock && triggerOutputMode == GATE) {
+    else if(inExternalClockMode && triggerOutputMode == GATE) {
         for(int i = 0; i < 6; ++i) {
             if(inputs[CLOCK_INPUT].getVoltage() > 0 && gateState[i]) {
                 gateState[i] = false;
@@ -303,22 +305,15 @@ void Topograph::onReset() {
     running = false;
 }
 
-// The widget
-
-struct PanelBorder : TransparentWidget {
-	void draw(const DrawArgs &args) override {
-		NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
-		nvgBeginPath(args.vg);
-		nvgRect(args.vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
-		nvgStrokeColor(args.vg, borderColor);
-		nvgStrokeWidth(args.vg, 1.0);
-		nvgStroke(args.vg);
-	}
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// Widget //////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TempoKnob::randomize() {
+    if (randomizationAllowed) {
+        Knob::randomize();
+    }
+}
 
 TopographWidget::TopographWidget(Topograph *module) {
     setModule(module);
@@ -342,7 +337,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     tempoText->size = 14;
     tempoText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     tempoText->color = nvgRGB(0xFF, 0xFF, 0xFF);
-    tempoText->text = 120;
+    tempoText->text = "120";
     addChild(tempoText);
 
     // Map Text
@@ -371,7 +366,8 @@ TopographWidget::TopographWidget(Topograph *module) {
     chaosText->text = "Chaos";
     addChild(chaosText);
 
-    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM));
+    tempoKnob = createParam<TempoKnob>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM);
+    addParam(tempoKnob);
     addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM));
@@ -574,6 +570,17 @@ void TopographWidget::step() {
     }
     Topograph* tgraph = dynamic_cast<Topograph*>(module);
 
+    if (!isInExtClockMode && tgraph->externalClockConnected) {
+        isInExtClockMode = true;
+        tempoKnob->randomizationAllowed = false;
+        tempoKnob->paramQuantity->setValue(0.f);
+    }
+    else if (isInExtClockMode && !tgraph->externalClockConnected) {
+        isInExtClockMode = false;
+        tempoKnob->randomizationAllowed = true;
+    }
+
+    // Panel text
     auto floatToTempoText = [](float a){
         std::stringstream stream;
         stream << std::fixed << std::setprecision(1) << a;
@@ -607,7 +614,6 @@ void TopographWidget::step() {
         chaosText->color = darkPanelTextColour;
     }
 
-    // Euclidean Mode
     if (tgraph->inEuclideanMode) {
         mapXText->text = "Len: " + floatToEuclideanText(tgraph->mapX);
         mapYText->text = "Len: " + floatToEuclideanText(tgraph->mapY);

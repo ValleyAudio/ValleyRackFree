@@ -42,6 +42,7 @@ struct UGraph : Module {
         SWING_PARAM,
         NUM_PARAMS
     };
+
     enum InputIds {
         CLOCK_INPUT,
         RESET_INPUT,
@@ -55,6 +56,7 @@ struct UGraph : Module {
         RUN_INPUT,
         NUM_INPUTS
     };
+
     enum OutputIds {
         BD_OUTPUT,
         SN_OUTPUT,
@@ -84,7 +86,8 @@ struct UGraph : Module {
     dsp::SchmittTrigger runInputTrig;
     bool initExtReset = true;
     int running = 0;
-    bool extClock = false;
+    bool externalClockConnected = false;
+    bool inExternalClockMode = false;
     bool advStep = false;
     long seqStep = 0;
     float swing = 0.5;
@@ -149,7 +152,6 @@ struct UGraph : Module {
     };
     ExtClockResolution extClockResolution = EXTCLOCK_RES_24_PPQN;
 
-
     enum ChaosKnobMode {
         CHAOS,
         SWING
@@ -190,11 +192,11 @@ struct UGraph : Module {
         SNLed = Oneshot(0.1, sampleRate);
         HHLed = Oneshot(0.1, sampleRate);
         resetLed = Oneshot(0.1, sampleRate);
-        for(int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 6; ++i) {
             drumTriggers[i] = Oneshot(0.001, sampleRate);
             gateState[i] = false;
         }
-        for(int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             drumLED[i] = Oneshot(0.1, sampleRate);
         }
         panelStyle = 0;
@@ -217,40 +219,40 @@ struct UGraph : Module {
         json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
         if (sequencerModeJ) {
             sequencerModeChoice = json_integer_value(sequencerModeJ);
-		}
+        }
 
         json_t *triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
-		if (triggerOutputModeJ) {
-			triggerOutputMode = (UGraph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
-		}
+        if (triggerOutputModeJ) {
+            triggerOutputMode = (UGraph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
+        }
 
         json_t *accOutputModeJ = json_object_get(rootJ, "accOutputMode");
-		if (accOutputModeJ) {
-			accOutputMode = (UGraph::AccOutputMode) json_integer_value(accOutputModeJ);
-            switch(accOutputMode) {
+        if (accOutputModeJ) {
+            accOutputMode = (UGraph::AccOutputMode) json_integer_value(accOutputModeJ);
+            switch (accOutputMode) {
                 case INDIVIDUAL_ACCENTS:
                     grids.setAccentAltMode(false);
                     break;
                 case ACC_CLK_RST:
                     grids.setAccentAltMode(true);
             }
-		}
+        }
 
         json_t *extClockResolutionJ = json_object_get(rootJ, "extClockResolution");
-		if (extClockResolutionJ) {
-			clockResChoice = json_integer_value(extClockResolutionJ);
+        if (extClockResolutionJ) {
+            clockResChoice = json_integer_value(extClockResolutionJ);
             grids.reset();
-		}
+        }
 
         json_t *chaosKnobModeJ = json_object_get(rootJ, "chaosKnobMode");
-		if (chaosKnobModeJ) {
-			chaosKnobMode = (UGraph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
-		}
+        if (chaosKnobModeJ) {
+            chaosKnobMode = (UGraph::ChaosKnobMode) json_integer_value(chaosKnobModeJ);
+        }
 
         json_t *runModeJ = json_object_get(rootJ, "runMode");
-		if (runModeJ) {
-			runMode = (UGraph::RunMode) json_integer_value(runModeJ);
-		}
+        if (runModeJ) {
+            runMode = (UGraph::RunMode) json_integer_value(runModeJ);
+        }
 
         json_t *panelStyleJ = json_object_get(rootJ, "panelStyle");
         if (panelStyleJ) {
@@ -261,7 +263,7 @@ struct UGraph : Module {
         if (runningJ) {
             running = (int)json_integer_value(runningJ);
         }
-	}
+    }
 
     void step() override;
     void onSampleRateChange() override;
@@ -271,23 +273,23 @@ struct UGraph : Module {
 };
 
 void UGraph::step() {
-    if(runMode == TOGGLE) {
+    if (runMode == TOGGLE) {
         if (runButtonTrig.process(params[RUN_BUTTON_PARAM].getValue()) ||
             runInputTrig.process(inputs[RUN_INPUT].getVoltage())) {
-            if(runMode == TOGGLE){
+            if (runMode == TOGGLE){
                 running = !running;
             }
         }
     }
     else {
         running = params[RUN_BUTTON_PARAM].getValue() + inputs[RUN_INPUT].getVoltage();
-        if(running == 0) {
+        if (running == 0) {
             metro.reset();
         }
     }
     lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
 
-    if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
+    if (resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
         resetTrig.process(inputs[RESET_INPUT].getVoltage())) {
         grids.reset();
         metro.reset();
@@ -296,8 +298,7 @@ void UGraph::step() {
         elapsedTicks = 0;
     }
 
-
-    switch(sequencerModeChoice) {
+    switch (sequencerModeChoice) {
         case 0:
             grids.setPatternMode(PATTERN_ORIGINAL);
             inEuclideanMode = 0;
@@ -319,32 +320,32 @@ void UGraph::step() {
     swing = clamp(params[SWING_PARAM].getValue() + inputs[SWING_CV].getVoltage() / 10.f, 0.f, 0.9f);
     swingHighTempo = tempo / (1 - swing);
     swingLowTempo = tempo / (1 + swing);
-    if(elapsedTicks < 6) {
+    if (elapsedTicks < 6) {
         metro.setTempo(swingLowTempo);
     }
     else {
         metro.setTempo(swingHighTempo);
     }
 
-    if(clockResChoice != prevClockResChoice) {
+    if (clockResChoice != prevClockResChoice) {
         prevClockResChoice = clockResChoice;
         grids.reset();
     }
 
     // External clock select
-    if(tempoParam < 0.01) {
+    if (tempoParam < 0.01) {
         clockBPM = "Ext.";
-        if(initExtReset) {
+        if (initExtReset) {
             grids.reset();
             initExtReset = false;
         }
         numTicks = ticks_granularity[clockResChoice];
-        extClock = true;
+        inExternalClockMode = true;
     }
     else {
         initExtReset = true;
         numTicks = ticks_granularity[2];
-        extClock = false;
+        inExternalClockMode = false;
         metro.process();
     }
 
@@ -361,13 +362,15 @@ void UGraph::step() {
     chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
     chaos = clamp(chaos, 0.f, 1.f);
 
-    if(running) {
-        if(extClock) {
-            if(clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
+    externalClockConnected = inputs[CLOCK_INPUT].isConnected();
+
+    if (running) {
+        if (inExternalClockMode) {
+            if (clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
                 advStep = true;
             }
         }
-        else if(metro.hasTicked()){
+        else if (metro.hasTicked()){
             advStep = true;
             elapsedTicks++;
             elapsedTicks %= 12;
@@ -388,19 +391,19 @@ void UGraph::step() {
         grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
     }
 
-    if(advStep) {
+    if (advStep) {
         grids.tick(numTicks);
-        for(int i = 0; i < 6; ++i) {
-            if(grids.getDrumState(i)) {
+        for (int i = 0; i < 6; ++i) {
+            if (grids.getDrumState(i)) {
                 drumTriggers[i].trigger();
                 gateState[i] = true;
-                if(i < 3) {
+                if (i < 3) {
                     drumLED[i].trigger();
                 }
             }
         }
         seqStep++;
-        if(seqStep >= 32) {
+        if (seqStep >= 32) {
             seqStep = 0;
         }
         advStep = false;
@@ -411,16 +414,16 @@ void UGraph::step() {
 
 void UGraph::updateUI() {
     resetLed.process();
-    for(int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         drumLED[i].process();
-        if(drumLED[i].getState() == 1) {
+        if (drumLED[i].getState() == 1) {
             lights[drumLEDIds[i]].value = 1.0;
         }
         else {
             lights[drumLEDIds[i]].value = 0.0;
         }
     }
-    if(resetLed.getState() == 1) {
+    if (resetLed.getState() == 1) {
         lights[RESET_LIGHT].value = 1.0;
     }
     else {
@@ -429,10 +432,10 @@ void UGraph::updateUI() {
 }
 
 void UGraph::updateOutputs() {
-    if(triggerOutputMode == PULSE) {
-        for(int i = 0; i < 6; ++i) {
+    if (triggerOutputMode == PULSE) {
+        for (int i = 0; i < 6; ++i) {
             drumTriggers[i].process();
-            if(drumTriggers[i].getState()) {
+            if (drumTriggers[i].getState()) {
                 outputs[outIDs[i]].setVoltage(10);
             }
             else {
@@ -440,20 +443,20 @@ void UGraph::updateOutputs() {
             }
         }
     }
-    else if(extClock && triggerOutputMode == GATE) {
-        for(int i = 0; i < 6; ++i) {
-            if(inputs[CLOCK_INPUT].getVoltage() > 0 && gateState[i]) {
+    else if (inExternalClockMode && triggerOutputMode == GATE) {
+        for (int i = 0; i < 6; ++i) {
+            if (inputs[CLOCK_INPUT].getVoltage() > 0 && gateState[i]) {
                 gateState[i] = false;
                 outputs[outIDs[i]].setVoltage(10);
             }
-            if(inputs[CLOCK_INPUT].getVoltage() <= 0) {
+            if (inputs[CLOCK_INPUT].getVoltage() <= 0) {
                 outputs[outIDs[i]].setVoltage(0);
             }
         }
     }
     else {
-        for(int i = 0; i < 6; ++i) {
-            if(metro.getElapsedTickTime() < 0.5 && gateState[i]) {
+        for (int i = 0; i < 6; ++i) {
+            if (metro.getElapsedTickTime() < 0.5 && gateState[i]) {
                 outputs[outIDs[i]].setVoltage(10);
             }
             else {
@@ -467,11 +470,11 @@ void UGraph::updateOutputs() {
 void UGraph::onSampleRateChange() {
     float sampleRate = APP->engine->getSampleRate();
     metro.setSampleRate(sampleRate);
-    for(int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         drumLED[i].setSampleRate(sampleRate);
     }
     resetLed.setSampleRate(sampleRate);
-    for(int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i) {
         drumTriggers[i].setSampleRate(sampleRate);
     }
 }
@@ -480,99 +483,14 @@ void UGraph::onReset() {
     running = false;
 }
 
-// The widget
-
-struct PanelBorder : TransparentWidget {
-	void draw(const DrawArgs &args) override {
-		NVGcolor borderColor = nvgRGBAf(0.5, 0.5, 0.5, 0.5);
-		nvgBeginPath(args.vg);
-		nvgRect(args.vg, 0.5, 0.5, box.size.x - 1.0, box.size.y - 1.0);
-		nvgStrokeColor(args.vg, borderColor);
-		nvgStrokeWidth(args.vg, 1.0);
-		nvgStroke(args.vg);
-	}
-};
-
-struct UGraphDynamicText : TransparentWidget {
-    std::string oldText;
-    std::string* pText;
-    std::shared_ptr<Font> font;
-    int size;
-    NVGcolor drawColour;
-    int* visibility;
-    DynamicViewMode viewMode;
-
-    enum Colour {
-        COLOUR_WHITE,
-        COLOUR_BLACK
-    };
-    int* colourHandle;
-
-    UGraphDynamicText() {
-        font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
-        size = 16;
-        visibility = nullptr;
-        pText = nullptr;
-        viewMode = ACTIVE_HIGH_VIEW;
-    }
-
-    void draw(const DrawArgs &args) {
-        nvgFontSize(args.vg, size);
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.f);
-        Vec textPos = Vec(0.f, 0.f);
-        if(colourHandle != nullptr) {
-            switch(*colourHandle) {
-                case COLOUR_BLACK : drawColour = nvgRGB(0x00,0x00,0x00); break;
-                case COLOUR_WHITE : drawColour = nvgRGB(0xFF,0xFF,0xFF); break;
-                default : drawColour = nvgRGB(0x00,0x00,0x00);
-            }
-        }
-        else {
-            drawColour = nvgRGB(0x00,0x00,0x00);
-        }
-
-        nvgFillColor(args.vg, drawColour);
-        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        if(pText != nullptr) {
-            nvgText(args.vg, textPos.x, textPos.y, pText->c_str(), NULL);
-        }
-    }
-
-    void step() {
-        if(visibility != nullptr) {
-            if(*visibility) {
-                visible = true;
-            }
-            else {
-                visible = false;
-            }
-            if(viewMode == ACTIVE_LOW_VIEW) {
-                visible = !visible;
-            }
-        }
-        else {
-            visible = true;
-        }
-    }
-};
-
-UGraphDynamicText* createUGraphDynamicText(const Vec& pos, int size, int* colourHandle, std::string* pText,
-                                           int* visibilityHandle, DynamicViewMode viewMode) {
-    UGraphDynamicText* dynText = new UGraphDynamicText();
-    dynText->size = size;
-    dynText->colourHandle = colourHandle;
-    dynText->pText = pText;
-    dynText->box.pos = pos;
-    dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
-    dynText->viewMode = viewMode;
-    return dynText;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////// Context Menu ///////////////////////////////////////////
+////////////////////////////////////////////// Widget //////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct TempoKnob : RoganMedBlue {
+    bool randomizationAllowed = true;
+    void randomize();
+};
 
 struct UGraphWidget : ModuleWidget {
     const std::string seqModeItemText[3] = {"Original", "Henri", "Euclid"};
@@ -580,20 +498,23 @@ struct UGraphWidget : ModuleWidget {
     UGraphWidget(UGraph *module);
     void appendContextMenu(Menu* menu) override;
     void step() override;
+
     SvgPanel* lightPanel;
+    TempoKnob* tempoKnob;
     PlainText* tempoText;
     PlainText* mapXText;
     PlainText* mapYText;
     PlainText* chaosText;
     NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
+    bool isInExtClockMode = false;
 };
 
 UGraphWidget::UGraphWidget(UGraph *module) {
     setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanel.svg")));
 
-    if(module) {
+    if (module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanelLight.svg")));
         lightPanel->visible = false;
@@ -608,7 +529,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     auto floatToTempoText = [](float a){
         std::stringstream stream;
         stream << std::fixed << std::setprecision(1) << a;
-        if(a >= 40.0) {
+        if (a >= 40.0) {
             return stream.str();
         }
         std::string out = "Ext.";
@@ -624,7 +545,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     tempoText->size = 14;
     tempoText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     tempoText->color = nvgRGB(0xFF, 0xFF, 0xFF);
-    tempoText->text = 120;
+    tempoText->text = "120";
     addChild(tempoText);
 
     // Map Text
@@ -653,8 +574,8 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     chaosText->text = "Chaos";
     addChild(chaosText);
 
-
-    addParam(createParam<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM));
+    tempoKnob = createParam<TempoKnob>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM);
+    addParam(tempoKnob);
     addParam(createParam<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM));
@@ -690,7 +611,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     addParam(createParam<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
 
-    if(module) {
+    if (module) {
         std::vector<std::string> seqModeItems(seqModeItemText, seqModeItemText + 3);
         addChild(createDynamicChoice(Vec(90, 88), 55.f, seqModeItems, &module->sequencerModeChoice, nullptr, ACTIVE_LOW_VIEW));
         std::vector<std::string> clockResItems(clockResText, clockResText + 3);
@@ -727,7 +648,7 @@ struct UGraphAccOutputModeItem : MenuItem {
     UGraph::AccOutputMode accOutputMode;
     void onAction(const event::Action &e) override {
         module->accOutputMode = accOutputMode;
-        switch(accOutputMode) {
+        switch (accOutputMode) {
             case UGraph::INDIVIDUAL_ACCENTS:
                 module->grids.setAccentAltMode(false);
                 break;
@@ -797,10 +718,21 @@ void UGraphWidget::step() {
     }
     UGraph* ugraph = dynamic_cast<UGraph*>(module);
 
+    if (!isInExtClockMode && ugraph->externalClockConnected) {
+        isInExtClockMode = true;
+        tempoKnob->randomizationAllowed = false;
+        tempoKnob->paramQuantity->setValue(0.f);
+    }
+    else if (isInExtClockMode && !ugraph->externalClockConnected) {
+        isInExtClockMode = false;
+        tempoKnob->randomizationAllowed = true;
+    }
+
+    // Panel text
     auto floatToTempoText = [](float a){
         std::stringstream stream;
         stream << std::fixed << std::setprecision(1) << a;
-        if(a >= 40.0) {
+        if (a >= 40.0) {
             return stream.str();
         }
         std::string out = "Ext.";
@@ -830,7 +762,6 @@ void UGraphWidget::step() {
         chaosText->color = darkPanelTextColour;
     }
 
-    // Euclidean Mode
     if (ugraph->inEuclideanMode) {
         mapXText->text = "Len: " + floatToEuclideanText(ugraph->mapX);
         mapYText->text = "Len: " + floatToEuclideanText(ugraph->mapY);

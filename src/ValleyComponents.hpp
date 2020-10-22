@@ -332,9 +332,9 @@ struct ValleySlider : SvgSlider {
     Vec margin = Vec(-1, -0.55);
     ValleySlider() {
         background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
-    background->wrap();
-    background->box.pos = margin;
-    box.size = background->box.size.plus(margin.mult(2));
+        background->wrap();
+        background->box.pos = margin;
+        box.size = background->box.size.plus(margin.mult(2));
     }
 };
 
@@ -342,9 +342,9 @@ struct ValleyStepSlider : SvgStepSlider {
     Vec margin = Vec(-1, -0.55);
     ValleyStepSlider() {
         background->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/valleySliderBackground.svg"));
-    background->wrap();
-    background->box.pos = margin;
-    box.size = background->box.size.plus(margin.mult(2));
+        background->wrap();
+        background->box.pos = margin;
+        box.size = background->box.size.plus(margin.mult(2));
     }
 };
 
