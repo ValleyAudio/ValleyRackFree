@@ -93,10 +93,10 @@ struct UGraph : Module {
     long elapsedTicks = 0;
 
     float tempoParam = 0.0;
-    std::shared_ptr<float> tempo = std::make_shared<float>(120.0);
-    std::shared_ptr<float> mapX = std::make_shared<float>(0.0);
-    std::shared_ptr<float> mapY = std::make_shared<float>(0.0);
-    std::shared_ptr<float> chaos = std::make_shared<float>(0.0);
+    float tempo = 120.f;
+    float mapX = 0.f;
+    float mapY = 0.f;
+    float chaos = 0.f;
     float BDFill = 0.0;
     float SNFill = 0.0;
     float HHFill = 0.0;
@@ -314,11 +314,11 @@ void UGraph::step() {
 
     // Clock, tempo and swing
     tempoParam = params[TEMPO_PARAM].getValue();
-    *tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
+    tempo = rescale(tempoParam, 0.01f, 1.f, 40.f, 240.f);
 
     swing = clamp(params[SWING_PARAM].getValue() + inputs[SWING_CV].getVoltage() / 10.f, 0.f, 0.9f);
-    swingHighTempo = *tempo / (1 - swing);
-    swingLowTempo = *tempo / (1 + swing);
+    swingHighTempo = tempo / (1 - swing);
+    swingLowTempo = tempo / (1 + swing);
     if(elapsedTicks < 6) {
         metro.setTempo(swingLowTempo);
     }
@@ -348,18 +348,18 @@ void UGraph::step() {
         metro.process();
     }
 
-    *mapX = params[MAPX_PARAM].getValue() + (inputs[MAPX_CV].getVoltage() / 10.f);
-    *mapX = clamp(*mapX, 0.f, 1.f);
-    *mapY = params[MAPY_PARAM].getValue() + (inputs[MAPY_CV].getVoltage() / 10.f);
-    *mapY = clamp(*mapY, 0.f, 1.f);
+    mapX = params[MAPX_PARAM].getValue() + (inputs[MAPX_CV].getVoltage() / 10.f);
+    mapX = clamp(mapX, 0.f, 1.f);
+    mapY = params[MAPY_PARAM].getValue() + (inputs[MAPY_CV].getVoltage() / 10.f);
+    mapY = clamp(mapY, 0.f, 1.f);
     BDFill = params[BD_DENS_PARAM].getValue() + (inputs[BD_FILL_CV].getVoltage() / 10.f);
     BDFill = clamp(BDFill, 0.f, 1.f);
     SNFill = params[SN_DENS_PARAM].getValue() + (inputs[SN_FILL_CV].getVoltage() / 10.f);
     SNFill = clamp(SNFill, 0.f, 1.f);
     HHFill = params[HH_DENS_PARAM].getValue() + (inputs[HH_FILL_CV].getVoltage() / 10.f);
     HHFill = clamp(HHFill, 0.f, 1.f);
-    *chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
-    *chaos = clamp(*chaos, 0.f, 1.f);
+    chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
+    chaos = clamp(chaos, 0.f, 1.f);
 
     if(running) {
         if(extClock) {
@@ -376,16 +376,16 @@ void UGraph::step() {
             advStep = false;
         }
 
-        grids.setMapX((uint8_t)(*mapX * 255.0));
-        grids.setMapY((uint8_t)(*mapY * 255.0));
+        grids.setMapX((uint8_t)(mapX * 255.0));
+        grids.setMapY((uint8_t)(mapY * 255.0));
         grids.setBDDensity((uint8_t)(BDFill * 255.0));
         grids.setSDDensity((uint8_t)(SNFill * 255.0));
         grids.setHHDensity((uint8_t)(HHFill * 255.0));
-        grids.setRandomness((uint8_t)(*chaos * 255.0));
+        grids.setRandomness((uint8_t)(chaos * 255.0));
 
-        grids.setEuclideanLength(0, (uint8_t)(*mapX * 255.0));
-        grids.setEuclideanLength(1, (uint8_t)(*mapY * 255.0));
-        grids.setEuclideanLength(2, (uint8_t)(*chaos * 255.0));
+        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
+        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
+        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
     }
 
     if(advStep) {
@@ -577,10 +577,16 @@ UGraphDynamicText* createUGraphDynamicText(const Vec& pos, int size, int* colour
 struct UGraphWidget : ModuleWidget {
     const std::string seqModeItemText[3] = {"Original", "Henri", "Euclid"};
     const std::string clockResText[3] = {"4 PPQN", "8 PPQN", "24 PPQN"};
-    SvgPanel* lightPanel;
     UGraphWidget(UGraph *module);
     void appendContextMenu(Menu* menu) override;
     void step() override;
+    SvgPanel* lightPanel;
+    PlainText* tempoText;
+    PlainText* mapXText;
+    PlainText* mapYText;
+    PlainText* chaosText;
+    NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
+    NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
 };
 
 UGraphWidget::UGraphWidget(UGraph *module) {
@@ -613,59 +619,40 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     };
 
     // Tempo text
-    if(module) {
-        std::shared_ptr<float> i = module->tempo;
-        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToTempoText);
-        vText->box.pos = Vec(53, 66.75);
-        vText->size = 14;
-        vText->viewMode = ACTIVE_HIGH_VIEW;
-        vText->colorHandle = &module->panelStyle;
-        addChild(vText);
-    }
+    tempoText = new PlainText;
+    tempoText->box.pos = Vec(53, 66.75);
+    tempoText->size = 14;
+    tempoText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    tempoText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    tempoText->text = 120;
+    addChild(tempoText);
 
-    // Map X Text
-    if(module) {
-        addChild(createDynamicText(Vec(53, 163), 14, "Map X", &module->inEuclideanMode,
-                                 &module->panelStyle, ACTIVE_LOW_VIEW));
-        std::shared_ptr<float> i = module->mapX;
-        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(53, 163);
-        vText->size = 14;
-        vText->viewMode = ACTIVE_HIGH_VIEW;
-        vText->visibility = &module->inEuclideanMode;
-        vText->colorHandle = &module->panelStyle;
-        addChild(vText);
-    }
+    // Map Text
+    mapXText = new PlainText;
+    mapXText->box.pos = Vec(53, 163);
+    mapXText->size = 14;
+    mapXText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapXText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    mapXText->text = "Map X";
+    addChild(mapXText);
 
-    // Map Y Text
-    if(module) {
-        addChild(createDynamicText(Vec(89, 163), 14, "Map Y", &module->inEuclideanMode,
-                                   &module->panelStyle, ACTIVE_LOW_VIEW));
-
-        std::shared_ptr<float> i = module->mapY;
-        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(89, 163);
-        vText->size = 14;
-        vText->viewMode = ACTIVE_HIGH_VIEW;
-        vText->visibility = &module->inEuclideanMode;
-        vText->colorHandle = &module->panelStyle;
-        addChild(vText);
-    }
+    mapYText = new PlainText;
+    mapYText->box.pos = Vec(89, 163);
+    mapYText->size = 14;
+    mapYText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapYText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    mapYText->text = "Map Y";
+    addChild(mapYText);
 
     // Chaos Text
-    if(module) {
-        addChild(createDynamicText(Vec(125, 163), 14, "Chaos", &module->inEuclideanMode,
-                                 &module->panelStyle, ACTIVE_LOW_VIEW));
+    chaosText = new PlainText;
+    chaosText->box.pos = Vec(125, 163);
+    chaosText->size = 14;
+    chaosText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    chaosText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    chaosText->text = "Chaos";
+    addChild(chaosText);
 
-        std::shared_ptr<float> i = module->chaos;
-        DynamicValueText<float>* vText = new DynamicValueText<float>(i, floatToEuclideanText);
-        vText->box.pos = Vec(125, 163);
-        vText->size = 14;
-        vText->viewMode = ACTIVE_HIGH_VIEW;
-        vText->visibility = &module->inEuclideanMode;
-        vText->colorHandle = &module->panelStyle;
-        addChild(vText);
-    }
 
     addParam(createParam<RoganMedBlue>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM));
@@ -804,16 +791,57 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
 }
 
 void UGraphWidget::step() {
-    if(module) {
-        if(dynamic_cast<UGraph*>(module)->panelStyle == 1) {
-            panel->visible = false;
-            lightPanel->visible = true;
-        }
-        else {
-            panel->visible = true;
-            lightPanel->visible = false;
-        }
+    if (!module) {
+        Widget::step();
+        return;
     }
+    UGraph* ugraph = dynamic_cast<UGraph*>(module);
+
+    auto floatToTempoText = [](float a){
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(1) << a;
+        if(a >= 40.0) {
+            return stream.str();
+        }
+        std::string out = "Ext.";
+        return out;
+    };
+
+    auto floatToEuclideanText = [](float a) -> std::string {
+        return std::to_string(((uint8_t)(a * 255.0) >> 3) + 1);
+    };
+
+    tempoText->text = floatToTempoText(ugraph->tempo);
+
+    if (ugraph->panelStyle == 1) {
+        panel->visible = false;
+        lightPanel->visible = true;
+        tempoText->color = lightPanelTextColour;
+        mapXText->color = lightPanelTextColour;
+        mapYText->color = lightPanelTextColour;
+        chaosText->color = lightPanelTextColour;
+    }
+    else {
+        panel->visible = true;
+        lightPanel->visible = false;
+        tempoText->color = darkPanelTextColour;
+        mapXText->color = darkPanelTextColour;
+        mapYText->color = darkPanelTextColour;
+        chaosText->color = darkPanelTextColour;
+    }
+
+    // Euclidean Mode
+    if (ugraph->inEuclideanMode) {
+        mapXText->text = "Len: " + floatToEuclideanText(ugraph->mapX);
+        mapYText->text = "Len: " + floatToEuclideanText(ugraph->mapY);
+        chaosText->text = "Len: " + floatToEuclideanText(ugraph->chaos);
+    }
+    else {
+        mapXText->text = "Map X";
+        mapYText->text = "Map Y";
+        chaosText->text = "Chaos";
+    }
+
     Widget::step();
 }
 

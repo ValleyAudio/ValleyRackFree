@@ -43,6 +43,7 @@ struct Topograph : Module {
        SWING_PARAM,
        NUM_PARAMS
    };
+
    enum InputIds {
        CLOCK_INPUT,
        RESET_INPUT,
@@ -56,6 +57,7 @@ struct Topograph : Module {
        RUN_INPUT,
        NUM_INPUTS
    };
+
    enum OutputIds {
        BD_OUTPUT,
        SN_OUTPUT,

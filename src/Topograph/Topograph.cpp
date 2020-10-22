@@ -28,11 +28,11 @@ Topograph::Topograph() {
     HHLed = Oneshot(0.1, APP->engine->getSampleRate());
     resetLed = Oneshot(0.1, APP->engine->getSampleRate());
 
-    for(int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i) {
         drumTriggers[i] = Oneshot(0.001, APP->engine->getSampleRate());
         gateState[i] = false;
     }
-    for(int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         drumLED[i] = Oneshot(0.1, APP->engine->getSampleRate());
     }
     panelStyle = 0;
@@ -56,7 +56,7 @@ void Topograph::dataFromJson(json_t* rootJ) {
     if (sequencerModeJ) {
         sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
         inEuclideanMode = 0;
-        switch(sequencerMode) {
+        switch (sequencerMode) {
             case HENRI:
                 grids.setPatternMode(PATTERN_HENRI);
                 break;
@@ -78,7 +78,7 @@ void Topograph::dataFromJson(json_t* rootJ) {
     json_t* accOutputModeJ = json_object_get(rootJ, "accOutputMode");
 	if (accOutputModeJ) {
 		accOutputMode = (Topograph::AccOutputMode) json_integer_value(accOutputModeJ);
-        switch(accOutputMode) {
+        switch (accOutputMode) {
             case INDIVIDUAL_ACCENTS:
                 grids.setAccentAltMode(false);
                 break;
@@ -115,23 +115,23 @@ void Topograph::dataFromJson(json_t* rootJ) {
 }
 
 void Topograph::process(const ProcessArgs &args) {
-    if(runMode == TOGGLE) {
+    if (runMode == TOGGLE) {
         if (runButtonTrig.process(params[RUN_BUTTON_PARAM].getValue()) ||
             runInputTrig.process(inputs[RUN_INPUT].getVoltage())) {
-            if(runMode == TOGGLE){
+            if (runMode == TOGGLE){
                 running = !running;
             }
         }
     }
     else {
         running = params[RUN_BUTTON_PARAM].getValue() + inputs[RUN_INPUT].getVoltage();
-        if(running == 0) {
+        if (running == 0) {
             metro.reset();
         }
     }
     lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
 
-    if(resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
+    if (resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
         resetTrig.process(inputs[RESET_INPUT].getVoltage())) {
         grids.reset();
         metro.reset();
@@ -146,7 +146,7 @@ void Topograph::process(const ProcessArgs &args) {
     swing = clamp(params[SWING_PARAM].getValue() + inputs[SWING_CV].getVoltage() / 10.f, 0.f, 0.9f);
     swingHighTempo = tempo / (1 - swing);
     swingLowTempo = tempo / (1 + swing);
-    if(elapsedTicks < 6) {
+    if (elapsedTicks < 6) {
         metro.setTempo(swingLowTempo);
     }
     else {
@@ -154,8 +154,8 @@ void Topograph::process(const ProcessArgs &args) {
     }
 
     // External clock select
-    if(tempoParam < 0.01) {
-        if(initExtReset) {
+    if (tempoParam < 0.01) {
+        if (initExtReset) {
             grids.reset();
             initExtReset = false;
         }
@@ -182,13 +182,13 @@ void Topograph::process(const ProcessArgs &args) {
     chaos = params[CHAOS_PARAM].getValue() + (inputs[CHAOS_CV].getVoltage() / 10.f);
     chaos = clamp(chaos, 0.f, 1.f);
 
-    if(running) {
-        if(extClock) {
-            if(clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
+    if (running) {
+        if (extClock) {
+            if (clockTrig.process(inputs[CLOCK_INPUT].getVoltage())) {
                 advStep = true;
             }
         }
-        else if(metro.hasTicked()){
+        else if (metro.hasTicked()){
             advStep = true;
             elapsedTicks++;
             elapsedTicks %= 12;
@@ -209,19 +209,19 @@ void Topograph::process(const ProcessArgs &args) {
         grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
     }
 
-    if(advStep) {
+    if (advStep) {
         grids.tick(numTicks);
-        for(int i = 0; i < 6; ++i) {
-            if(grids.getDrumState(i)) {
+        for (int i = 0; i < 6; ++i) {
+            if (grids.getDrumState(i)) {
                 drumTriggers[i].trigger();
                 gateState[i] = true;
-                if(i < 3) {
+                if (i < 3) {
                     drumLED[i].trigger();
                 }
             }
         }
         seqStep++;
-        if(seqStep >= 32) {
+        if (seqStep >= 32) {
             seqStep = 0;
         }
         advStep = false;
@@ -235,7 +235,7 @@ void Topograph::updateUI() {
     resetLed.process();
     for(int i = 0; i < 3; ++i) {
         drumLED[i].process();
-        if(drumLED[i].getState() == 1) {
+        if (drumLED[i].getState() == 1) {
             lights[drumLEDIds[i]].value = 1.0;
         }
         else {
