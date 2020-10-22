@@ -304,7 +304,7 @@ struct LightLEDButtonWithModeText : SvgSwitch {
 
 struct RedDynamicLight : DynamicModuleLightWidget {
     RedDynamicLight() {
-    addBaseColor(SCHEME_RED);
+        addBaseColor(SCHEME_RED);
     }
 };
 
@@ -353,7 +353,7 @@ struct RedSlider : ValleySlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderRed.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
@@ -362,7 +362,7 @@ struct OrangeSlider : ValleySlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderOrange.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
@@ -371,7 +371,7 @@ struct YellowSlider : ValleySlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
@@ -380,7 +380,7 @@ struct GreenSlider : ValleySlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderGreen.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
@@ -389,7 +389,7 @@ struct BlueSlider : ValleySlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderBlue.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 1.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
@@ -398,7 +398,7 @@ struct YellowStepSlider : ValleyStepSlider {
     handle->svg = APP->window->loadSvg(asset::plugin(pluginInstance,"res/sliderYellow.svg"));
     handle->wrap();
         maxHandlePos = Vec((float)handle->box.size.x * 0.45, 0.5).plus(margin);
-    minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
+        minHandlePos = Vec((float)handle->box.size.x * 0.45, 61.5).plus(margin);
     }
 };
 
