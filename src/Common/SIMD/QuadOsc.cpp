@@ -475,7 +475,7 @@ void QuadOsc::tick() {
 }
 
 void QuadOsc::resetPhase() {
-    __a = __zeros;
+    __a = __half;
 }
 
 void QuadOsc::sync(const __m128& syncSource) {
