@@ -1,3 +1,11 @@
+//
+// DexterWavetableROM.hpp
+// Author: Dale Johnson
+//
+// Copyright (c) 2020 Dale Johnson, Valley Audio
+// Licensed under GPLv3
+//
+
 #pragma once
 
 #include <common.hpp>

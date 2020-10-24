@@ -1,3 +1,10 @@
+//
+// Dexter.cpp
+// Author: Dale Johnson
+// Contact: valley.audio.soft@gmail.com
+// Date: 18/3/2018
+//
+
 #include "Dexter.hpp"
 
 Dexter::Dexter() {

@@ -1,3 +1,10 @@
+//
+// Osc4Core_SIMD.hpp
+// Author: Dale Johnson
+// Contact: valley.audio.soft@gmail.com
+// Date: 18/3/2018
+//
+
 #include "Osc4Core_SIMD.hpp"
 
 FourVoiceOPCore::FourVoiceOPCore() {

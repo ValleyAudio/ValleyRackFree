@@ -1,3 +1,11 @@
+//
+// DexterRoutingMatrix.cpp
+// Author: Dale Johnson
+//
+// Copyright (c) 2020 Dale Johnson, Valley Audio
+// Licensed under GPLv3
+//
+
 #include "DexterRoutingMatrix.hpp"
 
 DexterRoutingMatrixRow::DexterRoutingMatrixRow() {

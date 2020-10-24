@@ -1,5 +1,12 @@
-// Credit to Madalina to helping me with the octave jump code
-// for calculating now inversion
+//
+// Chords.hpp
+// Author: Dale Johnson
+// Contact: valley.audio.soft@gmail.com
+// Date: 18/3/2018
+//
+// Credit to Maddie to helping me with the octave jump code
+// for calculating new inversion
+//
 
 #ifndef DSJ_AMN_VALLEY_CHORDS_HPP
 #define DSJ_AMN_VALLEY_CHORDS_HPP
