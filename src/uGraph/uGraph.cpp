@@ -22,6 +22,7 @@
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
+#include "../ValleyChoiceMenu.hpp"
 #include "../Common/Metronome.hpp"
 #include "../Common/Oneshot.hpp"
 #include "../Topograph/TopographPatternGenerator.hpp"
@@ -129,9 +130,9 @@ struct UGraph : Module {
     SequencerMode sequencerMode = ORIGINAL;
     int inEuclideanMode = 0;
 
-    unsigned long sequencerModeChoice = 0;
-    unsigned long prevClockResChoice = 0;
-    unsigned long clockResChoice = 0;
+    int sequencerModeChoice = 0;
+    int prevClockResChoice = 0;
+    int clockResChoice = 0;
 
     enum TriggerOutputMode {
         PULSE,
@@ -492,6 +493,73 @@ struct TempoKnob : RoganMedBlue {
     void randomize();
 };
 
+struct SeqModeItem : ui::MenuItem {
+    UGraph* module;
+    int sequencerModeChoice;
+    void onAction(const event::Action& e) override {
+        module->sequencerModeChoice = sequencerModeChoice;
+    }
+};
+
+struct SeqModeChoice : ValleyChoiceMenu {
+    UGraph* module;
+    std::vector<std::string> seqModeLabels = {"Original", "Henri", "Euclid"};
+
+    void onAction(const event::Action& e) override {
+        if (!module) {
+            return;
+        }
+
+        ui::Menu* menu = createMenu();
+        for (int i = 0; i < seqModeLabels.size(); ++i) {
+            SeqModeItem* item = new SeqModeItem;
+            item->module = module;
+            item->sequencerModeChoice = i;
+            item->text = seqModeLabels[i];
+            item->rightText = CHECKMARK(item->sequencerModeChoice == module->sequencerModeChoice);
+            menu->addChild(item);
+        }
+    }
+
+    void step() override {
+        text = module ? seqModeLabels[module->sequencerModeChoice] : seqModeLabels[0];
+    }
+};
+
+struct ClockResItem : ui::MenuItem {
+    UGraph* module;
+    int clockResChoice;
+    void onAction(const event::Action& e) override {
+        module->clockResChoice = clockResChoice;
+    }
+};
+
+struct ClockResChoice : ValleyChoiceMenu {
+    UGraph* module;
+    std::vector<std::string> clockResLabels = {"4 PPQN", "8 PPQN", "24 PPQN"};
+
+    void onAction(const event::Action& e) override {
+        if (!module) {
+            return;
+        }
+
+        ui::Menu* menu = createMenu();
+        for (int i = 0; i < clockResLabels.size(); ++i) {
+            ClockResItem* item = new ClockResItem;
+            item->module = module;
+            item->clockResChoice = i;
+            item->text = clockResLabels[i];
+            item->rightText = CHECKMARK(item->clockResChoice == module->clockResChoice);
+            menu->addChild(item);
+        }
+    }
+
+    void step() override {
+        text = module ? clockResLabels[module->clockResChoice] : clockResLabels[0];
+    }
+};
+
+
 struct UGraphWidget : ModuleWidget {
     const std::string seqModeItemText[3] = {"Original", "Henri", "Euclid"};
     const std::string clockResText[3] = {"4 PPQN", "8 PPQN", "24 PPQN"};
@@ -500,6 +568,9 @@ struct UGraphWidget : ModuleWidget {
     void step() override;
 
     SvgPanel* lightPanel;
+    ValleyChoiceMenu* seqModeChoice;
+    ValleyChoiceMenu* clockResChoice;
+
     TempoKnob* tempoKnob;
     PlainText* tempoText;
     PlainText* mapXText;
@@ -525,19 +596,6 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-    auto floatToTempoText = [](float a){
-        std::stringstream stream;
-        stream << std::fixed << std::setprecision(1) << a;
-        if (a >= 40.0) {
-            return stream.str();
-        }
-        std::string out = "Ext.";
-        return out;
-    };
-    auto floatToEuclideanText = [](float a){
-        return std::to_string(((uint8_t)(a * 255.0) >> 3) + 1);
-    };
 
     // Tempo text
     tempoText = new PlainText;
@@ -611,12 +669,17 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     addParam(createParam<LightLEDButton>(Vec(12.1, 107), module, UGraph::RUN_BUTTON_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(14.5, 109.5), module, UGraph::RUNNING_LIGHT));
 
-    if (module) {
-        std::vector<std::string> seqModeItems(seqModeItemText, seqModeItemText + 3);
-        addChild(createDynamicChoice(Vec(90, 88), 55.f, seqModeItems, &module->sequencerModeChoice, nullptr, ACTIVE_LOW_VIEW));
-        std::vector<std::string> clockResItems(clockResText, clockResText + 3);
-        addChild(createDynamicChoice(Vec(90, 111), 55.f, clockResItems, &module->clockResChoice, nullptr, ACTIVE_LOW_VIEW));
-    }
+    SeqModeChoice* modeChoice = new SeqModeChoice;
+    modeChoice->module = module;
+    modeChoice->box.pos = Vec(90, 88);
+    modeChoice->box.size.x = 55.f;
+    addChild(modeChoice);
+
+    ClockResChoice* clockResChoic = new ClockResChoice;
+    clockResChoic->module = module;
+    clockResChoic->box.pos = Vec(90,111);
+    clockResChoic->box.size.x = 55.f;
+    addChild(clockResChoic);
 }
 
 struct UGraphPanelStyleItem : MenuItem {
@@ -716,7 +779,7 @@ void UGraphWidget::step() {
         Widget::step();
         return;
     }
-    UGraph* ugraph = dynamic_cast<UGraph*>(module);
+    UGraph* ugraph = reinterpret_cast<UGraph*>(module);
 
     if (!isInExtClockMode && ugraph->externalClockConnected) {
         isInExtClockMode = true;

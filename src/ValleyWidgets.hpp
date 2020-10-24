@@ -1,3 +1,9 @@
+//
+// Most of the code here is janky AF! Most will be deprecated so that can instead use 'vanilla'
+// Rack API code where possible, and of course make it polymorphic and more maintainable and
+// minimise the use of pointers.
+//
+
 #ifndef DSJ_VALLEY_WIDGETS_HPP
 #define DSJ_VALLEY_WIDGETS_HPP
 
@@ -288,7 +294,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic Choices
 
-struct DynamicItem : MenuItem {
+struct DEPRECATED DynamicItem : MenuItem {
     unsigned long _itemNumber;
     unsigned long* _choice;
     std::function<void(int)> updateChoice;
@@ -297,7 +303,7 @@ struct DynamicItem : MenuItem {
     void step() override;
 };
 
-struct DynamicChoice : ChoiceButton {
+struct DEPRECATED DynamicChoice : ChoiceButton {
     DynamicViewMode _viewMode;
     DynamicChoice();
     void step() override;
@@ -321,7 +327,7 @@ struct DynamicChoice : ChoiceButton {
     std::function<void(int)> updateChoice;
 };
 
-DynamicChoice* createDynamicChoice(const Vec& pos,
+DEPRECATED DynamicChoice* createDynamicChoice(const Vec& pos,
                                    float width,
                                    const std::vector<std::string>& items,
                                    unsigned long* choiceHandle,
