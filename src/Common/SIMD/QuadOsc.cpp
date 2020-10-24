@@ -475,7 +475,7 @@ void QuadOsc::tick() {
 }
 
 void QuadOsc::resetPhase() {
-    __a = __half;
+    __a = __zeros;
 }
 
 void QuadOsc::sync(const __m128& syncSource) {
@@ -826,7 +826,6 @@ void ScanningQuadOsc::tick() {
     __output = _mm_mul_ps(__output, __outputLevel);
 
     // Advance wave read position
-    __aPrev = __a;
     __a = _mm_add_ps(__a, _mm_mul_ps(__stepSize, __dir));
 
     // Wrap wave position

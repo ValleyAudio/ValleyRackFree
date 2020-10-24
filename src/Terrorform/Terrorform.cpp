@@ -156,7 +156,9 @@ Terrorform::~Terrorform() {
         // for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
         //     delete[] userWaveTableData[bank][wave];
         // }
-        delete[] userWaveTableData[bank];
+        if (userWaveTableData[bank]) {
+            delete[] userWaveTableData[bank];
+        }
     }
 }
 
@@ -351,7 +353,7 @@ void Terrorform::process(const ProcessArgs &args) {
     trueFMSwitchValue = params[TRUE_FM_SWITCH_PARAM].getValue();
     trueFMEnabled = trueFMSwitchValue > 0.f;
     if (trueFMSwitchValue != prevTrueFMSwitchValue) {
-        for (int i = 0; i < numActiveChannels; ++i) {
+        for (int i = 0; i < numActiveGroups; ++i) {
             osc[i].resetPhase();
         }
     }
@@ -1454,33 +1456,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             return waves;
         }
 
-        // Calculate required number of blocks, and zero pad when too short
-        // auto numBlocks = 0;
-        // auto numFrames = numSamples / numChannels;
-        // bool needsZeroPadding = numFrames < TFORM_WAVELENGTH_CAP;
-        //
-        // if (!needsZeroPadding) {
-        //     numFrames -= numFrames % TFORM_WAVELENGTH_CAP;
-        //     numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
-        //     numBlocks = numBlocks > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : numBlocks;
-        // }
-        // else {
-        //     float *newTableTemp = new float[numSamples];
-        //     int newNumSamples = TFORM_WAVELENGTH_CAP * numChannels;
-        //
-        //     memcpy(newTableTemp, newTable, sizeof(float) * numSamples);
-        //     drwav_free(newTable);
-        //     newTable = new float[newNumSamples];
-        //     memcpy(newTable, newTableTemp, sizeof(float) * numSamples);
-        //     delete[] newTableTemp;
-        //
-        //     // Zero pad
-        //     for (int i = numSamples; i < newNumSamples; ++i) {
-        //         newTable[i] = 0.f;
-        //     }
-        //     numBlocks = 1;
-        // }
-
         auto numFrames = numSamples / numChannels;
         bool needsZeroPadding = numFrames % 2048;
         if (needsZeroPadding) {
@@ -1506,14 +1481,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         // Copy .wav data into loader
         int readPos = 0;
         int index = 0;
-        // waves->resize(numBlocks * TFORM_WAVELENGTH_CAP);
-        // for (int i = 0; i < numBlocks; ++i) {
-        //     index = i * TFORM_WAVELENGTH_CAP;
-        //     for (int j = 0; j < TFORM_WAVELENGTH_CAP; ++j) {
-        //         (*waves)[index + j] = newTable[readPos];
-        //         readPos += numChannels;
-        //     }
-        // }
+
         waves->resize(numFrames);
         for (int i = 0; i < numFrames; ++i) {
             (*waves)[i] = newTable[readPos];
@@ -1534,32 +1502,14 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int writePos = 0;
         int wave = 0;
 
-        // TODO : Implement wavetable downsampler.
-        //dsp::Decimator<8,1> downsampler;
-
-        // for (int i = 0; i < tableLength; ++i) {
-        //     readPos = (startPos + i) * numChannels;
-        //     wave = i / TFORM_WAVELENGTH_CAP;
-        //     writePos = i % TFORM_WAVELENGTH_CAP;
-        //     module->userWaveTableData[bank][wave][writePos] = newTable[readPos];
-        // }
+        // TODO : Implement better wavetable downsampler.
+        // i.e., use dsp::Decimator<N,1> downsampler;
 
         for (int i = 0; i < tableLength; i++) {
             readPos = (startPos + i * downSampleRatio) * numChannels;
             readPos += downSampleRatio / 2;
             wave = i / TFORM_WAVELENGTH_CAP;
             writePos = i % TFORM_WAVELENGTH_CAP;
-            // if (writePos < 2) {
-            //     amp = writePos / 2.f;
-            // }
-            // else if (writePos >= (TFORM_WAVELENGTH_CAP - 2)) {
-            //     amp = ((TFORM_WAVELENGTH_CAP) - writePos) / 2.f;
-            // }
-            // else {
-            //     amp = 1.f;
-            // }
-
-            // TODO
             module->userWaveTableData[bank][i] = newTable[readPos];
         }
 
