@@ -762,6 +762,135 @@ void Dexter::dataFromJson(json_t *rootJ) {
 //////////////////////////////////////////////// UI ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+AlgoGraphic::AlgoGraphic() {
+    sw = new SvgWidget();
+    addChild(sw);
+    value = 0;
+    style = nullptr;
+    styleOffset = 0;
+    std::string algoGraphicFile;
+    for(auto i = 0; i < 2; ++i) {
+        for(auto j = 0; j < kNumAlgorithms; ++j) {
+            algoGraphicFile = "res/algo" + std::to_string(j);
+            if(i) {
+                algoGraphicFile += "Dark";
+            }
+            algoGraphicFile += ".svg";
+            addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, algoGraphicFile)));
+        }
+    }
+}
+
+void AlgoGraphic::addFrame(std::shared_ptr<Svg> svg) {
+    frames.push_back(svg);
+    // If this is our first frame, automatically set Svg and size
+    if (!sw->svg) {
+        sw->setSvg(svg);
+        box.size = sw->box.size;
+    }
+}
+
+void AlgoGraphic::step() {
+    /*if (isNear(APP->window->pixelRatio,1.f)) {
+        oversample = 2.f;
+    }*/
+    if(style != nullptr) {
+        if(*style == 0) {
+            styleOffset = 0;
+        }
+        else {
+            styleOffset = kNumAlgorithms;
+        }
+    }
+    else {
+        styleOffset = 0;
+    }
+    int index = clamp(value + styleOffset, 0, frames.size() - 1);
+    sw->setSvg(frames[index]);
+    dirty = true;
+    FramebufferWidget::step();
+}
+
+
+void OpSyncModeItem::onAction(const event::Action& e) {
+    if (pSyncMode)
+    *pSyncMode = syncMode;
+}
+
+void OpSyncModeChoice::onAction(const event::Action& e) {
+    if (!pSyncMode) {
+        return;
+    }
+
+    ui::Menu* menu = createMenu();
+    for (int i = 0; i < syncModeLabels.size(); ++i) {
+        OpSyncModeItem* item = new OpSyncModeItem;
+        item->pSyncMode = pSyncMode;
+        item->syncMode = i;
+        item->text = syncModeLabels[i];
+        item->rightText = CHECKMARK(item->syncMode == *pSyncMode);
+        menu->addChild(item);
+    }
+}
+
+void OpSyncModeChoice::step() {
+    text = pSyncMode ? syncModeLabels[*pSyncMode] : syncModeLabels[0];
+}
+
+
+void OpShapeModeItem::onAction(const event::Action& e) {
+    if (pShapeMode)
+    *pShapeMode = shapeMode;
+}
+
+void OpShapeModeChoice::onAction(const event::Action& e) {
+    if (!pShapeMode) {
+        return;
+    }
+
+    ui::Menu* menu = createMenu();
+    for (int i = 0; i < shapeModeLabels.size(); ++i) {
+        OpShapeModeItem* item = new OpShapeModeItem;
+        item->pShapeMode = pShapeMode;
+        item->shapeMode = i;
+        item->text = shapeModeLabels[i];
+        item->rightText = CHECKMARK(item->shapeMode == *pShapeMode);
+        menu->addChild(item);
+    }
+}
+
+void OpShapeModeChoice::step() {
+    text = pShapeMode ? shapeModeLabels[*pShapeMode] : shapeModeLabels[0];
+}
+
+
+void OpModModeItem::onAction(const event::Action& e) {
+    if (pModMode)
+    *pModMode = modMode;
+}
+
+void OpModModeChoice::onAction(const event::Action& e) {
+    if (!pModMode) {
+        return;
+    }
+
+    ui::Menu* menu = createMenu();
+    for (int i = 0; i < modModeLabels.size(); ++i) {
+        OpModModeItem* item = new OpModModeItem;
+        item->pModMode = pModMode;
+        item->modMode = i;
+        item->text = modModeLabels[i];
+        item->rightText = CHECKMARK(item->modMode == *pModMode);
+        menu->addChild(item);
+    }
+}
+
+void OpModModeChoice::step() {
+    text = pModMode ? modModeLabels[*pModMode] : modModeLabels[0];
+}
+
+// The widget
+
 DexterWidget::DexterWidget(Dexter *module) {
     setModule(module);
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
@@ -925,24 +1054,13 @@ DexterWidget::DexterWidget(Dexter *module) {
         addParam(createDynamicParam<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op,
                                                     visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
 
-        DynamicFrameText* multText = new DynamicFrameText;
-        multText->size = 14;
-        multText->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
-        multText->box.size = Vec(81, 14);
-        multText->viewMode = ACTIVE_LOW_VIEW;
-        if(module) {
-            multText->colorHandle = &module->panelStyle;
-            multText->itemHandle = &module->opMultipleKnob[op];
-            multText->visibility = visibilityHandle;
-            for(unsigned long i = 0; i < kNumMultiples; ++i) {
-                multText->addItem(module->multiplesText[i]);
-            }
-        }
-        else {
-            multText->customColor = nvgRGB(0xFF,0xFF,0xFF);
-            multText->addItem("1");
-        }
-        addChild(multText);
+        multText[op] = new PlainText;
+        multText[op]->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
+        multText[op]->size = 14;
+        multText[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        multText[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        multText[op]->text = "1";
+        addChild(multText[op]);
 
         // Buttons
         addParam(createParam<LightLEDButton>(Vec(OpPreButtonPosX + offset, OpPreButtonPosY), module, Dexter::OP_1_PRE_PARAM + Dexter::NUM_PARAM_GROUPS * op));
@@ -964,99 +1082,226 @@ DexterWidget::DexterWidget(Dexter *module) {
         addChild(createLight<MediumLight<RedLight>>(Vec(OpSyncButtonRootX + offset + ledOffset, OpSyncButtonRootY + ledOffset),
                                                     module, Dexter::OP_1_SYNC_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
 
+        // Text for all the main controls, hidden when the settings menu opens
         for(auto i = 0; i < 6; ++i){
-            DynamicText* dynText = new DynamicText();
-            dynText->size = 14;
-            dynText->text = std::make_shared<std::string>(OpMainText[i]);
-            dynText->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
-            dynText->box.size = Vec(82,14);
-
-            if(module) {
-                dynText->visibility = &module->opSettingsMenu[op];
-                dynText->colorHandle = &module->panelStyle;
-            }
-            else {
-                dynText->visibility = nullptr;
-                dynText->customColor = nvgRGB(0xFF, 0xFF, 0xFF);
-            }
-            dynText->viewMode = ACTIVE_LOW_VIEW;
-            addChild(dynText);
+            mainText[op][i] = new PlainText;
+            mainText[op][i]->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
+            mainText[op][i]->size = 14;
+            mainText[op][i]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            mainText[op][i]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+            mainText[op][i]->text = OpMainText[i];
+            addChild(mainText[op][i]);
         }
 
         // Settings Menu
-        if(module) {
-            addParam(createDynamicParam<LightLEDButton>(Vec(OpWaveButtonX + offset, 110.375), module,
-                                                        Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
-            addParam(createDynamicParam<LightLEDButton>(Vec(OpModAButtonX + offset, 110.375), module,
-                                                        Dexter::OP_1_MODA_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
-            addParam(createDynamicParam<LightLEDButton>(Vec(OpModBButtonX + offset, 110.375), module,
-                                                        Dexter::OP_1_MODB_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+        opWaveButton[op] = createParam<LightLEDButtonNonDyn>(Vec(OpWaveButtonX + offset, 110.375), module,
+                                                             Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        opWaveButton[op]->visible = false;
+        addChild(opWaveButton[op]);
 
-            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpWaveButtonX + offset + ledOffset,
-                                                        110.375 + ledOffset), module, Dexter::OP_1_WAVE_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModAButtonX + offset + ledOffset,
-                                                        110.375 + ledOffset), module, Dexter::OP_1_MODA_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicLight<MediumLight<RedDynamicLight>>(Vec(OpModBButtonX + offset + ledOffset,
-                                                        110.375 + ledOffset), module, Dexter::OP_1_MODB_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op,
-                                                        visibilityHandle, ACTIVE_HIGH_VIEW));
+        opModAButton[op] = createParam<LightLEDButtonNonDyn>(Vec(OpModAButtonX + offset, 110.375), module,
+                                                             Dexter::OP_1_MODA_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        opModAButton[op]->visible = false;
+        addChild(opModAButton[op]);
 
-            addChild(createDynamicText(Vec(203.2045 + offset, 125), 12, "Wave", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(203.2045 + offset, 134), 12, "Table", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        opModBButton[op] = createParam<LightLEDButtonNonDyn>(Vec(OpModBButtonX + offset, 110.375), module,
+                                                             Dexter::OP_1_MODB_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        opModBButton[op]->visible = false;
+        addChild(opModBButton[op]);
 
-            addChild(createDynamicText(Vec(234.6105 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(234.6105 + offset, 134), 12, "1 & 2", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        opWaveButtonLight[op] = createLight<MediumLight<RedLight>>(Vec(OpWaveButtonX + offset + ledOffset,
+                                                                   110.375 + ledOffset), module,
+                                                                   Dexter::OP_1_WAVE_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op);
+        opWaveButtonLight[op]->visible = false;
+        addChild(opWaveButtonLight[op]);
 
-            addChild(createDynamicText(Vec(266.0295 + offset, 125), 12, "Mod", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(266.0295 + offset, 134), 12, "3 & 4", &module->opSettingsMenu[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        opModAButtonLight[op] = createLight<MediumLight<RedLight>>(Vec(OpModAButtonX + offset + ledOffset,
+                                                                   110.375 + ledOffset), module,
+                                                                   Dexter::OP_1_MODA_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op);
+        opModAButtonLight[op]->visible = false;
+        addChild(opModAButtonLight[op]);
 
-            // Wavetable Menu
-            addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpTableKnobRootX + offset, OpRow1Y), module,
-                                                         Dexter::OP_1_BANK_PARAM + Dexter::NUM_PARAM_GROUPS * op, &module->opWaveMenuVis[op],
-                                                         ACTIVE_HIGH_VIEW, SNAP_MOTION));
+        opModBButtonLight[op] = createLight<MediumLight<RedLight>>(Vec(OpModBButtonX + offset + ledOffset,
+                                                                   110.375 + ledOffset), module,
+                                                                   Dexter::OP_1_MODB_MENU_LIGHT + Dexter::NUM_LIGHT_GROUPS * op);
+        opModBButtonLight[op]->visible = false;
+        addChild(opModBButtonLight[op]);
 
-            std::vector<std::string> syncItems(syncModes, syncModes + kNumSyncModes);
-            addChild(createDynamicChoice(Vec(238.819 + offset, 55.25), 67.806, syncItems, &module->opMenuSyncMode[op],
-                     &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
-            std::vector<std::string> shapeItems(shapeModes, shapeModes + kNumShapeModes);
-            addChild(createDynamicChoice(Vec(238.819 + offset, 87.125), 67.806, shapeItems, &module->opMenuShapeMode[op],
-                     &module->opWaveMenuVis[op], ACTIVE_HIGH_VIEW));
+        waveTableTabTopLabel[op] = new PlainText;
+        waveTableTabTopLabel[op]->box.pos = Vec(203.2045 + offset, 125);
+        waveTableTabTopLabel[op]->size = 12;
+        waveTableTabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        waveTableTabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        waveTableTabTopLabel[op]->text = "Wave";
+        waveTableTabTopLabel[op]->visible = false;
+        addChild(waveTableTabTopLabel[op]);
 
-            addChild(createDynamicText(Vec(211.062 + offset, 81.468 - 2.718), 14, "Table", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(273.222 + offset, 45.058 - 4.0), 12, "Sync Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(273.222 + offset, 77.933 - 4.0), 12, "Shape Mode", &module->opWaveMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        waveTableTabBottomLabel[op] = new PlainText;
+        waveTableTabBottomLabel[op]->box.pos = Vec(203.2045 + offset, 134);
+        waveTableTabBottomLabel[op]->size = 12;
+        waveTableTabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        waveTableTabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        waveTableTabBottomLabel[op]->text = "Table";
+        waveTableTabBottomLabel[op]->visible = false;
+        addChild(waveTableTabBottomLabel[op]);
 
-            {
-                DynamicFrameText* tableText = new DynamicFrameText;
-                tableText->size = 12;
-                tableText->box.pos = Vec(211.062 + offset, 91.468);
-                tableText->box.size = Vec(82, 14);
-                tableText->itemHandle = &module->opWaveBankKnob[op];
-                tableText->visibility = &module->opWaveMenuVis[op];
-                tableText->viewMode = ACTIVE_HIGH_VIEW;
-                tableText->colorHandle = &module->panelStyle;
-                for(auto i = 0; i < NUM_DEXTER_WAVETABLES; ++i) {
-                    tableText->addItem(waveTableNames[i]);
-                }
-                addChild(tableText);
-            }
+        mod1And2TabTopLabel[op] = new PlainText;
+        mod1And2TabTopLabel[op]->box.pos = Vec(234.6105 + offset, 125);
+        mod1And2TabTopLabel[op]->size = 12;
+        mod1And2TabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1And2TabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod1And2TabTopLabel[op]->text = "Mod";
+        mod1And2TabTopLabel[op]->visible = false;
+        addChild(mod1And2TabTopLabel[op]);
 
-            // Mod Menus
-            std::vector<std::string> modAssignItems(modDest, modDest + NUM_DESTS);
-            addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod1Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
-            addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod2Assign[op], &module->opModAMenuVis[op], ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 1", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 2", &module->opModAMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
+        mod1And2TabBottomLabel[op] = new PlainText;
+        mod1And2TabBottomLabel[op]->box.pos = Vec(234.6105 + offset, 134);
+        mod1And2TabBottomLabel[op]->size = 12;
+        mod1And2TabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1And2TabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod1And2TabBottomLabel[op]->text = "1 & 2";
+        mod1And2TabBottomLabel[op]->visible = false;
+        addChild(mod1And2TabBottomLabel[op]);
 
-            addChild(createDynamicChoice(Vec(226.f + offset, 55.25f), 80.f, modAssignItems, &module->opMod3Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
-            addChild(createDynamicChoice(Vec(226.f + offset, 87.125f), 80.f, modAssignItems, &module->opMod4Assign[op], &module->opModBMenuVis[op], ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(206.f + offset, 61.058f - 4.f), 14, "Mod 3", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-            addChild(createDynamicText(Vec(206.f + offset, 92.933f - 4.f), 14, "Mod 4", &module->opModBMenuVis[op], &module->panelStyle, ACTIVE_HIGH_VIEW));
-        }
+        mod3And4TabTopLabel[op] = new PlainText;
+        mod3And4TabTopLabel[op]->box.pos = Vec(266.0295 + offset, 125);
+        mod3And4TabTopLabel[op]->size = 12;
+        mod3And4TabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3And4TabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod3And4TabTopLabel[op]->text = "Mod";
+        mod3And4TabTopLabel[op]->visible = false;
+        addChild(mod3And4TabTopLabel[op]);
+
+        mod3And4TabBottomLabel[op] = new PlainText;
+        mod3And4TabBottomLabel[op]->box.pos = Vec(266.0295 + offset, 134);
+        mod3And4TabBottomLabel[op]->size = 12;
+        mod3And4TabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3And4TabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod3And4TabBottomLabel[op]->text = "3 & 4";
+        mod3And4TabBottomLabel[op]->visible = false;
+        addChild(mod3And4TabBottomLabel[op]);
+
+        waveBankKnob[op] = createParam<RoganMedBlue>(Vec(OpTableKnobRootX + offset, OpRow1Y), module,
+                                                         Dexter::OP_1_BANK_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        waveBankKnob[op]->visible = false;
+        waveBankKnob[op]->snap = true;
+        addChild(waveBankKnob[op]);
+
+        syncModeChoice[op] = new OpSyncModeChoice;
+        syncModeChoice[op]->box.pos = Vec(238.819 + offset, 55.25);
+        syncModeChoice[op]->box.size.x = 67.806;
+        syncModeChoice[op]->pSyncMode = &module->opMenuSyncMode[op];
+        syncModeChoice[op]->visible = false;
+        addChild(syncModeChoice[op]);
+
+        shapeModeChoice[op] = new OpShapeModeChoice;
+        shapeModeChoice[op]->box.pos = Vec(238.819 + offset, 87.125);
+        shapeModeChoice[op]->box.size.x = 67.806;
+        shapeModeChoice[op]->pShapeMode = &module->opMenuShapeMode[op];
+        shapeModeChoice[op]->visible = false;
+        addChild(shapeModeChoice[op]);
+
+        tableLabel[op] = new PlainText;
+        tableLabel[op]->box.pos = Vec(211.062 + offset, 81.468 - 2.718);
+        tableLabel[op]->size = 14;
+        tableLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        tableLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        tableLabel[op]->text = "Table";
+        tableLabel[op]->visible = false;
+        addChild(tableLabel[op]);
+
+        syncModeLabel[op] = new PlainText;
+        syncModeLabel[op]->box.pos = Vec(273.222 + offset, 45.058 - 4.0);
+        syncModeLabel[op]->size = 14;
+        syncModeLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        syncModeLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        syncModeLabel[op]->text = "Sync Mode";
+        syncModeLabel[op]->visible = false;
+        addChild(syncModeLabel[op]);
+
+        shapeModeLabel[op] = new PlainText;
+        shapeModeLabel[op]->box.pos = Vec(273.222 + offset, 77.933 - 4.0);
+        shapeModeLabel[op]->size = 14;
+        shapeModeLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        shapeModeLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        shapeModeLabel[op]->text = "Shape Mode";
+        shapeModeLabel[op]->visible = false;
+        addChild(shapeModeLabel[op]);
+
+        tableText[op] = new PlainText;
+        tableText[op]->box.pos = Vec(211.062 + offset, 91.468);
+        tableText[op]->box.size = Vec(82, 14);
+        tableText[op]->size = 12;
+        tableText[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        tableText[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        tableText[op]->text = waveTableNames[0];
+        tableText[op]->visible = false;
+        addChild(tableText[op]);
+
+        // Mod Menus
+        mod1ModeChoice[op] = new OpModModeChoice;
+        mod1ModeChoice[op]->box.pos = Vec(226.f + offset, 55.25f);
+        mod1ModeChoice[op]->box.size.x = 80.f;
+        mod1ModeChoice[op]->pModMode = &module->opMod1Assign[op];
+        mod1ModeChoice[op]->visible = false;
+        addChild(mod1ModeChoice[op]);
+
+        mod2ModeChoice[op] = new OpModModeChoice;
+        mod2ModeChoice[op]->box.pos = Vec(226.f + offset,  87.125f);
+        mod2ModeChoice[op]->box.size.x = 80.f;
+        mod2ModeChoice[op]->pModMode = &module->opMod2Assign[op];
+        mod2ModeChoice[op]->visible = false;
+        addChild(mod2ModeChoice[op]);
+
+        mod3ModeChoice[op] = new OpModModeChoice;
+        mod3ModeChoice[op]->box.pos = Vec(226.f + offset, 55.25f);
+        mod3ModeChoice[op]->box.size.x = 80.f;
+        mod3ModeChoice[op]->pModMode = &module->opMod3Assign[op];
+        mod3ModeChoice[op]->visible = false;
+        addChild(mod3ModeChoice[op]);
+
+        mod4ModeChoice[op] = new OpModModeChoice;
+        mod4ModeChoice[op]->box.pos = Vec(226.f + offset, 87.125f);
+        mod4ModeChoice[op]->box.size.x = 80.f;
+        mod4ModeChoice[op]->pModMode = &module->opMod4Assign[op];
+        mod4ModeChoice[op]->visible = false;
+        addChild(mod4ModeChoice[op]);
+
+        mod1Label[op] = new PlainText;
+        mod1Label[op]->box.pos = Vec(206.f + offset, 61.058f - 4.f);
+        mod1Label[op]->size = 14;
+        mod1Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod1Label[op]->text = "Mod 1";
+        mod1Label[op]->visible = false;
+        addChild(mod1Label[op]);
+
+        mod2Label[op] = new PlainText;
+        mod2Label[op]->box.pos = Vec(206.f + offset, 92.933f - 4.f);
+        mod2Label[op]->size = 14;
+        mod2Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod2Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod2Label[op]->text = "Mod 2";
+        mod2Label[op]->visible = false;
+        addChild(mod2Label[op]);
+
+        mod3Label[op] = new PlainText;
+        mod3Label[op]->box.pos = Vec(206.f + offset, 61.058f - 4.f);
+        mod3Label[op]->size = 14;
+        mod3Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod3Label[op]->text = "Mod 3";
+        mod3Label[op]->visible = false;
+        addChild(mod3Label[op]);
+
+        mod4Label[op] = new PlainText;
+        mod4Label[op]->box.pos = Vec(206.f + offset, 92.933f - 4.f);
+        mod4Label[op]->size = 14;
+        mod4Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod4Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
+        mod4Label[op]->text = "Mod 4";
+        mod4Label[op]->visible = false;
+        addChild(mod4Label[op]);
 
         addParam(createParam<RoganSmallMustard>(Vec(OpMod1KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_1_PARAM + 12 * op));
         addParam(createParam<RoganSmallMustard>(Vec(OpMod2KnobRootX + offset, OpModRowY), module, Dexter::OP_1_MOD_2_PARAM + 12 * op));
@@ -1073,7 +1318,6 @@ DexterWidget::DexterWidget(Dexter *module) {
         addParam(createParam<RoganSmallRed>(Vec(OpShape2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_SHAPE_CV2_PARAM + 12 * op));
         addParam(createParam<RoganSmallGreen>(Vec(OpLevel2KnobRootX + offset, OpCV2RowY), module, Dexter::OP_1_LEVEL_CV2_PARAM + 12 * op));
 
-        //addInput(createInput<PJ301MDarkSmall>(Vec(OpSyncJackRootX + offset, OpSyncJackRootY), module, module->opSyncInputs[op]);
         addInput(createInput<PJ301MDarkSmall>(Vec(OpCV1JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_1_INPUT + 12 * op));
         addInput(createInput<PJ301MDarkSmall>(Vec(OpCV2JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_2_INPUT + 12 * op));
         addInput(createInput<PJ301MDarkSmall>(Vec(OpCV3JackRootX + offset, OpModJackRowY), module, Dexter::OP_1_MOD_3_INPUT + 12 * op));
@@ -1161,20 +1405,65 @@ void DexterWidget::appendContextMenu(Menu *menu) {
 }
 
 void DexterWidget::step() {
-    if(module) {
-        if(dynamic_cast<Dexter*>(module)->panelStyle == 1) {
-            panel->visible = false;
-            lightPanel->visible = true;
-        }
-        else {
-            panel->visible = true;
-            lightPanel->visible = false;
-        }
-        algo->value = dynamic_cast<Dexter*>(module)->algo;
+    if(!module) {
+        algo->value = 0;
+        return;
+    }
+
+    Dexter* dexter = reinterpret_cast<Dexter*>(module);
+
+    if(dexter->panelStyle == 1) {
+        panel->visible = false;
+        lightPanel->visible = true;
     }
     else {
-        algo->value = 0;
+        panel->visible = true;
+        lightPanel->visible = false;
     }
+    algo->value = dexter->algo;
+
+    // TODO handle the colour change depending on panel style
+    for (int i = 0; i < kNumOperators; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            mainText[i][j]->visible = !dexter->opSettingsMenu[i];
+        }
+        multText[i]->text = multiplesText[(int)dexter->opMultipleKnob[i]];
+        multText[i]->visible = !dexter->opSettingsMenu[i];
+
+        opWaveButton[i]->visible = dexter->opSettingsMenu[i];
+        opModAButton[i]->visible = dexter->opSettingsMenu[i];
+        opModBButton[i]->visible = dexter->opSettingsMenu[i];
+        opWaveButtonLight[i]->visible = dexter->opSettingsMenu[i];
+        opModAButtonLight[i]->visible = dexter->opSettingsMenu[i];
+        opModBButtonLight[i]->visible = dexter->opSettingsMenu[i];
+
+        waveTableTabTopLabel[i]->visible = dexter->opSettingsMenu[i];
+        waveTableTabBottomLabel[i]->visible = dexter->opSettingsMenu[i];
+        mod1And2TabTopLabel[i]->visible = dexter->opSettingsMenu[i];
+        mod1And2TabBottomLabel[i]->visible = dexter->opSettingsMenu[i];
+        mod3And4TabTopLabel[i]->visible = dexter->opSettingsMenu[i];
+        mod3And4TabBottomLabel[i]->visible = dexter->opSettingsMenu[i];
+
+        tableText[i]->visible = dexter->opWaveMenuVis[i];
+        tableText[i]->text = waveTableNames[(int)dexter->opWaveBankKnob[i]];
+        waveBankKnob[i]->visible = dexter->opWaveMenuVis[i];
+
+        syncModeChoice[i]->visible = dexter->opWaveMenuVis[i];
+        shapeModeChoice[i]->visible = dexter->opWaveMenuVis[i];
+        tableLabel[i]->visible = dexter->opWaveMenuVis[i];
+        syncModeLabel[i]->visible = dexter->opWaveMenuVis[i];
+        shapeModeLabel[i]->visible = dexter->opWaveMenuVis[i];
+
+        mod1ModeChoice[i]->visible = dexter->opModAMenuVis[i];
+        mod2ModeChoice[i]->visible = dexter->opModAMenuVis[i];
+        mod3ModeChoice[i]->visible = dexter->opModBMenuVis[i];
+        mod4ModeChoice[i]->visible = dexter->opModBMenuVis[i];
+        mod1Label[i]->visible = dexter->opModAMenuVis[i];
+        mod2Label[i]->visible = dexter->opModAMenuVis[i];
+        mod3Label[i]->visible = dexter->opModBMenuVis[i];
+        mod4Label[i]->visible = dexter->opModBMenuVis[i];
+    }
+
     Widget::step();
 }
 

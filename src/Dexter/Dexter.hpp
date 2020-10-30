@@ -26,6 +26,7 @@
 
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
+#include "../ValleyChoiceMenu.hpp"
 #include "../Common/FreqLUT.hpp"
 #include "Osc4Core_SIMD.hpp"
 #include "Chords.hpp"
@@ -44,12 +45,6 @@ const unsigned long kNumShapeModes = 12;
 const unsigned long kNumSyncModes = 15;
 const unsigned long kNumModDests = 11;
 const unsigned long kNumMultiples = 27;
-const std::string shapeModes[kNumShapeModes] = {"Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror", "Reflect",
-                                              "Pulse", "Step 4", "Step 8", "Step 16", "Var Step"};
-
-const std::string syncModes[kNumSyncModes] = {"Hard", "5th", "+1 Oct", "-1 Oct", "Rise 1", "Rise 2",
-                                              "Fall 1", "Fall 2", "Pull 1", "Pull 2", "Push 1", "Push 2",
-                                              "Hold", "One Shot", "Lock Shot"};
 
 const std::string modDest[NUM_DESTS] = {"Pitch", "Multiple", "Wave Pos.", "Wave Bank", "Shape",
                                         "Level", "Ext FM", "Ext Sync", "Shape Mode", "Post Shape",
@@ -291,9 +286,6 @@ struct Dexter : Module {
     float multiples[27] = {0.125f, 0.25f, 0.5f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f,
                            9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f,
                            17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f};
-    std::string multiplesText[kNumMultiples] = {"1/8", "1/4", "1/2", "1", "2", "3", "4", "5", "6",
-                                                "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                                                "17", "18", "19", "20", "21", "22", "23", "24"};
 
     __m128 __bOutMask;
     __m128 __0000, __0001, __0011, __0111, __1111, __0010, __0110, __1110;
@@ -409,54 +401,57 @@ struct AlgoGraphic : FramebufferWidget {
     int* style;
     int styleOffset;
 
-    AlgoGraphic() {
-        sw = new SvgWidget();
-        addChild(sw);
-        value = 0;
-        style = nullptr;
-        styleOffset = 0;
-        std::string algoGraphicFile;
-        for(auto i = 0; i < 2; ++i) {
-            for(auto j = 0; j < kNumAlgorithms; ++j) {
-                algoGraphicFile = "res/algo" + std::to_string(j);
-                if(i) {
-                    algoGraphicFile += "Dark";
-                }
-                algoGraphicFile += ".svg";
-                addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, algoGraphicFile)));
-            }
-        }
-    }
+    AlgoGraphic();
+    void addFrame(std::shared_ptr<Svg> svg);
+    void step() override;
+};
 
-    void addFrame(std::shared_ptr<Svg> svg) {
-        frames.push_back(svg);
-        // If this is our first frame, automatically set Svg and size
-        if (!sw->svg) {
-            sw->setSvg(svg);
-            box.size = sw->box.size;
-        }
-    }
+struct OpSyncModeItem : ui::MenuItem {
+    unsigned long* pSyncMode;
+    unsigned long syncMode;
+    void onAction(const event::Action& e) override;
+};
 
-    void step() override {
-        /*if (isNear(APP->window->pixelRatio,1.f)) {
-            oversample = 2.f;
-        }*/
-        if(style != nullptr) {
-            if(*style == 0) {
-                styleOffset = 0;
-            }
-            else {
-                styleOffset = kNumAlgorithms;
-            }
-        }
-        else {
-            styleOffset = 0;
-        }
-        int index = clamp(value + styleOffset, 0, frames.size() - 1);
-        sw->setSvg(frames[index]);
-        dirty = true;
-        FramebufferWidget::step();
-    }
+struct OpSyncModeChoice : ValleyChoiceMenu {
+    unsigned long* pSyncMode;
+    std::vector<std::string> syncModeLabels = {"Hard", "5th", "+1 Oct", "-1 Oct", "Rise 1", "Rise 2",
+                                               "Fall 1", "Fall 2", "Pull 1", "Pull 2", "Push 1", "Push 2",
+                                               "Hold", "One Shot", "Lock Shot"};
+
+    void onAction(const event::Action& e) override;
+    void step() override;
+};
+
+struct OpShapeModeItem : ui::MenuItem {
+    unsigned long* pShapeMode;
+    unsigned long shapeMode;
+    void onAction(const event::Action& e) override;
+};
+
+struct OpShapeModeChoice : ValleyChoiceMenu {
+    unsigned long* pShapeMode;
+    std::vector<std::string> shapeModeLabels = {"Bend", "Tilt", "Lean", "Twist", "Wrap", "Mirror",
+                                                "Reflect", "Pulse", "Step 4", "Step 8", "Step 16",
+                                                "Var Step"};
+
+    void onAction(const event::Action& e) override;
+    void step() override;
+};
+
+struct OpModModeItem : ui::MenuItem {
+    unsigned long* pModMode;
+    unsigned long modMode;
+    void onAction(const event::Action& e) override;
+};
+
+struct OpModModeChoice : ValleyChoiceMenu {
+    unsigned long* pModMode;
+    std::vector<std::string> modModeLabels = {"Pitch", "Multiple", "Wave Pos.", "Wave Bank", "Shape",
+                                              "Level", "Ext FM", "Ext Sync", "Shape Mode", "Post Shape",
+                                              "Sync Mode", "Sync En.", "Weak Sync"};
+
+    void onAction(const event::Action& e) override;
+    void step() override;
 };
 
 struct DexterWidget : ModuleWidget {
@@ -554,9 +549,52 @@ struct DexterWidget : ModuleWidget {
                                                     const float OpCV2JackRootY = 320.0;
 
     std::string OpMainText[6] = {"Mul:", "Coarse", "Fine", "Wave", "Shape", "Level"};
+    std::string multiplesText[kNumMultiples] = {"1/8", "1/4", "1/2", "1", "2", "3", "4", "5", "6",
+                                                "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                                                "17", "18", "19", "20", "21", "22", "23", "24"};
+
     float OpMainTextX[6] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
     float OpMainTextY[6] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
     Vec syncChoiceRootPos = Vec(0.0, 0.0);
+
+    PlainText* mainText[kNumOperators][6];
+
+    PlainText* multText[kNumOperators];
+
+    PlainText* waveTableTabTopLabel[kNumOperators];
+    PlainText* waveTableTabBottomLabel[kNumOperators];
+    PlainText* mod1And2TabTopLabel[kNumOperators];
+    PlainText* mod1And2TabBottomLabel[kNumOperators];
+    PlainText* mod3And4TabTopLabel[kNumOperators];
+    PlainText* mod3And4TabBottomLabel[kNumOperators];
+
+    RoganMedBlue* waveBankKnob[kNumOperators];
+
+    OpSyncModeChoice* syncModeChoice[kNumOperators];
+    OpShapeModeChoice* shapeModeChoice[kNumOperators];
+    OpModModeChoice* mod1ModeChoice[kNumOperators];
+    OpModModeChoice* mod2ModeChoice[kNumOperators];
+    OpModModeChoice* mod3ModeChoice[kNumOperators];
+    OpModModeChoice* mod4ModeChoice[kNumOperators];
+
+    PlainText* tableLabel[kNumOperators];
+    PlainText* syncModeLabel[kNumOperators];
+    PlainText* shapeModeLabel[kNumOperators];
+
+    PlainText* tableText[kNumOperators];
+
+    PlainText* mod1Label[kNumOperators];
+    PlainText* mod2Label[kNumOperators];
+    PlainText* mod3Label[kNumOperators];
+    PlainText* mod4Label[kNumOperators];
+
+    LightLEDButtonNonDyn* opWaveButton[kNumOperators];
+    LightLEDButtonNonDyn* opModAButton[kNumOperators];
+    LightLEDButtonNonDyn* opModBButton[kNumOperators];
+
+    MediumLight<RedLight>* opWaveButtonLight[kNumOperators];
+    MediumLight<RedLight>* opModAButtonLight[kNumOperators];
+    MediumLight<RedLight>* opModBButtonLight[kNumOperators];
 
     SvgPanel* lightPanel;
     AlgoGraphic* algo;
