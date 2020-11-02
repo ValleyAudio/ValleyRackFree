@@ -557,8 +557,9 @@ struct DexterWidget : ModuleWidget {
     float OpMainTextY[6] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
     Vec syncChoiceRootPos = Vec(0.0, 0.0);
 
-    PlainText* mainText[kNumOperators][6];
+    PlainText* chordText;
 
+    PlainText* mainText[kNumOperators][6];
     PlainText* multText[kNumOperators];
 
     PlainText* waveTableTabTopLabel[kNumOperators];
@@ -567,6 +568,13 @@ struct DexterWidget : ModuleWidget {
     PlainText* mod1And2TabBottomLabel[kNumOperators];
     PlainText* mod3And4TabTopLabel[kNumOperators];
     PlainText* mod3And4TabBottomLabel[kNumOperators];
+
+    RoganMedBlue* OpMultKnob[kNumOperators];
+    RoganMedBlue* OpCoarseKnob[kNumOperators];
+    RoganMedBlue* OpFineKnob[kNumOperators];
+    RoganMedPurple* OpWaveKnob[kNumOperators];
+    RoganMedRed* OpShapeKnob[kNumOperators];
+    RoganMedGreen* OpLevelKnob[kNumOperators];
 
     RoganMedBlue* waveBankKnob[kNumOperators];
 

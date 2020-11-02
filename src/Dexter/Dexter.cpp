@@ -963,23 +963,12 @@ DexterWidget::DexterWidget(Dexter *module) {
     addInput(createInput<PJ301MDarkSmall>(BrightCVJack, module, Dexter::BRIGHTNESS_INPUT));
     addInput(createInput<PJ301MDarkSmall>(ShapeCVJack, module, Dexter::SHAPE_INPUT));
 
-    DynamicFrameText* chordText = new DynamicFrameText;
+    chordText = new PlainText;
     chordText->size = 12;
+    chordText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     chordText->box.pos = Vec(24.91, 124.468);
     chordText->box.size = Vec(82, 14);
-    chordText->visibility = nullptr;
-    chordText->viewMode = ACTIVE_LOW_VIEW;
-    if(module) {
-        chordText->colorHandle = &module->panelStyle;
-        chordText->itemHandle = &module->chordKnob;
-        for(auto i = 0; i < NUM_CHORDS; ++i) {
-            chordText->addItem(chordNames[i]);
-        }
-    }
-    else {
-        chordText->customColor = nvgRGB(0xFF,0xFF,0xFF);
-        chordText->addItem("Single");
-    }
+    chordText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     addChild(chordText);
 
     {
@@ -1037,22 +1026,37 @@ DexterWidget::DexterWidget(Dexter *module) {
     float offset = 0.0;
     for(auto op = 0; op < kNumOperators; ++op) {
         offset = operatorSpacing * op;
-        int* visibilityHandle = nullptr;
-        if(module) {
-            visibilityHandle = &module->opSettingsMenu[op];
-        }
-        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                     visibilityHandle, ACTIVE_LOW_VIEW, SNAP_MOTION));
-        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                     visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
-        addParam(createDynamicParam<DynRoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module, Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                     visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
-        addParam(createDynamicParam<DynRoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                       visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
-        addParam(createDynamicParam<DynRoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                    visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
-        addParam(createDynamicParam<DynRoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module, Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op,
-                                                    visibilityHandle, ACTIVE_LOW_VIEW, SMOOTH_MOTION));
+
+        OpMultKnob[op] = new RoganMedBlue;
+        OpMultKnob[op] = createParam<RoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module,
+                                                       Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        OpMultKnob[op]->snap = true;
+        addChild(OpMultKnob[op]);
+
+        OpCoarseKnob[op] = new RoganMedBlue;
+        OpCoarseKnob[op] = createParam<RoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module,
+                                                         Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        addChild(OpCoarseKnob[op]);
+
+        OpFineKnob[op] = new RoganMedBlue;
+        OpFineKnob[op] = createParam<RoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module,
+                                                         Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        addChild(OpFineKnob[op]);
+
+        OpWaveKnob[op] = new RoganMedPurple;
+        OpWaveKnob[op] = createParam<RoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module,
+                                                         Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        addChild(OpWaveKnob[op]);
+
+        OpShapeKnob[op] = new RoganMedRed;
+        OpShapeKnob[op] = createParam<RoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module,
+                                                         Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        addChild(OpShapeKnob[op]);
+
+        OpLevelKnob[op] = new RoganMedGreen;
+        OpLevelKnob[op] = createParam<RoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
+                                                         Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op);
+        addChild(OpLevelKnob[op]);
 
         multText[op] = new PlainText;
         multText[op]->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
@@ -1421,6 +1425,7 @@ void DexterWidget::step() {
         lightPanel->visible = false;
     }
     algo->value = dexter->algo;
+    chordText->text = chordNames[(int)dexter->chordKnob];
 
     // TODO handle the colour change depending on panel style
     for (int i = 0; i < kNumOperators; ++i) {
@@ -1429,6 +1434,13 @@ void DexterWidget::step() {
         }
         multText[i]->text = multiplesText[(int)dexter->opMultipleKnob[i]];
         multText[i]->visible = !dexter->opSettingsMenu[i];
+
+        OpMultKnob[i]->visible = !dexter->opSettingsMenu[i];
+        OpCoarseKnob[i]->visible = !dexter->opSettingsMenu[i];
+        OpFineKnob[i]->visible = !dexter->opSettingsMenu[i];
+        OpWaveKnob[i]->visible = !dexter->opSettingsMenu[i];
+        OpShapeKnob[i]->visible = !dexter->opSettingsMenu[i];
+        OpLevelKnob[i]->visible = !dexter->opSettingsMenu[i];
 
         opWaveButton[i]->visible = dexter->opSettingsMenu[i];
         opModAButton[i]->visible = dexter->opSettingsMenu[i];

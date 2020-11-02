@@ -246,6 +246,13 @@ struct LightLEDButton : DynamicSwitchWidget {
     }
 };
 
+struct LightLEDButtonNonDyn : SvgSwitch {
+    LightLEDButtonNonDyn() {
+        momentary = true;
+        addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
+    }
+};
+
 struct LightLEDButton2 : SvgSwitch {
     std::function<void()> onClick;
     LightLEDButton2() {
