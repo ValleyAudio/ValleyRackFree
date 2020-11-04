@@ -971,55 +971,23 @@ DexterWidget::DexterWidget(Dexter *module) {
     chordText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     addChild(chordText);
 
-    {
-        DynamicFrameText* octaveText = new DynamicFrameText;
-        octaveText->size = 14;
-        octaveText->box.pos = Vec(35.61, 68.076);
-        octaveText->box.size = Vec(82, 14);
-        octaveText->visibility = nullptr;
-        octaveText->viewMode = ACTIVE_LOW_VIEW;
-        if(module) {
-            octaveText->colorHandle = &module->panelStyle;
-            octaveText->itemHandle = &module->octaveAKnob;
-            octaveText->addItem("-3");
-            octaveText->addItem("-2");
-            octaveText->addItem("-1");
-            octaveText->addItem("0");
-            octaveText->addItem("+1");
-            octaveText->addItem("+2");
-            octaveText->addItem("+3");
-        }
-        else {
-            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
-            octaveText->addItem("0");
-        }
-        addChild(octaveText);
-    }
+    octaveAText = new PlainText;
+    octaveAText->size = 14;
+    octaveAText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    octaveAText->box.pos = Vec(35.61, 68.076);
+    octaveAText->box.size = Vec(82, 14);
+    octaveAText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    octaveAText->text = "0";
+    addChild(octaveAText);
 
-    {
-        DynamicFrameText* octaveText = new DynamicFrameText;
-        octaveText->size = 14;
-        octaveText->box.pos = Vec(35.61, 186.076);
-        octaveText->box.size = Vec(82, 14);
-        octaveText->visibility = nullptr;
-        octaveText->viewMode = ACTIVE_LOW_VIEW;
-        if(module) {
-            octaveText->colorHandle = &module->panelStyle;
-            octaveText->itemHandle = &module->octaveBKnob;
-            octaveText->addItem("-3");
-            octaveText->addItem("-2");
-            octaveText->addItem("-1");
-            octaveText->addItem("0");
-            octaveText->addItem("+1");
-            octaveText->addItem("+2");
-            octaveText->addItem("+3");
-        }
-        else {
-            octaveText->customColor = nvgRGB(0xFF,0xFF,0xFF);
-            octaveText->addItem("0");
-        }
-        addChild(octaveText);
-    }
+    octaveBText = new PlainText;
+    octaveBText->size = 14;
+    octaveBText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    octaveBText->box.pos = Vec(35.61, 186.076);
+    octaveBText->box.size = Vec(82, 14);
+    octaveBText->color = nvgRGB(0xFF, 0xFF, 0xFF);
+    octaveBText->text = "0";
+    addChild(octaveBText);
 
     // Operator Controls
     float operatorSpacing = 125.5275;
@@ -1426,6 +1394,8 @@ void DexterWidget::step() {
     }
     algo->value = dexter->algo;
     chordText->text = chordNames[(int)dexter->chordKnob];
+    octaveAText->text = octaveTextItems[(int)dexter->octaveAKnob];
+    octaveBText->text = octaveTextItems[(int)dexter->octaveBKnob];
 
     // TODO handle the colour change depending on panel style
     for (int i = 0; i < kNumOperators; ++i) {

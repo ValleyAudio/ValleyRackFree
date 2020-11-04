@@ -552,13 +552,15 @@ struct DexterWidget : ModuleWidget {
     std::string multiplesText[kNumMultiples] = {"1/8", "1/4", "1/2", "1", "2", "3", "4", "5", "6",
                                                 "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
                                                 "17", "18", "19", "20", "21", "22", "23", "24"};
+    std::vector<std::string> octaveTextItems = {"-3", "-2", "-1", "0", "+1", "+2", "+3"};
 
     float OpMainTextX[6] = {202.062, 250.312, 291.562, 209.062, 250.312, 291.562};
     float OpMainTextY[6] = {81.468, 81.468, 81.468, 133.093, 133.093, 133.093};
     Vec syncChoiceRootPos = Vec(0.0, 0.0);
 
     PlainText* chordText;
-
+    PlainText* octaveAText;
+    PlainText* octaveBText;
     PlainText* mainText[kNumOperators][6];
     PlainText* multText[kNumOperators];
 
