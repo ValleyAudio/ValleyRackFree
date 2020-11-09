@@ -32,6 +32,7 @@
 #include "../Common/DSP/OnePoleFilters.hpp"
 #include "../Common/DSP/NonLinear.hpp"
 #include "../Common/SIMD/VecNonLinear.hpp"
+#include "../DigitalDisplay.hpp"
 #include <vector>
 #include <cstdint>
 #include <vector>
@@ -100,23 +101,9 @@ struct Amalgam : Module {
         NUM_LIGHTS
     };
 
-    std::string modeNames[VecAmalgam::NUM_MODES] = {
-        "RINGMOD1", "RINGMOD2", "RINGMOD3", "DIODE-RM", "MINIMAXI",
-        "SIGN-1", "SIGN-2", "X-FADE", "FLIPFLOP", "ALPHAPWM", "BITAND",
-        "BITXOR", "BITINTLV", "BITGLTCH", "FL32-AND", "FL32INTV", "FL32HACK"
-    };
+    
 
-    std::string paramANames[VecAmalgam::NUM_MODES] = {
-        "QUADRANT", "FOLD-X", "FOLDXY", "OFFVLT", "MIN<>MAX",
-        "MIDPOINT", "MIDPOINT", "BIAS", "FAVOUR", "PULSES", "BITDEPTH", "BITDEPTH",
-        "BITDEPTH", "JITTER", "JITTER", "BITDEPTH", "JITTER"
-    };
-
-    std::string paramBNames[VecAmalgam::NUM_MODES] = {
-        "XPWM", "FOLD-Y", "XORBLEND", "ON-VLT", "DIFF*Z",
-        "THRESH", "THRESH", "XMOD", "THRESH", "PWIDTH", "BITCRUSH", "BITCRUSH",
-        "BITCRUSH", "BITCRUSH", "BITCRUSH", "BITCRUSH", "BITCRUSH"
-    };
+    
 
     __m128 __zeros, __fives, __halfs;
     __m128 __x, __y, __z;
@@ -171,6 +158,24 @@ struct AmalgamWidget : ModuleWidget {
     AmalgamWidget(Amalgam *module);
     void appendContextMenu(Menu *menu) override;
     void step() override;
+    
+    std::string modeNames[VecAmalgam::NUM_MODES] = {
+        "RINGMOD1", "RINGMOD2", "RINGMOD3", "DIODE-RM", "MINIMAXI",
+        "SIGN-1", "SIGN-2", "X-FADE", "FLIPFLOP", "ALPHAPWM", "BITAND",
+        "BITXOR", "BITINTLV", "BITGLTCH", "FL32-AND", "FL32INTV", "FL32HACK"
+    };
+
+    std::string paramANames[VecAmalgam::NUM_MODES] = {
+        "QUADRANT", "FOLD-X", "FOLDXY", "OFFVLT", "MIN<>MAX",
+        "MIDPOINT", "MIDPOINT", "BIAS", "FAVOUR", "PULSES", "BITDEPTH", "BITDEPTH",
+        "BITDEPTH", "JITTER", "JITTER", "BITDEPTH", "JITTER"
+    };
+
+    std::string paramBNames[VecAmalgam::NUM_MODES] = {
+        "XPWM", "FOLD-Y", "XORBLEND", "ON-VLT", "DIFF*Z",
+        "THRESH", "THRESH", "XMOD", "THRESH", "PWIDTH", "BITCRUSH", "BITCRUSH",
+        "BITCRUSH", "BITCRUSH", "BITCRUSH", "BITCRUSH", "BITCRUSH"
+    };
 
     // Control positions
     Vec xDriveKnobPos = Vec(50.1, 53.083);
@@ -223,7 +228,13 @@ struct AmalgamWidget : ModuleWidget {
     Vec zRightPulse2OutputPos = Vec(124.654, 319.2);
 
     Vec DCCoupleLightPos = Vec(59.044, 31.775);
-
+    Vec modeDisplayPos = Vec(75.0, 95.5);
+    Vec paramADisplayPos = Vec(75, 177);
+    Vec paramBDisplayPos = Vec(75, 249);
+    DigitalDisplay* digitalDisplay;
+    DigitalDisplay* modeDisplay;
+    DigitalDisplay* paramADisplay;
+    DigitalDisplay* paramBDisplay;
     SvgPanel* lightPanel;
 };
 

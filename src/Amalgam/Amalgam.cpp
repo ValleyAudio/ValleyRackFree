@@ -263,213 +263,23 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     addParam(createParam<RoganSmallBlue>(paramBCV1KnobPos, module, Amalgam::PARAM_B_CV1_PARAM));
     addParam(createParam<RoganSmallBlue>(paramBCV2KnobPos, module, Amalgam::PARAM_B_CV2_PARAM));
 
-    DynamicText* modeBackText = new DynamicText;
-    modeBackText->size = 13;
-    modeBackText->box.pos = Vec(75, 95.5);
-    modeBackText->box.size = Vec(82, 14);
-    modeBackText->visibility = nullptr;
-    modeBackText->viewMode = ACTIVE_LOW_VIEW;
-    modeBackText->horzAlignment = NVG_ALIGN_CENTER;
-    modeBackText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    modeBackText->text = make_shared<std::string>("~~~~~~~~");
-    modeBackText->customColor = nvgRGB(0x3F,0x00,0x00);
-    addChild(modeBackText);
-
-    DynamicFrameText* modeText = new DynamicFrameText;
-    modeText->size = 13;
-    modeText->box.pos = Vec(75, 95.5);
-    modeText->box.size = Vec(82, 14);
-    modeText->visibility = nullptr;
-    modeText->viewMode = ACTIVE_LOW_VIEW;
-    modeText->horzAlignment = NVG_ALIGN_CENTER;
-    modeText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        modeText->colorHandle = &module->textColor;
-        modeText->itemHandle = &module->iAmalgamType;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            modeText->addItem(module->modeNames[i]);
-        }
-    }
-    else {
-        modeText->customColor = nvgRGB(0xFF,0x00,0x00);
-        modeText->addItem("NVRGONNA");
-    }
-    addChild(modeText);
-
-    DynamicFrameText* modeBlurText = new DynamicFrameText;
-    DynamicFrameText* modeBlurText2 = new DynamicFrameText;
-    modeBlurText->size = 13;
-    modeBlurText->blur = 10.f;
-    modeBlurText->box.pos = Vec(75, 95.5);
-    modeBlurText->box.size = Vec(82, 14);
-    modeBlurText->visibility = nullptr;
-    modeBlurText->viewMode = ACTIVE_LOW_VIEW;
-    modeBlurText->horzAlignment = NVG_ALIGN_CENTER;
-    modeBlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
-    modeBlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-
-    modeBlurText2->size = 13;
-    modeBlurText2->blur = 8.f;
-    modeBlurText2->box.pos = Vec(75, 95.5);
-    modeBlurText2->box.size = Vec(82, 14);
-    modeBlurText2->visibility = nullptr;
-    modeBlurText2->viewMode = ACTIVE_LOW_VIEW;
-    modeBlurText2->horzAlignment = NVG_ALIGN_CENTER;
-    modeBlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
-    modeBlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        modeBlurText->itemHandle = &module->iAmalgamType;
-        modeBlurText2->itemHandle = &module->iAmalgamType;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            modeBlurText->addItem(module->modeNames[i]);
-            modeBlurText2->addItem(module->modeNames[i]);
-        }
-    }
-    else {
-        modeBlurText->addItem("NVRGONNA");
-        modeBlurText2->addItem("NVRGONNA");
-    }
-    addChild(modeBlurText);
-    addChild(modeBlurText2);
-
-    DynamicText* paramABackText = new DynamicText;
-    paramABackText->size = 12;
-    paramABackText->box.pos = Vec(75, 177);
-    paramABackText->box.size = Vec(82, 14);
-    paramABackText->visibility = nullptr;
-    paramABackText->viewMode = ACTIVE_LOW_VIEW;
-    paramABackText->horzAlignment = NVG_ALIGN_CENTER;
-    paramABackText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    paramABackText->text = make_shared<std::string>("~~~~~~~~");
-    paramABackText->customColor = nvgRGB(0x4F,0x00,0x00);
-    addChild(paramABackText);
-
-    DynamicFrameText* paramAText = new DynamicFrameText;
-    paramAText->size = 12;
-    paramAText->box.pos = Vec(75, 177);
-    paramAText->box.size = Vec(82, 14);
-    paramAText->visibility = nullptr;
-    paramAText->viewMode = ACTIVE_LOW_VIEW;
-    paramAText->horzAlignment = NVG_ALIGN_CENTER;
-    paramAText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        paramAText->colorHandle = &module->textColor;
-        paramAText->itemHandle = &module->iAmalgamType;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            paramAText->addItem(module->paramANames[i]);
-        }
-    }
-    else {
-        paramAText->customColor = nvgRGB(0xFF,0x00,0x00);
-        paramAText->addItem("GIVE_YOU");
-    }
-    addChild(paramAText);
-
-    DynamicFrameText* paramABlurText = new DynamicFrameText;
-    DynamicFrameText* paramABlurText2 = new DynamicFrameText;
-    paramABlurText->size = 12;
-    paramABlurText->blur = 10.f;
-    paramABlurText->box.pos = Vec(75, 177);
-    paramABlurText->box.size = Vec(82, 14);
-    paramABlurText->visibility = nullptr;
-    paramABlurText->viewMode = ACTIVE_LOW_VIEW;
-    paramABlurText->horzAlignment = NVG_ALIGN_CENTER;
-    paramABlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
-    paramABlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-
-    paramABlurText2->size = 12;
-    paramABlurText2->blur = 8.f;
-    paramABlurText2->box.pos = Vec(75, 177);
-    paramABlurText2->box.size = Vec(82, 14);
-    paramABlurText2->visibility = nullptr;
-    paramABlurText2->viewMode = ACTIVE_LOW_VIEW;
-    paramABlurText2->horzAlignment = NVG_ALIGN_CENTER;
-    paramABlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
-    paramABlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        paramABlurText->itemHandle = &module->iAmalgamType;
-        paramABlurText2->itemHandle = &module->iAmalgamType;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            paramABlurText->addItem(module->paramANames[i]);
-            paramABlurText2->addItem(module->paramANames[i]);
-        }
-    }
-    else {
-        paramABlurText->addItem("GIVE_YOU");
-        paramABlurText2->addItem("GIVE_YOU");
-    }
-    addChild(paramABlurText);
-    addChild(paramABlurText2);
-
-    DynamicText* paramBBackText = new DynamicText;
-    paramBBackText->size = 12;
-    paramBBackText->box.pos = Vec(75, 249);
-    paramBBackText->box.size = Vec(82, 14);
-    paramBBackText->visibility = nullptr;
-    paramBBackText->viewMode = ACTIVE_LOW_VIEW;
-    paramBBackText->horzAlignment = NVG_ALIGN_CENTER;
-    paramBBackText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    paramBBackText->text = make_shared<std::string>("~~~~~~~~");
-    paramBBackText->customColor = nvgRGB(0x3F,0x00,0x00);
-    addChild(paramBBackText);
-
-    DynamicFrameText* paramBText = new DynamicFrameText;
-    paramBText->size = 12;
-    paramBText->box.pos = Vec(75, 249);
-    paramBText->box.size = Vec(82, 14);
-    paramBText->visibility = nullptr;
-    paramBText->viewMode = ACTIVE_LOW_VIEW;
-    paramBText->horzAlignment = NVG_ALIGN_CENTER;
-    paramBText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        paramBText->itemHandle = &module->iAmalgamType;
-        paramBText->colorHandle = &module->textColor;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            paramBText->addItem(module->paramBNames[i]);
-        }
-    }
-    else {
-        paramBText->customColor = nvgRGB(0xFF,0x00,0x00);
-        paramBText->addItem("UP");
-    }
-    addChild(paramBText);
-
-    DynamicFrameText* paramBBlurText = new DynamicFrameText;
-    DynamicFrameText* paramBBlurText2 = new DynamicFrameText;
-    paramBBlurText->size = 12;
-    paramBBlurText->blur = 10.f;
-    paramBBlurText->box.pos = Vec(75, 249);
-    paramBBlurText->box.size = Vec(82, 14);
-    paramBBlurText->visibility = nullptr;
-    paramBBlurText->viewMode = ACTIVE_LOW_VIEW;
-    paramBBlurText->horzAlignment = NVG_ALIGN_CENTER;
-    paramBBlurText->customColor = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
-    paramBBlurText->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-
-    paramBBlurText2->size = 12;
-    paramBBlurText2->blur = 8.f;
-    paramBBlurText2->box.pos = Vec(75, 249);
-    paramBBlurText2->box.size = Vec(82, 14);
-    paramBBlurText2->visibility = nullptr;
-    paramBBlurText2->viewMode = ACTIVE_LOW_VIEW;
-    paramBBlurText2->horzAlignment = NVG_ALIGN_CENTER;
-    paramBBlurText2->customColor = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
-    paramBBlurText2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-    if(module) {
-        paramBBlurText->itemHandle = &module->iAmalgamType;
-        paramBBlurText2->itemHandle = &module->iAmalgamType;
-        for(auto i = 0; i < VecAmalgam::NUM_MODES; ++i) {
-            paramBBlurText->addItem(module->paramBNames[i]);
-            paramBBlurText2->addItem(module->paramBNames[i]);
-        }
-    }
-    else {
-        paramBBlurText->addItem("UP");
-        paramBBlurText2->addItem("UP");
-    }
-    addChild(paramBBlurText);
-    addChild(paramBBlurText2);
-
+    modeDisplay = new DigitalDisplay;
+    modeDisplay->box.pos = modeDisplayPos;
+    modeDisplay->size = 13;
+    modeDisplay->setText("NVRGONNA");
+    addChild(modeDisplay);
+    
+    paramADisplay = new DigitalDisplay;
+    paramADisplay->box.pos = paramADisplayPos;
+    paramADisplay->size = 12;
+    paramADisplay->setText("GIVE YOU");
+    addChild(paramADisplay);
+    
+    paramBDisplay = new DigitalDisplay;
+    paramBDisplay->box.pos = paramBDisplayPos;
+    paramBDisplay->size = 12;
+    paramBDisplay->setText("UP");
+    addChild(paramBDisplay);
 
     {
         LightLEDButton* button = new LightLEDButton;
@@ -496,15 +306,23 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
 }
 
 void AmalgamWidget::step() {
-    if(module) {
-        if(dynamic_cast<Amalgam*>(module)->panelStyle == 1) {
-            panel->visible = false;
-            lightPanel->visible = true;
-        }
-        else {
-            panel->visible = true;
-            lightPanel->visible = false;
-        }
+    if(!module) {
+        panel->visible = true;
+        //lightPanel->visible = false;
+        return;
+    }
+    Amalgam* m = reinterpret_cast<Amalgam*>(module);
+    modeDisplay->text = modeNames[m->iAmalgamType];
+    paramADisplay->text = paramANames[m->iAmalgamType];
+    paramBDisplay->text = paramBNames[m->iAmalgamType];
+
+    if (m->panelStyle) {
+        panel->visible = false;
+        lightPanel->visible = true;
+    }
+    else {
+        panel->visible = true;
+        lightPanel->visible = false;
     }
     Widget::step();
 }
