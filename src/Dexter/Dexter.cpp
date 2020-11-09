@@ -1367,13 +1367,13 @@ void DexterWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Neighbour", &DexterOpSyncSourceItem::module,
                                                      module, &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::NEIGHBOUR_SYNC_SOURCE));
 
-     // Indiv output source
-     menu->addChild(construct<MenuLabel>());
-     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Operator Outputs Source"));
-     menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice A", &DexterOpOuputSource::module,
-                                                   module, &DexterOpOuputSource::indivBOutputs, 0));
-     menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice B", &DexterOpOuputSource::module,
-                                                   module, &DexterOpOuputSource::indivBOutputs, 1));
+    // Indiv output source
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Operator Outputs Source"));
+    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice A", &DexterOpOuputSource::module,
+                                                  module, &DexterOpOuputSource::indivBOutputs, 0));
+    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice B", &DexterOpOuputSource::module,
+                                                  module, &DexterOpOuputSource::indivBOutputs, 1));
 }
 
 void DexterWidget::step() {
