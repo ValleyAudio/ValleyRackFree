@@ -190,7 +190,8 @@ struct TopographWidget : ModuleWidget {
     PlainText* mapXText;
     PlainText* mapYText;
     PlainText* chaosText;
-    NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
+    NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
+    NVGcolor panelTextColours[2] = {darkPanelTextColour, lightPanelTextColour};
     bool isInExtClockMode = false;
 };
