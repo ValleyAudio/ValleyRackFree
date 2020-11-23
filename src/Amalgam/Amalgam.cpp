@@ -268,13 +268,13 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     modeDisplay->size = 13;
     modeDisplay->setText("NVRGONNA");
     addChild(modeDisplay);
-    
+
     paramADisplay = new DigitalDisplay;
     paramADisplay->box.pos = paramADisplayPos;
     paramADisplay->size = 12;
     paramADisplay->setText("GIVE YOU");
     addChild(paramADisplay);
-    
+
     paramBDisplay = new DigitalDisplay;
     paramBDisplay->box.pos = paramBDisplayPos;
     paramBDisplay->size = 12;
@@ -308,7 +308,6 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
 void AmalgamWidget::step() {
     if(!module) {
         panel->visible = true;
-        //lightPanel->visible = false;
         return;
     }
     Amalgam* m = reinterpret_cast<Amalgam*>(module);

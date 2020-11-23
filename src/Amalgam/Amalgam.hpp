@@ -101,10 +101,6 @@ struct Amalgam : Module {
         NUM_LIGHTS
     };
 
-    
-
-    
-
     __m128 __zeros, __fives, __halfs;
     __m128 __x, __y, __z;
     __m128 __xyAnd, __xyXor;
@@ -130,8 +126,8 @@ struct Amalgam : Module {
     float paramA = 0.f;
     float paramB = 0.f;
 
-    float amalgamType;
-    int iAmalgamType;
+    float amalgamType = 0.f;
+    int iAmalgamType = 0;
     int textColor = 2;
 
     int crossModMode = 0;
@@ -158,7 +154,7 @@ struct AmalgamWidget : ModuleWidget {
     AmalgamWidget(Amalgam *module);
     void appendContextMenu(Menu *menu) override;
     void step() override;
-    
+
     std::string modeNames[VecAmalgam::NUM_MODES] = {
         "RINGMOD1", "RINGMOD2", "RINGMOD3", "DIODE-RM", "MINIMAXI",
         "SIGN-1", "SIGN-2", "X-FADE", "FLIPFLOP", "ALPHAPWM", "BITAND",
