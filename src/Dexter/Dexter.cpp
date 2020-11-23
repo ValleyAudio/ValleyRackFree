@@ -766,7 +766,7 @@ AlgoGraphic::AlgoGraphic() {
     sw = new SvgWidget();
     addChild(sw);
     value = 0;
-    style = nullptr;
+    style = 0;
     styleOffset = 0;
     std::string algoGraphicFile;
     for(auto i = 0; i < 2; ++i) {
@@ -791,19 +791,11 @@ void AlgoGraphic::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void AlgoGraphic::step() {
-    /*if (isNear(APP->window->pixelRatio,1.f)) {
-        oversample = 2.f;
-    }*/
-    if(style != nullptr) {
-        if(*style == 0) {
-            styleOffset = 0;
-        }
-        else {
-            styleOffset = kNumAlgorithms;
-        }
+    if(style == 0) {
+        styleOffset = 0;
     }
     else {
-        styleOffset = 0;
+        styleOffset = kNumAlgorithms;
     }
     int index = clamp(value + styleOffset, 0, frames.size() - 1);
     sw->setSvg(frames[index]);
@@ -823,7 +815,7 @@ void OpSyncModeChoice::onAction(const event::Action& e) {
     }
 
     ui::Menu* menu = createMenu();
-    for (int i = 0; i < syncModeLabels.size(); ++i) {
+    for (size_t i = 0; i < syncModeLabels.size(); ++i) {
         OpSyncModeItem* item = new OpSyncModeItem;
         item->pSyncMode = pSyncMode;
         item->syncMode = i;
@@ -849,7 +841,7 @@ void OpShapeModeChoice::onAction(const event::Action& e) {
     }
 
     ui::Menu* menu = createMenu();
-    for (int i = 0; i < shapeModeLabels.size(); ++i) {
+    for (size_t i = 0; i < shapeModeLabels.size(); ++i) {
         OpShapeModeItem* item = new OpShapeModeItem;
         item->pShapeMode = pShapeMode;
         item->shapeMode = i;
@@ -875,7 +867,7 @@ void OpModModeChoice::onAction(const event::Action& e) {
     }
 
     ui::Menu* menu = createMenu();
-    for (int i = 0; i < modModeLabels.size(); ++i) {
+    for (size_t i = 0; i < modModeLabels.size(); ++i) {
         OpModModeItem* item = new OpModModeItem;
         item->pModMode = pModMode;
         item->modMode = i;
@@ -909,9 +901,6 @@ DexterWidget::DexterWidget(Dexter *module) {
 
     algo = new AlgoGraphic;
     algo->box.pos = Vec(138.75, 88.245);
-    if(module) {
-        algo->style = &module->panelStyle;
-    }
     addChild(algo);
 
     addParam(createParam<RoganMedBlueSnap>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM));
@@ -1313,9 +1302,11 @@ DexterWidget::DexterWidget(Dexter *module) {
 
 struct DexterPanelStyleItem : MenuItem {
     Dexter* module;
+    DexterWidget* widget;
     int panelStyle;
     void onAction(const event::Action &e) override {
         module->panelStyle = panelStyle;
+        widget->panelChanged = true;
     }
     void step() override {
         rightText = (module->panelStyle == panelStyle) ? "✔" : "";
@@ -1354,26 +1345,34 @@ void DexterWidget::appendContextMenu(Menu *menu) {
     // Panel style
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel Style"));
-    menu->addChild(construct<DexterPanelStyleItem>(&MenuItem::text, "Dark", &DexterPanelStyleItem::module,
-                                                   module, &DexterPanelStyleItem::panelStyle, 0));
-    menu->addChild(construct<DexterPanelStyleItem>(&MenuItem::text, "Light", &DexterPanelStyleItem::module,
-                                                   module, &DexterPanelStyleItem::panelStyle, 1));
+    menu->addChild(construct<DexterPanelStyleItem>(&MenuItem::text, "Dark",
+                                                   &DexterPanelStyleItem::module, module,
+                                                   &DexterPanelStyleItem::widget, this,
+                                                   &DexterPanelStyleItem::panelStyle, 0));
+    menu->addChild(construct<DexterPanelStyleItem>(&MenuItem::text, "Light",
+                                                   &DexterPanelStyleItem::module, module,
+                                                   &DexterPanelStyleItem::widget, this,
+                                                   &DexterPanelStyleItem::panelStyle, 1));
 
     // Operator Sync Source
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Operator Sync Source"));
-    menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Parent", &DexterOpSyncSourceItem::module,
-                                                     module, &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::PARENT_SYNC_SOURCE));
-    menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Neighbour", &DexterOpSyncSourceItem::module,
-                                                     module, &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::NEIGHBOUR_SYNC_SOURCE));
+    menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Parent",
+                                                     &DexterOpSyncSourceItem::module, module,
+                                                     &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::PARENT_SYNC_SOURCE));
+    menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Neighbour",
+                                                     &DexterOpSyncSourceItem::module, module,
+                                                     &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::NEIGHBOUR_SYNC_SOURCE));
 
     // Indiv output source
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Operator Outputs Source"));
-    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice A", &DexterOpOuputSource::module,
-                                                  module, &DexterOpOuputSource::indivBOutputs, 0));
-    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice B", &DexterOpOuputSource::module,
-                                                  module, &DexterOpOuputSource::indivBOutputs, 1));
+    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice A",
+                                                  &DexterOpOuputSource::module, module,
+                                                  &DexterOpOuputSource::indivBOutputs, 0));
+    menu->addChild(construct<DexterOpOuputSource>(&MenuItem::text, "Voice B",
+                                                  &DexterOpOuputSource::module, module,
+                                                  &DexterOpOuputSource::indivBOutputs, 1));
 }
 
 void DexterWidget::step() {
@@ -1384,14 +1383,49 @@ void DexterWidget::step() {
 
     Dexter* dexter = reinterpret_cast<Dexter*>(module);
 
-    if(dexter->panelStyle == 1) {
+    if (panelChanged) {
+        panelChanged = false;
         panel->visible = false;
-        lightPanel->visible = true;
-    }
-    else {
-        panel->visible = true;
         lightPanel->visible = false;
+        NVGcolor newTextColour;
+
+        if (dexter->panelStyle == 0) {
+            panel->visible = true;
+            newTextColour = darkPanelTextColour;
+            algo->style = 0;
+        }
+        else {
+            lightPanel->visible = true;
+            newTextColour = lightPanelTextColour;
+            algo->style = 1;
+        }
+
+        for (int i = 0; i < kNumOperators; ++i) {
+            for (int j = 0; j < 6; ++j) {
+                mainText[i][j]->color = newTextColour;
+            }
+            multText[i]->color = newTextColour;
+
+            waveTableTabTopLabel[i]->color = newTextColour;
+            waveTableTabBottomLabel[i]->color = newTextColour;
+            mod1And2TabTopLabel[i]->color = newTextColour;
+            mod1And2TabBottomLabel[i]->color = newTextColour;
+            mod3And4TabTopLabel[i]->color = newTextColour;
+            mod3And4TabBottomLabel[i]->color = newTextColour;
+
+            tableText[i]->color = newTextColour;
+
+            tableLabel[i]->color = newTextColour;
+            syncModeLabel[i]->color = newTextColour;
+            shapeModeLabel[i]->color = newTextColour;
+
+            mod1Label[i]->color = newTextColour;
+            mod2Label[i]->color = newTextColour;
+            mod3Label[i]->color = newTextColour;
+            mod4Label[i]->color = newTextColour;
+        }
     }
+
     algo->value = dexter->algo;
     chordText->text = chordNames[(int)dexter->chordKnob];
     octaveAText->text = octaveTextItems[(int)dexter->octaveAKnob];

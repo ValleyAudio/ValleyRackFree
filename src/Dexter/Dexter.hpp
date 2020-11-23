@@ -398,7 +398,7 @@ struct AlgoGraphic : FramebufferWidget {
     std::vector<std::shared_ptr<Svg>> frames;
     SvgWidget *sw;
     int value;
-    int* style;
+    int style;
     int styleOffset;
 
     AlgoGraphic();
@@ -605,6 +605,10 @@ struct DexterWidget : ModuleWidget {
     MediumLight<RedLight>* opWaveButtonLight[kNumOperators];
     MediumLight<RedLight>* opModAButtonLight[kNumOperators];
     MediumLight<RedLight>* opModBButtonLight[kNumOperators];
+
+    bool panelChanged = true;
+    NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
+    NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
 
     SvgPanel* lightPanel;
     AlgoGraphic* algo;
