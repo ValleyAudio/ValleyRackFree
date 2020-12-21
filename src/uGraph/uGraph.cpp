@@ -511,7 +511,7 @@ struct SeqModeChoice : ValleyChoiceMenu {
         }
 
         ui::Menu* menu = createMenu();
-        for (int i = 0; i < seqModeLabels.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(seqModeLabels.size()); ++i) {
             SeqModeItem* item = new SeqModeItem;
             item->module = module;
             item->sequencerModeChoice = i;
@@ -544,7 +544,7 @@ struct ClockResChoice : ValleyChoiceMenu {
         }
 
         ui::Menu* menu = createMenu();
-        for (int i = 0; i < clockResLabels.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(clockResLabels.size()); ++i) {
             ClockResItem* item = new ClockResItem;
             item->module = module;
             item->clockResChoice = i;

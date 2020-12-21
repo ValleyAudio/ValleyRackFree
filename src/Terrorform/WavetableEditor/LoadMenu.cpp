@@ -211,7 +211,7 @@ void TFormLoadMenu::updateWaveDisplay() {
     // TODO 2 : Do some safety checks to make sure we don't go out of bounds of 'detectedWaves'
     //     We want to predict where we start and end in 'detectedWaves', and zero pad if necessary
 
-    for (int i = 0; i < numSamplesToCopy; ++i) {
+    for (size_t i = 0; i < numSamplesToCopy; ++i) {
         waveDisplay->waveData[i] = (*detectedWaves)[i + startOffset];
     }
     waveDisplay->setWaveCycleSize(waveLength);
