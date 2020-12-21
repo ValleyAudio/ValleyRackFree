@@ -1,5 +1,5 @@
 //
-// Most of the code here is janky AF! Most will be deprecated so that can instead use 'vanilla'
+// Most of the code here is janky AF! Most will be deprecated so that I can instead use 'vanilla'
 // Rack API code where possible, and of course make it polymorphic and more maintainable and
 // minimise the use of pointers.
 //
@@ -294,7 +294,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic Choices
 
-struct DEPRECATED DynamicItem : MenuItem {
+struct /*DEPRECATED*/ DynamicItem : MenuItem {
     unsigned long _itemNumber;
     unsigned long* _choice;
     std::function<void(int)> updateChoice;
@@ -303,7 +303,7 @@ struct DEPRECATED DynamicItem : MenuItem {
     void step() override;
 };
 
-struct DEPRECATED DynamicChoice : ChoiceButton {
+struct /*DEPRECATED*/ DynamicChoice : ChoiceButton {
     DynamicViewMode _viewMode;
     DynamicChoice();
     void step() override;
@@ -327,7 +327,7 @@ struct DEPRECATED DynamicChoice : ChoiceButton {
     std::function<void(int)> updateChoice;
 };
 
-DEPRECATED DynamicChoice* createDynamicChoice(const Vec& pos,
+/*DEPRECATED*/ DynamicChoice* createDynamicChoice(const Vec& pos,
                                    float width,
                                    const std::vector<std::string>& items,
                                    unsigned long* choiceHandle,
