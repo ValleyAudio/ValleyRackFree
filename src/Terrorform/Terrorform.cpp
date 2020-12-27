@@ -1456,7 +1456,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             return waves;
         }
 
-        auto numFrames = numSamples / numChannels;
+        drwav_uint64 numFrames = numSamples / numChannels;
         bool needsZeroPadding = numFrames % 2048;
         if (needsZeroPadding) {
              float *newTableTemp = new float[numSamples];
@@ -1476,14 +1476,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
              numSamples = newNumSamples;
              numFrames = numSamples / numChannels;
         }
-        auto numBlocks = numFrames / TFORM_WAVELENGTH_CAP;
 
         // Copy .wav data into loader
         int readPos = 0;
-        int index = 0;
-
         waves->resize(numFrames);
-        for (int i = 0; i < numFrames; ++i) {
+        for (drwav_uint64 i = 0; i < numFrames; ++i) {
             (*waves)[i] = newTable[readPos];
             readPos += numChannels;
         }
