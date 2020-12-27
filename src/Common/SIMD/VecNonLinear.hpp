@@ -4,16 +4,14 @@
 inline __m128 vecDriveSignal(const __m128& x, const __m128& drive) {
     __m128 xd = _mm_mul_ps(x, drive);
     __m128 out = xd;
-    __m128 a = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(2.6f), xd), _mm_set1_ps(1.69f));
-    __m128 b = _mm_sub_ps(_mm_mul_ps(_mm_add_ps(_mm_mul_ps(xd, xd), a), _mm_set1_ps(0.833333f)), _mm_set1_ps(1.f));
-    a = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(-2.6f), xd), _mm_set1_ps(1.69f));
-    __m128 c = _mm_sub_ps(_mm_set1_ps(1.f), _mm_mul_ps(_mm_add_ps(_mm_mul_ps(xd, xd), a), _mm_set1_ps(0.833333f)));
+    __m128 a = _mm_sub_ps(_mm_mul_ps(xd, _mm_sub_ps(_mm_set1_ps(-2.5f), xd)), _mm_set1_ps(0.5625f));
+    a = _mm_sub_ps(_mm_sub_ps(_mm_set1_ps(1.f), a), _mm_set1_ps(1.f));
+    __m128 b = _mm_sub_ps(_mm_mul_ps(xd, _mm_sub_ps(_mm_set1_ps(2.5f), xd)), _mm_set1_ps(0.5625f));
 
-    out = _mm_switch_ps(out, b, _mm_cmplt_ps(xd, _mm_set1_ps(-0.75f)));
-    out = _mm_switch_ps(out, _mm_set1_ps(-1.f), _mm_cmplt_ps(xd, _mm_set1_ps(-1.3f)));
-
-    out = _mm_switch_ps(out, c, _mm_cmpgt_ps(xd, _mm_set1_ps(0.75f)));
-    return _mm_switch_ps(out, _mm_set1_ps(1.f), _mm_cmpgt_ps(xd, _mm_set1_ps(1.3f)));
+    out = _mm_switch_ps(out, a, _mm_cmplt_ps(xd, _mm_set1_ps(-0.75f)));
+    out = _mm_switch_ps(out, _mm_set1_ps(-1.f), _mm_cmplt_ps(xd, _mm_set1_ps(-1.25f)));
+    out = _mm_switch_ps(out, b, _mm_cmpgt_ps(xd, _mm_set1_ps(0.75f)));
+    return _mm_switch_ps(out, _mm_set1_ps(1.f), _mm_cmpgt_ps(xd, _mm_set1_ps(1.25f)));
 }
 
 inline __m128 VecPolyTanh(const __m128& x) {
