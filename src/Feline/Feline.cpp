@@ -63,7 +63,7 @@ void Feline::step() {
     drive += params[DRIVE_PARAM].getValue();
     drive = clamp(drive, 0.f, 1.f);
     drive *= drive;
-    drive = drive * 9.f + 1.f;
+    drive = drive * 9.25f + 0.75f;
 
     input[0] = inputs[LEFT_INPUT].getVoltage();
     input[1] = inputs[RIGHT_INPUT].getVoltage();
