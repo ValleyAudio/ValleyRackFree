@@ -36,6 +36,11 @@
 #include "../Common/DSP/DADSR.hpp"
 #include "../Common/DSP/Noise.hpp"
 
+#include "../Common/SIMD/VecDirectOsc.hpp"
+#include "../Common/SIMD/VecOTAFilter.hpp"
+#include "../Common/SIMD/VecOnePoleFilters.hpp"
+#include "../Common/SIMD/VecLoopingADSR.hpp"
+
 struct Interzone : Module {
     enum InputIds {
         VOCT_INPUT_1,
@@ -137,35 +142,103 @@ struct Interzone : Module {
         NUM_LIGHTS
     };
 
+    enum PWMSources {
+        EXTERNAL_PWM,
+        LFO_PWM,
+        ENVELOPE_PWM
+    };
+
     Interzone();
     void process(const ProcessArgs &args) override;
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 
+    // Vector constants
+    __m128 __zero, __one, __two, __five;
+    __m128 __negTwo;
+    __m128 __half, __quarter;
+
+    // Param Variables
+    dsp::ClockDivider cvDivider;
+    float pitchParam, glideParam;
+    __m128 vPitchParam, vPitchModParam, vPitchModSource, vPitchModEnvPol;
+    __m128 vPitch;
+    simd::float_4 rackSimd_vPitch;
+    __m128 vFreq;
+    simd::float_4 rackSimd_vFreq;
+    int subOctave;
+    __m128 vPwmDepth, vPulseWidth, vSubWidth;
+    __m128 vSawLevel, vPulseLevel, vSubLevel, vNoiseLevel, vExtInLevel;
+    __m128 vFilterKeyTrack;
+    rack::simd::float_4 vAttack, vDecay, vSustain, vRelease;
+    __m128 vPwmEnvPol, vFilterEnvPol;
+
+    // DSP Variables
     float pitch;
+
     float pwm;
+    int pwmSource;
+    __m128 vPwmSource;
+    __m128 vExternalPwm;
+    __m128 vLfoPwm;
+    __m128 vEnvPwm;
+    __m128 vPwm;
+
     float oscPitchMod;
+    __m128 vOscPitchMod;
+
     float filterCutoff;
+    __m128 vFilterCutoffParam, vFilterCutoff;
+    __m128 vFilterQParam, vFilterQ;
+    int filterMode;
+    __m128 vFilterCV1In, vFilterCV2In;
+    __m128 vFilterCV1Depth, vFilterCV2Depth, vFilterLFODepth, vFilterEnvParam;
+    __m128 vHpfCutoff;
+    __m128 vFilterOutput;
+    __m128 vVCACVInput, vVCACVParam;
+
     float lfoValue;
+    __m128 vLfoValue;
     float gateLevel;
+    rack::simd::float_4 vGate;
+    rack::simd::float_4 vTrigger;
+
+    int numActiveVoices = 1;
+    int numActiveVoiceGroups = 1;
+    int numChannels = 4;
 
     OnePoleLPFilter glide;
+    VecOnePoleLPFilter vGlide[4];
     DOsc osc;
+    VecDirectOsc vOsc[4];
     float noise;
+    __m128 vNoise;
     float subWave;
-    float mix;
-    OTAFilter filter;
-    OnePoleHPFilter highpass;
-    float outputLevel;
-    float output;
+    __m128 vSubWave;
 
-    float sampleAndHold;
+    float mix;
+    __m128 vMix;
+    __m128 vFilterInput;
+    __m128 vExtInput;
+
+    OTAFilter filter;
+    VecOTAFilter vFilter[4];
+
+    OnePoleHPFilter highpass;
+    VecOnePoleHPFilter vHighpass[4];
+    float outputLevel;
+    __m128 vOutputLevel[4];
+    float output;
+    __m128 vOutput;
+
     DLFO lfo;
     PinkNoise pink;
     OnePoleLPFilter lfoSlew;
     OnePoleLPFilter gateSlew;
-    DEnv env;
+    VecOnePoleLPFilter vGateSlew[4];
+    DEnv env; // <-- The problem child
+    VecLoopingADSR vEnv[4];
 
     int panelStyle = 0;
 };

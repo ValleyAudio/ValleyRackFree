@@ -51,35 +51,211 @@ Interzone::Interzone() {
     configParam(Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f, "VCA Source");
     configParam(Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f, "VCA Level CV Depth");
 
-    calcGTable(APP->engine->getSampleRate());
-    filter.setSampleRate(APP->engine->getSampleRate());
-    filter.setCutoff(5.f);
-    filter.setNLP(true);
-    highpass.setSampleRate(APP->engine->getSampleRate());
-
-    lfoSlew.setSampleRate(APP->engine->getSampleRate());
-    lfoSlew.setCutoffFreq(14000.f);
-    osc.setSampleRate(APP->engine->getSampleRate());
-    glide.setSampleRate(APP->engine->getSampleRate());
-
-    lfo.setSampleRate(APP->engine->getSampleRate());
-    lfoSlew.setSampleRate(APP->engine->getSampleRate());
+    float initSampleRate = APP->engine->getSampleRate();
+    calcGTable(initSampleRate);
+    lfo.setSampleRate(initSampleRate);
+    lfoSlew.setSampleRate(initSampleRate);
     lfoSlew.setCutoffFreq(14000.f);
 
-    gateSlew.setSampleRate(APP->engine->getSampleRate());
-    gateSlew.setCutoffFreq(90.f);
+    glide.setSampleRate(initSampleRate);
+    pink.setSampleRate(initSampleRate);
+    for (int i = 0; i < 4; ++i) {
+        vOsc[i].setSampleRate(initSampleRate);
+        vFilter[i].setSampleRate(initSampleRate);
+        vHighpass[i].setSampleRate(initSampleRate);
+        vEnv[i].setSampleRate(initSampleRate);
+        vGateSlew[i].setSampleRate(initSampleRate);
+        vGateSlew[i].setCutoffFreq(90.f);
+    }
 
-    env.setSampleRate(APP->engine->getSampleRate());
-    sampleAndHold = 0.f;
+    __zero = _mm_set1_ps(0.f);
+    __one = _mm_set1_ps(1.f);
+    __two = _mm_set1_ps(2.f);
+    __negTwo = _mm_set1_ps(-2.f);
+    __five = _mm_set1_ps(5.f);
+    __half = _mm_set1_ps(0.5f);
+    __quarter = _mm_set1_ps(0.25f);
+
+    cvDivider.setDivision(32);
 }
 
 void Interzone::process(const ProcessArgs &args) {
-    lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].getValue() + params[LFO_FINE_PARAM].getValue() + inputs[LFO_RATE_INPUT].getVoltage()));
+    numActiveVoices = std::max(inputs[VOCT_INPUT_1].getChannels(),
+                               inputs[VOCT_INPUT_2].getChannels());
+    numActiveVoices = numActiveVoices < 1 ? 1 : numActiveVoices;
+    numActiveVoiceGroups = (int) std::ceil((float) numActiveVoices / 4.f);
+    numActiveVoiceGroups = numActiveVoiceGroups < 1 ? 1 : numActiveVoiceGroups;
+
+    outputs[SAW_OUTPUT].setChannels(numActiveVoices);
+    outputs[PULSE_OUTPUT].setChannels(numActiveVoices);
+    outputs[SUB_OUTPUT].setChannels(numActiveVoices);
+    outputs[MIX_OUTPUT].setChannels(numActiveVoices);
+    outputs[FILTER_OUTPUT].setChannels(numActiveVoices);
+    outputs[VCA_OUTPUT].setChannels(numActiveVoices);
+    outputs[ENV_POSITIVE_OUTPUT].setChannels(numActiveVoices);
+    outputs[ENV_NEGATIVE_OUTPUT].setChannels(numActiveVoices);
+
+    //// Param extraction
+    if (cvDivider.process()) {
+        lfo.setFrequency(0.1f * powf(2.f, params[LFO_RATE_PARAM].getValue() + params[LFO_FINE_PARAM].getValue() + inputs[LFO_RATE_INPUT].getVoltage()));
+        lfoSlew.setCutoffFreq(1760.f * pow(2.f, (params[LFO_SLEW_PARAM].getValue() * 2.f) * -6.f));
+
+        glideParam = 330.f * pow(2.f, (params[GLIDE_PARAM].getValue() * 2.f) * -7.f);
+
+        pitchParam = params[COARSE_MODE_PARAM].getValue() > 0.5f ? semitone(params[COARSE_PARAM].getValue() + 0.04f) : params[COARSE_PARAM].getValue();
+        pitchParam -= 1.f;
+        pitchParam += (int)params[OCTAVE_PARAM].getValue() + params[FINE_PARAM].getValue();
+        vPitchParam = _mm_set1_ps(pitchParam);
+
+        vPulseWidth = _mm_set1_ps(params[PW_PARAM].getValue());
+        vPwmDepth = _mm_set1_ps(params[PW_MOD_PARAM].getValue());
+        vPwmEnvPol = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(params[PW_MOD_ENV_POL_PARAM].getValue()), __negTwo), __one);
+        vPwmSource = _mm_set1_ps(params[PW_MOD_SOURCE_PARAM].getValue());
+        subOctave = static_cast<int>(params[SUB_OCTAVE_PARAM].getValue());
+
+        vSawLevel = _mm_set1_ps(params[SAW_LEVEL_PARAM].getValue());
+        vPulseLevel = _mm_set1_ps(params[PULSE_LEVEL_PARAM].getValue());
+        vSubLevel = _mm_set1_ps(params[SUB_LEVEL_PARAM].getValue());
+        vNoiseLevel = _mm_set1_ps(params[NOISE_LEVEL_PARAM].getValue());
+        vExtInLevel = _mm_set1_ps(params[EXT_LEVEL_PARAM].getValue());
+
+        vFilterCV1Depth = _mm_set1_ps(params[FILTER_CV_1_PARAM].getValue());
+        vFilterCV2Depth = _mm_set1_ps(params[FILTER_CV_2_PARAM].getValue());
+        vFilterLFODepth = _mm_set1_ps(params[FILTER_MOD_PARAM].getValue());
+        vFilterLFODepth = _mm_mul_ps(_mm_mul_ps(vFilterLFODepth, vFilterLFODepth), __five);
+        vFilterEnvParam = _mm_set1_ps(params[FILTER_ENV_PARAM].getValue() * 10.f);
+        vFilterEnvPol = _mm_sub_ps(_mm_mul_ps(_mm_set1_ps(params[FILTER_ENV_POL_PARAM].getValue()), __two), __one);
+        vFilterCutoffParam = _mm_set1_ps(params[FILTER_CUTOFF_PARAM].getValue());
+        vFilterQParam = _mm_set1_ps(params[FILTER_Q_PARAM].getValue());
+        filterMode = static_cast<int>(params[FILTER_POLES_PARAM].getValue());
+        vFilterKeyTrack = _mm_set1_ps(params[FILTER_VOCT_PARAM].getValue());
+
+        vHpfCutoff = _mm_set1_ps(440.f * powf(2.0, params[FILTER_HPF_PARAM].getValue() - 5.f));
+        vVCACVParam = _mm_set1_ps(params[VCA_LEVEL_CV_PARAM].getValue() * 0.1f);
+
+        vAttack = params[ENV_ATTACK_PARAM].getValue();
+        vDecay = params[ENV_DECAY_PARAM].getValue();
+        vSustain = params[ENV_SUSTAIN_PARAM].getValue();
+        vRelease = params[ENV_RELEASE_PARAM].getValue();
+        for (int i = 0; i < 4; ++i) {
+            vGlide[i].setCutoffFreq(glideParam);
+            vEnv[i].setADSR(vAttack, vDecay, vSustain, vRelease);
+            vEnv[i].looping = params[ENV_CYCLE_PARAM].getValue() > 0.5f;
+            vEnv[i].setTimeScale(params[ENV_LENGTH_PARAM].getValue() > 0.5f ? 10.f : 1.f);
+            vHighpass[i].setCutoffFreq(vHpfCutoff);
+        }
+    }
+
     lfo.sync(inputs[LFO_SYNC_INPUT].getVoltage());
     lfo.trigger(inputs[LFO_TRIG_INPUT].getVoltage());
     lfo.process();
+
+    lfoSlew.input = lfo.out[(int)params[LFO_WAVE_PARAM].getValue()];
+    lfoSlew.process();
+    lfoValue = params[LFO_SLEW_PARAM].getValue() > 0.0001f ? lfoSlew.output : lfoSlew.input;
+    vLfoValue = _mm_set1_ps(lfoValue);
+    lights[LFO_LIGHT].value = lfoValue;
+
     pink.process();
+
     noise = params[NOISE_TYPE_PARAM].getValue() > 0.5f ? pink.getValue() : lfo.out[DLFO::NOISE_WAVE];
+    vNoise = _mm_set1_ps(noise);
+
+    // CV Input conditioning
+    gateLevel = (inputs[GATE_INPUT].getVoltage() + params[ENV_MANUAL_PARAM].getValue()) > 0.5f ? 1.f : 0.f;
+    lights[ENV_LIGHT].value = gateLevel;
+    vTrigger = rack::simd::float_4::zero();
+
+    vPitchModEnvPol = _mm_set1_ps(params[PITCH_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f);
+    vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? __zero : _mm_high_ps();
+    vPitchModParam = _mm_set1_ps(params[PITCH_MOD_PARAM].getValue());
+    vPitchModParam = _mm_mul_ps(vPitchModParam, vPitchModParam);
+
+    // Main synth process
+    subWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? osc._subSaw : osc._subPulse;
+    vSubWidth = _mm_set1_ps(params[SUB_WAVE_PARAM].getValue() < 1.f ? 0.75f : 0.5f);
+
+    //// Vectorised main synth process
+
+    // Tick the CV
+    int startChan = 0;
+    for (int i = 0; i < numActiveVoiceGroups; ++i) {
+        startChan = i * 4;
+        vPitch = _mm_loadu_ps(inputs[VOCT_INPUT_1].getVoltages(startChan));
+        vPitch = _mm_add_ps(vPitch, _mm_loadu_ps(inputs[VOCT_INPUT_2].getVoltages(startChan)));
+
+        vGate = inputs[GATE_INPUT].getPolyVoltageSimd<float_4>(startChan);
+        vGateSlew[i].process(vGate.v);
+
+        vEnv[i].process(vGate, vTrigger);
+        vVCACVInput = _mm_loadu_ps(inputs[VCA_LEVEL_CV_INPUT].getVoltages(startChan));
+        vOutputLevel[i] = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? vGateSlew[i]._z : vEnv[i].env.v;
+        vOutputLevel[i] = _mm_add_ps(vOutputLevel[i], _mm_mul_ps(vVCACVInput, vVCACVParam));
+        vOutputLevel[i] = _mm_clamp_ps(vOutputLevel[i], __zero, __one);
+        outputs[ENV_POSITIVE_OUTPUT].setVoltageSimd(vEnv[i].env * 10.f, startChan);
+        outputs[ENV_NEGATIVE_OUTPUT].setVoltageSimd(vEnv[i].env * -10.f, startChan);
+
+        vPitch = vGlide[i].process(vPitch);
+        vFilterCV1In = _mm_loadu_ps(inputs[FILTER_CUTOFF_INPUT_1].getVoltages(startChan));
+        vFilterCV2In = _mm_loadu_ps(inputs[FILTER_CUTOFF_INPUT_2].getVoltages(startChan));
+        vFilterCV1In = _mm_mul_ps(vFilterCV1In, vFilterCV1Depth);
+        vFilterCV2In = _mm_mul_ps(vFilterCV2In, vFilterCV2Depth);
+        vFilterCutoff = _mm_add_ps(vFilterCutoffParam, _mm_add_ps(vFilterCV1In, vFilterCV2In));
+        vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(vPitch, vFilterKeyTrack));
+        vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(vLfoValue, vFilterLFODepth));
+        vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(_mm_mul_ps(vEnv[i].env.v, vFilterEnvPol), vFilterEnvParam));
+        vFilterQ = _mm_add_ps(vFilterQParam, _mm_loadu_ps(inputs[FILTER_RES_INPUT].getVoltages(startChan)));
+
+        vOscPitchMod = _mm_switch_ps(_mm_mul_ps(vEnv[i].env.v, vPitchModEnvPol), vLfoValue, vPitchModSource);
+        vOscPitchMod = _mm_mul_ps(vOscPitchMod, vPitchModParam);
+        vPitch = _mm_add_ps(vPitch, vPitchParam);
+        rackSimd_vPitch = _mm_add_ps(vPitch, vOscPitchMod);
+        rackSimd_vFreq = dsp::FREQ_C4 * dsp::approxExp2_taylor5(rackSimd_vPitch + 30.f) / 1073741824.f;
+        vFreq = rackSimd_vFreq.v;
+        vOsc[i].setFrequency(vFreq);
+        vOsc[i].setSubOctave(subOctave);
+
+        vExternalPwm = _mm_loadu_ps(inputs[PW_MOD_INPUT].getVoltages(startChan));
+        vExternalPwm = _mm_mul_ps(vExternalPwm, _mm_set1_ps(-0.1f));
+        vLfoPwm = _mm_set1_ps(lfoValue * -0.5f - 0.5f);
+        vEnvPwm = _mm_mul_ps(vEnv[i].env.v, vPwmEnvPol);
+
+        vPwm = _mm_switch_ps(vExternalPwm, vLfoPwm, _mm_cmpeq_ps(vPwmSource, _mm_set1_ps(LFO_PWM)));
+        vPwm = _mm_switch_ps(vPwm, vEnvPwm, _mm_cmpeq_ps(vPwmSource, _mm_set1_ps(ENVELOPE_PWM)));
+        vPwm = _mm_mul_ps(vPwm, vPwmDepth);
+        vPwm = _mm_add_ps(vPwm, vPulseWidth);
+        vOsc[i].__pwm = _mm_clamp_ps(vPwm, __zero, __half);
+        vOsc[i].setSubWidth(vSubWidth);
+
+        vFilter[i].setCutoff(vFilterCutoff);
+        vFilter[i].setQ(vFilterQ);
+        vFilter[i].setMode(filterMode);
+    }
+
+    // Tick the synth
+    int g = 0;
+    for (int i = 0; i < numActiveVoiceGroups; ++i) {
+        g = i * 4;
+        vOsc[i].process();
+        vSubWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? vOsc[i].__subSaw : vOsc[i].__subPulse;
+        vMix = _mm_mul_ps(vOsc[i].__saw, vSawLevel);
+        vMix = _mm_add_ps(vMix, _mm_mul_ps(vOsc[i].__pulse, vPulseLevel));
+        vMix = _mm_add_ps(vMix, _mm_mul_ps(vSubWave, vSubLevel));
+        vMix = _mm_add_ps(vMix, _mm_mul_ps(vNoise, vNoiseLevel));
+        vMix = _mm_add_ps(vMix, _mm_mul_ps(vExtInput, vExtInLevel));
+        vFilterInput = _mm_mul_ps(vMix, __two);
+
+        vFilter[i].process(_mm_add_ps(vFilterInput, _mm_mul_ps(vNoise, _mm_set1_ps(8e-5f))));
+        vFilterOutput = vHighpass[i].process(_mm_mul_ps(vFilter[i].out, __five));
+        vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
+
+        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(g), vOsc[i].__saw);
+        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(g), vOsc[i].__pulse);
+        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(g), vSubWave);
+        _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(g), vMix);
+        _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(g), vFilterOutput);
+        _mm_store_ps(outputs[VCA_OUTPUT].getVoltages(g), vOutput);
+    }
 
     outputs[LFO_SINE_OUTPUT].setVoltage(lfo.out[DLFO::SINE_WAVE] * 5.f);
     outputs[LFO_TRI_OUTPUT].setVoltage(lfo.out[DLFO::TRI_WAVE] * 5.f);
@@ -88,99 +264,22 @@ void Interzone::process(const ProcessArgs &args) {
     outputs[LFO_PULSE_OUTPUT].setVoltage(lfo.out[DLFO::SQUARE_WAVE] * 5.f);
     outputs[LFO_SH_OUTPUT].setVoltage(lfo.out[DLFO::SH_WAVE] * 5.f);
     outputs[LFO_NOISE_OUTPUT].setVoltage(noise * 5.f);
-
-    lfoSlew.setCutoffFreq(1760.f * pow(2.f, (params[LFO_SLEW_PARAM].getValue() * 2.f) * -6.f));
-    lfoSlew.input = lfo.out[(int)params[LFO_WAVE_PARAM].getValue()];
-    lfoSlew.process();
-    lfoValue = params[LFO_SLEW_PARAM].getValue() > 0.001f ? lfoSlew.output : lfoSlew.input;
-    lights[LFO_LIGHT].value = lfoValue;
-
-    // CV Input conditioning
-    gateLevel = (inputs[GATE_INPUT].getVoltage() + params[ENV_MANUAL_PARAM].getValue()) > 0.5f ? 1.f : 0.f;
-    lights[ENV_LIGHT].value = gateLevel;
-    env.attackTime = params[ENV_ATTACK_PARAM].getValue();
-    env.decayTime = params[ENV_DECAY_PARAM].getValue();
-    env.sustain = params[ENV_SUSTAIN_PARAM].getValue();
-    env.releaseTime = params[ENV_RELEASE_PARAM].getValue();
-    env.loop = params[ENV_CYCLE_PARAM].getValue() > 0.5f ? true : false;
-    env.timeScale = params[ENV_LENGTH_PARAM].getValue() > 0.5f ? 0.1f : 1.f;
-    env.process(gateLevel, inputs[TRIG_INPUT].getVoltage());
-
-    pitch = params[COARSE_MODE_PARAM].getValue() > 0.5f ? semitone(params[COARSE_PARAM].getValue() + 0.04) : params[COARSE_PARAM].getValue();
-    pitch -= 1.f;
-    pitch += (int)params[OCTAVE_PARAM].getValue() + params[FINE_PARAM].getValue();
-    pitch += inputs[VOCT_INPUT_1].getVoltage() + inputs[VOCT_INPUT_2].getVoltage();
-    glide.setCutoffFreq(330.f * pow(2.f, (params[GLIDE_PARAM].getValue() * 2.f) * -7.f));
-    glide.input = pitch;
-    pitch = glide.process();
-
-    oscPitchMod = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? (params[PITCH_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f) * env.value : lfoValue;
-    osc.setFrequency(261.626f * powf(2.f, pitch + oscPitchMod * params[PITCH_MOD_PARAM].getValue() * params[PITCH_MOD_PARAM].getValue()));
-
-    switch((int)params[PW_MOD_SOURCE_PARAM].getValue()) {
-        case 0: pwm = inputs[PW_MOD_INPUT].getVoltage() * -0.1f; break;
-        case 1: pwm = (lfoValue * -0.5f - 0.5f); break;
-        case 2: pwm = -(params[PW_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f) * env.value;
-    }
-
-    pwm *= params[PW_MOD_PARAM].getValue();
-    pwm += params[PW_PARAM].getValue();
-    osc._pwm = clamp(pwm, 0.0f, 0.5f);
-    osc.setSubOctave((int)params[SUB_OCTAVE_PARAM].getValue());
-
-    filterCutoff = env.value * (params[FILTER_ENV_POL_PARAM].getValue() * 2.f - 1.f) * params[FILTER_ENV_PARAM].getValue() * 10.0f;
-    filterCutoff += lfoValue * params[FILTER_MOD_PARAM].getValue() * params[FILTER_MOD_PARAM].getValue() * 5.f;
-    filterCutoff += pitch * params[FILTER_VOCT_PARAM].getValue();
-    filterCutoff += inputs[FILTER_CUTOFF_INPUT_1].getVoltage() * params[FILTER_CV_1_PARAM].getValue();
-    filterCutoff += inputs[FILTER_CUTOFF_INPUT_2].getVoltage() * params[FILTER_CV_2_PARAM].getValue();
-    filterCutoff += params[FILTER_CUTOFF_PARAM].getValue();
-    filter.setCutoff(filterCutoff);
-    filter.setQ(params[FILTER_Q_PARAM].getValue() + inputs[FILTER_RES_INPUT].getVoltage());
-    filter.set4Pole(params[FILTER_POLES_PARAM].getValue());
-
-    outputs[ENV_POSITIVE_OUTPUT].setVoltage(env.value * 5.f);
-    outputs[ENV_NEGATIVE_OUTPUT].setVoltage(env.value * -5.f);
-
-    // Main synth process
-    osc.process();
-    outputs[SAW_OUTPUT].setVoltage(osc._saw * 5.f);
-    outputs[PULSE_OUTPUT].setVoltage(osc._pulse * 5.f);
-    subWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? osc._subSaw : osc._subPulse;
-    params[SUB_WAVE_PARAM].getValue() < 1.f ? osc.setSubWave(2) : osc.setSubWave(1);
-    outputs[SUB_OUTPUT].setVoltage(subWave * 5.f);
-
-    mix = osc._saw * params[SAW_LEVEL_PARAM].getValue();
-    mix += osc._pulse * params[PULSE_LEVEL_PARAM].getValue();
-    mix += subWave * params[SUB_LEVEL_PARAM].getValue();
-    mix += noise * params[NOISE_LEVEL_PARAM].getValue();
-    mix += inputs[EXT_INPUT].getVoltage() * params[EXT_LEVEL_PARAM].getValue();
-    outputs[MIX_OUTPUT].setVoltage(mix);
-    mix *= 2.f;
-
-    highpass.setCutoffFreq(440.f * powf(2.0, params[FILTER_HPF_PARAM].getValue() - 5.f));
-    highpass.input = filter.process(mix + lfo.out[DLFO::NOISE_WAVE] * 8e-5f) * 5.f;
-    output = highpass.process();
-    outputs[FILTER_OUTPUT].setVoltage(highpass.output);
-
-    gateSlew.input = gateLevel;
-    gateSlew.process();
-    outputLevel = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? gateSlew.output : env.value;
-    outputLevel += inputs[VCA_LEVEL_CV_INPUT].getVoltage() * params[VCA_LEVEL_CV_PARAM].getValue() * 0.1f;
-    outputLevel = clamp(outputLevel, -1.f, 1.f);
-    outputs[VCA_OUTPUT].setVoltage(output * outputLevel);
 }
 
 void Interzone::onSampleRateChange() {
-    calcGTable(APP->engine->getSampleRate());
-    osc.setSampleRate(APP->engine->getSampleRate());
-    filter.setSampleRate(APP->engine->getSampleRate());
-    highpass.setSampleRate(APP->engine->getSampleRate());
-    lfo.setSampleRate(APP->engine->getSampleRate());
-    lfoSlew.setSampleRate(APP->engine->getSampleRate());
-    gateSlew.setSampleRate(APP->engine->getSampleRate());
-    env.setSampleRate(APP->engine->getSampleRate());
-    glide.setSampleRate(APP->engine->getSampleRate());
-    pink.setSampleRate(APP->engine->getSampleRate());
+    float newSampleRate = APP->engine->getSampleRate();
+    calcGTable(newSampleRate);
+    lfo.setSampleRate(newSampleRate);
+    lfoSlew.setSampleRate(newSampleRate);
+    gateSlew.setSampleRate(newSampleRate);
+    glide.setSampleRate(newSampleRate);
+    pink.setSampleRate(newSampleRate);
+    for (int i = 0; i < 4; ++i) {
+        vOsc[i].setSampleRate(newSampleRate);
+        vFilter[i].setSampleRate(newSampleRate);
+        vHighpass[i].setSampleRate(newSampleRate);
+        vEnv[i].setSampleRate(newSampleRate);
+    }
 }
 
 json_t* Interzone::dataToJson()  {
