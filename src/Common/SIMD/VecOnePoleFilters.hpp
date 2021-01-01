@@ -34,6 +34,7 @@ struct VecOnePoleHPFilter {
     __m128 process(const __m128& input);
     void clear();
     void setCutoffFreq(float cutoffFreq);
+    void setCutoffFreq(const __m128& cutoffFreq);
     void setSampleRate(float sampleRate);
     float getMaxCutoffFreq() const;
     void setBypass(bool bypass);
@@ -43,6 +44,7 @@ struct VecOnePoleHPFilter {
     float _cutoffFreq;
     float _maxCutoffFreq;
     bool _bypassed;
+    __m128 _fc;
     __m128 _a;
     __m128 _b;
     __m128 _z;
