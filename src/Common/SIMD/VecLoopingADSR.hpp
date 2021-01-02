@@ -52,4 +52,6 @@ private:
     float_4 gated = float_4::zero();
     float_4 prevGated = float_4::zero();
     float_4 triggered = float_4::zero();
+    float_4 prevTriggered = float_4::zero();
+    float_4 latched = float_4::zero();
 };

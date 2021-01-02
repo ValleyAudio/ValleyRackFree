@@ -164,7 +164,6 @@ void Interzone::process(const ProcessArgs &args) {
     // CV Input conditioning
     gateLevel = (inputs[GATE_INPUT].getVoltage() + params[ENV_MANUAL_PARAM].getValue()) > 0.5f ? 1.f : 0.f;
     lights[ENV_LIGHT].value = gateLevel;
-    vTrigger = rack::simd::float_4::zero();
 
     vPitchModEnvPol = _mm_set1_ps(params[PITCH_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f);
     vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? __zero : _mm_high_ps();
@@ -185,6 +184,7 @@ void Interzone::process(const ProcessArgs &args) {
         vPitch = _mm_add_ps(vPitch, _mm_loadu_ps(inputs[VOCT_INPUT_2].getVoltages(startChan)));
 
         vGate = inputs[GATE_INPUT].getPolyVoltageSimd<float_4>(startChan);
+        vTrigger = inputs[TRIG_INPUT].getPolyVoltageSimd<float_4>(startChan);
         vGateSlew[i].process(vGate.v);
 
         vEnv[i].process(vGate, vTrigger);

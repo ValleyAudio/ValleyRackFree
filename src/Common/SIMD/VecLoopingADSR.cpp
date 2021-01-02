@@ -17,24 +17,28 @@ void VecLoopingADSR::process(const float_4& gate, const float_4& trigger) {
     prevGated = gated;
     gated = gate >= 1.f;
     if (looping) {
-        gated = simd::ifelse(prevGated, float_4::mask(), gated);
+        gated = simd::ifelse(prevGated | latched, float_4::mask(), gated);
         attacking = simd::ifelse(sustaining, float_4::mask(), attacking);
     }
 
     // Retrigger
+    prevTriggered = triggered;
     triggered = trigger >= 1.f;
+    latched = simd::ifelse(~prevTriggered & triggered, float_4::mask(), latched);
+    latched = simd::ifelse(gated, float_4::zero(), latched);
     attacking = simd::ifelse(triggered, float_4::mask(), attacking);
 
     // Get target and lambda for exponential decay
     const float attackTarget = 1.2f;
-    float_4 target = simd::ifelse(gated, simd::ifelse(attacking, attackTarget, sustain), 0.f);
-    float_4 lambda = simd::ifelse(gated, simd::ifelse(attacking, attackLambda, decayLambda), releaseLambda);
+    float_4 target = simd::ifelse(gated, simd::ifelse(attacking, attackTarget, sustain), simd::ifelse(latched, attackTarget, 0.f));
+    float_4 lambda = simd::ifelse(gated | latched, simd::ifelse(attacking, attackLambda, decayLambda), releaseLambda);
 
     // Adjust env
     env += (target - env) * lambda * sampleTime;
 
     // Turn off attacking state if envelope is HIGH
     attacking = simd::ifelse(env >= 1.f, float_4::zero(), attacking);
+    latched = simd::ifelse(env >= 1.f, float_4::zero(), latched);
 
     // Turn on attacking state if gate is LOW
     attacking = simd::ifelse(gated, attacking, float_4::mask());
