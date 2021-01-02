@@ -157,7 +157,6 @@ void Interzone::process(const ProcessArgs &args) {
     lights[LFO_LIGHT].value = lfoValue;
 
     pink.process();
-
     noise = params[NOISE_TYPE_PARAM].getValue() > 0.5f ? pink.getValue() : lfo.out[DLFO::NOISE_WAVE];
     vNoise = _mm_set1_ps(noise);
 
@@ -171,7 +170,6 @@ void Interzone::process(const ProcessArgs &args) {
     vPitchModParam = _mm_mul_ps(vPitchModParam, vPitchModParam);
 
     // Main synth process
-    subWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? osc._subSaw : osc._subPulse;
     vSubWidth = _mm_set1_ps(params[SUB_WAVE_PARAM].getValue() < 1.f ? 0.75f : 0.5f);
 
     //// Vectorised main synth process
@@ -180,15 +178,15 @@ void Interzone::process(const ProcessArgs &args) {
     int startChan = 0;
     for (int i = 0; i < numActiveVoiceGroups; ++i) {
         startChan = i * 4;
-        vPitch = _mm_loadu_ps(inputs[VOCT_INPUT_1].getVoltages(startChan));
-        vPitch = _mm_add_ps(vPitch, _mm_loadu_ps(inputs[VOCT_INPUT_2].getVoltages(startChan)));
+        vPitch = inputs[VOCT_INPUT_1].getPolyVoltageSimd<float_4>(startChan).v;
+        vPitch = _mm_add_ps(vPitch, inputs[VOCT_INPUT_2].getPolyVoltageSimd<float_4>(startChan).v);
 
         vGate = inputs[GATE_INPUT].getPolyVoltageSimd<float_4>(startChan);
         vTrigger = inputs[TRIG_INPUT].getPolyVoltageSimd<float_4>(startChan);
         vGateSlew[i].process(vGate.v);
 
         vEnv[i].process(vGate, vTrigger);
-        vVCACVInput = _mm_loadu_ps(inputs[VCA_LEVEL_CV_INPUT].getVoltages(startChan));
+        vVCACVInput = inputs[VCA_LEVEL_CV_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
         vOutputLevel[i] = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? vGateSlew[i]._z : vEnv[i].env.v;
         vOutputLevel[i] = _mm_add_ps(vOutputLevel[i], _mm_mul_ps(vVCACVInput, vVCACVParam));
         vOutputLevel[i] = _mm_clamp_ps(vOutputLevel[i], __zero, __one);
@@ -196,15 +194,15 @@ void Interzone::process(const ProcessArgs &args) {
         outputs[ENV_NEGATIVE_OUTPUT].setVoltageSimd(vEnv[i].env * -10.f, startChan);
 
         vPitch = vGlide[i].process(vPitch);
-        vFilterCV1In = _mm_loadu_ps(inputs[FILTER_CUTOFF_INPUT_1].getVoltages(startChan));
-        vFilterCV2In = _mm_loadu_ps(inputs[FILTER_CUTOFF_INPUT_2].getVoltages(startChan));
+        vFilterCV1In = inputs[FILTER_CUTOFF_INPUT_1].getPolyVoltageSimd<float_4>(startChan).v;
+        vFilterCV2In = inputs[FILTER_CUTOFF_INPUT_2].getPolyVoltageSimd<float_4>(startChan).v;
         vFilterCV1In = _mm_mul_ps(vFilterCV1In, vFilterCV1Depth);
         vFilterCV2In = _mm_mul_ps(vFilterCV2In, vFilterCV2Depth);
         vFilterCutoff = _mm_add_ps(vFilterCutoffParam, _mm_add_ps(vFilterCV1In, vFilterCV2In));
         vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(vPitch, vFilterKeyTrack));
         vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(vLfoValue, vFilterLFODepth));
         vFilterCutoff = _mm_add_ps(vFilterCutoff, _mm_mul_ps(_mm_mul_ps(vEnv[i].env.v, vFilterEnvPol), vFilterEnvParam));
-        vFilterQ = _mm_add_ps(vFilterQParam, _mm_loadu_ps(inputs[FILTER_RES_INPUT].getVoltages(startChan)));
+        vFilterQ = _mm_add_ps(vFilterQParam, inputs[FILTER_RES_INPUT].getPolyVoltageSimd<float_4>(startChan).v);
 
         vOscPitchMod = _mm_switch_ps(_mm_mul_ps(vEnv[i].env.v, vPitchModEnvPol), vLfoValue, vPitchModSource);
         vOscPitchMod = _mm_mul_ps(vOscPitchMod, vPitchModParam);
@@ -215,7 +213,7 @@ void Interzone::process(const ProcessArgs &args) {
         vOsc[i].setFrequency(vFreq);
         vOsc[i].setSubOctave(subOctave);
 
-        vExternalPwm = _mm_loadu_ps(inputs[PW_MOD_INPUT].getVoltages(startChan));
+        vExternalPwm = inputs[PW_MOD_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
         vExternalPwm = _mm_mul_ps(vExternalPwm, _mm_set1_ps(-0.1f));
         vLfoPwm = _mm_set1_ps(lfoValue * -0.5f - 0.5f);
         vEnvPwm = _mm_mul_ps(vEnv[i].env.v, vPwmEnvPol);
