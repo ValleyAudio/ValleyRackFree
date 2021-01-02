@@ -1,5 +1,6 @@
 #pragma once
 #include "SIMDUtilities.hpp"
+#include "VecOnePoleFilters.hpp"
 
 struct VecDirectOsc {
     VecDirectOsc() {
@@ -23,6 +24,11 @@ struct VecDirectOsc {
 
         __subWidth = __halfs;
         __subWidthOffset = _mm_mul_ps(_mm_sub_ps(__subWidth, __halfs), __twos);
+
+        __sawHPF.setCutoffFreq(20.f);
+        __pulseHPF.setCutoffFreq(20.f);
+        __subSawHPF.setCutoffFreq(20.f);
+        __subPulseHPF.setCutoffFreq(20.f);
 
         setSampleRate(44100.f);
         setSubOctave(0);
@@ -73,6 +79,11 @@ struct VecDirectOsc {
 
         __prevPhasor = __phasor;
         __a = _mm_add_ps(__a, __stepSize);
+
+        __saw = __sawHPF.process(__saw);
+        __pulse = __pulseHPF.process(__pulse);
+        __subSaw = __subSawHPF.process(__subSaw);
+        __subPulse = __subPulseHPF.process(__subPulse);
     }
 
     void setFrequency(const __m128& frequency) {
@@ -84,6 +95,10 @@ struct VecDirectOsc {
     void setSampleRate(float sampleRate) {
         __1_sampleRate = _mm_set1_ps(1.f / sampleRate);
         setFrequency(__frequency);
+        __sawHPF.setSampleRate(sampleRate);
+        __pulseHPF.setSampleRate(sampleRate);
+        __subSawHPF.setSampleRate(sampleRate);
+        __subPulseHPF.setSampleRate(sampleRate);
     }
 
     /** Sets the pulse width of the sub pulse wave. */
@@ -157,6 +172,7 @@ struct VecDirectOsc {
     __m128 __pwm;
     __m128 __saw, __pulse;
     __m128 __subSaw, __subPulse;
+    VecOnePoleHPFilter __sawHPF, __pulseHPF, __subSawHPF, __subPulseHPF;
     __m128 __flyBack, __flyForward, __offset, __subLimit, __subScale, __subOffsetDegree;
     __m128 __subWidth, __subWidthOffset;
 
