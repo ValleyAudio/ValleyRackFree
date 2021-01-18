@@ -177,6 +177,7 @@ struct Plateau : Module {
     bool fadeOut, fadeIn;
 
     float leftInput, rightInput;
+    float leftOutput, rightOutput;
     Dattorro reverb;
     LinearEnvelope envelope;
 

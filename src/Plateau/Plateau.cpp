@@ -118,7 +118,7 @@ void Plateau::process(const ProcessArgs &args) {
     else if((params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) && cleared) {
         clear = false;
     }
-    
+
     if(clear) {
         if(!cleared && !fadeOut && !fadeIn) {
             fadeOut = true;
@@ -222,16 +222,16 @@ void Plateau::process(const ProcessArgs &args) {
     reverb.modDepth = modDepth;
     reverb.setModShape(modShape);
 
-    leftInput = inputs[LEFT_INPUT].getVoltage();
-    rightInput = inputs[RIGHT_INPUT].getVoltage();
+    leftInput = inputs[LEFT_INPUT].getVoltageSum();
+    rightInput = inputs[RIGHT_INPUT].getVoltageSum();
     if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
-        leftInput = inputs[RIGHT_INPUT].getVoltage();
+        leftInput = inputs[RIGHT_INPUT].getVoltageSum();
     }
     else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
-        rightInput = inputs[LEFT_INPUT].getVoltage();
+        rightInput = inputs[LEFT_INPUT].getVoltageSum();
     }
-    leftInput = clamp(leftInput, -10.0, 10.0);
-    rightInput = clamp(rightInput, -10.0, 10.0);
+    leftInput = clamp(leftInput, -10.f, 10.f);
+    rightInput = clamp(rightInput, -10.f, 10.f);
 
     inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
     reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
@@ -245,12 +245,16 @@ void Plateau::process(const ProcessArgs &args) {
     wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    outputs[LEFT_OUTPUT].setVoltage(leftInput * dry + reverb.leftOut * wet * envelope._value);
-    outputs[RIGHT_OUTPUT].setVoltage(rightInput * dry + reverb.rightOut * wet * envelope._value);
+    leftOutput = leftInput * dry + reverb.leftOut * wet * envelope._value;
+    rightOutput = rightInput * dry + reverb.rightOut * wet * envelope._value;
 
     if(outputSaturationState) {
-        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(outputs[LEFT_OUTPUT].getVoltage() * 0.111f, 0.95f) * 9.999f);
-        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(outputs[RIGHT_OUTPUT].getVoltage() * 0.111f, 0.95f) * 9.999f);
+        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
+        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f);
+    }
+    else {
+        outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
+        outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
     }
 }
 
