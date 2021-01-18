@@ -250,9 +250,9 @@ void Interzone::process(const ProcessArgs &args) {
         vFilterOutput = vHighpass[i].process(_mm_mul_ps(vFilter[i].out, __five));
         vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
 
-        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(g), vOsc[i].__saw);
-        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(g), vOsc[i].__pulse);
-        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(g), vSubWave);
+        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__saw, __five));
+        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__pulse, __five));
+        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(g), _mm_mul_ps(vSubWave, __five));
         _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(g), vMix);
         _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(g), vFilterOutput);
         _mm_store_ps(outputs[VCA_OUTPUT].getVoltages(g), vOutput);
