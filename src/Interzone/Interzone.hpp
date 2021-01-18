@@ -209,9 +209,7 @@ struct Interzone : Module {
     int numActiveVoiceGroups = 1;
     int numChannels = 4;
 
-    OnePoleLPFilter glide;
     VecOnePoleLPFilter vGlide[4];
-    DOsc osc;
     VecDirectOsc vOsc[4];
     float noise;
     __m128 vNoise;
@@ -223,10 +221,7 @@ struct Interzone : Module {
     __m128 vFilterInput;
     __m128 vExtInput;
 
-    OTAFilter filter;
     VecOTAFilter vFilter[4];
-
-    OnePoleHPFilter highpass;
     VecOnePoleHPFilter vHighpass[4];
     float outputLevel;
     __m128 vOutputLevel[4];

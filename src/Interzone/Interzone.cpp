@@ -56,7 +56,6 @@ Interzone::Interzone() {
     lfo.setSampleRate(initSampleRate);
     lfoSlew.setSampleRate(initSampleRate);
     lfoSlew.setCutoffFreq(14000.f);
-    glide.setSampleRate(initSampleRate);
     pink.setSampleRate(initSampleRate);
 
     for (int i = 0; i < 4; ++i) {
@@ -66,6 +65,7 @@ Interzone::Interzone() {
         vEnv[i].setSampleRate(initSampleRate);
         vGateSlew[i].setSampleRate(initSampleRate);
         vGateSlew[i].setCutoffFreq(90.f);
+        vGlide[i].setSampleRate(initSampleRate);
     }
 
     __zero = _mm_set1_ps(0.f);
@@ -275,7 +275,6 @@ void Interzone::onSampleRateChange() {
     calcGTable(newSampleRate);
     lfo.setSampleRate(newSampleRate);
     lfoSlew.setSampleRate(newSampleRate);
-    glide.setSampleRate(newSampleRate);
     pink.setSampleRate(newSampleRate);
 
     for (int i = 0; i < 4; ++i) {
@@ -283,7 +282,8 @@ void Interzone::onSampleRateChange() {
         vFilter[i].setSampleRate(newSampleRate);
         vHighpass[i].setSampleRate(newSampleRate);
         vEnv[i].setSampleRate(newSampleRate);
-        vGateSlew[i].setSampleRate(newSampleRate);;
+        vGateSlew[i].setSampleRate(newSampleRate);
+        vGlide[i].setSampleRate(newSampleRate);
     }
 }
 
