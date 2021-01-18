@@ -155,8 +155,8 @@ struct Interzone : Module {
     void dataFromJson(json_t *rootJ) override;
 
     // Vector constants
-    __m128 __zero, __one, __two, __five;
-    __m128 __negTwo;
+    __m128 __zero, __one, __two, __five, __ten;
+    __m128 __negTwo, __negTen;
     __m128 __half, __quarter;
 
     // Param Variables
@@ -236,9 +236,7 @@ struct Interzone : Module {
     DLFO lfo;
     PinkNoise pink;
     OnePoleLPFilter lfoSlew;
-    OnePoleLPFilter gateSlew;
     VecOnePoleLPFilter vGateSlew[4];
-    DEnv env; // <-- The problem child
     VecLoopingADSR vEnv[4];
 
     int panelStyle = 0;

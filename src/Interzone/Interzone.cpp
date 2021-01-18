@@ -56,9 +56,9 @@ Interzone::Interzone() {
     lfo.setSampleRate(initSampleRate);
     lfoSlew.setSampleRate(initSampleRate);
     lfoSlew.setCutoffFreq(14000.f);
-
     glide.setSampleRate(initSampleRate);
     pink.setSampleRate(initSampleRate);
+
     for (int i = 0; i < 4; ++i) {
         vOsc[i].setSampleRate(initSampleRate);
         vFilter[i].setSampleRate(initSampleRate);
@@ -73,6 +73,8 @@ Interzone::Interzone() {
     __two = _mm_set1_ps(2.f);
     __negTwo = _mm_set1_ps(-2.f);
     __five = _mm_set1_ps(5.f);
+    __ten = _mm_set1_ps(10.f);
+    __negTen = _mm_set1_ps(-10.f);
     __half = _mm_set1_ps(0.5f);
     __quarter = _mm_set1_ps(0.25f);
 
@@ -249,6 +251,7 @@ void Interzone::process(const ProcessArgs &args) {
         vFilter[i].process(_mm_add_ps(vFilterInput, _mm_mul_ps(vNoise, _mm_set1_ps(8e-5f))));
         vFilterOutput = vHighpass[i].process(_mm_mul_ps(vFilter[i].out, __five));
         vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
+        vOutput = _mm_clamp_ps(vOutput, __negTen, __ten);
 
         _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__saw, __five));
         _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__pulse, __five));
@@ -272,14 +275,15 @@ void Interzone::onSampleRateChange() {
     calcGTable(newSampleRate);
     lfo.setSampleRate(newSampleRate);
     lfoSlew.setSampleRate(newSampleRate);
-    gateSlew.setSampleRate(newSampleRate);
     glide.setSampleRate(newSampleRate);
     pink.setSampleRate(newSampleRate);
+
     for (int i = 0; i < 4; ++i) {
         vOsc[i].setSampleRate(newSampleRate);
         vFilter[i].setSampleRate(newSampleRate);
         vHighpass[i].setSampleRate(newSampleRate);
         vEnv[i].setSampleRate(newSampleRate);
+        vGateSlew[i].setSampleRate(newSampleRate);;
     }
 }
 
