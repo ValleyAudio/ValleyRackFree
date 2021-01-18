@@ -208,9 +208,11 @@ struct Interzone : Module {
     int numActiveVoices = 1;
     int numActiveVoiceGroups = 1;
     int numChannels = 4;
+    static const int kMaxNumVoiceGroups = 4;
+    static const int kNumVoicesPerGroup = 4;
 
-    VecOnePoleLPFilter vGlide[4];
-    VecDirectOsc vOsc[4];
+    VecOnePoleLPFilter vGlide[kMaxNumVoiceGroups];
+    VecDirectOsc vOsc[kMaxNumVoiceGroups];
     float noise;
     __m128 vNoise;
     float subWave;
@@ -221,18 +223,18 @@ struct Interzone : Module {
     __m128 vFilterInput;
     __m128 vExtInput;
 
-    VecOTAFilter vFilter[4];
-    VecOnePoleHPFilter vHighpass[4];
+    VecOTAFilter vFilter[kMaxNumVoiceGroups];
+    VecOnePoleHPFilter vHighpass[kMaxNumVoiceGroups];
     float outputLevel;
-    __m128 vOutputLevel[4];
+    __m128 vOutputLevel[kMaxNumVoiceGroups];
     float output;
     __m128 vOutput;
 
     DLFO lfo;
     PinkNoise pink;
     OnePoleLPFilter lfoSlew;
-    VecOnePoleLPFilter vGateSlew[4];
-    VecLoopingADSR vEnv[4];
+    VecOnePoleLPFilter vGateSlew[kMaxNumVoiceGroups];
+    VecLoopingADSR vEnv[kMaxNumVoiceGroups];
 
     int panelStyle = 0;
 };

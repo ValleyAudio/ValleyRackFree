@@ -58,7 +58,7 @@ Interzone::Interzone() {
     lfoSlew.setCutoffFreq(14000.f);
     pink.setSampleRate(initSampleRate);
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < kMaxNumVoiceGroups; ++i) {
         vOsc[i].setSampleRate(initSampleRate);
         vFilter[i].setSampleRate(initSampleRate);
         vHighpass[i].setSampleRate(initSampleRate);
@@ -85,7 +85,7 @@ void Interzone::process(const ProcessArgs &args) {
     numActiveVoices = std::max(inputs[VOCT_INPUT_1].getChannels(),
                                inputs[VOCT_INPUT_2].getChannels());
     numActiveVoices = numActiveVoices < 1 ? 1 : numActiveVoices;
-    numActiveVoiceGroups = (int) std::ceil((float) numActiveVoices / 4.f);
+    numActiveVoiceGroups = (int) std::ceil((float) numActiveVoices / (float)kNumVoicesPerGroup);
     numActiveVoiceGroups = numActiveVoiceGroups < 1 ? 1 : numActiveVoiceGroups;
 
     outputs[SAW_OUTPUT].setChannels(numActiveVoices);
@@ -139,7 +139,7 @@ void Interzone::process(const ProcessArgs &args) {
         vDecay = params[ENV_DECAY_PARAM].getValue();
         vSustain = params[ENV_SUSTAIN_PARAM].getValue();
         vRelease = params[ENV_RELEASE_PARAM].getValue();
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < kMaxNumVoiceGroups; ++i) {
             vGlide[i].setCutoffFreq(glideParam);
             vEnv[i].setADSR(vAttack, vDecay, vSustain, vRelease);
             vEnv[i].looping = params[ENV_CYCLE_PARAM].getValue() > 0.5f;
@@ -181,7 +181,7 @@ void Interzone::process(const ProcessArgs &args) {
     // Tick the CV
     int startChan = 0;
     for (int i = 0; i < numActiveVoiceGroups; ++i) {
-        startChan = i * 4;
+        startChan = i * kNumVoicesPerGroup;
         vPitch = inputs[VOCT_INPUT_1].getPolyVoltageSimd<float_4>(startChan).v;
         vPitch = _mm_add_ps(vPitch, inputs[VOCT_INPUT_2].getPolyVoltageSimd<float_4>(startChan).v);
 
@@ -238,7 +238,7 @@ void Interzone::process(const ProcessArgs &args) {
     // Tick the synth
     int g = 0;
     for (int i = 0; i < numActiveVoiceGroups; ++i) {
-        g = i * 4;
+        g = i * kNumVoicesPerGroup;
         vOsc[i].process();
         vSubWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? vOsc[i].__subSaw : vOsc[i].__subPulse;
         vMix = _mm_mul_ps(vOsc[i].__saw, vSawLevel);
@@ -277,7 +277,7 @@ void Interzone::onSampleRateChange() {
     lfoSlew.setSampleRate(newSampleRate);
     pink.setSampleRate(newSampleRate);
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < kMaxNumVoiceGroups; ++i) {
         vOsc[i].setSampleRate(newSampleRate);
         vFilter[i].setSampleRate(newSampleRate);
         vHighpass[i].setSampleRate(newSampleRate);
