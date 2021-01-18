@@ -202,6 +202,7 @@ struct Interzone : Module {
     __m128 vLfoValue;
     float gateLevel;
     rack::simd::float_4 vGate;
+    rack::simd::float_4 vManualGate;
     rack::simd::float_4 vTrigger;
 
     int numActiveVoices = 1;

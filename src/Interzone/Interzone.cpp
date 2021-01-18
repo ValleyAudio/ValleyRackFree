@@ -76,7 +76,7 @@ Interzone::Interzone() {
     __half = _mm_set1_ps(0.5f);
     __quarter = _mm_set1_ps(0.25f);
 
-    cvDivider.setDivision(32);
+    cvDivider.setDivision(16);
 }
 
 void Interzone::process(const ProcessArgs &args) {
@@ -161,8 +161,9 @@ void Interzone::process(const ProcessArgs &args) {
     vNoise = _mm_set1_ps(noise);
 
     // CV Input conditioning
-    gateLevel = (inputs[GATE_INPUT].getVoltage() + params[ENV_MANUAL_PARAM].getValue()) > 0.5f ? 1.f : 0.f;
-    lights[ENV_LIGHT].value = gateLevel;
+    vManualGate.v = _mm_set_ps(0.f, 0.f, 0.f, params[ENV_MANUAL_PARAM].getValue());
+    gateLevel = (inputs[GATE_INPUT].getVoltageSum() + params[ENV_MANUAL_PARAM].getValue()) > 0.5f ? 1.f : 0.f;
+    lights[ENV_LIGHT].value = clamp(gateLevel, 0.f, 1.f);
 
     vPitchModEnvPol = _mm_set1_ps(params[PITCH_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f);
     vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? __zero : _mm_high_ps();
@@ -170,6 +171,7 @@ void Interzone::process(const ProcessArgs &args) {
     vPitchModParam = _mm_mul_ps(vPitchModParam, vPitchModParam);
 
     // Main synth process
+
     vSubWidth = _mm_set1_ps(params[SUB_WAVE_PARAM].getValue() < 1.f ? 0.75f : 0.5f);
 
     //// Vectorised main synth process
@@ -182,6 +184,7 @@ void Interzone::process(const ProcessArgs &args) {
         vPitch = _mm_add_ps(vPitch, inputs[VOCT_INPUT_2].getPolyVoltageSimd<float_4>(startChan).v);
 
         vGate = inputs[GATE_INPUT].getPolyVoltageSimd<float_4>(startChan);
+        vGate += i == 0 ? vManualGate : simd::float_4::zero();
         vTrigger = inputs[TRIG_INPUT].getPolyVoltageSimd<float_4>(startChan);
         vGateSlew[i].process(vGate.v);
 
