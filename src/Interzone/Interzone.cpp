@@ -171,9 +171,6 @@ void Interzone::process(const ProcessArgs &args) {
     vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? __zero : _mm_high_ps();
     vPitchModParam = _mm_set1_ps(params[PITCH_MOD_PARAM].getValue());
     vPitchModParam = _mm_mul_ps(vPitchModParam, vPitchModParam);
-
-    // Main synth process
-
     vSubWidth = _mm_set1_ps(params[SUB_WAVE_PARAM].getValue() < 1.f ? 0.75f : 0.5f);
 
     //// Vectorised main synth process
@@ -236,11 +233,11 @@ void Interzone::process(const ProcessArgs &args) {
     }
 
     // Tick the synth
-    int g = 0;
     for (int i = 0; i < numActiveVoiceGroups; ++i) {
-        g = i * kNumVoicesPerGroup;
+        startChan = i * kNumVoicesPerGroup;
         vOsc[i].process();
         vSubWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? vOsc[i].__subSaw : vOsc[i].__subPulse;
+        vExtInput = inputs[EXT_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
         vMix = _mm_mul_ps(vOsc[i].__saw, vSawLevel);
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vOsc[i].__pulse, vPulseLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vSubWave, vSubLevel));
@@ -253,12 +250,12 @@ void Interzone::process(const ProcessArgs &args) {
         vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
         vOutput = _mm_clamp_ps(vOutput, __negTen, __ten);
 
-        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__saw, __five));
-        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(g), _mm_mul_ps(vOsc[i].__pulse, __five));
-        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(g), _mm_mul_ps(vSubWave, __five));
-        _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(g), vMix);
-        _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(g), vFilterOutput);
-        _mm_store_ps(outputs[VCA_OUTPUT].getVoltages(g), vOutput);
+        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].__saw, __five));
+        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].__pulse, __five));
+        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(startChan), _mm_mul_ps(vSubWave, __five));
+        _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(startChan), vMix);
+        _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(startChan), vFilterOutput);
+        _mm_store_ps(outputs[VCA_OUTPUT].getVoltages(startChan), vOutput);
     }
 
     outputs[LFO_SINE_OUTPUT].setVoltage(lfo.out[DLFO::SINE_WAVE] * 5.f);
