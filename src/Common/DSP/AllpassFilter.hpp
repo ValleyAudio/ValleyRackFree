@@ -1,5 +1,5 @@
 #pragma once
-#include "InterpDelay.hpp"
+#include "InterpDelay2.hpp"
 
 template<class T>
 class AllpassFilter {
@@ -11,7 +11,7 @@ public:
 
     AllpassFilter(long maxDelay, long initDelay, T gain) {
         clear();
-        delay = InterpDelay<T>(maxDelay, initDelay);
+        delay = InterpDelay2<T>(maxDelay, initDelay);
         this->gain = gain;
     }
 
@@ -34,7 +34,7 @@ public:
     T input;
     T gain;
     T output;
-    InterpDelay<T> delay;
+    InterpDelay2<T> delay;
 private:
     T _inSum;
     T _outSum;
@@ -52,8 +52,8 @@ public:
     }
 
     NestedAllPassType1(long maxDelay, long delayTime1, long delayTime2) {
-        delay1 = InterpDelay<T>(maxDelay, delayTime1);
-        delay2 = InterpDelay<T>(maxDelay, delayTime2);
+        delay1 = InterpDelay2<T>(maxDelay, delayTime1);
+        delay2 = InterpDelay2<T>(maxDelay, delayTime2);
         gain1 = 0;
         gain2 = 0;
         decay1 = 0;
@@ -85,7 +85,7 @@ public:
     T gain1, gain2;;
     T output;
     T decay1, decay2;
-    InterpDelay<T> delay1, delay2;
+    InterpDelay2<T> delay1, delay2;
 private:
     T _inSum1, _inSum2;
 };

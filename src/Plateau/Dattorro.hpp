@@ -81,7 +81,7 @@ private:
     OnePoleLPFilter _inputLpf;
     OnePoleHPFilter _inputHpf;
 
-    InterpDelay<double> _preDelay;
+    InterpDelay2<double> _preDelay;
 
     AllpassFilter<double> _inApf1;
     AllpassFilter<double> _inApf2;
@@ -90,18 +90,18 @@ private:
     double _tankFeed = 0.0;
 
     AllpassFilter<double> _leftApf1;
-    InterpDelay<double> _leftDelay1;
+    InterpDelay2<double> _leftDelay1;
     OnePoleLPFilter _leftFilter;
     OnePoleHPFilter _leftHpf;
     AllpassFilter<double> _leftApf2;
-    InterpDelay<double> _leftDelay2;
+    InterpDelay2<double> _leftDelay2;
 
     AllpassFilter<double> _rightApf1;
-    InterpDelay<double> _rightDelay1;
+    InterpDelay2<double> _rightDelay1;
     OnePoleLPFilter _rightFilter;
     OnePoleHPFilter _rightHpf;
     AllpassFilter<double> _rightApf2;
-    InterpDelay<double> _rightDelay2;
+    InterpDelay2<double> _rightDelay2;
 
     OnePoleHPFilter _leftOutDCBlock;
     OnePoleHPFilter _rightOutDCBlock;

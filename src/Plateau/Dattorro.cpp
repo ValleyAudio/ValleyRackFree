@@ -3,7 +3,7 @@
 Dattorro::Dattorro() {
     _dattorroScaleFactor = _sampleRate / _dattorroSampleRate;
 
-    _preDelay = InterpDelay<double>(192010, 0);
+    _preDelay = InterpDelay2<double>(192010, 0);
 
     _inputLpf = OnePoleLPFilter(22000.0);
     _inputHpf = OnePoleHPFilter(0.0);
@@ -14,18 +14,18 @@ Dattorro::Dattorro() {
     _inApf4 = AllpassFilter<double>(dattorroScale(20 * _kInApf4Time), dattorroScale(_kInApf4Time), inputDiffusion2);
 
     _leftApf1 = AllpassFilter<double>(dattorroScale(40 * _kLeftApf1Time), dattorroScale(_kLeftApf1Time), -plateDiffusion1);
-    _leftDelay1 = InterpDelay<double>(dattorroScale(40 * _kLeftDelay1Time), dattorroScale(_kLeftDelay1Time));
+    _leftDelay1 = InterpDelay2<double>(dattorroScale(40 * _kLeftDelay1Time), dattorroScale(_kLeftDelay1Time));
     _leftFilter = OnePoleLPFilter(reverbHighCut);
     _leftHpf = OnePoleHPFilter(reverbLowCut);
     _leftApf2 = AllpassFilter<double>(dattorroScale(40 * _kLeftApf2Time), dattorroScale(_kLeftApf2Time), plateDiffusion2);
-    _leftDelay2 = InterpDelay<double>(dattorroScale(40 * _kLeftDelay2Time), dattorroScale(_kLeftDelay2Time));
+    _leftDelay2 = InterpDelay2<double>(dattorroScale(40 * _kLeftDelay2Time), dattorroScale(_kLeftDelay2Time));
 
     _rightApf1 = AllpassFilter<double>(dattorroScale(40 * _kRightApf1Time), dattorroScale(_kRightApf1Time), -plateDiffusion1);
-    _rightDelay1 = InterpDelay<double>(dattorroScale(40 * _kRightDelay1Time), dattorroScale(_kRightDelay1Time));
+    _rightDelay1 = InterpDelay2<double>(dattorroScale(40 * _kRightDelay1Time), dattorroScale(_kRightDelay1Time));
     _rightFilter = OnePoleLPFilter(reverbHighCut);
     _rightHpf = OnePoleHPFilter(reverbLowCut);
     _rightApf2 = AllpassFilter<double>(dattorroScale(40 * _kRightApf2Time), dattorroScale(_kRightApf2Time), plateDiffusion2);
-    _rightDelay2 = InterpDelay<double>(dattorroScale(40 * _kRightDelay2Time), dattorroScale(_kRightDelay2Time));
+    _rightDelay2 = InterpDelay2<double>(dattorroScale(40 * _kRightDelay2Time), dattorroScale(_kRightDelay2Time));
 
     _leftApf1Time = dattorroScale(_kLeftApf1Time);
     _leftApf2Time = dattorroScale(_kLeftApf2Time);
@@ -79,10 +79,10 @@ void Dattorro::process(double leftInput, double rightInput) {
     _rightApf1.gain = -plateDiffusion1;
     _rightApf2.gain = plateDiffusion2;
 
-    _leftApf1.delay.delayTime = _lfo1.process() * _lfoDepth * modDepth + _leftApf1Time;
-    _leftApf2.delay.delayTime = _lfo2.process() * _lfoDepth * modDepth + _leftApf2Time;
-    _rightApf1.delay.delayTime = _lfo3.process() * _lfoDepth * modDepth + _rightApf1Time;
-    _rightApf2.delay.delayTime = _lfo4.process() * _lfoDepth * modDepth + _rightApf2Time;
+    _leftApf1.delay.setDelayTime(_lfo1.process() * _lfoDepth * modDepth + _leftApf1Time);
+    _leftApf2.delay.setDelayTime(_lfo2.process() * _lfoDepth * modDepth + _leftApf2Time);
+    _rightApf1.delay.setDelayTime(_lfo3.process() * _lfoDepth * modDepth + _rightApf1Time);
+    _rightApf2.delay.setDelayTime(_lfo4.process() * _lfoDepth * modDepth + _rightApf2Time);
 
     _leftInputDCBlock.input = leftInput;
     _rightInputDCBlock.input = rightInput;
@@ -103,7 +103,8 @@ void Dattorro::process(double leftInput, double rightInput) {
 
     _leftApf1.input = _leftSum;
     _leftDelay1.input = _leftApf1.process();
-    _leftFilter.input = _leftDelay1.process();
+    _leftDelay1.process();
+    _leftFilter.input = _leftDelay1.output;
     _leftHpf.input = _leftFilter.process();
     _leftApf2.input = (_leftDelay1.output * (1.0 - _fade) + _leftHpf.process() * _fade) * _decay;
     _leftDelay2.input = _leftApf2.process();
@@ -111,7 +112,8 @@ void Dattorro::process(double leftInput, double rightInput) {
 
     _rightApf1.input = _rightSum;
     _rightDelay1.input = _rightApf1.process();
-    _rightFilter.input = _rightDelay1.process();
+    _rightDelay1.process();
+    _rightFilter.input = _rightDelay1.output;
     _rightHpf.input =  _rightFilter.process();
     _rightApf2.input = (_rightDelay1.output * (1.0 - _fade) + _rightHpf.process() * _fade) * _decay;
     _rightDelay2.input = _rightApf2.process();
@@ -184,10 +186,10 @@ void Dattorro::setTimeScale(double timeScale) {
         _timeScale = 0.0001;
     }
 
-    _leftDelay1.delayTime = dattorroScale(_kLeftDelay1Time * _timeScale);
-    _leftDelay2.delayTime = dattorroScale(_kLeftDelay2Time * _timeScale);
-    _rightDelay1.delayTime = dattorroScale(_kRightDelay1Time * _timeScale);
-    _rightDelay2.delayTime = dattorroScale(_kRightDelay2Time * _timeScale);
+    _leftDelay1.setDelayTime(dattorroScale(_kLeftDelay1Time * _timeScale));
+    _leftDelay2.setDelayTime(dattorroScale(_kLeftDelay2Time * _timeScale));
+    _rightDelay1.setDelayTime(dattorroScale(_kRightDelay1Time * _timeScale));
+    _rightDelay2.setDelayTime(dattorroScale(_kRightDelay2Time * _timeScale));
     _leftApf1Time = dattorroScale(_kLeftApf1Time * _timeScale);
     _leftApf2Time = dattorroScale(_kLeftApf2Time * _timeScale);
     _rightApf1Time = dattorroScale(_kRightApf1Time * _timeScale);
@@ -196,7 +198,7 @@ void Dattorro::setTimeScale(double timeScale) {
 
 void Dattorro::setPreDelay(double t) {
     _preDelayTime = t;
-    _preDelay.delayTime = _preDelayTime * _sampleRate;
+    _preDelay.setDelayTime(_preDelayTime * _sampleRate);
 }
 
 void Dattorro::setModShape(double shape) {
@@ -210,14 +212,14 @@ void Dattorro::setSampleRate(double sampleRate) {
     _sampleRate = sampleRate;
     _dattorroScaleFactor = _sampleRate / _dattorroSampleRate;
     setPreDelay(_preDelayTime);
-    _inApf1.delay.delayTime = dattorroScale(_kInApf1Time);
-    _inApf2.delay.delayTime = dattorroScale(_kInApf2Time);
-    _inApf3.delay.delayTime = dattorroScale(_kInApf3Time);
-    _inApf4.delay.delayTime = dattorroScale(_kInApf4Time);
-    _leftDelay1.delayTime = dattorroScale(_kLeftDelay1Time * _timeScale);
-    _leftDelay2.delayTime = dattorroScale(_kLeftDelay2Time * _timeScale);
-    _rightDelay1.delayTime = dattorroScale(_kRightDelay1Time * _timeScale);
-    _rightDelay2.delayTime = dattorroScale(_kRightDelay2Time * _timeScale);
+    _inApf1.delay.setDelayTime(dattorroScale(_kInApf1Time));
+    _inApf2.delay.setDelayTime(dattorroScale(_kInApf2Time));
+    _inApf3.delay.setDelayTime(dattorroScale(_kInApf3Time));
+    _inApf4.delay.setDelayTime(dattorroScale(_kInApf4Time));
+    _leftDelay1.setDelayTime(dattorroScale(_kLeftDelay1Time * _timeScale));
+    _leftDelay2.setDelayTime(dattorroScale(_kLeftDelay2Time * _timeScale));
+    _rightDelay1.setDelayTime(dattorroScale(_kRightDelay1Time * _timeScale));
+    _rightDelay2.setDelayTime(dattorroScale(_kRightDelay2Time * _timeScale));
     _leftApf1Time = dattorroScale(_kLeftApf1Time * _timeScale);
     _leftApf2Time = dattorroScale(_kLeftApf2Time * _timeScale);
     _rightApf1Time = dattorroScale(_kRightApf1Time * _timeScale);
