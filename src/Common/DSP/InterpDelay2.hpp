@@ -32,15 +32,38 @@ public:
             r += l;
         }
 
+        ++w;
+        if (w == l) {
+            w = 0;
+        }
+
         int64_t upperR = r - 1;
         if (upperR < 0) {
             upperR += l;
         }
 
         output = linterp(buffer[r], buffer[upperR], f);
-        ++w;
-        if (w == l) {
-            w = 0;
+    }
+
+    void blockProcess(const T* inputBuffer, T* outputBuffer, const uint64_t blockSize) {
+        for (uint64_t i = 0; i < blockSize; ++i) {
+            buffer[w] = inputBuffer[i];
+            int64_t r = w - t;
+            if (r < 0) {
+                r += l;
+            }
+
+            ++w;
+            if (w == l) {
+                w = 0;
+            }
+
+            int64_t upperR = r - 1;
+            if (upperR < 0) {
+                upperR += l;
+            }
+
+            outputBuffer[i] = linterp(buffer[r], buffer[upperR], f);
         }
     }
 
