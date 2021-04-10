@@ -1,3 +1,8 @@
+/**
+ * @file DiodeRingMod.hpp
+ * @author Dale Johnson
+ */
+
 #pragma once
 #include <iostream>
 #include "../Valley.hpp"

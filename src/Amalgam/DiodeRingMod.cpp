@@ -13,25 +13,31 @@ Diode::Diode() {
     float x = 0.f;
     float xMax = 0.999999f;
     float xMin = 0.999998f;
-    for(auto i = 0; i < DSJ_DIODE_TABLE_N; ++i) {
+
+    for (auto i = 0; i < DSJ_DIODE_TABLE_N; ++i) {
         _vB = (float)i / (float)(DSJ_DIODE_TABLE_N - 1) * 0.75f;
-        for(auto j = 0; j < DSJ_DIODE_TABLE_N; ++j) {
+
+        for (auto j = 0; j < DSJ_DIODE_TABLE_N; ++j) {
             _hB = 4.f;
             precision = initPrecision;
             direction = -1.f;
             _vL = rescale((float)j, 0.f, (float)(DSJ_DIODE_TABLE_N - 1), _vB, 1.f);
             _vL = clamp(_vL, _vB + 0.0001f, 1.f);
-            while(true) {
+
+            while (true) {
                 x = _hB * calcLin(1.f, _vB, _vL);
-                if(x >= xMin && x <= xMax) {
+
+                if (x >= xMin && x <= xMax) {
                     break;
                 }
+
                 _hB += direction * precision;
-                if(x < xMin && direction == -1.f) {
+
+                if (x < xMin && direction == -1.f) {
                     direction = 1.f;
                     precision *= 0.1f;
                 }
-                else if(x > xMax && direction == 1.f) {
+                else if (x > xMax && direction == 1.f) {
                     direction = -1.f;
                     precision *= 0.1f;
                 }
@@ -90,8 +96,7 @@ void Diode::calcMakeupGain() {
     _lutC = _makeupGain[_vBI_2][_vLI_1];
     _lutD = _makeupGain[_vBI_2][_vLI_2];
 
-    _hB = linterp(linterp(_lutA, _lutB, _vBF),
-                       linterp(_lutC, _lutD, _vBF), _vLF);
+    _hB = linterp(linterp(_lutA, _lutB, _vBF), linterp(_lutC, _lutD, _vBF), _vLF);
 }
 
 float DiodeRingMod::process(float x, float y, float vB, float vL) {
