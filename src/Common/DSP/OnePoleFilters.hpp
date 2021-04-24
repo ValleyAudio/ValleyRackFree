@@ -1,6 +1,8 @@
 #pragma once
 #include <cmath>
 #include <stdio.h>
+#include <cstdint>
+
 #define _1_FACT_2 0.5
 #define _1_FACT_3 0.1666666667
 #define _1_FACT_4 0.04166666667
@@ -19,46 +21,52 @@ T fastexp(T x) {
 
 class OnePoleLPFilter {
 public:
-    OnePoleLPFilter();
-    OnePoleLPFilter(double cutoffFreq);
+    OnePoleLPFilter(double cutoffFreq = 22050.0, double initSampleRate = 44100.0);
     double process();
+    void blockProcess(const double* inputBuffer,
+                      double* outputBuffer,
+                      const uint64_t blockSize);
     void clear();
     void setCutoffFreq(double cutoffFreq);
     void setSampleRate(double sampleRate);
     double getMaxCutoffFreq() const;
-    double input;
-    double output;
+    double input = 0.0;
+    double output = 0.0;
 private:
-    double _sampleRate;
-    double _1_sampleRate;
-    double _cutoffFreq;
-    double _maxCutoffFreq;
-    double _a;
-    double _b;
-    double _z;
+    double _sampleRate = 44100.0;
+    double _1_sampleRate = 1.0 / _sampleRate;
+    double _cutoffFreq = 0.0;
+    double _maxCutoffFreq = _sampleRate / 2.0;
+    double _a = 0.0;
+    double _b = 0.0;
+    double _z = 0.0;
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 class OnePoleHPFilter {
 public:
-    OnePoleHPFilter();
-    OnePoleHPFilter(double cutoffFreq);
+    OnePoleHPFilter(double cutoffFreq = 10.0);
     double process();
+    void blockProcess(const double* inputBuffer,
+                      double* outputBuffer,
+                      const uint64_t blockSize);
     void clear();
     void setCutoffFreq(double cutoffFreq);
     void setSampleRate(double sampleRate);
-    double input;
-    double output;
+    double input = 0.0;
+    double output = 0.0;
 private:
-    double _sampleRate;
-    double _1_sampleRate;
-    double _cutoffFreq;
-    double _y0;
-    double _y1;
-    double _x0;
-    double _x1;
-    double _a0;
-    double _a1;
-    double _b1;
+    double _sampleRate = 44100.0;
+    double _1_sampleRate = 1.0 / _sampleRate;
+    double _cutoffFreq = 0.0;
+    double _y0 = 0.0;
+    double _y1 = 0.0;
+    double _x0 = 0.0;
+    double _x1 = 0.0;
+    double _a0 = 0.0;
+    double _a1 = 0.0;
+    double _b1 = 0.0;
 };
 
 class DCBlocker {

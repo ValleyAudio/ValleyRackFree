@@ -1,21 +1,25 @@
 #include "OnePoleFilters.hpp"
+#include <_types/_uint64_t.h>
 
-OnePoleLPFilter::OnePoleLPFilter() {
-    setSampleRate(44100.0);
-    setCutoffFreq(_sampleRate / 2.0 - 1.0);
-    clear();
-}
-
-OnePoleLPFilter::OnePoleLPFilter(double cutoffFreq) {
-    setSampleRate(44100.0);
+OnePoleLPFilter::OnePoleLPFilter(double cutoffFreq, double initSampleRate) {
+    setSampleRate(initSampleRate);
     setCutoffFreq(cutoffFreq);
-    clear();
 }
 
 double OnePoleLPFilter::process() {
     _z =  _a * input + _z * _b;
     output = _z;
     return output;
+}
+
+void OnePoleLPFilter::blockProcess(const double* inputBuffer,
+                                   double* outputBuffer,
+                                   const uint64_t blockSize)
+{
+    for (uint64_t i = 0; i < blockSize; ++i) {
+        _z = _a * inputBuffer[i] + _z * _b;
+        outputBuffer[i] = _z;
+    }
 }
 
 void OnePoleLPFilter::clear() {
@@ -32,6 +36,10 @@ void OnePoleLPFilter::setSampleRate(double sampleRate) {
 }
 
 void OnePoleLPFilter::setCutoffFreq(double cutoffFreq) {
+    if (cutoffFreq == _cutoffFreq) {
+        return;
+    }
+
     _cutoffFreq = cutoffFreq;
     _b = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
     _a = 1.0 - _b;
@@ -41,13 +49,7 @@ double OnePoleLPFilter::getMaxCutoffFreq() const {
     return _maxCutoffFreq;
 }
 
-
-OnePoleHPFilter::OnePoleHPFilter() {
-    _cutoffFreq = 0.0;
-    setSampleRate(44100.0);
-    setCutoffFreq(_cutoffFreq);
-    clear();
-}
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 OnePoleHPFilter::OnePoleHPFilter(double cutoffFreq) {
     _cutoffFreq = cutoffFreq;
@@ -65,6 +67,19 @@ double OnePoleHPFilter::process() {
     return _y0;
 }
 
+void OnePoleHPFilter::blockProcess(const double* inputBuffer,
+                                   double* outputBuffer,
+                                   const uint64_t blockSize)
+{
+    for (uint64_t i = 0; i < blockSize; ++i) {
+        _x0 = inputBuffer[i];
+        _y0 = _a0 * _x0 + _a1 * _x1 + _b1 * _y1;
+        _y1 = _y0;
+        _x1 = _x0;
+        outputBuffer[i] = _y0;
+    }
+}
+
 void OnePoleHPFilter::clear() {
     input = 0.0;
     output = 0.0;
@@ -75,6 +90,10 @@ void OnePoleHPFilter::clear() {
 }
 
 void OnePoleHPFilter::setCutoffFreq(double cutoffFreq) {
+    if (cutoffFreq == _cutoffFreq) {
+        return;
+    }
+
     _cutoffFreq = cutoffFreq;
     _b1 = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
     _a0 = (1.0 + _b1) / 2.0;
