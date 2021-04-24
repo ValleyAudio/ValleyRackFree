@@ -15,11 +15,7 @@ public:
     T input = T(0);
     T output = T(0);
 
-    InterpDelay2() {
-        buffer = std::vector<T>(l, T(0));
-    }
-
-    InterpDelay2(uint64_t maxLength, uint64_t initDelayTime) {
+    InterpDelay2(uint64_t maxLength = 512, uint64_t initDelayTime = 0) {
         l = maxLength;
         buffer = std::vector<T>(l, T(0));
         setDelayTime(initDelayTime);
