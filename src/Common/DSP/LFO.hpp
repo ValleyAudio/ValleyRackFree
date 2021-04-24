@@ -2,6 +2,7 @@
 #define DSJ_LFO_HPP
 #include <vector>
 #include <cmath>
+#include <cstdint>
 
 class LFO {
 public:
@@ -99,7 +100,35 @@ public:
         return _output;
     }
 
+    void blockProcess(double* outputBuffer, const uint64_t blockSize) {
+        for (uint64_t i = 0; i < blockSize; ++i) {
+            if(_step > 1.0) {
+                _step -= 1.0;
+                _rising = true;
+            }
+
+            if(_step >= _revPoint) {
+                _rising = false;
+            }
+
+            if(_rising) {
+                _output = _step * _riseRate;
+            }
+            else {
+                _output = _step * _fallRate - _fallRate;
+            }
+
+            _step += _stepSize;
+            _output *= 2.0;
+            _output -= 1.0;
+            outputBuffer[i] = _output;
+        }
+    }
+
     void setFrequency(double frequency) {
+        if (frequency == _frequency) {
+            return;
+        }
         _frequency = frequency;
         calcStepSize();
     }
