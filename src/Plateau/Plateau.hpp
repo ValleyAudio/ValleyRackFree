@@ -178,6 +178,14 @@ struct Plateau : Module {
 
     float leftInput, rightInput;
     float leftOutput, rightOutput;
+
+    static const uint64_t blockSize = 256;
+    uint64_t frameCounter = 0;
+    double leftInputBlock[blockSize] = {0.0};
+    double leftOutputBlock[blockSize] = {0.0};
+    double rightInputBlock[blockSize] = {0.0};
+    double rightOutputBlock[blockSize] = {0.0};
+
     Dattorro reverb;
     LinearEnvelope envelope;
 

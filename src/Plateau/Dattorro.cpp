@@ -146,6 +146,13 @@ void Dattorro::process(double leftInput, double rightInput) {
     _fade = (_fade < 0.0) ? 0.0 : ((_fade > 1.0) ? 1.0 : _fade);
 }
 
+void Dattorro::blockProcess(const double* leftInput, const double* rightInput,
+                            double* leftOutput, double* rightOutput,
+                            const uint64_t blockSize)
+{
+    _inputLpf.blockProcess(leftInput, leftOutput, blockSize);
+}
+
 void Dattorro::clear() {
     _preDelay.clear();
     _inputLpf.clear();
@@ -181,6 +188,10 @@ void Dattorro::clear() {
 }
 
 void Dattorro::setTimeScale(double timeScale) {
+    if (timeScale == _timeScale) {
+        return;
+    }
+
     _timeScale = timeScale;
     if(_timeScale < 0.0001) {
         _timeScale = 0.0001;
@@ -197,6 +208,10 @@ void Dattorro::setTimeScale(double timeScale) {
 }
 
 void Dattorro::setPreDelay(double t) {
+    if (t == _preDelayTime) {
+        return;
+    }
+
     _preDelayTime = t;
     _preDelay.setDelayTime(_preDelayTime * _sampleRate);
 }

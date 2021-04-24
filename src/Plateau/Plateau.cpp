@@ -224,38 +224,50 @@ void Plateau::process(const ProcessArgs &args) {
 
     leftInput = inputs[LEFT_INPUT].getVoltageSum();
     rightInput = inputs[RIGHT_INPUT].getVoltageSum();
-    if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
-        leftInput = inputs[RIGHT_INPUT].getVoltageSum();
+
+    leftInputBlock[frameCounter] = leftInput;
+    rightInputBlock[frameCounter] = rightInput;
+    outputs[LEFT_OUTPUT].setVoltage(leftOutputBlock[frameCounter]);
+    outputs[RIGHT_OUTPUT].setVoltage(rightOutputBlock[frameCounter]);
+
+    ++frameCounter;
+    if (frameCounter == blockSize) {
+        frameCounter = 0;
+        reverb.blockProcess(leftInputBlock, rightInputBlock, leftOutputBlock, rightOutputBlock, blockSize);
     }
-    else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
-        rightInput = inputs[LEFT_INPUT].getVoltageSum();
-    }
-    leftInput = clamp(leftInput, -10.f, 10.f);
-    rightInput = clamp(rightInput, -10.f, 10.f);
 
-    inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
-    reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
-                   rightInput * 0.1f * inputSensitivity * envelope._value);
+    //if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
+    //    leftInput = inputs[RIGHT_INPUT].getVoltageSum();
+    //}
+    //else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
+    //    rightInput = inputs[LEFT_INPUT].getVoltageSum();
+    //}
+    //leftInput = clamp(leftInput, -10.f, 10.f);
+    //rightInput = clamp(rightInput, -10.f, 10.f);
 
-    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
-    dry += params[DRY_PARAM].getValue();
-    dry = clamp(dry, 0.f, 1.f);
+    //inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
+    //reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
+    //               rightInput * 0.1f * inputSensitivity * envelope._value);
 
-    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
-    wet += params[WET_PARAM].getValue();
-    wet = clamp(wet, 0.f, 1.f) * 10.f;
+    //dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
+    //dry += params[DRY_PARAM].getValue();
+    //dry = clamp(dry, 0.f, 1.f);
 
-    leftOutput = leftInput * dry + reverb.leftOut * wet * envelope._value;
-    rightOutput = rightInput * dry + reverb.rightOut * wet * envelope._value;
+    //wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
+    //wet += params[WET_PARAM].getValue();
+    //wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    if(outputSaturationState) {
-        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
-        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f);
-    }
-    else {
-        outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
-        outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
-    }
+    //leftOutput = leftInput * dry + reverb.leftOut * wet * envelope._value;
+    //rightOutput = rightInput * dry + reverb.rightOut * wet * envelope._value;
+
+    //if(outputSaturationState) {
+    //    outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
+    //    outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f);
+    //}
+    //else {
+    //    outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
+    //    outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
+    //}
 }
 
 void Plateau::onSampleRateChange() {
