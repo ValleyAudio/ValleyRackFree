@@ -107,11 +107,7 @@ void OnePoleHPFilter::setSampleRate(double sampleRate) {
     clear();
 }
 
-int DCBlocker::i = 0;
-
 DCBlocker::DCBlocker() {
-    id = i;
-    i++;
     setSampleRate(44100.0);
     setCutoffFreq(20.f);
     clear();
@@ -127,6 +123,16 @@ double DCBlocker::process(double input) {
     output = input - _z + _b * output;
     _z = input;
     return output;
+}
+
+void DCBlocker::blockProcess(const double *inputBuffer,
+                             double *outputBuffer,
+                             const uint64_t blockSize)
+{
+    for (uint64_t i = 0; i < blockSize; ++i) {
+        outputBuffer[i] = inputBuffer[i] - _z + _b * outputBuffer[i];
+        _z = inputBuffer[i];
+    }
 }
 
 void DCBlocker::clear() {

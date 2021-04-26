@@ -71,11 +71,12 @@ private:
 
 class DCBlocker {
 public:
-    static int i;
-    int id;
     DCBlocker();
     DCBlocker(double cutoffFreq);
     double process(double input);
+    void blockProcess(const double* inputBuffer,
+                      double* outputBuffer,
+                      const uint64_t blockSize);
     void clear();
     void setCutoffFreq(double cutoffFreq);
     void setSampleRate(double sampleRate);
