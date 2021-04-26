@@ -150,7 +150,12 @@ void Dattorro::blockProcess(const double* leftInput, const double* rightInput,
                             double* leftOutput, double* rightOutput,
                             const uint64_t blockSize)
 {
-    _inputLpf.blockProcess(leftInput, leftOutput, blockSize);
+    _inputLpf.blockProcess(leftInput, inputChainBuffer.data(), blockSize);
+    _inputHpf.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    _inApf1.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    _inApf2.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    _inApf3.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    _inApf4.blockProcess(inputChainBuffer.data(), leftOutput, blockSize);
 }
 
 void Dattorro::clear() {

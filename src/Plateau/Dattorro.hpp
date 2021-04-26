@@ -8,6 +8,7 @@
 #include "../Common/DSP/LFO.hpp"
 #include <iostream>
 #include <cstdint>
+#include <array>
 
 class Dattorro {
 public:
@@ -84,6 +85,8 @@ private:
     OnePoleHPFilter _rightInputDCBlock;
     OnePoleLPFilter _inputLpf;
     OnePoleHPFilter _inputHpf;
+
+    std::array<double, 256> inputChainBuffer = {0.0};
 
     InterpDelay2<double> _preDelay;
 
