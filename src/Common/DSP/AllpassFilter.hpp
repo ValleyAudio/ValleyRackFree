@@ -23,6 +23,16 @@ public:
         return output;
     }
 
+    void blockProcess(const T* inputBuffer, T* outputBuffer, const uint64_t blockSize) {
+        for (uint64_t i = 0; i < blockSize; ++i) {
+            _inSum = inputBuffer[i] + delay.output * gain;
+            output = delay.output + _inSum * gain * -1;
+            delay.input = _inSum;
+            delay.process();
+            outputBuffer[i] = output;
+        }
+    }
+
     void clear() {
         input = 0;
         output = 0;
