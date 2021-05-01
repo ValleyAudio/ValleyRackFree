@@ -155,7 +155,32 @@ void Dattorro::blockProcess(const double* leftInput, const double* rightInput,
     _inApf1.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
     _inApf2.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
     _inApf3.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
-    _inApf4.blockProcess(inputChainBuffer.data(), leftOutput, blockSize);
+    _inApf4.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+
+    // Reverb tank
+    for (uint64_t i = 0; i < blockSize; ++i) {
+        _leftSum += inputChainBuffer[i];
+        _rightSum += inputChainBuffer[i];
+
+        _leftApf1.input = _leftSum;
+        _leftDelay1.input = _leftApf1.process();
+        _leftDelay1.process();
+        _leftApf2.input = _leftDelay1.output;
+        _leftDelay2.input = _leftApf2.process();
+        _leftDelay2.process();
+
+        _rightApf1.input = _rightSum;
+        _rightDelay1.input = _rightApf1.process();
+        _rightDelay1.process();
+        _rightApf2.input = _rightDelay1.output;
+        _rightDelay2.input = _rightApf2.process();
+        _rightDelay2.process();
+
+        _rightSum = _leftDelay2.output * decay;
+        _leftSum = _rightDelay2.output * decay;
+        leftOutput[i]= _leftSum;
+        rightOutput[i] = _rightSum;
+    }
 }
 
 void Dattorro::clear() {
