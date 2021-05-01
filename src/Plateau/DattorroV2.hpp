@@ -16,12 +16,26 @@
 
 class DattorroV2 {
 public:
-    DattorroV2(double sampleRate = 44100.0, uint64_t blockSize = 256);
+    DattorroV2(double initSampleRate = 44100.0, uint64_t initBlockSize = 256);
 
     void blockProcess(const double* leftInBuffer, const double* rightInBuffer,
                       double* leftOutBuffer, double* rightOutBuffer);
     void clear();
 
 private:
-    std::array<double, 256> inputChainBuffer = {0.0};
+    uint64_t blockSize = 1;
+    double decay = 0.7071;
+    double tankLeftSum = 0.0;
+    double tankRightSum = 0.0;
+    OnePoleLPFilter inputLpf;
+    OnePoleHPFilter inputHpf;
+    AllpassFilter<double> inApf1, inApf2, inApf3, inApf4;
+
+    AllpassFilter<double> leftApf1, leftApf2;
+    InterpDelay2<double> leftDelay1, leftDelay2;
+
+    AllpassFilter<double> rightApf1, rightApf2;
+    InterpDelay2<double> rightDelay1, rightDelay2;
+
+    std::vector<double> inputChainBuffer;
 };
