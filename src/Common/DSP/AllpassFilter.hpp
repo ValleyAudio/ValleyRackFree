@@ -1,3 +1,9 @@
+/**
+ * @file AllpassFilter.hpp
+ * @author Dale Johnson
+ * @date ...uhhh
+ */
+
 #pragma once
 #include "InterpDelay2.hpp"
 
