@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../Common/DSP/AllpassFilter.hpp"
+#include "../Common/DSP/MultiTapAllpassFilter.hpp"
 #include "../Common/DSP/OnePoleFilters.hpp"
 #include "../Common/DSP/LFO.hpp"
 #include <cstdint>
@@ -27,15 +28,19 @@ private:
     double decay = 0.7071;
     double tankLeftSum = 0.0;
     double tankRightSum = 0.0;
+    double leftOutputSum = 0.0;
+    double rightOutputSum = 0.0;
     OnePoleLPFilter inputLpf;
     OnePoleHPFilter inputHpf;
     AllpassFilter<double> inApf1, inApf2, inApf3, inApf4;
 
-    AllpassFilter<double> leftApf1, leftApf2;
-    InterpDelay2<double> leftDelay1, leftDelay2;
+    AllpassFilter<double> leftApf1;
+    MultiTapAllpassFilter<double, 3> leftApf2;
+    MultiTapInterpDelay<double, 3> leftDelay1, leftDelay2;
 
-    AllpassFilter<double> rightApf1, rightApf2;
-    InterpDelay2<double> rightDelay1, rightDelay2;
+    AllpassFilter<double> rightApf1;
+    MultiTapAllpassFilter<double, 3> rightApf2;
+    MultiTapInterpDelay<double, 3> rightDelay1, rightDelay2;
 
     std::vector<double> inputChainBuffer;
 };

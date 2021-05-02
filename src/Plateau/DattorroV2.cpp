@@ -1,3 +1,7 @@
+/**
+ * @file DattorroV2.cpp
+ * @author Dale Johnson
+ */
 
 #include "DattorroV2.hpp"
 #include <_types/_uint64_t.h>
@@ -29,11 +33,40 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         leftApf1.input = tankLeftSum;
         leftDelay1.input = leftApf1.process();
         leftDelay1.process();
-        leftApf2.input = leftDelay1.output;
+        leftApf2.input = leftDelay1.output[0];
         leftDelay2.input = leftApf2.process();
         leftDelay2.process();
 
-        tankRightSum = leftDelay2.output * decay;
-        tankLeftSum = rightDelay2.output * decay;
+        rightApf1.input = tankLeftSum;
+        rightDelay1.input = rightApf1.process();
+        rightDelay1.process();
+        rightApf2.input = rightDelay1.output[0];
+        rightDelay2.input = rightApf2.process();
+        rightDelay2.process();
+
+        tankRightSum = leftDelay2.output[0] * decay;
+        tankLeftSum = rightDelay2.output[0] * decay;
+
+        leftOutputSum = leftApf1.output;
+        leftOutputSum -= leftApf2.delay.output[1];
+        leftOutputSum += leftDelay1.output[1];
+        leftOutputSum += leftDelay1.output[2];
+        leftOutputSum += leftDelay2.output[1];
+        leftOutputSum -= rightApf2.delay.output[1];
+        leftOutputSum -= rightDelay1.output[1];
+        leftOutputSum -= rightDelay2.output[1];
+
+        rightOutputSum = rightApf1.output;
+        rightOutputSum -= rightApf2.delay.output[1];
+        rightOutputSum += rightDelay1.output[1];
+        rightOutputSum += rightDelay1.output[2];
+        rightOutputSum += rightDelay2.output[1];
+        rightOutputSum -= leftApf2.delay.output[1];
+        rightOutputSum -= leftDelay1.output[1];
+        rightOutputSum -= leftDelay2.output[1];
+
+        leftOutBuffer[i] = leftOutputSum;
+        rightOutBuffer[i] = rightOutputSum;
     }
 }
+
