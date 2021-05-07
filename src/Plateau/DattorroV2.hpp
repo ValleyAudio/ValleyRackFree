@@ -36,11 +36,16 @@ private:
 
     AllpassFilter<double> leftApf1;
     MultiTapAllpassFilter<double, 3> leftApf2;
-    MultiTapInterpDelay<double, 3> leftDelay1, leftDelay2;
+    MultiTapInterpDelay<double, 4> leftDelay1;
+    MultiTapInterpDelay<double, 3> leftDelay2;
 
     AllpassFilter<double> rightApf1;
     MultiTapAllpassFilter<double, 3> rightApf2;
-    MultiTapInterpDelay<double, 3> rightDelay1, rightDelay2;
+    MultiTapInterpDelay<double, 4> rightDelay1;
+    MultiTapInterpDelay<double, 3> rightDelay2;
+
+    TriSawLFO leftApf1Lfo, leftApf2Lfo;
+    TriSawLFO rightApf1Lfo, rightApf2Lfo;
 
     std::vector<double> inputChainBuffer;
 };
