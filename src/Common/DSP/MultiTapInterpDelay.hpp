@@ -96,7 +96,9 @@ public:
     void clear() {
         std::fill(buffer.begin(), buffer.end(), T(0));
         input = T(0);
-        output = T{0};
+        for (auto& o : output) {
+            o = T(0);
+        }
     }
 
 private:
