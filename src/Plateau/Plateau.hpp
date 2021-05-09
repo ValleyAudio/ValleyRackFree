@@ -31,6 +31,7 @@
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
 #include "Dattorro.hpp"
+#include "DattorroV2.hpp"
 #include "../Common/DSP/NonLinear.hpp"
 #include "../Common/DSP/LinearEnvelope.hpp"
 #include <vector>
@@ -186,7 +187,7 @@ struct Plateau : Module {
     double rightInputBlock[blockSize] = {0.0};
     double rightOutputBlock[blockSize] = {0.0};
 
-    Dattorro reverb;
+    DattorroV2 reverb;
     LinearEnvelope envelope;
 
     int panelStyle = 0;
