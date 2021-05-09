@@ -79,7 +79,7 @@ public:
             newDelayTime = 0;
         }
         t = static_cast<int64_t>(newDelayTime);
-        f = newDelayTime - static_cast<float>(t);
+        f = newDelayTime - static_cast<T>(t);
     }
 
     void clear() {
