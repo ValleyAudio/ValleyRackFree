@@ -51,10 +51,9 @@ double OnePoleLPFilter::getMaxCutoffFreq() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-OnePoleHPFilter::OnePoleHPFilter(double cutoffFreq) {
-    _cutoffFreq = cutoffFreq;
-    setSampleRate(44100.0);
-    setCutoffFreq(_cutoffFreq);
+OnePoleHPFilter::OnePoleHPFilter(double initCutoffFreq, double initSampleRate) {
+    setSampleRate(initSampleRate);
+    setCutoffFreq(initCutoffFreq);
     clear();
 }
 

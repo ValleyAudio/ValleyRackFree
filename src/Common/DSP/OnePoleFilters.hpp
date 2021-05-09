@@ -46,7 +46,7 @@ private:
 
 class OnePoleHPFilter {
 public:
-    OnePoleHPFilter(double cutoffFreq = 10.0);
+    OnePoleHPFilter(double initCutoffFreq = 10.0, double initSampleRate = 44100.0);
     double process();
     void blockProcess(const double* inputBuffer,
                       double* outputBuffer,
@@ -57,8 +57,8 @@ public:
     double input = 0.0;
     double output = 0.0;
 private:
-    double _sampleRate = 44100.0;
-    double _1_sampleRate = 1.0 / _sampleRate;
+    double _sampleRate = 0.0;
+    double _1_sampleRate = 0.0;
     double _cutoffFreq = 0.0;
     double _y0 = 0.0;
     double _y1 = 0.0;
