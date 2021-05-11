@@ -6,6 +6,7 @@
 
 #pragma once
 #include <vector>
+#include <array>
 #include <cstdint>
 #include "../Utilities.hpp"
 
@@ -108,4 +109,3 @@ private:
     int64_t l = 512;
     std::vector<T> buffer;
 };
-

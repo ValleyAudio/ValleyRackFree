@@ -1,5 +1,4 @@
 #include "OnePoleFilters.hpp"
-#include <_types/_uint64_t.h>
 
 OnePoleLPFilter::OnePoleLPFilter(double cutoffFreq, double initSampleRate) {
     setSampleRate(initSampleRate);
