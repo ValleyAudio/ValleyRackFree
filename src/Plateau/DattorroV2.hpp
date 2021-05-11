@@ -49,12 +49,12 @@ private:
     const uint64_t kRightDelay2Time = 3163;
 
     // Delay taps
-    const std::array<double, 4> leftDelay1Taps = {4451, 266, 2974, 1990};
-    const std::array<double, 3> leftDelay2Taps = {3720, 1996, 1066};
-    const std::array<double, 4> rightDelay1Taps = {4217, 1990, 266, 2974};
-    const std::array<double, 3> rightDelay2Taps = {3163, 1066, 1996};
-    const std::array<double, 3> leftApf2Taps = {1800, 1913, 187};
-    const std::array<double, 3> rightApf2Taps = {2656, 187, 1913};
+    const std::array<double, 4> leftDelay1Taps = {{4451, 266, 2974, 1990}};
+    const std::array<double, 3> leftDelay2Taps = {{3720, 1996, 1066}};
+    const std::array<double, 4> rightDelay1Taps = {{4217, 1990, 266, 2974}};
+    const std::array<double, 3> rightDelay2Taps = {{3163, 1066, 1996}};
+    const std::array<double, 3> leftApf2Taps = {{1800, 1913, 187}};
+    const std::array<double, 3> rightApf2Taps = {{2656, 187, 1913}};
 
     OnePoleLPFilter inputLpf;
     OnePoleHPFilter inputHpf;
