@@ -1,3 +1,8 @@
+/**
+ * @filename NonLinear.hpp
+ * @author Dale Johnson
+ */
+
 #pragma once
 
 /** Tanh signal distortion using piecewise approximation of a hyperbolic tangent */
