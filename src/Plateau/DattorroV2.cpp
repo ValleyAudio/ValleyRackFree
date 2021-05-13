@@ -93,6 +93,7 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         tankLeftSum += inputChainBuffer[i];
         tankRightSum += inputChainBuffer[i];
 
+        // 'Tick' the left arm of the tank
         leftApf1Lfo.process();
         leftApf2Lfo.process();
         leftApf1.delay.setDelayTime(static_cast<double>(kLeftApf1Time) + leftApf1Lfo.getOutput() * lfoExcursion);
@@ -108,6 +109,7 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         leftDelay2.input = leftApf2.process();
         leftDelay2.process();
 
+        // 'Tick' the right arm of the tank
         rightApf1Lfo.process();
         rightApf2Lfo.process();
         rightApf1.delay.setDelayTime(static_cast<double>(kRightApf1Time) + rightApf1Lfo.getOutput() * lfoExcursion);
@@ -123,9 +125,11 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         rightDelay2.input = rightApf2.process();
         rightDelay2.process();
 
+        // Feedback to the beginning of the tank arms
         tankRightSum = leftDelay2.output[0] * decay;
         tankLeftSum = rightDelay2.output[0] * decay;
 
+        // Sum outputs from pre-processed taps in each arm
         double leftOutputSum = leftApf1.output;
         leftOutputSum -= leftApf2.delay.output[1];
         leftOutputSum = leftApf2.delay.output[1];
@@ -175,6 +179,9 @@ void DattorroV2::clear() {
     rightLowpassFilter.clear();
     rightApf2.clear();
     rightDelay2.clear();
+
+    tankLeftSum = 0.0;
+    tankRightSum = 0.0;
 
     std::fill(inputChainBuffer.begin(), inputChainBuffer.end(), 0.0);
 }
