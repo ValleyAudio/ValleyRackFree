@@ -31,6 +31,19 @@ public:
         setDelayTimes(initDelayTimes);
     }
 
+    MultiTapInterpDelay(uint64_t maxLength, const std::array<T, numTaps>& initDelayTimes) {
+        l = maxLength;
+        buffer = std::vector<T>(l, T(0));
+
+        for (uint64_t tap = 0; tap < numTaps; ++tap) {
+            output[tap] = T(0);
+            f[tap] = T(0);
+            t[tap] = 0;
+        }
+
+        setDelayTimes(initDelayTimes);
+    }
+
     void process() {
         buffer[w] = input;
         for (uint64_t tap = 0; tap < numTaps; ++tap) {

@@ -18,6 +18,16 @@ public:
         gain = initGain;
     }
 
+    /** Construct a new MultiTapAllpassFilter, either from default or developer specified
+    arguments */
+    MultiTapAllpassFilter(uint64_t maxDelay,
+                          const std::array<T, numTaps>& initTimes,
+                          T initGain = T(0)) :
+        delay(maxDelay, initTimes)
+    {
+        gain = initGain;
+    }
+
     /** Single tick process. The all-pass filtering uses only the 0th or first tap only.*/
     T inline process() {
         _inSum = input + delay.output[0] * gain;
