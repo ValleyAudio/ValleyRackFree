@@ -1,10 +1,10 @@
-//
-// Noise.hpp
-// Author: Dale Johnson
-//
-// Copyright (c) 2020 Dale Johnson, Valley Audio
-// Licensed under GPLv3
-//
+/**
+ * @filename Noise.hpp
+ * @author Dale Johnson
+ *
+ * Copyright (c) 2020 Dale Johnson, Valley Audio
+ * Licensed under GPLv3
+ */
 
 #pragma once
 #include <random>
@@ -48,7 +48,7 @@ public:
         _pink = 0.0;
     }
 
-    inline float process() {
+    inline double process() {
         _white = _whiteGen.process();
         _b[0] = _b[0] + (_a[0] * ((_white * 48.69991228070175) - _b[0]));
         _b[1] = _b[1] + (_a[1] * ((_white * 11.23890718562874) - _b[1]));
