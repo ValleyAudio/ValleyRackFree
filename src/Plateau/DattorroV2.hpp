@@ -25,6 +25,7 @@ public:
 
     void freeze(bool freezing);
 
+    void setDecay(double newDecay);
 private:
     uint64_t blockSize = 1;
     double decay = 0.7071;
@@ -33,6 +34,8 @@ private:
     double lfoExcursion = 1.0;
 
     // Initial delay times
+    const double dattoroSampleRate = 29761.0;
+
     const uint64_t kInApf1Time = 141;
     const uint64_t kInApf2Time = 107;
     const uint64_t kInApf3Time = 379;
@@ -40,21 +43,16 @@ private:
 
     const uint64_t kLeftApf1Time = 672;
     const uint64_t kLeftApf2Time = 1800;
-    const uint64_t kLeftDelay1Time = 4453;
-    const uint64_t kLeftDelay2Time = 3720;
-
     const uint64_t kRightApf1Time = 908;
     const uint64_t kRightApf2Time = 2656;
-    const uint64_t kRightDelay1Time = 4217;
-    const uint64_t kRightDelay2Time = 3163;
 
     // Delay taps
-    const std::array<double, 4> leftDelay1Taps = {{4451, 266, 2974, 1990}};
-    const std::array<double, 3> leftDelay2Taps = {{3720, 1996, 1066}};
-    const std::array<double, 4> rightDelay1Taps = {{4217, 1990, 266, 2974}};
-    const std::array<double, 3> rightDelay2Taps = {{3163, 1066, 1996}};
-    const std::array<double, 3> leftApf2Taps = {{1800, 1913, 187}};
-    const std::array<double, 3> rightApf2Taps = {{2656, 187, 1913}};
+    const std::array<double, 4> kLeftDelay1Taps = {{4451, 266, 2974, 1990}};
+    const std::array<double, 3> kLeftDelay2Taps = {{3720, 1996, 1066}};
+    const std::array<double, 4> kRightDelay1Taps = {{4217, 1990, 266, 2974}};
+    const std::array<double, 3> kRightDelay2Taps = {{3163, 1066, 1996}};
+    const std::array<double, 3> kLeftApf2Taps = {{1800, 1913, 187}};
+    const std::array<double, 3> kRightApf2Taps = {{2656, 187, 1913}};
 
     OnePoleLPFilter inputLpf;
     OnePoleHPFilter inputHpf;

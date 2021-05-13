@@ -196,6 +196,7 @@ void Plateau::process(const ProcessArgs &args) {
 
     //reverb.diffuseInput = (double)diffuseInput;
 
+    reverb.setDecay(decay);
     //reverb.decay = decay;
     //reverb.inputLowCut = 440.f * powf(2.f, inputDampLow - 5.f);
     //reverb.inputHighCut = 440.f * powf(2.f, inputDampHigh - 5.f);

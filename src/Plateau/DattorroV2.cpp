@@ -5,18 +5,49 @@
 
 #include "DattorroV2.hpp"
 #include <algorithm>
+#include <array>
 
 DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     inputLpf(11050.0, initSampleRate),
     inputHpf(10.0),
     inputChainBuffer(initBlockSize, 0.0)
 {
+    double timeScale = dattoroSampleRate / initSampleRate;
+
+    auto scaleQuadTapTimes = [](std::array<double, 4>& x, double scaling) {
+        for (auto& i : x) {
+            i *= scaling;
+        }
+    };
+
+    auto scaleTripleTapTimes = [](std::array<double, 3>& x, double scaling) {
+        for (auto& i : x) {
+            i *= scaling;
+        }
+    };
+
+    std::array<double, 4> leftDelay1Taps(kLeftDelay1Taps);
+    std::array<double, 3> leftDelay2Taps(kLeftDelay2Taps);
+    std::array<double, 4> rightDelay1Taps(kRightDelay1Taps);
+    std::array<double, 3> rightDelay2Taps(kRightDelay2Taps);
+    std::array<double, 3> leftApf2Taps(kLeftApf2Taps);
+    std::array<double, 3> rightApf2Taps(kRightApf2Taps);
+    scaleQuadTapTimes(leftDelay1Taps, timeScale);
+    scaleTripleTapTimes(leftDelay2Taps, timeScale);
+    scaleQuadTapTimes(rightDelay1Taps, timeScale);
+    scaleTripleTapTimes(rightDelay2Taps, timeScale);
+    scaleTripleTapTimes(leftApf2Taps, timeScale);
+    scaleTripleTapTimes(rightApf2Taps, timeScale);
+
     double maxLeftDelay1Time = *std::max_element(leftDelay1Taps.begin(), leftDelay1Taps.end());
-    double maxLeftDelay2Time = *std::max_element(leftDelay1Taps.begin(), leftDelay1Taps.end());
+    double maxLeftDelay2Time = *std::max_element(leftDelay2Taps.begin(), leftDelay2Taps.end());
     double maxRightDelay1Time = *std::max_element(rightDelay1Taps.begin(), rightDelay1Taps.end());
-    double maxRightDelay2Time = *std::max_element(rightDelay1Taps.begin(), rightDelay1Taps.end());
-    double maxLeftApf2Time = *std::max_element(leftDelay1Taps.begin(), leftDelay1Taps.end());
-    double maxRightApf2Time = *std::max_element(rightDelay1Taps.begin(), rightDelay1Taps.end());
+    double maxRightDelay2Time = *std::max_element(rightDelay2Taps.begin(), rightDelay2Taps.end());
+    double maxLeftApf1Time = kLeftApf1Time * timeScale + lfoExcursion + 1;
+    double maxRightApf1Time = kRightApf1Time * timeScale + lfoExcursion + 1;
+    double maxLeftApf2Time = *std::max_element(leftApf2Taps.begin(), leftApf2Taps.end());
+    double maxRightApf2Time = *std::max_element(rightApf2Taps.begin(), rightApf2Taps.end());
+
     maxLeftDelay1Time += lfoExcursion + 1;
     maxLeftDelay2Time += lfoExcursion + 1;
     maxRightDelay1Time += lfoExcursion + 1;
@@ -26,20 +57,26 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 
     // Construct!
     blockSize = initBlockSize;
+    uint64_t scaledInApf1Time = static_cast<uint64_t>(std::ceil(kInApf1Time * timeScale));
+    uint64_t scaledInApf2Time = static_cast<uint64_t>(std::ceil(kInApf2Time * timeScale));
+    uint64_t scaledInApf3Time = static_cast<uint64_t>(std::ceil(kInApf3Time * timeScale));
+    uint64_t scaledInApf4Time = static_cast<uint64_t>(std::ceil(kInApf4Time * timeScale));
 
-    inApf1 = AllpassFilter<double>(kInApf1Time, kInApf1Time, 0.75);
-    inApf2 = AllpassFilter<double>(kInApf2Time, kInApf2Time, 0.625);
-    inApf3 = AllpassFilter<double>(kInApf3Time, kInApf3Time, 0.7);
-    inApf4 = AllpassFilter<double>(kInApf4Time, kInApf4Time, 0.5);
+    inApf1 = AllpassFilter<double>(scaledInApf1Time, scaledInApf1Time, 0.75);
+    inApf2 = AllpassFilter<double>(scaledInApf2Time, scaledInApf2Time, 0.625);
+    inApf3 = AllpassFilter<double>(scaledInApf3Time, scaledInApf3Time, 0.7);
+    inApf4 = AllpassFilter<double>(scaledInApf4Time, scaledInApf4Time, 0.5);
 
-    leftApf1 = AllpassFilter<double>(kLeftApf1Time + lfoExcursion + 1, kLeftApf1Time, 0.7071);
-    leftApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxLeftApf2Time), kLeftApf2Time, 0.5);
-    leftDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxLeftDelay1Time), kLeftDelay1Time);
-    leftDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxLeftDelay2Time), kLeftDelay2Time);
-    rightApf1 = AllpassFilter<double>(kRightApf1Time + lfoExcursion + 1, kRightApf1Time, 0.7071);
-    rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), kRightApf2Time, 0.5);
-    rightDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxRightDelay1Time), kRightDelay1Time);
-    rightDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxRightDelay2Time), kRightDelay2Time);
+    uint64_t scaledLeftApf1Time = static_cast<uint64_t>(std::ceil(kLeftApf1Time * timeScale));
+    uint64_t scaledRightApf1Time = static_cast<uint64_t>(std::ceil(kRightApf1Time * timeScale));
+    leftApf1 = AllpassFilter<double>(maxLeftApf1Time, scaledLeftApf1Time, 0.7071);
+    leftApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxLeftApf2Time), leftApf2Taps, 0.5);
+    leftDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxLeftDelay1Time), leftDelay1Taps);
+    leftDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxLeftDelay2Time), leftDelay2Taps);
+    rightApf1 = AllpassFilter<double>(maxRightApf1Time, scaledRightApf1Time, 0.7071);
+    rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), rightApf2Taps, 0.5);
+    rightDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxRightDelay1Time), rightDelay1Taps);
+    rightDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxRightDelay2Time), rightDelay2Taps);
 
     const double kLeftApf1LfoFreq = 0.10;
     const double kLeftApf2LfoFreq = 0.15;
@@ -65,14 +102,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     leftApf2Lfo.phase = kLeftApf2LfoPhase;
     rightApf1Lfo.phase = kRightApf1LfoPhase;
     rightApf2Lfo.phase = kRightApf2LfoPhase;
-
-    // Apply taps
-    leftDelay1.setDelayTimes(leftDelay1Taps);
-    leftDelay2.setDelayTimes(leftDelay2Taps);
-    rightDelay1.setDelayTimes(rightDelay1Taps);
-    rightDelay2.setDelayTimes(rightDelay2Taps);
-    leftApf2.delay.setDelayTimes(leftApf2Taps);
-    rightApf2.delay.setDelayTimes(rightApf2Taps);
 }
 
 void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInBuffer,
@@ -201,3 +230,6 @@ void DattorroV2::freeze(bool freezing) {
     }
 }
 
+void DattorroV2::setDecay(double newDecay) {
+    decay = newDecay < 0.0 ? 0.0 : (newDecay > 1.0 ? 1.0 : newDecay);
+}
