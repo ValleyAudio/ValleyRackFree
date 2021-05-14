@@ -1,6 +1,9 @@
 #include "Plateau.hpp"
 
-Plateau::Plateau() : reverb(44100.0, blockSize) {
+Plateau::Plateau() : 
+    sizeTrajectory(blockSize, 1.0),
+    reverb(44100.0, blockSize)
+{
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry Level");
     configParam(Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, "Wet Level");
@@ -163,6 +166,8 @@ void Plateau::process(const ProcessArgs &args) {
         size = clamp(size, 0.01f, sizeMax);
     }
     //reverb.setTimeScale(size);
+    //reverb.setSize(size);
+    sizeTrajectory[frameCounter] = size;
 
     diffusion = inputs[DIFFUSION_CV_INPUT].getVoltage() * params[DIFFUSION_CV_PARAM].getValue();
     diffusion += params[DIFFUSION_PARAM].getValue();
@@ -234,6 +239,7 @@ void Plateau::process(const ProcessArgs &args) {
     ++frameCounter;
     if (frameCounter == blockSize) {
         frameCounter = 0;
+        reverb.setSizeTrajectory(sizeTrajectory);
         reverb.blockProcess(leftInputBlock, rightInputBlock, leftOutputBlock, rightOutputBlock);
     }
 

@@ -182,6 +182,7 @@ struct Plateau : Module {
 
     static const uint64_t blockSize = 256;
     uint64_t frameCounter = 0;
+    std::vector<double> sizeTrajectory;
     double leftInputBlock[blockSize] = {0.0};
     double leftOutputBlock[blockSize] = {0.0};
     double rightInputBlock[blockSize] = {0.0};

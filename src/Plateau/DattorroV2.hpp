@@ -26,13 +26,12 @@ public:
     void freeze(bool freezing);
 
     void setDecay(double newDecay);
-private:
-    uint64_t blockSize = 1;
-    double decay = 0.7071;
-    double tankLeftSum = 0.0;
-    double tankRightSum = 0.0;
-    double lfoExcursion = 1.0;
 
+    void setSize(double newSize);
+
+    void setSizeTrajectory(const std::vector<double>& newSizeTrajectory);
+
+private:
     // Initial delay times
     const double dattoroSampleRate = 29761.0;
 
@@ -54,6 +53,30 @@ private:
     const std::array<double, 3> kLeftApf2Taps = {{1800, 1913, 187}};
     const std::array<double, 3> kRightApf2Taps = {{2656, 187, 1913}};
 
+    uint64_t blockSize = 1;
+    double decay = 0.7071;
+    double tankLeftSum = 0.0;
+    double tankRightSum = 0.0;
+    double lfoExcursion = 1.0;
+    double size = 1.0;
+    const double minSize = 0.0001;
+    const double maxSize = 4.0;
+
+    // Freeze mode
+    double thawedDecay = 0.0;
+    double freezeXFade = 0.0;
+    double freezeXFadeStepSize = 0.0;
+    double freezeXFadeDir = -1.0;
+    bool frozen = false;
+
+    std::vector<double> sizeTrajectory;
+    std::vector<double> inputChainBuffer;
+
+    // Parameter smoothing
+    OnePoleLPFilter decaySmoother;
+    OnePoleLPFilter sizeSmoother;
+
+    // The reverb guts
     OnePoleLPFilter inputLpf;
     OnePoleHPFilter inputHpf;
     AllpassFilter<double> inApf1, inApf2, inApf3, inApf4;
@@ -75,12 +98,5 @@ private:
     TriSawLFO leftApf1Lfo, leftApf2Lfo;
     TriSawLFO rightApf1Lfo, rightApf2Lfo;
 
-    std::vector<double> inputChainBuffer;
 
-    // Freeze mode
-    double thawedDecay = 0.0;
-    double freezeXFade = 0.0;
-    double freezeXFadeStepSize = 0.0;
-    double freezeXFadeDir = -1.0;
-    bool frozen = false;
 };
