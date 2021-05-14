@@ -48,7 +48,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     double maxRightDelay1Time = *std::max_element(rightDelay1Taps.begin(), rightDelay1Taps.end());
     double maxRightDelay2Time = *std::max_element(rightDelay2Taps.begin(), rightDelay2Taps.end());
     double maxLeftApf1Time = kLeftApf1Time * timeScale;
-    printf("After time scale (%lf) : %lf\n", timeScale, maxLeftApf1Time);
     double maxRightApf1Time = kRightApf1Time * timeScale;
     double maxLeftApf2Time = *std::max_element(leftApf2Taps.begin(), leftApf2Taps.end());
     double maxRightApf2Time = *std::max_element(rightApf2Taps.begin(), rightApf2Taps.end());
@@ -61,7 +60,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     maxRightApf1Time *= maxSize;
     maxLeftApf2Time *= maxSize;
     maxRightApf2Time *= maxSize;
-    printf("After maxSize: %lf\n", maxLeftApf1Time);
 
     maxLeftDelay1Time += lfoExcursion + 1;
     maxLeftDelay2Time += lfoExcursion + 1;
@@ -71,7 +69,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     maxRightApf1Time += lfoExcursion + 1;
     maxLeftApf2Time += lfoExcursion + 1;
     maxRightApf2Time += lfoExcursion + 1;
-    printf("After LFO offset: %lf\n", maxLeftApf1Time);
 
     // Construct!
     blockSize = initBlockSize;
@@ -150,7 +147,6 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         leftApf1Lfo.process();
         leftApf2Lfo.process();
         newDelayTime = static_cast<double>(kLeftApf1Time) * sizeTrajectory[i] + leftApf1Lfo.getOutput() * lfoExcursion;
-        //printf("%lf\n", newDelayTime);
         leftApf1.delay.setDelayTime(newDelayTime);
         newDelayTime = static_cast<double>(kLeftApf2Time) * sizeTrajectory[i] + leftApf2Lfo.getOutput() * lfoExcursion;
         leftApf2.delay.setDelayTime(0, newDelayTime);
