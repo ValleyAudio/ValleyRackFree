@@ -6,6 +6,11 @@
  * in Plateau. Now features block processing to allow for more efficient operation.
  */
 
+/* TODO
+ * - Add positive and negative 'plate diffusion' to assign to tank APFs
+ * - Add setters for absorption filters
+ */
+
 #pragma once
 
 #include "../Common/DSP/AllpassFilter.hpp"
