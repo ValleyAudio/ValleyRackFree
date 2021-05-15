@@ -29,12 +29,12 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
         }
     };
 
-    std::array<double, 4> leftDelay1Taps(kLeftDelay1Taps);
-    std::array<double, 3> leftDelay2Taps(kLeftDelay2Taps);
-    std::array<double, 4> rightDelay1Taps(kRightDelay1Taps);
-    std::array<double, 3> rightDelay2Taps(kRightDelay2Taps);
-    std::array<double, 3> leftApf2Taps(kLeftApf2Taps);
-    std::array<double, 3> rightApf2Taps(kRightApf2Taps);
+    leftDelay1Taps = kLeftDelay1Taps;
+    leftDelay2Taps = kLeftDelay2Taps;
+    rightDelay1Taps = kRightDelay1Taps;
+    rightDelay2Taps = kRightDelay2Taps;
+    leftApf2Taps = kLeftApf2Taps;
+    rightApf2Taps = kRightApf2Taps;
 
     scaleQuadTapTimes(leftDelay1Taps, timeScale);
     scaleTripleTapTimes(leftDelay2Taps, timeScale);
@@ -42,13 +42,15 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     scaleTripleTapTimes(rightDelay2Taps, timeScale);
     scaleTripleTapTimes(leftApf2Taps, timeScale);
     scaleTripleTapTimes(rightApf2Taps, timeScale);
+    scaledLeftApf1Time = kLeftApf1Time * timeScale;
+    scaledRightApf1Time = kRightApf1Time * timeScale;
 
     double maxLeftDelay1Time = *std::max_element(leftDelay1Taps.begin(), leftDelay1Taps.end());
     double maxLeftDelay2Time = *std::max_element(leftDelay2Taps.begin(), leftDelay2Taps.end());
     double maxRightDelay1Time = *std::max_element(rightDelay1Taps.begin(), rightDelay1Taps.end());
     double maxRightDelay2Time = *std::max_element(rightDelay2Taps.begin(), rightDelay2Taps.end());
-    double maxLeftApf1Time = kLeftApf1Time * timeScale;
-    double maxRightApf1Time = kRightApf1Time * timeScale;
+    double maxLeftApf1Time = scaledLeftApf1Time;
+    double maxRightApf1Time = scaledRightApf1Time;
     double maxLeftApf2Time = *std::max_element(leftApf2Taps.begin(), leftApf2Taps.end());
     double maxRightApf2Time = *std::max_element(rightApf2Taps.begin(), rightApf2Taps.end());
 
@@ -84,11 +86,11 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 
     uint64_t scaledLeftApf1Time = static_cast<uint64_t>(std::ceil(kLeftApf1Time * timeScale));
     uint64_t scaledRightApf1Time = static_cast<uint64_t>(std::ceil(kRightApf1Time * timeScale));
-    leftApf1 = AllpassFilter<double>(maxLeftApf1Time, scaledLeftApf1Time, 0.7071);
+    leftApf1 = AllpassFilter<double>(maxLeftApf1Time, scaledLeftApf1Time, -0.7071);
     leftApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxLeftApf2Time), leftApf2Taps, 0.5);
     leftDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxLeftDelay1Time), leftDelay1Taps);
     leftDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxLeftDelay2Time), leftDelay2Taps);
-    rightApf1 = AllpassFilter<double>(maxRightApf1Time, scaledRightApf1Time, 0.7071);
+    rightApf1 = AllpassFilter<double>(maxRightApf1Time, scaledRightApf1Time, -0.7071);
     rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), rightApf2Taps, 0.5);
     rightDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxRightDelay1Time), rightDelay1Taps);
     rightDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxRightDelay2Time), rightDelay2Taps);
@@ -143,39 +145,47 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         tankLeftSum += inputChainBuffer[i];
         tankRightSum += inputChainBuffer[i];
 
-        // 'Tick' the left arm of the tank
         leftApf1Lfo.process();
         leftApf2Lfo.process();
-        newDelayTime = static_cast<double>(kLeftApf1Time) * sizeTrajectory[i] + leftApf1Lfo.getOutput() * lfoExcursion;
+        newDelayTime = scaledLeftApf1Time * sizeTrajectory[i] + leftApf1Lfo.getOutput() * lfoExcursion;
         leftApf1.delay.setDelayTime(newDelayTime);
-        newDelayTime = static_cast<double>(kLeftApf2Time) * sizeTrajectory[i] + leftApf2Lfo.getOutput() * lfoExcursion;
+        newDelayTime = leftDelay1Taps[0] * sizeTrajectory[i];
+        leftDelay1.setDelayTime(0, newDelayTime);
+        newDelayTime = leftApf2Taps[0] * sizeTrajectory[i] + leftApf2Lfo.getOutput() * lfoExcursion;
         leftApf2.delay.setDelayTime(0, newDelayTime);
+        newDelayTime = leftDelay2Taps[0] * sizeTrajectory[i];
+        leftDelay2.setDelayTime(0, newDelayTime);
 
+        rightApf1Lfo.process();
+        rightApf2Lfo.process();
+        newDelayTime = scaledRightApf1Time * sizeTrajectory[i] + rightApf1Lfo.getOutput() * lfoExcursion;
+        rightApf1.delay.setDelayTime(newDelayTime);
+        newDelayTime = rightDelay1Taps[0] * sizeTrajectory[i];
+        rightDelay1.setDelayTime(0, newDelayTime);
+        newDelayTime = rightApf2Taps[0] * sizeTrajectory[i] + rightApf2Lfo.getOutput() * lfoExcursion;
+        rightApf2.delay.setDelayTime(0, newDelayTime);
+        newDelayTime = rightDelay2Taps[0] * sizeTrajectory[i];
+        rightDelay2.setDelayTime(0, newDelayTime);
+
+        // 'Tick' the left arm of the tank
         leftApf1.input = tankLeftSum;
         leftDelay1.input = leftApf1.process();
         leftDelay1.process();
-        leftHighpassFilter.input = leftDelay1.output[0];
-        leftHighpassFilter.process();
-        leftLowpassFilter.input = leftHighpassFilter.output;
-        leftApf2.input = leftLowpassFilter.process() * (1.0 - freezeXFade) + leftDelay1.output[0] * freezeXFade;
+        leftHpf.input = leftDelay1.output[0];
+        leftHpf.process();
+        leftLpf.input = leftHpf.output;
+        leftApf2.input = leftLpf.process() * (1.0 - freezeXFade) + leftDelay1.output[0] * freezeXFade;
         leftDelay2.input = leftApf2.process();
         leftDelay2.process();
 
         // 'Tick' the right arm of the tank
-        rightApf1Lfo.process();
-        rightApf2Lfo.process();
-        newDelayTime = static_cast<double>(kRightApf1Time) * sizeTrajectory[i] + rightApf1Lfo.getOutput() * lfoExcursion;
-        rightApf1.delay.setDelayTime(newDelayTime);
-        newDelayTime = static_cast<double>(kRightApf2Time) * sizeTrajectory[i] + rightApf2Lfo.getOutput() * lfoExcursion;
-        rightApf2.delay.setDelayTime(0, newDelayTime);
-
-        rightApf1.input = tankLeftSum;
+        rightApf1.input = tankRightSum;
         rightDelay1.input = rightApf1.process();
         rightDelay1.process();
-        rightHighpassFilter.input = rightDelay1.output[0];
-        rightHighpassFilter.process();
-        rightLowpassFilter.input = rightHighpassFilter.output;
-        rightApf2.input = rightLowpassFilter.process() * (1.0 - freezeXFade) + rightDelay1.output[0] * freezeXFade;
+        rightHpf.input = rightDelay1.output[0];
+        rightHpf.process();
+        rightLpf.input = rightHpf.output;
+        rightApf2.input = rightLpf.process() * (1.0 - freezeXFade) + rightDelay1.output[0] * freezeXFade;
         rightDelay2.input = rightApf2.process();
         rightDelay2.process();
 
@@ -186,7 +196,6 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
         // Sum outputs from pre-processed taps in each arm
         double leftOutputSum = leftApf1.output;
         leftOutputSum -= leftApf2.delay.output[1];
-        leftOutputSum = leftApf2.delay.output[1];
         leftOutputSum += leftDelay1.output[1];
         leftOutputSum += leftDelay1.output[2];
         leftOutputSum += leftDelay2.output[1];
@@ -196,7 +205,6 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
 
         double rightOutputSum = rightApf1.output;
         rightOutputSum -= rightApf2.delay.output[2];
-        rightOutputSum = rightApf2.delay.output[2];
         rightOutputSum += rightDelay1.output[2];
         rightOutputSum += rightDelay1.output[3];
         rightOutputSum += rightDelay2.output[2];
@@ -222,15 +230,15 @@ void DattorroV2::clear() {
 
     leftApf1.clear();
     leftDelay1.clear();
-    leftHighpassFilter.clear();
-    leftLowpassFilter.clear();
+    leftHpf.clear();
+    leftLpf.clear();
     leftApf2.clear();
     leftDelay2.clear();
 
     rightApf1.clear();
     rightDelay1.clear();
-    rightHighpassFilter.clear();
-    rightLowpassFilter.clear();
+    rightHpf.clear();
+    rightLpf.clear();
     rightApf2.clear();
     rightDelay2.clear();
 
@@ -266,4 +274,14 @@ void DattorroV2::setSize(double newSize) {
 
 void DattorroV2::setSizeTrajectory(const std::vector<double> &newSizeTrajectory) {
     sizeTrajectory = newSizeTrajectory;
+}
+
+void DattorroV2::setAbsorption(double inputLow, double inputHigh,
+                               double tankLow, double tankHigh) {
+    inputLpf.setCutoffFreq(inputHigh);
+    inputHpf.setCutoffFreq(inputLow);
+    leftLpf.setCutoffFreq(tankHigh);
+    leftHpf.setCutoffFreq(tankLow);
+    rightLpf.setCutoffFreq(tankHigh);
+    rightHpf.setCutoffFreq(tankLow);
 }

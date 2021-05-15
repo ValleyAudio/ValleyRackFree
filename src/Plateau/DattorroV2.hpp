@@ -36,6 +36,8 @@ public:
 
     void setSizeTrajectory(const std::vector<double>& newSizeTrajectory);
 
+    void setAbsorption(double inputLow, double inputHigh, double tankLow, double tankHigh);
+
 private:
     // Initial delay times
     const double dattoroSampleRate = 29761.0;
@@ -46,9 +48,7 @@ private:
     const uint64_t kInApf4Time = 277;
 
     const uint64_t kLeftApf1Time = 672;
-    const uint64_t kLeftApf2Time = 1800;
     const uint64_t kRightApf1Time = 908;
-    const uint64_t kRightApf2Time = 2656;
 
     // Delay taps
     const std::array<double, 4> kLeftDelay1Taps = {{4451, 266, 2974, 1990}};
@@ -58,13 +58,22 @@ private:
     const std::array<double, 3> kLeftApf2Taps = {{1800, 1913, 187}};
     const std::array<double, 3> kRightApf2Taps = {{2656, 187, 1913}};
 
+    double scaledLeftApf1Time, scaledRightApf1Time;
+
+    std::array<double, 4> leftDelay1Taps;
+    std::array<double, 3> leftDelay2Taps;
+    std::array<double, 4> rightDelay1Taps;
+    std::array<double, 3> rightDelay2Taps;
+    std::array<double, 3> leftApf2Taps;
+    std::array<double, 3> rightApf2Taps;
+
     uint64_t blockSize = 1;
     double decay = 0.7071;
     double tankLeftSum = 0.0;
     double tankRightSum = 0.0;
     double lfoExcursion = 1.0;
     double size = 1.0;
-    const double minSize = 0.0001;
+    const double minSize = 0.0;
     const double maxSize = 4.0;
 
     // Freeze mode
@@ -88,15 +97,15 @@ private:
 
     AllpassFilter<double> leftApf1;
     MultiTapInterpDelay<double, 4> leftDelay1;
-    OnePoleHPFilter leftHighpassFilter;
-    OnePoleLPFilter leftLowpassFilter;
+    OnePoleHPFilter leftHpf;
+    OnePoleLPFilter leftLpf;
     MultiTapAllpassFilter<double, 3> leftApf2;
     MultiTapInterpDelay<double, 3> leftDelay2;
 
     AllpassFilter<double> rightApf1;
     MultiTapInterpDelay<double, 4> rightDelay1;
-    OnePoleHPFilter rightHighpassFilter;
-    OnePoleLPFilter rightLowpassFilter;
+    OnePoleHPFilter rightHpf;
+    OnePoleLPFilter rightLpf;
     MultiTapAllpassFilter<double, 3> rightApf2;
     MultiTapInterpDelay<double, 3> rightDelay2;
 
