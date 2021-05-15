@@ -207,6 +207,10 @@ void Plateau::process(const ProcessArgs &args) {
     //reverb.inputHighCut = 440.f * powf(2.f, inputDampHigh - 5.f);
     //reverb.reverbLowCut = 440.f * powf(2.f, reverbDampLow - 5.f);
     //reverb.reverbHighCut = 440.f * powf(2.f, reverbDampHigh - 5.f);
+    reverb.setAbsorption(440.f * powf(2.f, inputDampLow - 5.f),
+                         440.f * powf(2.f, inputDampHigh - 5.f),
+                         440.f * powf(2.f, reverbDampLow - 5.f),
+                         440.f * powf(2.f, reverbDampHigh - 5.f));
 
     modSpeed = inputs[MOD_SPEED_CV_INPUT].getVoltage() * params[MOD_SPEED_CV_PARAM].getValue() * 0.1f;
     modSpeed += params[MOD_SPEED_PARAM].getValue();
