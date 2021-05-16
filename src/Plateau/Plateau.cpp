@@ -116,7 +116,6 @@ void Plateau::process(const ProcessArgs &args) {
     if((params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) && !clear && cleared) {
         cleared = false;
         clear = true;
-        //clear = 1;
     }
     else if((params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) && cleared) {
         clear = false;
@@ -130,7 +129,9 @@ void Plateau::process(const ProcessArgs &args) {
             lights[CLEAR_LIGHT].value = 10.f;
         }
         if(fadeOut && envelope._justFinished) {
-            //reverb.clear();
+            reverb.clear();
+            leftInputBlock.fill(0.0);
+            rightInputBlock.fill(0.0);
             fadeOut = false;
             fadeIn = true;
             envelope.setStartEndPoints(0.f, 1.f);
@@ -244,7 +245,8 @@ void Plateau::process(const ProcessArgs &args) {
     if (frameCounter == blockSize) {
         frameCounter = 0;
         reverb.setSizeTrajectory(sizeTrajectory);
-        reverb.blockProcess(leftInputBlock, rightInputBlock, leftOutputBlock, rightOutputBlock);
+        reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
+                            leftOutputBlock.data(), rightOutputBlock.data());
     }
 
     //if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
