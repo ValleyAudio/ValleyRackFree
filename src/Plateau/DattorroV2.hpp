@@ -22,10 +22,14 @@
 
 class DattorroV2 {
 public:
+    double plateDiffusion1 = 0.7071;
+    double plateDiffusion2 = 0.5;
+    bool diffuseInput = true;
+
     DattorroV2(double initSampleRate = 44100.0, uint64_t initBlockSize = 256);
 
     void blockProcess(const double* leftInBuffer, const double* rightInBuffer,
-                      double* leftOutBuffer, double* rightOutBuffer);
+                      double* leftOutBuffer, double* rightOutBuffer, uint64_t blockSize);
     void clear();
 
     void freeze(bool freezing);
@@ -67,7 +71,7 @@ private:
     std::array<double, 3> leftApf2Taps;
     std::array<double, 3> rightApf2Taps;
 
-    uint64_t blockSize = 1;
+    uint64_t maxBlockSize = 1;
     double decay = 0.7071;
     double tankLeftSum = 0.0;
     double tankRightSum = 0.0;

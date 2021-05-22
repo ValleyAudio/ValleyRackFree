@@ -16,6 +16,7 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     inputHpf(10.0)
 {
     double timeScale = initSampleRate / dattoroSampleRate;
+    freezeXFadeStepSize = 1.0 / (0.1 / initSampleRate);
 
     auto scaleQuadTapTimes = [](std::array<double, 4>& x, double scaling) {
         for (auto& i : x) {
@@ -73,7 +74,7 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     maxRightApf2Time += lfoExcursion + 1;
 
     // Construct!
-    blockSize = initBlockSize;
+    maxBlockSize = initBlockSize;
     uint64_t scaledInApf1Time = static_cast<uint64_t>(std::ceil(kInApf1Time * timeScale));
     uint64_t scaledInApf2Time = static_cast<uint64_t>(std::ceil(kInApf2Time * timeScale));
     uint64_t scaledInApf3Time = static_cast<uint64_t>(std::ceil(kInApf3Time * timeScale));
@@ -86,12 +87,12 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 
     uint64_t scaledLeftApf1Time = static_cast<uint64_t>(std::ceil(kLeftApf1Time * timeScale));
     uint64_t scaledRightApf1Time = static_cast<uint64_t>(std::ceil(kRightApf1Time * timeScale));
-    leftApf1 = AllpassFilter<double>(maxLeftApf1Time, scaledLeftApf1Time, -0.7071);
-    leftApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxLeftApf2Time), leftApf2Taps, 0.5);
+    leftApf1 = AllpassFilter<double>(maxLeftApf1Time, scaledLeftApf1Time, -plateDiffusion1);
+    leftApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxLeftApf2Time), leftApf2Taps, plateDiffusion2);
     leftDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxLeftDelay1Time), leftDelay1Taps);
     leftDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxLeftDelay2Time), leftDelay2Taps);
-    rightApf1 = AllpassFilter<double>(maxRightApf1Time, scaledRightApf1Time, -0.7071);
-    rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), rightApf2Taps, 0.5);
+    rightApf1 = AllpassFilter<double>(maxRightApf1Time, scaledRightApf1Time, -plateDiffusion1);
+    rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), rightApf2Taps, plateDiffusion2);
     rightDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxRightDelay1Time), rightDelay1Taps);
     rightDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxRightDelay2Time), rightDelay2Taps);
 
@@ -122,11 +123,15 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 }
 
 void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInBuffer,
-                              double* leftOutBuffer, double* rightOutBuffer) {
+                              double* leftOutBuffer, double* rightOutBuffer, uint64_t blockSize) {
     // Calculate smoothed parameter trajectories
     //for (auto& x : sizeTrajectory) {
     //    x = sizeSmoother.process();
     //}
+    leftApf1.gain = -plateDiffusion1;
+    leftApf2.gain = plateDiffusion2;
+    rightApf1.gain = -plateDiffusion1;
+    rightApf2.gain = plateDiffusion2;
 
     for (uint64_t i = 0; i < blockSize; ++i) {
         inputChainBuffer[i] = leftInBuffer[i] + rightInBuffer[i];
@@ -134,10 +139,12 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
 
     inputLpf.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
     inputHpf.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
-    inApf1.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
-    inApf2.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
-    inApf3.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
-    inApf4.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    if (diffuseInput) {
+        inApf1.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+        inApf2.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+        inApf3.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+        inApf4.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
+    }
 
     // Reverb tank
     for (uint64_t i = 0; i < blockSize; ++i) {
@@ -264,7 +271,9 @@ void DattorroV2::freeze(bool freezing) {
 }
 
 void DattorroV2::setDecay(double newDecay) {
-    decay = newDecay < 0.0 ? 0.0 : (newDecay > 1.0 ? 1.0 : newDecay);
+    if (!frozen) {
+        decay = newDecay < 0.0 ? 0.0 : (newDecay > 1.0 ? 1.0 : newDecay);
+    }
 }
 
 void DattorroV2::setSize(double newSize) {
