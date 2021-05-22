@@ -180,13 +180,14 @@ struct Plateau : Module {
     float leftInput, rightInput;
     float leftOutput, rightOutput;
 
-    static const uint64_t blockSize = 128;
+    static const uint64_t maxBlockSize = 128;
+    uint64_t blockSize = maxBlockSize;
     uint64_t frameCounter = 0;
     std::vector<double> sizeTrajectory;
-    std::array<double, blockSize> leftInputBlock = {0.0};
-    std::array<double, blockSize> leftOutputBlock = {0.0};
-    std::array<double, blockSize> rightInputBlock = {0.0};
-    std::array<double, blockSize> rightOutputBlock = {0.0};
+    std::array<double, maxBlockSize> leftInputBlock = {0.0};
+    std::array<double, maxBlockSize> leftOutputBlock = {0.0};
+    std::array<double, maxBlockSize> rightInputBlock = {0.0};
+    std::array<double, maxBlockSize> rightOutputBlock = {0.0};
 
     DattorroV2 reverb;
     LinearEnvelope envelope;

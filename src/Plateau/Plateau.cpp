@@ -1,10 +1,10 @@
 #include "Plateau.hpp"
 
-Plateau::Plateau() : 
-    sizeTrajectory(blockSize, 1.0),
-    reverb(44100.0, blockSize)
+Plateau::Plateau() :
+    sizeTrajectory(maxBlockSize, 1.0),
+    reverb(44100.0, maxBlockSize)
 {
-	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry Level");
     configParam(Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, "Wet Level");
     configParam(Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, "Pre-delay");
@@ -98,12 +98,11 @@ void Plateau::process(const ProcessArgs &args) {
 
     if(freeze && !frozen) {
         frozen = true;
-        //reverb.freeze();
     }
     else if(!freeze && frozen){
         frozen = false;
-        //reverb.unFreeze();
     }
+    reverb.freeze(frozen);
     lights[FREEZE_LIGHT].value = freeze ? 10.f : 0.f;
 
     tuned = params[TUNED_MODE_PARAM].getValue() > 0.5f ? 1 : 0;
@@ -130,6 +129,8 @@ void Plateau::process(const ProcessArgs &args) {
         }
         if(fadeOut && envelope._justFinished) {
             reverb.clear();
+            leftInput = 0.f;
+            rightInput = 0.f;
             leftInputBlock.fill(0.0);
             rightInputBlock.fill(0.0);
             fadeOut = false;
@@ -166,15 +167,13 @@ void Plateau::process(const ProcessArgs &args) {
         size = rescale(size, 0.f, 1.f, 0.01f, sizeMax);
         size = clamp(size, 0.01f, sizeMax);
     }
-    //reverb.setTimeScale(size);
-    //reverb.setSize(size);
     sizeTrajectory[frameCounter] = size;
 
     diffusion = inputs[DIFFUSION_CV_INPUT].getVoltage() * params[DIFFUSION_CV_PARAM].getValue();
     diffusion += params[DIFFUSION_PARAM].getValue();
     diffusion = clamp(diffusion, 0.f, 10.f);
-    //reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, 0.7f);
-    //reverb.plateDiffusion2 = rescale(diffusion, 0.f, 10.f, 0.f, 0.5f);
+    reverb.plateDiffusion1 = rescale(diffusion, 0.f, 10.f, 0.f, 0.7f);
+    reverb.plateDiffusion2 = rescale(diffusion, 0.f, 10.f, 0.f, 0.5f);
 
     decay = rescale(inputs[DECAY_CV_INPUT].getVoltage() * params[DECAY_CV_PARAM].getValue(), 0.f, 10.f, 0.1f, 0.999f);
     decay += params[DECAY_PARAM].getValue();
@@ -200,14 +199,9 @@ void Plateau::process(const ProcessArgs &args) {
     reverbDampHigh += params[REVERB_HIGH_DAMP_PARAM].getValue();
     reverbDampHigh = clamp(reverbDampHigh, 0.f, 10.f);
 
-    //reverb.diffuseInput = (double)diffuseInput;
+    reverb.diffuseInput = diffuseInput > 0.5f;
 
     reverb.setDecay(decay);
-    //reverb.decay = decay;
-    //reverb.inputLowCut = 440.f * powf(2.f, inputDampLow - 5.f);
-    //reverb.inputHighCut = 440.f * powf(2.f, inputDampHigh - 5.f);
-    //reverb.reverbLowCut = 440.f * powf(2.f, reverbDampLow - 5.f);
-    //reverb.reverbHighCut = 440.f * powf(2.f, reverbDampHigh - 5.f);
     reverb.setAbsorption(440.f * powf(2.f, inputDampLow - 5.f),
                          440.f * powf(2.f, inputDampHigh - 5.f),
                          440.f * powf(2.f, reverbDampLow - 5.f),
@@ -236,42 +230,36 @@ void Plateau::process(const ProcessArgs &args) {
     leftInput = inputs[LEFT_INPUT].getVoltageSum();
     rightInput = inputs[RIGHT_INPUT].getVoltageSum();
 
-    leftInputBlock[frameCounter] = leftInput;
-    rightInputBlock[frameCounter] = rightInput;
-    outputs[LEFT_OUTPUT].setVoltage(leftOutputBlock[frameCounter]);
-    outputs[RIGHT_OUTPUT].setVoltage(rightOutputBlock[frameCounter]);
-
-    ++frameCounter;
-    if (frameCounter == blockSize) {
-        frameCounter = 0;
-        reverb.setSizeTrajectory(sizeTrajectory);
-        reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
-                            leftOutputBlock.data(), rightOutputBlock.data());
+    if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
+        leftInput = inputs[RIGHT_INPUT].getVoltageSum();
     }
+    else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
+        rightInput = inputs[LEFT_INPUT].getVoltageSum();
+    }
+    leftInput = clamp(leftInput, -10.f, 10.f);
+    rightInput = clamp(rightInput, -10.f, 10.f);
 
-    //if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
-    //    leftInput = inputs[RIGHT_INPUT].getVoltageSum();
-    //}
-    //else if(inputs[LEFT_INPUT].isConnected() == true && inputs[RIGHT_INPUT].isConnected() == false) {
-    //    rightInput = inputs[LEFT_INPUT].getVoltageSum();
-    //}
-    //leftInput = clamp(leftInput, -10.f, 10.f);
-    //rightInput = clamp(rightInput, -10.f, 10.f);
+    inputSensitivity = inputSensitivityState ? 0.125893f : 1.f; // Magically drop to -18 dB
 
-    //inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
+    leftInputBlock[frameCounter] = leftInput * 0.1f * inputSensitivity * envelope._value;
+    rightInputBlock[frameCounter] = rightInput * 0.1f * inputSensitivity * envelope._value;
+    leftOutput = leftInput * dry + leftOutputBlock[frameCounter] * wet * envelope._value;
+    rightOutput = rightInput * dry + rightOutputBlock[frameCounter] * wet * envelope._value;
+    outputs[LEFT_OUTPUT].setVoltage(leftOutput);
+    outputs[RIGHT_OUTPUT].setVoltage(rightOutput);
+
+
     //reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
     //               rightInput * 0.1f * inputSensitivity * envelope._value);
 
-    //dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
-    //dry += params[DRY_PARAM].getValue();
-    //dry = clamp(dry, 0.f, 1.f);
+    dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
+    dry += params[DRY_PARAM].getValue();
+    dry = clamp(dry, 0.f, 1.f);
 
-    //wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
-    //wet += params[WET_PARAM].getValue();
-    //wet = clamp(wet, 0.f, 1.f) * 10.f;
+    wet = inputs[WET_CV_INPUT].getVoltage() * params[WET_CV_PARAM].getValue();
+    wet += params[WET_PARAM].getValue();
+    wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    //leftOutput = leftInput * dry + reverb.leftOut * wet * envelope._value;
-    //rightOutput = rightInput * dry + reverb.rightOut * wet * envelope._value;
 
     //if(outputSaturationState) {
     //    outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
@@ -281,6 +269,15 @@ void Plateau::process(const ProcessArgs &args) {
     //    outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
     //    outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
     //}
+
+    ++frameCounter;
+    if (frameCounter == blockSize) {
+        frameCounter = 0;
+        reverb.setSizeTrajectory(sizeTrajectory);
+        reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
+                            leftOutputBlock.data(), rightOutputBlock.data(),
+                            blockSize);
+    }
 }
 
 void Plateau::onSampleRateChange() {
