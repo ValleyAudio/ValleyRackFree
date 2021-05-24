@@ -44,6 +44,8 @@ public:
 
     void setAbsorption(double inputLow, double inputHigh, double tankLow, double tankHigh);
 
+    void setModulation(double rate, double shape, double depth);
+
 private:
     // Initial delay times
     const double dattoroSampleRate = 29761.0;
@@ -55,6 +57,11 @@ private:
 
     const uint64_t kLeftApf1Time = 672;
     const uint64_t kRightApf1Time = 908;
+
+    const double kLeftApf1LfoFreq = 0.10;
+    const double kLeftApf2LfoFreq = 0.15;
+    const double kRightApf1LfoFreq = 0.12;
+    const double kRightApf2LfoFreq = 0.18;
 
     // Delay taps
     const std::array<double, 4> kLeftDelay1Taps = {{4451, 266, 2974, 1990}};
@@ -78,6 +85,7 @@ private:
     double tankLeftSum = 0.0;
     double tankRightSum = 0.0;
     double lfoExcursion = 1.0;
+    double modDepth = 0.0;
     double size = 1.0;
     const double minSize = 0.0;
     const double maxSize = 4.0;

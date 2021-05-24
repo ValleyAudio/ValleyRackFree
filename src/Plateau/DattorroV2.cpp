@@ -18,6 +18,7 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 {
     double timeScale = initSampleRate / dattoroSampleRate;
     freezeXFadeStepSize = 1.0 / (0.1 / initSampleRate);
+    lfoExcursion = timeScale * 16.0;
 
     auto scaleQuadTapTimes = [](std::array<double, 4>& x, double scaling) {
         for (auto& i : x) {
@@ -81,7 +82,7 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     uint64_t scaledInApf3Time = static_cast<uint64_t>(std::ceil(kInApf3Time * timeScale));
     uint64_t scaledInApf4Time = static_cast<uint64_t>(std::ceil(kInApf4Time * timeScale));
 
-    preDelay = InterpDelay2<double>(static_cast<uint64_t>(std::ceil(0.1 * initSampleRate)));
+    preDelay = InterpDelay2<double>(static_cast<uint64_t>(std::ceil(0.5 * initSampleRate + 1.f)));
     inApf1 = AllpassFilter<double>(scaledInApf1Time, scaledInApf1Time, 0.75);
     inApf2 = AllpassFilter<double>(scaledInApf2Time, scaledInApf2Time, 0.625);
     inApf3 = AllpassFilter<double>(scaledInApf3Time, scaledInApf3Time, 0.7);
@@ -97,11 +98,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     rightApf2 = MultiTapAllpassFilter<double, 3>(static_cast<uint64_t>(maxRightApf2Time), rightApf2Taps, plateDiffusion2);
     rightDelay1 = MultiTapInterpDelay<double, 4>(static_cast<uint64_t>(maxRightDelay1Time), rightDelay1Taps);
     rightDelay2 = MultiTapInterpDelay<double, 3>(static_cast<uint64_t>(maxRightDelay2Time), rightDelay2Taps);
-
-    const double kLeftApf1LfoFreq = 0.10;
-    const double kLeftApf2LfoFreq = 0.15;
-    const double kRightApf1LfoFreq = 0.12;
-    const double kRightApf2LfoFreq = 0.18;
 
     const double kLeftApf2LfoPhase = 0.25;
     const double kRightApf1LfoPhase = 0.5;
@@ -132,12 +128,8 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
     rightApf2.gain = plateDiffusion2;
 
     for (uint64_t i = 0; i < blockSize; ++i) {
-        inputChainBuffer[i] = leftInBuffer[i] + rightInBuffer[i];
-    }
-
-    for (uint64_t i = 0; i < blockSize; ++i) {
         preDelay.setDelayTime(preDelayTrajectory[i]);
-        preDelay.input = inputChainBuffer[i];
+        preDelay.input = leftInBuffer[i] + rightInBuffer[i];
         preDelay.process();
         inputChainBuffer[i] = preDelay.output;
     }
@@ -159,22 +151,22 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
 
         leftApf1Lfo.process();
         leftApf2Lfo.process();
-        newDelayTime = scaledLeftApf1Time * sizeTrajectory[i] + leftApf1Lfo.getOutput() * lfoExcursion;
+        newDelayTime = scaledLeftApf1Time * sizeTrajectory[i] + leftApf1Lfo.getOutput() * lfoExcursion * modDepth;
         leftApf1.delay.setDelayTime(newDelayTime);
         newDelayTime = leftDelay1Taps[0] * sizeTrajectory[i];
         leftDelay1.setDelayTime(0, newDelayTime);
-        newDelayTime = leftApf2Taps[0] * sizeTrajectory[i] + leftApf2Lfo.getOutput() * lfoExcursion;
+        newDelayTime = leftApf2Taps[0] * sizeTrajectory[i] + leftApf2Lfo.getOutput() * lfoExcursion * modDepth;
         leftApf2.delay.setDelayTime(0, newDelayTime);
         newDelayTime = leftDelay2Taps[0] * sizeTrajectory[i];
         leftDelay2.setDelayTime(0, newDelayTime);
 
         rightApf1Lfo.process();
         rightApf2Lfo.process();
-        newDelayTime = scaledRightApf1Time * sizeTrajectory[i] + rightApf1Lfo.getOutput() * lfoExcursion;
+        newDelayTime = scaledRightApf1Time * sizeTrajectory[i] + rightApf1Lfo.getOutput() * lfoExcursion * modDepth;
         rightApf1.delay.setDelayTime(newDelayTime);
         newDelayTime = rightDelay1Taps[0] * sizeTrajectory[i];
         rightDelay1.setDelayTime(0, newDelayTime);
-        newDelayTime = rightApf2Taps[0] * sizeTrajectory[i] + rightApf2Lfo.getOutput() * lfoExcursion;
+        newDelayTime = rightApf2Taps[0] * sizeTrajectory[i] + rightApf2Lfo.getOutput() * lfoExcursion * modDepth;
         rightApf2.delay.setDelayTime(0, newDelayTime);
         newDelayTime = rightDelay2Taps[0] * sizeTrajectory[i];
         rightDelay2.setDelayTime(0, newDelayTime);
@@ -302,4 +294,17 @@ void DattorroV2::setAbsorption(double inputLow, double inputHigh,
     leftHpf.setCutoffFreq(tankLow);
     rightLpf.setCutoffFreq(tankHigh);
     rightHpf.setCutoffFreq(tankLow);
+}
+
+void DattorroV2::setModulation(double rate, double shape, double depth) {
+    leftApf1Lfo.setFrequency(rate * kLeftApf1LfoFreq);
+    leftApf1Lfo.setRevPoint(shape);
+    leftApf2Lfo.setFrequency(rate * kLeftApf2LfoFreq);
+    leftApf2Lfo.setRevPoint(shape);
+    rightApf1Lfo.setFrequency(rate * kRightApf1LfoFreq);
+    rightApf1Lfo.setRevPoint(shape);
+    rightApf2Lfo.setFrequency(rate * kRightApf2LfoFreq);
+    rightApf2Lfo.setRevPoint(shape);
+
+    modDepth = depth;
 }
