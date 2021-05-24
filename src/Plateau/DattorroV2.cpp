@@ -8,6 +8,7 @@
 #include <array>
 
 DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
+    preDelayTrajectory(initBlockSize, 0.0),
     sizeTrajectory(initBlockSize, 1.0),
     inputChainBuffer(initBlockSize, 0.0),
     decaySmoother(3.f, initSampleRate),
@@ -80,6 +81,7 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
     uint64_t scaledInApf3Time = static_cast<uint64_t>(std::ceil(kInApf3Time * timeScale));
     uint64_t scaledInApf4Time = static_cast<uint64_t>(std::ceil(kInApf4Time * timeScale));
 
+    preDelay = InterpDelay2<double>(static_cast<uint64_t>(std::ceil(0.1 * initSampleRate)));
     inApf1 = AllpassFilter<double>(scaledInApf1Time, scaledInApf1Time, 0.75);
     inApf2 = AllpassFilter<double>(scaledInApf2Time, scaledInApf2Time, 0.625);
     inApf3 = AllpassFilter<double>(scaledInApf3Time, scaledInApf3Time, 0.7);
@@ -124,10 +126,6 @@ DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
 
 void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInBuffer,
                               double* leftOutBuffer, double* rightOutBuffer, uint64_t blockSize) {
-    // Calculate smoothed parameter trajectories
-    //for (auto& x : sizeTrajectory) {
-    //    x = sizeSmoother.process();
-    //}
     leftApf1.gain = -plateDiffusion1;
     leftApf2.gain = plateDiffusion2;
     rightApf1.gain = -plateDiffusion1;
@@ -135,6 +133,13 @@ void DattorroV2::blockProcess(const double* leftInBuffer, const double* rightInB
 
     for (uint64_t i = 0; i < blockSize; ++i) {
         inputChainBuffer[i] = leftInBuffer[i] + rightInBuffer[i];
+    }
+
+    for (uint64_t i = 0; i < blockSize; ++i) {
+        preDelay.setDelayTime(preDelayTrajectory[i]);
+        preDelay.input = inputChainBuffer[i];
+        preDelay.process();
+        inputChainBuffer[i] = preDelay.output;
     }
 
     inputLpf.blockProcess(inputChainBuffer.data(), inputChainBuffer.data(), blockSize);
@@ -281,8 +286,12 @@ void DattorroV2::setSize(double newSize) {
     sizeSmoother.input = size;
 }
 
-void DattorroV2::setSizeTrajectory(const std::vector<double> &newSizeTrajectory) {
+void DattorroV2::setSizeTrajectory(const std::vector<double>& newSizeTrajectory) {
     sizeTrajectory = newSizeTrajectory;
+}
+
+void DattorroV2::setPreDelayTrajectory(const std::vector<double>& newPreDelayTrajectory) {
+    preDelayTrajectory = newPreDelayTrajectory;
 }
 
 void DattorroV2::setAbsorption(double inputLow, double inputHigh,

@@ -40,6 +40,8 @@ public:
 
     void setSizeTrajectory(const std::vector<double>& newSizeTrajectory);
 
+    void setPreDelayTrajectory(const std::vector<double>& newPreDelayTrajectory);
+
     void setAbsorption(double inputLow, double inputHigh, double tankLow, double tankHigh);
 
 private:
@@ -87,6 +89,7 @@ private:
     double freezeXFadeDir = -1.0;
     bool frozen = false;
 
+    std::vector<double> preDelayTrajectory;
     std::vector<double> sizeTrajectory;
     std::vector<double> inputChainBuffer;
 
@@ -95,6 +98,7 @@ private:
     OnePoleLPFilter sizeSmoother;
 
     // The reverb guts
+    InterpDelay2<double> preDelay;
     OnePoleLPFilter inputLpf;
     OnePoleHPFilter inputHpf;
     AllpassFilter<double> inApf1, inApf2, inApf3, inApf4;
