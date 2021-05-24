@@ -183,6 +183,7 @@ struct Plateau : Module {
     static const uint64_t maxBlockSize = 128;
     uint64_t blockSize = maxBlockSize;
     uint64_t frameCounter = 0;
+    std::vector<double> preDelayTrajectory;
     std::vector<double> sizeTrajectory;
     std::array<double, maxBlockSize> leftInputBlock = {0.0};
     std::array<double, maxBlockSize> leftOutputBlock = {0.0};

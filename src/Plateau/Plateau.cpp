@@ -1,6 +1,7 @@
 #include "Plateau.hpp"
 
 Plateau::Plateau() :
+    preDelayTrajectory(maxBlockSize, 1.0),
     sizeTrajectory(maxBlockSize, 1.0),
     reverb(44100.0, maxBlockSize)
 {
@@ -154,7 +155,8 @@ void Plateau::process(const ProcessArgs &args) {
     }
     preDelay = params[PRE_DELAY_PARAM].getValue();
     preDelay += 0.5f * (powf(2.f, inputs[PRE_DELAY_CV_INPUT].getVoltage() * preDelayCVSens) - 1.f);
-    //reverb.setPreDelay(clamp(preDelay, 0.f, 1.f));
+    preDelayTrajectory[frameCounter] = clamp(preDelay, 0.f, 1.f);
+    preDelayTrajectory[frameCounter] *= args.sampleRate;
 
     size = inputs[SIZE_CV_INPUT].getVoltage() * params[SIZE_CV_PARAM].getValue() * 0.1f;
     size += params[SIZE_PARAM].getValue();
@@ -223,9 +225,7 @@ void Plateau::process(const ProcessArgs &args) {
     modDepth += params[MOD_DEPTH_PARAM].getValue();
     modDepth = clamp(modDepth, modDepthMin, modDepthMax);
 
-    //reverb.modSpeed = modSpeed;
-    //reverb.modDepth = modDepth;
-    //reverb.setModShape(modShape);
+    reverb.setModulation(modSpeed, modShape, modDepth);
 
     leftInput = inputs[LEFT_INPUT].getVoltageSum();
     rightInput = inputs[RIGHT_INPUT].getVoltageSum();
@@ -273,6 +273,7 @@ void Plateau::process(const ProcessArgs &args) {
     ++frameCounter;
     if (frameCounter == blockSize) {
         frameCounter = 0;
+        reverb.setPreDelayTrajectory(preDelayTrajectory);
         reverb.setSizeTrajectory(sizeTrajectory);
         reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
                             leftOutputBlock.data(), rightOutputBlock.data(),
