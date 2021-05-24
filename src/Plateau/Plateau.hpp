@@ -180,7 +180,7 @@ struct Plateau : Module {
     float leftInput, rightInput;
     float leftOutput, rightOutput;
 
-    static const uint64_t maxBlockSize = 256;
+    static const uint64_t maxBlockSize = 32;
     uint64_t blockSize = maxBlockSize;
     uint64_t frameCounter = 0;
     std::vector<double> preDelayTrajectory;
