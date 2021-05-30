@@ -203,10 +203,10 @@ void Plateau::process(const ProcessArgs &args) {
     reverb.diffuseInput = diffuseInput > 0.5f;
 
     reverb.setDecay(decay);
-    reverb.setAbsorption(440.f * powf(2.f, inputDampLow - 5.f),
-                         440.f * powf(2.f, inputDampHigh - 5.f),
-                         440.f * powf(2.f, reverbDampLow - 5.f),
-                         440.f * powf(2.f, reverbDampHigh - 5.f));
+    reverb.setAbsorption(440.f * dsp::approxExp2_taylor5(inputDampLow) / 32.f,
+                         440.f * dsp::approxExp2_taylor5(inputDampHigh) / 32.f,
+                         440.f * dsp::approxExp2_taylor5(reverbDampLow) / 32.f,
+                         440.f * dsp::approxExp2_taylor5(reverbDampHigh) / 32.f);
 
     modSpeed = inputs[MOD_SPEED_CV_INPUT].getVoltage() * params[MOD_SPEED_CV_PARAM].getValue() * 0.1f;
     modSpeed += params[MOD_SPEED_PARAM].getValue();
@@ -255,16 +255,6 @@ void Plateau::process(const ProcessArgs &args) {
     wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-
-    //if(outputSaturationState) {
-    //    outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
-    //    outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f);
-    //}
-    //else {
-    //    outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
-    //    outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
-    //}
-
     ++frameCounter;
     if (frameCounter == blockSize) {
         frameCounter = 0;
@@ -273,11 +263,27 @@ void Plateau::process(const ProcessArgs &args) {
         reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
                             leftOutputBlock.data(), rightOutputBlock.data(),
                             blockSize);
+
+        if (outputSaturationState) {
+            for (uint64_t i = 0; i < blockSize; ++i) {
+                leftOutputBlock[i] = tanhDriveSignal(leftOutputBlock[i] * 0.111f, 0.95f) * 9.999f;
+            }
+            for (uint64_t i = 0; i < blockSize; ++i) {
+                rightOutputBlock[i] = tanhDriveSignal(rightOutputBlock[i] * 0.111f, 0.95f) * 9.999f;
+            }
+        }
+        else {
+            for (uint64_t i = 0; i < blockSize; ++i) {
+                leftOutputBlock[i] = clamp(leftOutputBlock[i], -10.f, 10.f);
+            }
+            for (uint64_t i = 0; i < blockSize; ++i) {
+                rightOutputBlock[i] = clamp(rightOutputBlock[i], -10.f, 10.f);
+            }
+        }
     }
 }
 
 void Plateau::onSampleRateChange() {
-    //reverb.setSampleRate(APP->engine->getSampleRate());
     reverb = DattorroV2(APP->engine->getSampleRate(), blockSize);
     envelope.setSampleRate(APP->engine->getSampleRate());
 }
