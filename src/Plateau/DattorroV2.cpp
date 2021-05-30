@@ -298,12 +298,12 @@ void DattorroV2::setAbsorption(double inputLow, double inputHigh,
 
 void DattorroV2::setModulation(double rate, double shape, double depth) {
     leftApf1Lfo.setFrequency(rate * kLeftApf1LfoFreq);
-    leftApf1Lfo.setRevPoint(shape);
     leftApf2Lfo.setFrequency(rate * kLeftApf2LfoFreq);
-    leftApf2Lfo.setRevPoint(shape);
     rightApf1Lfo.setFrequency(rate * kRightApf1LfoFreq);
-    rightApf1Lfo.setRevPoint(shape);
     rightApf2Lfo.setFrequency(rate * kRightApf2LfoFreq);
+    leftApf1Lfo.setRevPoint(shape);
+    leftApf2Lfo.setRevPoint(shape);
+    rightApf1Lfo.setRevPoint(shape);
     rightApf2Lfo.setRevPoint(shape);
 
     modDepth = depth;
