@@ -3,7 +3,7 @@
 Plateau::Plateau() :
     preDelayTrajectory(maxBlockSize, 1.0),
     sizeTrajectory(maxBlockSize, 1.0),
-    reverb(44100.0, maxBlockSize)
+    reverb(APP->engine->getSampleRate(), maxBlockSize)
 {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry Level");
@@ -39,7 +39,6 @@ Plateau::Plateau() :
     configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
     configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
 
-    //reverb.setSampleRate(APP->engine->getSampleRate());
     envelope.setSampleRate(APP->engine->getSampleRate());
     envelope.setTime(0.004f);
     envelope._value = 1.f;
@@ -248,10 +247,6 @@ void Plateau::process(const ProcessArgs &args) {
     outputs[LEFT_OUTPUT].setVoltage(leftOutput);
     outputs[RIGHT_OUTPUT].setVoltage(rightOutput);
 
-
-    //reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
-    //               rightInput * 0.1f * inputSensitivity * envelope._value);
-
     dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
     dry += params[DRY_PARAM].getValue();
     dry = clamp(dry, 0.f, 1.f);
@@ -283,6 +278,7 @@ void Plateau::process(const ProcessArgs &args) {
 
 void Plateau::onSampleRateChange() {
     //reverb.setSampleRate(APP->engine->getSampleRate());
+    reverb = DattorroV2(APP->engine->getSampleRate(), blockSize);
     envelope.setSampleRate(APP->engine->getSampleRate());
 }
 
