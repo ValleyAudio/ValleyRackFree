@@ -68,6 +68,8 @@ Plateau::Plateau() :
     preDelayCVSensState = 0;
     inputSensitivityState = 0;
     outputSaturationState = 0;
+    dspModeState = 0;
+    prevDspModeState = 0;
 
     clear = false;
     cleared = true;
@@ -81,6 +83,28 @@ Plateau::Plateau() :
 }
 
 void Plateau::process(const ProcessArgs &args) {
+    if (dspModeState != prevDspModeState) {
+        std::fill(leftInputBlock.begin(), leftInputBlock.end(), 0.f);
+        std::fill(rightInputBlock.begin(), rightInputBlock.end(), 0.f);
+        std::fill(leftOutputBlock.begin(), leftOutputBlock.end(), 0.f);
+        std::fill(rightOutputBlock.begin(), rightOutputBlock.end(), 0.f);
+        std::fill(sizeTrajectory.begin(), sizeTrajectory.end(), 0.f);
+        std::fill(preDelayTrajectory.begin(), preDelayTrajectory.end(), 0.f);
+        reverb.clear();
+
+        if (dspModeState == 0) {
+            blockSize = minBlockSize;
+        }
+        else if(dspModeState == 1) {
+            blockSize = mediumBlockSize;
+        }
+        else {
+            blockSize = maxBlockSize;
+        }
+        frameCounter = 0;
+    }
+    prevDspModeState = dspModeState;
+
     //Freeze
     freezeToggle = params[FREEZE_TOGGLE_PARAM].getValue() > 0.5f ? true : false;
     lights[FREEZE_TOGGLE_LIGHT].value = freezeToggle ? 10.f : 0.f;
@@ -284,7 +308,7 @@ void Plateau::process(const ProcessArgs &args) {
 }
 
 void Plateau::onSampleRateChange() {
-    reverb = DattorroV2(APP->engine->getSampleRate(), blockSize);
+    reverb = DattorroV2(APP->engine->getSampleRate(), maxBlockSize);
     envelope.setSampleRate(APP->engine->getSampleRate());
 }
 
@@ -298,6 +322,7 @@ json_t* Plateau::dataToJson()  {
     json_object_set_new(rootJ, "preDelayCVSens", json_integer((int)preDelayCVSensState));
     json_object_set_new(rootJ, "inputSensitivity", json_integer((int)inputSensitivityState));
     json_object_set_new(rootJ, "outputSaturation", json_integer((int)outputSaturationState));
+    json_object_set_new(rootJ, "dspMode", json_integer((int)dspModeState));
     return rootJ;
 }
 
@@ -325,6 +350,9 @@ void Plateau::dataFromJson(json_t *rootJ) {
 
     json_t *outputSaturationJ = json_object_get(rootJ, "outputSaturation");
     outputSaturationState = json_integer_value(outputSaturationJ);
+
+    json_t *dspModeJ = json_object_get(rootJ, "dspMode");
+    dspModeState = json_integer_value(dspModeJ);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -362,6 +390,15 @@ void PlateauOutputSaturationItem::onAction(const event::Action &e) {
 
 void PlateauOutputSaturationItem::step() {
     rightText = (module->outputSaturationState == outputSaturationState) ? "✔" : "";
+    MenuItem::step();
+}
+
+void PlateauDSPModeItem::onAction(const event::Action &e) {
+    module->dspModeState = dspModeState;
+}
+
+void PlateauDSPModeItem::step() {
+    rightText = (module->dspModeState == dspModeState) ? "✔" : "";
     MenuItem::step();
 }
 
@@ -515,6 +552,15 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                           module, &PlateauOutputSaturationItem::outputSaturationState, 0));
     menu->addChild(construct<PlateauOutputSaturationItem>(&MenuItem::text, "On", &PlateauOutputSaturationItem::module,
                                                           module, &PlateauOutputSaturationItem::outputSaturationState, 1));
+
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "DSP Mode"));
+    menu->addChild(construct<PlateauDSPModeItem>(&MenuItem::text, "Real-time", &PlateauDSPModeItem::module,
+                                                          module, &PlateauDSPModeItem::dspModeState, 0));
+    menu->addChild(construct<PlateauDSPModeItem>(&MenuItem::text, "Efficient (Short Latency)", &PlateauDSPModeItem::module,
+                                                          module, &PlateauDSPModeItem::dspModeState, 1));
+    menu->addChild(construct<PlateauDSPModeItem>(&MenuItem::text, "More efficient (Medium Latency)", &PlateauDSPModeItem::module,
+                                                          module, &PlateauDSPModeItem::dspModeState, 2));
 }
 
 void PlateauWidget::step() {

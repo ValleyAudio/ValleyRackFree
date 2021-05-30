@@ -173,6 +173,9 @@ struct Plateau : Module {
     int inputSensitivityState;
     int outputSaturationState;
 
+    int dspModeState;
+    int prevDspModeState;
+
     bool clear;
     bool cleared;
     bool fadeOut, fadeIn;
@@ -180,8 +183,10 @@ struct Plateau : Module {
     float leftInput, rightInput;
     float leftOutput, rightOutput;
 
+    const uint64_t minBlockSize = 1;
+    const uint64_t mediumBlockSize = 8;
     static const uint64_t maxBlockSize = 32;
-    uint64_t blockSize = maxBlockSize;
+    uint64_t blockSize = 1;
     uint64_t frameCounter = 0;
     std::vector<double> preDelayTrajectory;
     std::vector<double> sizeTrajectory;
@@ -232,6 +237,13 @@ struct PlateauInputSensItem : MenuItem {
 struct PlateauOutputSaturationItem : MenuItem {
     Plateau* module;
     int outputSaturationState;
+    void onAction(const event::Action &e) override;
+    void step() override;
+};
+
+struct PlateauDSPModeItem : MenuItem {
+    Plateau* module;
+    int dspModeState;
     void onAction(const event::Action &e) override;
     void step() override;
 };
