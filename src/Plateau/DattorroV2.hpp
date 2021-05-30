@@ -20,13 +20,14 @@
 #include <cstdint>
 #include <array>
 
+const uint64_t DattorroV2_MaxBlockSize = 32;
 class DattorroV2 {
 public:
     double plateDiffusion1 = 0.7071;
     double plateDiffusion2 = 0.5;
     bool diffuseInput = true;
 
-    DattorroV2(double initSampleRate = 44100.0, uint64_t initBlockSize = 256);
+    DattorroV2(double initSampleRate = 44100.0, uint64_t initBlockSize = DattorroV2_MaxBlockSize);
 
     void blockProcess(const double* leftInBuffer, const double* rightInBuffer,
                       double* leftOutBuffer, double* rightOutBuffer, uint64_t blockSize);
@@ -38,9 +39,9 @@ public:
 
     void setSize(double newSize);
 
-    void setSizeTrajectory(const std::vector<double>& newSizeTrajectory);
+    void setSizeTrajectory(const std::array<double, DattorroV2_MaxBlockSize>& newSizeTrajectory);
 
-    void setPreDelayTrajectory(const std::vector<double>& newPreDelayTrajectory);
+    void setPreDelayTrajectory(const std::array<double, DattorroV2_MaxBlockSize>& newPreDelayTrajectory);
 
     void setAbsorption(double inputLow, double inputHigh, double tankLow, double tankHigh);
 
@@ -97,9 +98,9 @@ private:
     double freezeXFadeDir = -1.0;
     bool frozen = false;
 
-    std::vector<double> preDelayTrajectory;
-    std::vector<double> sizeTrajectory;
-    std::vector<double> inputChainBuffer;
+    std::array<double, DattorroV2_MaxBlockSize> preDelayTrajectory;
+    std::array<double, DattorroV2_MaxBlockSize> sizeTrajectory;
+    std::array<double, DattorroV2_MaxBlockSize> inputChainBuffer;
 
     // Parameter smoothing
     OnePoleLPFilter decaySmoother;

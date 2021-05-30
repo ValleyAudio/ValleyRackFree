@@ -1,8 +1,6 @@
 #include "Plateau.hpp"
 
 Plateau::Plateau() :
-    preDelayTrajectory(maxBlockSize, 1.0),
-    sizeTrajectory(maxBlockSize, 1.0),
     reverb(APP->engine->getSampleRate(), maxBlockSize)
 {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -38,6 +36,9 @@ Plateau::Plateau() :
     configParam(Plateau::CLEAR_PARAM, 0.f, 1.f, 0.f, "Clear");
     configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
     configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
+
+    preDelayTrajectory.fill(1.f);
+    sizeTrajectory.fill(1.f);
 
     envelope.setSampleRate(APP->engine->getSampleRate());
     envelope.setTime(0.004f);

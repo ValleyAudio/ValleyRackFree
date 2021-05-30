@@ -8,14 +8,15 @@
 #include <array>
 
 DattorroV2::DattorroV2(double initSampleRate, uint64_t initBlockSize) :
-    preDelayTrajectory(initBlockSize, 0.0),
-    sizeTrajectory(initBlockSize, 1.0),
-    inputChainBuffer(initBlockSize, 0.0),
     decaySmoother(3.f, initSampleRate),
     sizeSmoother(3.f, initSampleRate),
     inputLpf(11050.0, initSampleRate),
     inputHpf(10.0)
 {
+    preDelayTrajectory.fill(1.0);
+    sizeTrajectory.fill(1.0);
+    inputChainBuffer.fill(1.0);
+
     double timeScale = initSampleRate / dattoroSampleRate;
     freezeXFadeStepSize = 1.0 / (0.1 / initSampleRate);
     lfoExcursion = timeScale * 16.0;
@@ -278,11 +279,11 @@ void DattorroV2::setSize(double newSize) {
     sizeSmoother.input = size;
 }
 
-void DattorroV2::setSizeTrajectory(const std::vector<double>& newSizeTrajectory) {
+void DattorroV2::setSizeTrajectory(const std::array<double, DattorroV2_MaxBlockSize>& newSizeTrajectory) {
     sizeTrajectory = newSizeTrajectory;
 }
 
-void DattorroV2::setPreDelayTrajectory(const std::vector<double>& newPreDelayTrajectory) {
+void DattorroV2::setPreDelayTrajectory(const std::array<double, DattorroV2_MaxBlockSize>& newPreDelayTrajectory) {
     preDelayTrajectory = newPreDelayTrajectory;
 }
 
