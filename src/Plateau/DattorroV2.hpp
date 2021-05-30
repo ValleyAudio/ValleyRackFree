@@ -48,28 +48,28 @@ public:
 
 private:
     // Initial delay times
-    const double dattoroSampleRate = 29761.0;
+    double dattoroSampleRate = 29761.0;
 
-    const uint64_t kInApf1Time = 141;
-    const uint64_t kInApf2Time = 107;
-    const uint64_t kInApf3Time = 379;
-    const uint64_t kInApf4Time = 277;
+    uint64_t kInApf1Time = 141;
+    uint64_t kInApf2Time = 107;
+    uint64_t kInApf3Time = 379;
+    uint64_t kInApf4Time = 277;
 
-    const uint64_t kLeftApf1Time = 672;
-    const uint64_t kRightApf1Time = 908;
+    uint64_t kLeftApf1Time = 672;
+    uint64_t kRightApf1Time = 908;
 
-    const double kLeftApf1LfoFreq = 0.10;
-    const double kLeftApf2LfoFreq = 0.15;
-    const double kRightApf1LfoFreq = 0.12;
-    const double kRightApf2LfoFreq = 0.18;
+    double kLeftApf1LfoFreq = 0.10;
+    double kLeftApf2LfoFreq = 0.15;
+    double kRightApf1LfoFreq = 0.12;
+    double kRightApf2LfoFreq = 0.18;
 
     // Delay taps
-    const std::array<double, 4> kLeftDelay1Taps = {{4451, 266, 2974, 1990}};
-    const std::array<double, 3> kLeftDelay2Taps = {{3720, 1996, 1066}};
-    const std::array<double, 4> kRightDelay1Taps = {{4217, 1990, 266, 2974}};
-    const std::array<double, 3> kRightDelay2Taps = {{3163, 1066, 1996}};
-    const std::array<double, 3> kLeftApf2Taps = {{1800, 1913, 187}};
-    const std::array<double, 3> kRightApf2Taps = {{2656, 187, 1913}};
+    std::array<double, 4> kLeftDelay1Taps = {{4451, 266, 2974, 1990}};
+    std::array<double, 3> kLeftDelay2Taps = {{3720, 1996, 1066}};
+    std::array<double, 4> kRightDelay1Taps = {{4217, 1990, 266, 2974}};
+    std::array<double, 3> kRightDelay2Taps = {{3163, 1066, 1996}};
+    std::array<double, 3> kLeftApf2Taps = {{1800, 1913, 187}};
+    std::array<double, 3> kRightApf2Taps = {{2656, 187, 1913}};
 
     double scaledLeftApf1Time, scaledRightApf1Time;
 
@@ -87,8 +87,8 @@ private:
     double lfoExcursion = 1.0;
     double modDepth = 0.0;
     double size = 1.0;
-    const double minSize = 0.0;
-    const double maxSize = 4.0;
+    double minSize = 0.0;
+    double maxSize = 4.0;
 
     // Freeze mode
     double thawedDecay = 0.0;
