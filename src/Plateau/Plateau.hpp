@@ -184,7 +184,6 @@ struct Plateau : Module {
     float leftOutput, rightOutput;
 
     const uint64_t minBlockSize = 1;
-    const uint64_t mediumBlockSize = 8;
     static const uint64_t maxBlockSize = 32;
     uint64_t blockSize = 1;
     uint64_t frameCounter = 0;

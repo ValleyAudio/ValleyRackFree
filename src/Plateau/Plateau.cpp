@@ -95,9 +95,6 @@ void Plateau::process(const ProcessArgs &args) {
         if (dspModeState == 0) {
             blockSize = minBlockSize;
         }
-        else if(dspModeState == 1) {
-            blockSize = mediumBlockSize;
-        }
         else {
             blockSize = maxBlockSize;
         }
@@ -559,8 +556,6 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
                                                           module, &PlateauDSPModeItem::dspModeState, 0));
     menu->addChild(construct<PlateauDSPModeItem>(&MenuItem::text, "Efficient (Short Latency)", &PlateauDSPModeItem::module,
                                                           module, &PlateauDSPModeItem::dspModeState, 1));
-    menu->addChild(construct<PlateauDSPModeItem>(&MenuItem::text, "More efficient (Medium Latency)", &PlateauDSPModeItem::module,
-                                                          module, &PlateauDSPModeItem::dspModeState, 2));
 }
 
 void PlateauWidget::step() {
