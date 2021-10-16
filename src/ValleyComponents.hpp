@@ -293,13 +293,13 @@ struct LightLEDButtonWithModeText : SvgSwitch {
     }
 
     void onEnter(const event::Enter& e) override {
-        if (settings::paramTooltip && !tooltip && paramQuantity) {
-            NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
-            paramTooltip->nonValueText = modeText;
-            paramTooltip->paramWidget = this;
-            APP->scene->addChild(paramTooltip);
-            tooltip = paramTooltip;
-        }
+        //if (settings::paramTooltip && !tooltip && paramQuantity) {
+        //    NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+        //    paramTooltip->nonValueText = modeText;
+        //    paramTooltip->paramWidget = this;
+        //    APP->scene->addChild(paramTooltip);
+        //    tooltip = paramTooltip;
+        //}
     }
 
     void setModeText(const std::string& newModeText) {

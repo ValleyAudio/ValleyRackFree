@@ -154,6 +154,7 @@ struct AmalgamWidget : ModuleWidget {
     AmalgamWidget(Amalgam *module);
     void appendContextMenu(Menu *menu) override;
     void step() override;
+    void changePanelStyle(int panelStyle);
 
     std::string modeNames[VecAmalgam::NUM_MODES] = {
         "RINGMOD1", "RINGMOD2", "RINGMOD3", "DIODE-RM", "MINIMAXI",
@@ -231,6 +232,8 @@ struct AmalgamWidget : ModuleWidget {
     DigitalDisplay* modeDisplay;
     DigitalDisplay* paramADisplay;
     DigitalDisplay* paramBDisplay;
+
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
 };
 

@@ -1,6 +1,7 @@
 #include "ValleyWidgets.hpp"
 
 void SvgStepSlider::onChange(const event::Change& e) {
+    ParamQuantity* paramQuantity = getParamQuantity();
     if(paramQuantity) {
         float v = paramQuantity->getValue();
         // Interpolate handle position

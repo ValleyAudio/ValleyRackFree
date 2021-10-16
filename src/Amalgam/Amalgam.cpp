@@ -204,14 +204,15 @@ void AmalgamPanelStyleItem::step() {
 
 AmalgamWidget::AmalgamWidget(Amalgam* module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
 
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
     if(module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelLight.svg")));
         lightPanel->visible = false;
-        addChild(lightPanel);
     }
+    setPanel(darkPanel);
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -285,7 +286,9 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
         LightLEDButton* button = new LightLEDButton;
         button->box.pos = DCCoupleLightPos;
         if(module) {
-            button->paramQuantity = module->paramQuantities[Amalgam::DC_COUPLE_PARAM];
+            // This is such a hack to get this to compile.
+            // TODO: Use setQuantity() if it exist?
+            //button->paramQuantity = module->paramQuantities[Amalgam::DC_COUPLE_PARAM];
         }
         button->momentary = false;
         addParam(button);
@@ -307,7 +310,7 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
 
 void AmalgamWidget::step() {
     if(!module) {
-        panel->visible = true;
+        darkPanel->visible = true;
         return;
     }
     Amalgam* m = reinterpret_cast<Amalgam*>(module);
@@ -316,11 +319,11 @@ void AmalgamWidget::step() {
     paramBDisplay->text = paramBNames[m->iAmalgamType];
 
     if (m->panelStyle) {
-        panel->visible = false;
+        darkPanel->visible = false;
         lightPanel->visible = true;
     }
     else {
-        panel->visible = true;
+        darkPanel->visible = true;
         lightPanel->visible = false;
     }
     Widget::step();

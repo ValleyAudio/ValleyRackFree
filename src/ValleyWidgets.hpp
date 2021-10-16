@@ -8,7 +8,6 @@
 #define DSJ_VALLEY_WIDGETS_HPP
 
 #include "Valley.hpp"
-#include "window.hpp"
 #include <functional>
 #include <settings.hpp>
 
@@ -55,8 +54,9 @@ DynamicSwitchWidget* createDynamicSwitchWidget(Vec pos, Module *module, int para
                                                float minValue, float maxValue, float defaultValue,
                                                int* visibilityHandle, DynamicViewMode viewMode) {
 	DynamicSwitchWidget *dynSwitch = new TDynamicSwitch();
+    ParamQuantity* paramQuantity = dynSwitch->getParamQuantity();
 	dynSwitch->box.pos = pos;
-	dynSwitch->paramQuantity->paramId = paramId;
+    paramQuantity->paramId = paramId;
     if (module) {
 		module->configParam(paramId, minValue, maxValue, defaultValue);
 	}
@@ -399,12 +399,13 @@ DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
 
 struct NonValueParamTooltip : ui::Tooltip {
     ParamWidget* paramWidget;
+    ParamQuantity* paramQuantity = paramWidget->getParamQuantity();
     std::shared_ptr<std::string> nonValueText;
 
     void step() override {
-    if (paramWidget->paramQuantity) {
+    if (paramQuantity) {
             // Quantity string
-            text = paramWidget->paramQuantity->getLabel();
+            text = paramQuantity->getLabel();
             text += ": ";
 
             if (nonValueText) {
@@ -412,7 +413,7 @@ struct NonValueParamTooltip : ui::Tooltip {
             }
 
             // Param description
-            std::string description = paramWidget->paramQuantity->description;
+            std::string description = paramQuantity->description;
             if (!description.empty()) {
                 text += "\n" + description;
             }
@@ -434,13 +435,13 @@ struct ValleyRogan : Rogan {
     }
 
     void onEnter(const event::Enter& e) override {
-        if (settings::paramTooltip && !tooltip && paramQuantity) {
-            NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
-            paramTooltip->nonValueText = modeText;
-            paramTooltip->paramWidget = this;
-            APP->scene->addChild(paramTooltip);
-            tooltip = paramTooltip;
-        }
+        //if (settings::paramTooltip && !tooltip && paramQuantity) {
+        //    NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+        //    paramTooltip->nonValueText = modeText;
+        //    paramTooltip->paramWidget = this;
+        //    APP->scene->addChild(paramTooltip);
+        //    tooltip = paramTooltip;
+        //}
     }
 
     void setModeText(const std::string& newModeText) {

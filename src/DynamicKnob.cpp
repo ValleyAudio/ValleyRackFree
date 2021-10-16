@@ -75,29 +75,30 @@ DynamicSvgKnob::DynamicSvgKnob() {
 }
 
 void DynamicSvgKnob::step() {
-    if(_visibility != nullptr) {
-        if(*_visibility) {
-            visible = true;
-        }
-        else {
-            visible = false;
-        }
-        if(_viewMode == ACTIVE_LOW_VIEW) {
-            visible = !visible;
-        }
-    }
-    else {
-        visible = true;
-    }
-    if (paramQuantity) {
-		float value = paramQuantity->getValue();
-		// Trigger change event when paramQuantity value changes
-		if (value != dirtyValue) {
-			dirtyValue = value;
-			event::Change eChange;
-			onChange(eChange);
-		}
-	}
-
+//    ParamQuantity* paramQuantity = getParamQuantity();
+//    if(_visibility != nullptr) {
+//        if(*_visibility) {
+//            visible = true;
+//        }
+//        else {
+//            visible = false;
+//        }
+//        if(_viewMode == ACTIVE_LOW_VIEW) {
+//            visible = !visible;
+//        }
+//    }
+//    else {
+//        visible = true;
+//    }
+//    if (paramQuantity) {
+//		float value = paramQuantity->getValue();
+//		// Trigger change event when paramQuantity value changes
+//		if (value != dirtyValue) {
+//			dirtyValue = value;
+//			event::Change eChange;
+//			onChange(eChange);
+//		}
+//	}
+//
 	Widget::step();
 }
