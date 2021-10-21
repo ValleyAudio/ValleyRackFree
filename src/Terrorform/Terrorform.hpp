@@ -689,7 +689,10 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec syncTextPos = Vec(149.829, 303);
 
-    widget::Widget* panels[NUM_TRRFORM_PANELS];
+    //widget::Widget* panels[NUM_TRRFORM_PANELS];
+    SvgPanel* panels[NUM_TRRFORM_PANELS];
+    SvgPanel* darkPanel;
+    SvgPanel* lightPanel;
     bool inEditorMode = false;
     DynamicText* bankBackText;
     DynamicText* shapeBackText;

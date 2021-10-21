@@ -857,15 +857,16 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
                                                             "res/TerrorformLightManager.svg"};
 
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[TRRFORM_DARK_PANEL_NORMAL])));
+
+    panels[0] = new SvgPanel;
+    panels[0]->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[0])));
     for(auto i = 1; i < NUM_TRRFORM_PANELS; ++i) {
-        SvgPanel* newPanel = new SvgPanel;
-        newPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[i])));
-        newPanel->visible = false;
-        panels[i] = newPanel;
+        panels[i] = new SvgPanel;
+        panels[i]->visible = false;
+        panels[i]->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, panelFilenames[i])));
         addChild(panels[i]);
     }
-    panels[0] = panel;
+    setPanel(panels[0]);
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -1199,7 +1200,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         };
 
         bankMenu->setChoice = [=](int i) {
-            bankKnob->paramQuantity->setValue((float)i);
+            APP->engine->setParamValue(module, Terrorform::BANK_PARAM, static_cast<float>(i));
         };
         addChild(bankMenu);
 
@@ -1214,7 +1215,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         };
 
         shapeMenu->setChoice = [=](int i) {
-            shapeTypeKnob->paramQuantity->setValue((float)i);
+            APP->engine->setParamValue(module, Terrorform::SHAPE_TYPE_PARAM, static_cast<float>(i));
         };
         addChild(shapeMenu);
 
@@ -1229,7 +1230,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         };
 
         enhanceMenu->setChoice = [=](int i) {
-            enhanceTypeKnob->paramQuantity->setValue((float)i);
+            APP->engine->setParamValue(module, Terrorform::ENHANCE_TYPE_PARAM, static_cast<float>(i));
         };
         addChild(enhanceMenu);
 
@@ -1535,14 +1536,16 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         updateBankNames = true;
     });
 
-    editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
-        waveBank.data.resize(module->userWaveTableSizes[bank]);
-        for (unsigned long i = 0; i < waveBank.data.size(); ++i) {
-            waveBank.data[i].resize(TFORM_WAVELENGTH_CAP);
-            memcpy(waveBank.data[i].data(), module->userWaveTableData[bank] + (i * TFORM_WAVELENGTH_CAP), sizeof(float) * TFORM_WAVELENGTH_CAP);
-        }
-        waveBank.name = module->userWaveTableNames[bank];
-    });
+    if (module) {
+        editor->addGetBankCallback([=](int bank, TerrorformWaveBank& waveBank) {
+            waveBank.data.resize(module->userWaveTableSizes[bank]);
+            for (unsigned long i = 0; i < waveBank.data.size(); ++i) {
+                waveBank.data[i].resize(TFORM_WAVELENGTH_CAP);
+                memcpy(waveBank.data[i].data(), module->userWaveTableData[bank] + (i * TFORM_WAVELENGTH_CAP), sizeof(float) * TFORM_WAVELENGTH_CAP);
+            }
+            waveBank.name = module->userWaveTableNames[bank];
+        });
+    }
 
     editor->addRenameBankCallback([=](int bank, const std::string& name) {
         module->userWaveTableNames[bank] = name;
@@ -1779,7 +1782,8 @@ void TerrorformWidget::step() {
 
     bankChoice = tform->bankDisplay;
     bankChoice = clamp(bankChoice, 0, NUM_TERRORFORM_WAVETABLES - 1);
-    if (userBankButton->paramQuantity->getValue() > 0.5f) {
+    // TODO: Why not just query 'module' if it is using the user waves?
+    if (userBankButton->getParamQuantity()->getValue() > 0.5f) {
         *bankStr = tform->userWaveTableNames[bankChoice];
     }
     else {
@@ -1803,7 +1807,8 @@ void TerrorformWidget::step() {
             bankMenu->_items = bankMenuItems;
         }
     }
-    bankKnobStep = (int)bankKnob->paramQuantity->getValue();
+
+    bankKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::BANK_PARAM));
     bankKnobTooltipText = std::to_string(bankKnobStep) + " " + bankMenu->_items[bankKnobStep];
     bankKnob->setModeText(bankKnobTooltipText);
 
@@ -1813,7 +1818,7 @@ void TerrorformWidget::step() {
     *waveStr = std::to_string(wavePercent);
 
     // Shape Knob and Display
-    shapeTypeKnobStep = (int)shapeTypeKnob->paramQuantity->getValue();
+    shapeTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::SHAPE_TYPE_PARAM));
     shapeTypeKnobTooltipText = std::to_string(shapeTypeKnobStep) + " " +
                                shapeMenu->_items[shapeTypeKnobStep];
     shapeTypeKnob->setModeText(shapeTypeKnobTooltipText);
@@ -1832,7 +1837,7 @@ void TerrorformWidget::step() {
     *shapeDepthStr = std::to_string(shapeDepthPercent);
 
     // Enhance Knob and Display
-    enhanceTypeKnobStep = (int)enhanceTypeKnob->paramQuantity->getValue();
+    enhanceTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::ENHANCE_TYPE_PARAM));
     enhanceTypeKnobTooltipText = std::to_string(enhanceTypeKnobStep) + " " +
                                  enhanceMenu->_items[enhanceTypeKnobStep];
     enhanceTypeKnob->setModeText(enhanceTypeKnobTooltipText);
@@ -1861,8 +1866,11 @@ void TerrorformWidget::step() {
         editor->setSlotFilledFlag(i, tform->userWaveTableFilled[i]);
     }
 
+    // TODO: Use the custom tooltip system available in the v2 API. The
+    // following code is janky AF!
+
     // LFO button tooltip
-    if (lfoButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::LFO_SWITCH_PARAM)) {
         lfoButton->setModeText("On");
     }
     else {
@@ -1870,7 +1878,7 @@ void TerrorformWidget::step() {
     }
 
     // Zero freq button tooltip
-    if (zeroFreqButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::ZERO_SWITCH_PARAM)) {
         zeroFreqButton->setModeText("On");
     }
     else {
@@ -1878,7 +1886,7 @@ void TerrorformWidget::step() {
     }
 
     // User bank button tooltip
-    if (userBankButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::USER_BANK_SWITCH_PARAM)) {
         userBankButton->setModeText("Yes");
     }
     else {
@@ -1886,7 +1894,7 @@ void TerrorformWidget::step() {
     }
 
     // Display CV button tooltip
-    if (displayCVButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::DISPLAY_CV_SWITCH_PARAM)) {
         displayCVButton->setModeText("Yes");
     }
     else {
@@ -1902,7 +1910,7 @@ void TerrorformWidget::step() {
     }
 
     // LPG long time button tooltip
-    if (lpgLongTimeButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::LPG_LONG_TIME_SWITCH_PARAM)) {
         lpgLongTimeButton->setModeText("Long");
     }
     else {
@@ -1910,7 +1918,7 @@ void TerrorformWidget::step() {
     }
 
     // LPG velocity sense button tooltip
-    if (lpgVelocityButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::LPG_VELOCITY_SWITCH_PARAM)) {
         lpgVelocityButton->setModeText("On");
     }
     else {
@@ -1918,7 +1926,7 @@ void TerrorformWidget::step() {
     }
 
     // LPG trigger button tooltip
-    if (lpgTrigButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::LPG_TRIGGER_SWITCH_PARAM)) {
         lpgTrigButton->setModeText("On (Triggered)");
     }
     else {
@@ -1926,7 +1934,7 @@ void TerrorformWidget::step() {
     }
 
     // Phasor shaping order button tooltip
-    if (phasorShapingOrderButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::POST_PM_SHAPE_PARAM)) {
         phasorShapingOrderButton->setModeText("\nPost phase mod");
     }
     else {
@@ -1934,14 +1942,14 @@ void TerrorformWidget::step() {
     }
 
     // Weak sync button tooltips
-    if (weakSync1Button->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::WEAK_SYNC_1_SWITCH_PARAM)) {
         weakSync1Button->setModeText("On");
     }
     else {
         weakSync1Button->setModeText("Off");
     }
 
-    if (weakSync2Button->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::WEAK_SYNC_2_SWITCH_PARAM)) {
         weakSync2Button->setModeText("On");
     }
     else {
@@ -1949,7 +1957,7 @@ void TerrorformWidget::step() {
     }
 
     // FM mode button tooltip
-    if (trueFMButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::TRUE_FM_SWITCH_PARAM)) {
         trueFMButton->setModeText("True FM");
     }
     else {
@@ -1957,7 +1965,7 @@ void TerrorformWidget::step() {
     }
 
     // Enhancer-LPG swap button tooltip
-    if (swapButton->paramQuantity->getValue()) {
+    if (APP->engine->getParamValue(module, Terrorform::SWAP_SWITCH_PARAM)) {
         swapButton->setModeText("\nLPG -> Enhancer");
     }
     else {
