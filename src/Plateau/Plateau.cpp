@@ -134,6 +134,7 @@ void Plateau::process(const ProcessArgs &args) {
     lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
 
     // Clear
+    lights[CLEAR_LIGHT].value = params[CLEAR_PARAM].getValue() > 0.5f ? 10.f : 0.f;
     if((params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) && !clear && cleared) {
         cleared = false;
         clear = true;
@@ -147,7 +148,6 @@ void Plateau::process(const ProcessArgs &args) {
             fadeOut = true;
             envelope.setStartEndPoints(1.f, 0.f);
             envelope.trigger();
-            lights[CLEAR_LIGHT].value = 10.f;
         }
         if(fadeOut && envelope._justFinished) {
             reverb.clear();
@@ -163,7 +163,6 @@ void Plateau::process(const ProcessArgs &args) {
         if(fadeIn && envelope._justFinished) {
             fadeIn = false;
             cleared = true;
-            lights[CLEAR_LIGHT].value = 0.f;
             envelope._value = 1.f;
         }
     }
@@ -404,13 +403,16 @@ void PlateauDSPModeItem::step() {
 
 PlateauWidget::PlateauWidget(Plateau* module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelDark.svg")));
+
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelDark.svg")));
     if(module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PlateauPanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
+    setPanel(darkPanel);
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -482,40 +484,22 @@ PlateauWidget::PlateauWidget(Plateau* module) {
     addParam(createParam<LightLEDButton>(Vec(7.875, 244.85), module, Plateau::FREEZE_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(10.375, 247.35), module, Plateau::FREEZE_LIGHT));
 
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = Vec(31.375, 256.35);
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Plateau::FREEZE_TOGGLE_PARAM];
-        }
-        button->momentary = false;
-        addParam(button);
-    }
-    addChild(createLight<MediumLight<RedLight>>(Vec(33.875, 258.85), module, Plateau::FREEZE_TOGGLE_LIGHT));
-
     addParam(createParam<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
 
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = Vec(13.875, 127.35);
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Plateau::TUNED_MODE_PARAM];
-        }
-        button->momentary = false;
-        addParam(button);
-    }
+    freezeToggleButton = createParam<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM); 
+    freezeToggleButton->momentary = false;
+    addParam(freezeToggleButton);
+    addChild(createLight<MediumLight<RedLight>>(Vec(33.875, 258.85), module, Plateau::FREEZE_TOGGLE_LIGHT));
+
+    tunedModeButton = createParam<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM); 
+    tunedModeButton->momentary = false;
+    addParam(tunedModeButton);
     addChild(createLight<MediumLight<RedLight>>(Vec(16.375, 129.85), module, Plateau::TUNED_MODE_LIGHT));
 
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = Vec(151.875, 127.35);
-        if(module) {
-            button->paramQuantity = module->paramQuantities[Plateau::DIFFUSE_INPUT_PARAM];
-        }
-        button->momentary = false;
-        addParam(button);
-    }
+    diffuseInputButton = createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM); 
+    diffuseInputButton->momentary = false;
+    addParam(diffuseInputButton);
     addChild(createLight<MediumLight<RedLight>>(Vec(154.375, 129.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
 }
 
@@ -562,11 +546,11 @@ void PlateauWidget::appendContextMenu(Menu *menu) {
 void PlateauWidget::step() {
     if(module) {
         if(dynamic_cast<Plateau*>(module)->panelStyle == 1) {
-            panel->visible = false;
+            darkPanel->visible = false;
             lightPanel->visible = true;
         }
         else {
-            panel->visible = true;
+            darkPanel->visible = true;
             lightPanel->visible = false;
         }
     }

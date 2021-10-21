@@ -211,6 +211,7 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelLight.svg")));
         lightPanel->visible = false;
+        addChild(lightPanel);
     }
     setPanel(darkPanel);
 
@@ -282,17 +283,9 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
     paramBDisplay->setText("UP");
     addChild(paramBDisplay);
 
-    {
-        LightLEDButton* button = new LightLEDButton;
-        button->box.pos = DCCoupleLightPos;
-        if(module) {
-            // This is such a hack to get this to compile.
-            // TODO: Use setQuantity() if it exist?
-            //button->paramQuantity = module->paramQuantities[Amalgam::DC_COUPLE_PARAM];
-        }
-        button->momentary = false;
-        addParam(button);
-    }
+    dcCoupleButton = createParam<LightLEDButton>(DCCoupleLightPos, module, Amalgam::DC_COUPLE_PARAM);
+    dcCoupleButton->momentary = false;
+    addParam(dcCoupleButton);
     addChild(createLight<MediumLight<RedLight>>(DCCoupleLightPos.plus(Vec(2.5f, 2.5f)), module, Amalgam::DC_COUPLE_LIGHT));
 }
 

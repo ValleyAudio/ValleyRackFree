@@ -313,7 +313,13 @@ struct PlateauWidget : ModuleWidget {
     Vec holdCVPos = Vec(4.395, 265.42);
     Vec clearCVPos = Vec(154.395, 265.42);
 
+    // The widgets
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
+
+    LightLEDButton* freezeToggleButton;
+    LightLEDButton* tunedModeButton;
+    LightLEDButton* diffuseInputButton;
 };
 
 #endif

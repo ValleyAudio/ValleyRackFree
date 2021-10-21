@@ -885,14 +885,16 @@ void OpModModeChoice::step() {
 
 DexterWidget::DexterWidget(Dexter *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
 
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
     if(module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
+    setPanel(darkPanel);
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -1385,12 +1387,12 @@ void DexterWidget::step() {
 
     if (panelChanged) {
         panelChanged = false;
-        panel->visible = false;
+        darkPanel->visible = false;
         lightPanel->visible = false;
         NVGcolor newTextColour;
 
         if (dexter->panelStyle == 0) {
-            panel->visible = true;
+            darkPanel->visible = true;
             newTextColour = darkPanelTextColour;
             algo->style = 0;
         }
@@ -1431,7 +1433,6 @@ void DexterWidget::step() {
     octaveAText->text = octaveTextItems[(int)dexter->octaveAKnob];
     octaveBText->text = octaveTextItems[(int)dexter->octaveBKnob];
 
-    // TODO handle the colour change depending on panel style
     for (int i = 0; i < kNumOperators; ++i) {
         for (int j = 0; j < 6; ++j) {
             mainText[i][j]->visible = !dexter->opSettingsMenu[i];

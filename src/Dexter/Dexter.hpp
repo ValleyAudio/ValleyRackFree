@@ -610,6 +610,7 @@ struct DexterWidget : ModuleWidget {
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
     NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
 
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
     AlgoGraphic* algo;
 };

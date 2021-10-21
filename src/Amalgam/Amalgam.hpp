@@ -233,6 +233,9 @@ struct AmalgamWidget : ModuleWidget {
     DigitalDisplay* paramADisplay;
     DigitalDisplay* paramBDisplay;
 
+    // Buttons
+    LightLEDButton* dcCoupleButton;
+
     SvgPanel* darkPanel;
     SvgPanel* lightPanel;
 };
