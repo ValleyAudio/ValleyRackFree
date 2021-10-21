@@ -116,14 +116,17 @@ void FelinePanelStyleItem::step() {
 
 FelineWidget::FelineWidget(Feline* module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FelinePanelDark.svg")));
 
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FelinePanelDark.svg")));
     if(module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FelinePanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
+    setPanel(darkPanel);
+
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -181,11 +184,11 @@ void FelineWidget::appendContextMenu(Menu *menu) {
 void FelineWidget::step() {
     if(module) {
         if(dynamic_cast<Feline*>(module)->panelStyle == 1) {
-            panel->visible = false;
+            darkPanel->visible = false;
             lightPanel->visible = true;
         }
         else {
-            panel->visible = true;
+            darkPanel->visible = true;
             lightPanel->visible = false;
         }
     }

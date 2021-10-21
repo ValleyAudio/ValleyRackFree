@@ -311,14 +311,16 @@ void Topograph::onReset() {
 
 void TempoKnob::randomize() {
     if (randomizationAllowed) {
-        Knob::randomize();
+        //Knob::randomize();
     }
 }
 
 TopographWidget::TopographWidget(Topograph *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
 
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
+    setPanel(darkPanel);
     if(module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanelWhite.svg")));
@@ -573,7 +575,8 @@ void TopographWidget::step() {
     if (!isInExtClockMode && tgraph->externalClockConnected) {
         isInExtClockMode = true;
         tempoKnob->randomizationAllowed = false;
-        tempoKnob->paramQuantity->setValue(0.f);
+        //tempoKnob->paramQuantity->setValue(0.f);
+        APP->engine->setParamValue(module, Topograph::TEMPO_PARAM, 0.f);
     }
     else if (isInExtClockMode && !tgraph->externalClockConnected) {
         isInExtClockMode = false;
@@ -598,7 +601,7 @@ void TopographWidget::step() {
     tempoText->text = floatToTempoText(tgraph->tempo);
 
     if (tgraph->panelStyle == 1) {
-        panel->visible = false;
+        darkPanel->visible = false;
         lightPanel->visible = true;
         tempoText->color = lightPanelTextColour;
         mapXText->color = lightPanelTextColour;
@@ -606,7 +609,7 @@ void TopographWidget::step() {
         chaosText->color = lightPanelTextColour;
     }
     else {
-        panel->visible = true;
+        darkPanel->visible = true;
         lightPanel->visible = false;
         tempoText->color = darkPanelTextColour;
         mapXText->color = darkPanelTextColour;

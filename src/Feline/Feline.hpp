@@ -119,6 +119,7 @@ struct FelineWidget : ModuleWidget {
     float cvJackY[2] = {224.7f, 277.7f};
     float cvJackX[5] = {4.7f, 27.2f, 49.7f, 72.2f, 94.7f};
 
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
 };
 

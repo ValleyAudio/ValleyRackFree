@@ -344,6 +344,7 @@ struct InterzoneWidget : ModuleWidget {
     Vec VCAOutPos = Vec(444.154f, 241.667f);
     Vec VCALevelCVPos = Vec(249.068, jackRow2Y);
 
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
 };
 

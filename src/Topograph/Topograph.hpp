@@ -184,6 +184,7 @@ struct TopographWidget : ModuleWidget {
     void appendContextMenu(Menu* menu) override;
     void step() override;
 
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
     TempoKnob* tempoKnob;
     PlainText* tempoText;

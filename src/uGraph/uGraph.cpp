@@ -567,6 +567,7 @@ struct UGraphWidget : ModuleWidget {
     void appendContextMenu(Menu* menu) override;
     void step() override;
 
+    SvgPanel* darkPanel;
     SvgPanel* lightPanel;
     ValleyChoiceMenu* seqModeChoice;
     ValleyChoiceMenu* clockResChoice;
@@ -583,14 +584,16 @@ struct UGraphWidget : ModuleWidget {
 
 UGraphWidget::UGraphWidget(UGraph *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanel.svg")));
 
+    darkPanel = new SvgPanel;
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanel.svg")));
     if (module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/UGraphPanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
+    setPanel(darkPanel);
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -784,7 +787,7 @@ void UGraphWidget::step() {
     if (!isInExtClockMode && ugraph->externalClockConnected) {
         isInExtClockMode = true;
         tempoKnob->randomizationAllowed = false;
-        tempoKnob->paramQuantity->setValue(0.f);
+        APP->engine->setParamValue(module, UGraph::TEMPO_PARAM, 0.f);
     }
     else if (isInExtClockMode && !ugraph->externalClockConnected) {
         isInExtClockMode = false;
@@ -809,7 +812,7 @@ void UGraphWidget::step() {
     tempoText->text = floatToTempoText(ugraph->tempo);
 
     if (ugraph->panelStyle == 1) {
-        panel->visible = false;
+        darkPanel->visible = false;
         lightPanel->visible = true;
         tempoText->color = lightPanelTextColour;
         mapXText->color = lightPanelTextColour;
@@ -817,7 +820,7 @@ void UGraphWidget::step() {
         chaosText->color = lightPanelTextColour;
     }
     else {
-        panel->visible = true;
+        darkPanel->visible = true;
         lightPanel->visible = false;
         tempoText->color = darkPanelTextColour;
         mapXText->color = darkPanelTextColour;
