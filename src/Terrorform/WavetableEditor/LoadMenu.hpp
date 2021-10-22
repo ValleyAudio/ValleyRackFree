@@ -19,7 +19,6 @@ struct TFormLoadMenu : TFormMenu {
     TFormNumberField* startWaveField;
     TFormNumberField* endWaveField;
 
-    //std::shared_ptr<std::vector<std::vector<float>>> detectedWaves;
     std::shared_ptr<std::vector<float>> detectedWaves;
     std::shared_ptr<int> selectedBank;
     int maxWaves;
@@ -40,6 +39,15 @@ struct TFormLoadMenu : TFormMenu {
     void draw(const DrawArgs& args) override;
     void step() override;
     void onDragMove(const event::DragMove& e) override;
+
+private:
+    int numWaves = 0;
+    int waveLength = TFORM_MAX_WAVELENGTH;
+    int startOffset = 0;
+    size_t numSamplesToCopy = TFORM_MAX_WAVELENGTH;
+
+    void calcWaveLength();
+    void selectWaves();
     void updateWaveDisplay();
 };
 

@@ -79,7 +79,7 @@ TFormLoadMenu::TFormLoadMenu() {
     startWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
-        updateWaveDisplay();
+        selectWaves();
     };
     addChild(startWaveField);
 
@@ -90,7 +90,7 @@ TFormLoadMenu::TFormLoadMenu() {
     endWaveField->onChangeCallback = [=]() {
         startWaveField->maximum = endWaveField->value;
         endWaveField->minimum = startWaveField->value;
-        updateWaveDisplay();
+        selectWaves();
     };
     addChild(endWaveField);
 
@@ -103,9 +103,7 @@ TFormLoadMenu::TFormLoadMenu() {
     cycleSizeMenu->items.push_back("2048");
     cycleSizeMenu->maxItems = 4;
     cycleSizeMenu->onChangeCallback = [=]() {
-        updateWaveDisplay();
-        endWaveField->setValue(maxWaves);
-        updateWaveDisplay();
+        calcWaveLength();
     };
     addChild(cycleSizeMenu);
 
@@ -138,6 +136,8 @@ TFormLoadMenu::TFormLoadMenu() {
 
         startWaveField->setValue(1);
         nameField->text = "Bank_" + std::to_string(*selectedBank + 1);
+        calcWaveLength();
+        selectWaves();
         updateWaveDisplay();
     };
 }
@@ -171,12 +171,8 @@ void TFormLoadMenu::onDragMove(const event::DragMove& e) {
     waveDisplay->moveSliderPos(e.mouseDelta.y);
 }
 
-void TFormLoadMenu::updateWaveDisplay() {
-    if (detectedWaves == nullptr) {
-        return;
-    }
-
-    int waveLength = TFORM_WAVELENGTH_CAP;
+void TFormLoadMenu::calcWaveLength() {
+    waveLength = TFORM_WAVELENGTH_CAP;
     switch (cycleSizeMenu->getChoice()) {
         case 0 :
             downSampleRatio = 1;
@@ -198,18 +194,36 @@ void TFormLoadMenu::updateWaveDisplay() {
 
     maxWaves = detectedWaves->size() / waveLength;
     maxWaves = maxWaves > TFORM_MAX_NUM_WAVES ? TFORM_MAX_NUM_WAVES : maxWaves;
-    startWaveField->setMaximum(maxWaves);
-    endWaveField->setMaximum(maxWaves);
+    startWaveField->minimum = 1;
+    startWaveField->maximum = maxWaves;
+    startWaveField->setValue(1);
 
-    int numWaves = endWaveField->value - (startWaveField->value - 1);
-    int startOffset = (startWaveField->value - 1) * waveLength;
-    size_t numSamplesToCopy = numWaves * waveLength;
+    endWaveField->minimum = 1;
+    endWaveField->maximum = maxWaves;
+    endWaveField->setValue(maxWaves);
+
+    selectWaves();
+}
+
+void TFormLoadMenu::selectWaves() {
+    if (detectedWaves == nullptr) {
+        return;
+    }
+
+    numWaves = endWaveField->value - (startWaveField->value - 1);
+    startOffset = (startWaveField->value - 1) * waveLength;
+    numSamplesToCopy = numWaves * waveLength;
+
+    updateWaveDisplay();
+}
+
+void TFormLoadMenu::updateWaveDisplay() {
+    if (detectedWaves == nullptr) {
+        return;
+    }
 
     waveDisplay->waveData.clear();
     waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
-
-    // TODO 2 : Do some safety checks to make sure we don't go out of bounds of 'detectedWaves'
-    //     We want to predict where we start and end in 'detectedWaves', and zero pad if necessary
 
     for (size_t i = 0; i < numSamplesToCopy; ++i) {
         waveDisplay->waveData[i] = (*detectedWaves)[i + startOffset];
