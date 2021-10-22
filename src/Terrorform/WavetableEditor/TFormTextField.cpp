@@ -18,15 +18,18 @@ void TFormTextField::draw(const DrawArgs& args) {
 
     // Text
     if (font->handle >= 0) {
+        const int maxChars = 9;
         bndSetFont(font->handle);
 
         NVGcolor highlightColor = color;
         highlightColor.a = 0.5;
         int begin = std::min(cursor, selection);
-        int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
+        int end = (this == APP->event->selectedWidget) ? std::min(cursor, selection) : -1;
 
-        if (text.size() > 9) {
-            text = text.substr(0, 9);
+        if (text.size() > maxChars) {
+            text = text.substr(0, maxChars);
+            cursor = maxChars;
+            selection = maxChars;
         }
         if (enabled) {
             bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
@@ -118,6 +121,8 @@ void TFormNumberField::draw(const DrawArgs& args) {
 
     // Text
     if (font->handle >= 0) {
+        const int maxChars = 2;
+
         bndSetFont(font->handle);
 
         NVGcolor highlightColor = color;
@@ -125,8 +130,10 @@ void TFormNumberField::draw(const DrawArgs& args) {
         int begin = std::min(cursor, selection);
         int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
 
-        if (text.size() > 2) {
-            text = text.substr(0, 2);
+        if (text.size() > maxChars) {
+            text = text.substr(0, maxChars);
+            cursor = maxChars;
+            selection = maxChars;
         }
         bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
                           -1, textColor, 12, text.c_str(), highlightColor, begin, end);
