@@ -1,4 +1,5 @@
 #include "TFormTextField.hpp"
+#include <iostream>
 
 TFormTextField::TFormTextField() {
     font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
@@ -24,7 +25,7 @@ void TFormTextField::draw(const DrawArgs& args) {
         NVGcolor highlightColor = color;
         highlightColor.a = 0.5;
         int begin = std::min(cursor, selection);
-        int end = (this == APP->event->selectedWidget) ? std::min(cursor, selection) : -1;
+        int end = (this == APP->event->selectedWidget) ? std::max(cursor, selection) : -1;
 
         if (text.size() > maxChars) {
             text = text.substr(0, maxChars);
@@ -135,8 +136,21 @@ void TFormNumberField::draw(const DrawArgs& args) {
             cursor = maxChars;
             selection = maxChars;
         }
-        bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
-                          -1, textColor, 12, text.c_str(), highlightColor, begin, end);
+        cursor = std::min((int)text.size(), cursor);
+        selection = std::min(cursor, selection);
+
+        if (enabled) {
+            bndIconLabelCaret(args.vg, 0, -3,  box.size.x, box.size.y,
+                              -1, textColor, 12, text.c_str(), highlightColor, begin, end);
+        }
+        else {
+            nvgFontSize(args.vg, 12);
+            nvgFillColor(args.vg, textColor);
+            nvgFontFaceId(args.vg, font->handle);
+            nvgTextLetterSpacing(args.vg, 0.0);
+            nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+            nvgText(args.vg, 3.85, 1.65, text.c_str(), NULL);
+        }
         bndSetFont(APP->window->uiFont->handle);
     }
 
@@ -235,6 +249,8 @@ void TFormNumberField::updateText(const std::string& newText) {
 
     if (!isNumeric(text) || text.size() < 1) {
         text = prevText;
+        cursor = text.size();
+        selection = text.size();
         return;
     }
     prevText = text;
@@ -246,6 +262,8 @@ void TFormNumberField::updateText(const std::string& newText) {
     }
     else {
         text = std::to_string(value);
+        cursor = text.size();
+        selection = text.size();
         prevText = text;
     }
 }
