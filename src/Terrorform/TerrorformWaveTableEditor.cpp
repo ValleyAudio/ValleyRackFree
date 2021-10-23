@@ -114,7 +114,7 @@ TFormEditorDefragMenu::TFormEditorDefragMenu() {
     defragDoneMessage->box.size = box.size;
     defragDoneMessage->text = "Defragmentation Complete";
     addChild(defragDoneMessage);
-    viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
+    viewCounter = (int) std::ceil(APP->window->getLastFrameDuration());
 }
 
 void TFormEditorDefragMenu::step() {
@@ -122,7 +122,7 @@ void TFormEditorDefragMenu::step() {
         --viewCounter;
     }
     if(viewCounter <= 0) {
-        viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
+        viewCounter = (int) std::ceil(APP->window->getLastFrameDuration());
         hide();
     }
     Widget::step();
@@ -139,7 +139,8 @@ TFormPurgeMenu::TFormPurgeMenu() {
         yesButton->hide();
         questionText->hide();
         clearedText->show();
-        counter = (int) std::ceil(APP->window->getLastFrameRate());
+        float frameRate = 1.f / APP->window->getLastFrameDuration();
+        counter = static_cast<int>(std::ceil(frameRate));
     };
     addChild(yesButton);
 
@@ -241,7 +242,8 @@ TFormEditorMainMenu::TFormEditorMainMenu() {
         exitButton->hide();
         purgeButton->hide();
         defragMenu->view();
-        defragMenu->viewCounter = (int) std::ceil(APP->window->getLastFrameRate());
+        float frameRate = 1.f / APP->window->getLastFrameDuration();
+        defragMenu->viewCounter = static_cast<int>(std::ceil(frameRate));
     };
 
     purgeButton->onClick = [=]() {
