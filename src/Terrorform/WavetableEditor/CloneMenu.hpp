@@ -26,6 +26,11 @@ struct TFormCloneMenuSourcePage : TFormMenu {
     void step() override;
     void draw(const DrawArgs& args) override;
     void onDragMove(const event::DragMove& e) override;
+
+private:
+    int numWaves = 0;
+    size_t numSamplesToCopy = 0;
+
     void updateWaveDisplay();
 };
 

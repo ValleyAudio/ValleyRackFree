@@ -114,8 +114,8 @@ void TFormCloneMenuSourcePage::updateWaveDisplay() {
         return;
     }
 
-    int numWaves = endWaveField->value - (startWaveField->value - 1);
-    size_t numSamplesToCopy = numWaves * TFORM_WAVELENGTH_CAP;
+    numWaves = endWaveField->value - (startWaveField->value - 1);
+    numSamplesToCopy = numWaves * TFORM_WAVELENGTH_CAP;
     waveDisplay->waveData.clear();
     waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
 
