@@ -185,14 +185,14 @@ TFormMoveMenu::TFormMoveMenu() {
         exit();
     };
     destPage->onExit = [=]() {
-        counter = APP->window->getLastFrameRate();
+        float frameRate = 1.f / APP->window->getLastFrameDuration();
+        counter = static_cast<int>(frameRate);
         moveDoneText->text = "Bank " + std::to_string(*sourceBank + 1) + " moved";
         moveDoneText->show();
     };
     addChild(destPage);
 
     onView = [=]() {
-        //destPage->show();
         destPage->view();
     };
 }
