@@ -263,8 +263,8 @@ void Plateau::process(const ProcessArgs &args) {
 
     leftInputBlock[frameCounter] = leftInput * 0.1f * inputSensitivity * envelope._value;
     rightInputBlock[frameCounter] = rightInput * 0.1f * inputSensitivity * envelope._value;
-    leftOutput = leftInput * dry + leftOutputBlock[frameCounter] * wet * envelope._value;
-    rightOutput = rightInput * dry + rightOutputBlock[frameCounter] * wet * envelope._value;
+    leftOutput = leftInput * dry + leftOutputBlock[frameCounter] * envelope._value;
+    rightOutput = rightInput * dry + rightOutputBlock[frameCounter] * envelope._value;
     outputs[LEFT_OUTPUT].setVoltage(leftOutput);
     outputs[RIGHT_OUTPUT].setVoltage(rightOutput);
 
@@ -287,18 +287,14 @@ void Plateau::process(const ProcessArgs &args) {
 
         if (outputSaturationState) {
             for (uint64_t i = 0; i < blockSize; ++i) {
-                leftOutputBlock[i] = tanhDriveSignal(leftOutputBlock[i] * 0.111f, 0.95f) * 9.999f;
-            }
-            for (uint64_t i = 0; i < blockSize; ++i) {
-                rightOutputBlock[i] = tanhDriveSignal(rightOutputBlock[i] * 0.111f, 0.95f) * 9.999f;
+                leftOutputBlock[i] = tanhDriveSignal(leftOutputBlock[i] * wet * 0.111f, 0.95f) * 9.999f;
+                rightOutputBlock[i] = tanhDriveSignal(rightOutputBlock[i] * wet * 0.111f, 0.95f) * 9.999f;
             }
         }
         else {
             for (uint64_t i = 0; i < blockSize; ++i) {
-                leftOutputBlock[i] = clamp(leftOutputBlock[i], -10.f, 10.f);
-            }
-            for (uint64_t i = 0; i < blockSize; ++i) {
-                rightOutputBlock[i] = clamp(rightOutputBlock[i], -10.f, 10.f);
+                leftOutputBlock[i] = clamp(leftOutputBlock[i] * wet, -10.f, 10.f);
+                rightOutputBlock[i] = clamp(rightOutputBlock[i] * wet, -10.f, 10.f);
             }
         }
     }
