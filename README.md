@@ -1,16 +1,18 @@
 # ValleyRack Free
 
-3rd party plugins for VCV Rack version 1.1.x
+3rd party plugins for VCV Rack version 2.0.x
+
+**This is currently in beta and has only been tested on macOS**. Build and use at your own peril.
 
 ## Version
 
-1.1.7
+2.0.0b
 
 ## Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have at least Rack v1.1.0 to use these modules.
+You must have at least Rack v2.0.0 use these modules.
 
 ## Modules
 
@@ -27,7 +29,8 @@ well known Dattorro (1997) plate reverb algorithm.
 ![Valley](./ValleyImg.png)
 
 ## Installation
-The latest release will be always available from the official Rack [Plugin Manager](https://vcvrack.com/plugins.html).
+
+As of now there is no release. Please clone this repo, then build and use at your own peril....
 
 ## Usage
 See the official [Valley Audio Soft](https://valleyaudio.github.io/index.html) website for complete documentation of all of the modules in this plugin.
