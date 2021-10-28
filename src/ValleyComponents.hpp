@@ -5,7 +5,9 @@
 
 struct Rogan1PSBrightRed : Rogan {
     Rogan1PSBrightRed() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBrightRed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PSBrightRed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PS-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PSBrightRed-fg.svg")));
     }
 };
 
@@ -17,7 +19,9 @@ struct RoganSmallBrightRed : Rogan {
 
 struct Rogan1PSYellow : Rogan {
     Rogan1PSYellow() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSYellow.svg")));
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/v2/Rogan1PSYellow.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PS-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PSYellow-fg.svg")));
     }
 };
 
@@ -29,7 +33,9 @@ struct RoganSmallYellow : Rogan {
 
 struct RoganMedWhite : Rogan {
     RoganMedWhite() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSWhiteMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSWhiteMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSWhiteMed-fg.svg")));
     }
 };
 
@@ -41,13 +47,17 @@ struct RoganMedSmallWhite : Rogan {
 
 struct RoganSmallWhite : Rogan {
     RoganSmallWhite() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSWhiteSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSWhiteSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSWhiteSmall-fg.svg")));
     }
 };
 
 struct RoganMedGreen : Rogan {
     RoganMedGreen() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSGreenMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSGreenMed-fg.svg")));
     }
 };
 
@@ -59,13 +69,17 @@ struct RoganMedGreenWithModeText : ValleyRogan {
 
 struct RoganSmallGreen : Rogan {
     RoganSmallGreen() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSGreenSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSGreenSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSGreenSmall-fg.svg")));
     }
 };
 
 struct RoganMedBlue : Rogan {
     RoganMedBlue() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSBlueMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSBlueMed-fg.svg")));
     }
 };
 
@@ -91,13 +105,17 @@ struct RoganMedSmallBlueSnap : Rogan {
 
 struct RoganSmallBlue : Rogan {
     RoganSmallBlue() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSBlueSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSBlueSmall-fg.svg")));
     }
 };
 
 struct RoganMedRed : Rogan {
     RoganMedRed() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSRedMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSRedMed-fg.svg")));
     }
 };
 
@@ -109,7 +127,9 @@ struct RoganMedRedWithModeText : ValleyRogan {
 
 struct RoganSmallRed : Rogan {
     RoganSmallRed() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSRedSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSRedSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSRedSmall-fg.svg")));
     }
 };
 
@@ -121,7 +141,9 @@ struct Rogan1PSPurple : Rogan {
 
 struct RoganMedPurple : Rogan {
     RoganMedPurple() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSPurpleMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSPurpleMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSPurpleMed-fg.svg")));
     }
 };
 
@@ -145,25 +167,33 @@ struct Rogan1PSMustard : Rogan {
 
 struct RoganMedMustard : Rogan {
     RoganMedMustard() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustardMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMustardMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMustardMed-fg.svg")));
     }
 };
 
 struct RoganSmallMustard : Rogan {
     RoganSmallMustard() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSMustardSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSMustardSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Small/Rogan1PSMustardSmall-fg.svg")));
     }
 };
 
 struct Rogan1PSOrange : Rogan {
     Rogan1PSOrange() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSOrange.svg")));
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/v2/Rogan1PSOrange.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PS-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Rogan1PSOrange-fg.svg")));
     }
 };
 
 struct RoganMedOrange : Rogan {
     RoganMedOrange() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSOrangeMed.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSOrangeMed.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMed-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSOrangeMed-fg.svg")));
     }
 };
 

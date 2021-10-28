@@ -253,8 +253,8 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
 
     addParam(createParam<RoganSmallWhite>(xDriveKnobPos, module, Amalgam::X_GAIN));
     addParam(createParam<RoganSmallWhite>(yDriveKnobPos, module, Amalgam::Y_GAIN));
-    addParam(createParam<DynRoganMedGreen>(paramAKnobPos, module, Amalgam::A_PARAM));
-    addParam(createParam<DynRoganMedBlue>(paramBKnobPos, module, Amalgam::B_PARAM));
+    addParam(createParam<RoganMedGreen>(paramAKnobPos, module, Amalgam::A_PARAM));
+    addParam(createParam<RoganMedBlue>(paramBKnobPos, module, Amalgam::B_PARAM));
     addParam(createParam<RoganMedWhite>(typeKnobPos, module, Amalgam::TYPE_PARAM));
     addParam(createParam<RoganSmallWhite>(modeCV1KnobPos, module, Amalgam::TYPE_CV1_PARAM));
     addParam(createParam<RoganSmallWhite>(modeCV2KnobPos, module, Amalgam::TYPE_CV2_PARAM));
