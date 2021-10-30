@@ -332,8 +332,13 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<OrangeSlider>(VCOModSliderPos, module, Interzone::PITCH_MOD_PARAM));
     addParam(createParam<OrangeSlider>(VCOWidthSliderPos, module, Interzone::PW_PARAM));
     addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM));
-    addParam(createValleyKnob<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM, octaveMinAngle,
-                                              octaveMaxAngle, DynamicKnobMotion::SNAP_MOTION));
+
+    RoganMedOrange* VCOOctaveKnob = createParam<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM);
+    VCOOctaveKnob->smooth = false;
+    VCOOctaveKnob->getParamQuantity()->snapEnabled = true;
+    VCOOctaveKnob->minAngle = octaveMinAngle;
+    VCOOctaveKnob->maxAngle = octaveMaxAngle;
+    addParam(VCOOctaveKnob);
 
     addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM));
     addParam(createParam<RoganSmallOrange>(VCOFinePos, module, Interzone::FINE_PARAM));
@@ -375,9 +380,13 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<GreenSlider>(LFORatePos, module, Interzone::LFO_RATE_PARAM));
     addParam(createParam<RoganSmallOrange>(LFOFinePos, module, Interzone::LFO_FINE_PARAM));
     addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM));
-    addParam(createValleyKnob<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM,
-                                              lfoWaveMinAngle, lfoWaveMaxAngle,
-                                              DynamicKnobMotion::SNAP_MOTION));
+
+    RoganMedOrange* LFOWaveKnob = createParam<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM);
+    LFOWaveKnob->smooth = false;
+    LFOWaveKnob->getParamQuantity()->snapEnabled = true;
+    LFOWaveKnob->minAngle = lfoWaveMinAngle;
+    LFOWaveKnob->maxAngle = lfoWaveMaxAngle;
+    addParam(LFOWaveKnob);
 
     addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM));
     addParam(createParam<RoganSmallOrange>(VCALevelPos, module, Interzone::VCA_LEVEL_CV_PARAM));
