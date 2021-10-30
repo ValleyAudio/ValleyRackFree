@@ -45,7 +45,9 @@ struct RoganMedWhite : Rogan {
 
 struct RoganMedSmallWhite : Rogan {
     RoganMedSmallWhite() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSWhiteMedSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSWhiteMedSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMedSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSWhiteMedSmall-fg.svg")));
     }
 };
 
@@ -91,7 +93,9 @@ struct RoganMedBlue : Rogan {
 
 struct RoganMedSmallBlue : Rogan {
     RoganMedSmallBlue() {
-        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rogan1PSBlueMedSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSBlueMedSmall.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSMedSmall-bg.svg")));
+        fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/v2/Med/Rogan1PSBlueMedSmall-fg.svg")));
     }
 };
 
