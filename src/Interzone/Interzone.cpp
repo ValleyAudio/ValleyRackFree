@@ -334,10 +334,12 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<OrangeSlider>(VCOPWMSliderPos, module, Interzone::PW_MOD_PARAM));
 
     RoganMedOrange* VCOOctaveKnob = createParam<RoganMedOrange>(VCOOctavePos, module, Interzone::OCTAVE_PARAM);
-    VCOOctaveKnob->smooth = false;
-    VCOOctaveKnob->getParamQuantity()->snapEnabled = true;
-    VCOOctaveKnob->minAngle = octaveMinAngle;
-    VCOOctaveKnob->maxAngle = octaveMaxAngle;
+    if (module) {
+        VCOOctaveKnob->smooth = false;
+        VCOOctaveKnob->getParamQuantity()->snapEnabled = true;
+        VCOOctaveKnob->minAngle = octaveMinAngle;
+        VCOOctaveKnob->maxAngle = octaveMaxAngle;
+    }
     addParam(VCOOctaveKnob);
 
     addParam(createParam<RoganSmallOrange>(VCOCoarsePos, module, Interzone::COARSE_PARAM));
@@ -382,10 +384,12 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
     addParam(createParam<RoganSmallOrange>(LFOSlewPos, module, Interzone::LFO_SLEW_PARAM));
 
     RoganMedOrange* LFOWaveKnob = createParam<RoganMedOrange>(LFOWavePos, module, Interzone::LFO_WAVE_PARAM);
-    LFOWaveKnob->smooth = false;
-    LFOWaveKnob->getParamQuantity()->snapEnabled = true;
-    LFOWaveKnob->minAngle = lfoWaveMinAngle;
-    LFOWaveKnob->maxAngle = lfoWaveMaxAngle;
+    if (module) {
+        LFOWaveKnob->smooth = false;
+        LFOWaveKnob->getParamQuantity()->snapEnabled = true;
+        LFOWaveKnob->minAngle = lfoWaveMinAngle;
+        LFOWaveKnob->maxAngle = lfoWaveMaxAngle;
+    }
     addParam(LFOWaveKnob);
 
     addParam(createParam<CKSS>(VCASourcePos, module, Interzone::VCA_SOURCE_PARAM));
