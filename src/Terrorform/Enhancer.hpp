@@ -88,9 +88,8 @@ public:
         __updateRate = _mm_sub_ps(__ones, param);
         __updateRate = _mm_mul_ps(__updateRate, __updateRate);
         __updateRate = _mm_mul_ps(__updateRate, __updateRate);
-        __updateRate = _mm_mul_ps(__updateRate, _mm_set1_ps(0.97f));
-        __updateRate = _mm_add_ps(__updateRate, _mm_set1_ps(0.03f));
-        calcStepSize();
+        __updateRate = _mm_mul_ps(__updateRate, _mm_set1_ps(updateRateScale));
+        __updateRate = _mm_add_ps(__updateRate, _mm_set1_ps(updateRateOffset));
         output = (this->*p[_mode])(x, param);
         return output;
     }
@@ -123,9 +122,9 @@ public:
     }
 
     void setSampleRate(float sampleRate) {
-        __scaler = _mm_set1_ps(44100.f / sampleRate);
         __filter.setSampleRate(sampleRate);
-        calcStepSize();
+        updateRateOffset = 0.03f * (44100.f / sampleRate);
+        updateRateScale = 1.f - updateRateOffset;
     }
 
     void insertAuxSignals(const __m128& phasor, const __m128& phasorStepSize,
@@ -139,14 +138,10 @@ public:
 
 private:
 
-    inline void calcStepSize() {
-        __stepSize = _mm_mul_ps(__updateRate, __scaler);
-    }
-
     __m128 (VecEnhancer::*p[NUM_MODES])(const __m128& x, const __m128& param);
 
     __m128 bitCrush(const __m128& x, const __m128& param) {
-        __counter = _mm_add_ps(__counter, __stepSize);
+        __counter = _mm_add_ps(__counter, __updateRate);
         __doSample = _mm_and_ps(_mm_cmpge_ps(__counter, __ones), __high);
         __counter = _mm_switch_ps(__counter, _mm_sub_ps(__counter, __ones), __doSample);
         __y = _mm_switch_ps(__y, x, __doSample);
@@ -283,7 +278,8 @@ private:
     }
 
     int _mode;
-    __m128 __scaler, __updateRate, __stepSize, __counter, __doSample;
+    float updateRateScale, updateRateOffset;
+    __m128 __updateRate, __counter, __doSample;
     __m128 __zeros, __ones, __twos, __fours, __high, __negOnes, __eights, __sixteens, __sixtyFour, _twoHundred;
     __m128 __halfs, __quarters, __eighths;
     __m128 __posEpsilon, __negEpsilon;
