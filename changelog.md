@@ -6,6 +6,7 @@
     * [Fixed] Corrected text overwrite bug in TFormNumberField that would cause cursor to overshoot text size
     * [Update] Plateau now features a block processing mode to help with efficiency on older systems.
     * [Fixed] Corrected the output saturation and clipping modes on Plateau.
+    * [Update] Updated graphics to v2 style 
 
 ## 1.1.1
 
