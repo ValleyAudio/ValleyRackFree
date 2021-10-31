@@ -326,11 +326,13 @@ struct LightLEDButton3 : SvgSwitch {
 struct LightLEDButtonWithModeText : SvgSwitch {
     std::function<void()> onClick;
     std::shared_ptr<std::string> modeText;
+    NonValueParamTooltip* tooltip;
 
     LightLEDButtonWithModeText() {
         momentary = true;
         addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));
         modeText = std::make_shared<std::string>();
+        tooltip = NULL;
     }
 
     void onDragEnd(const event::DragEnd& e) override {
@@ -341,13 +343,29 @@ struct LightLEDButtonWithModeText : SvgSwitch {
     }
 
     void onEnter(const event::Enter& e) override {
-        //if (settings::paramTooltip && !tooltip && paramQuantity) {
-        //    NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
-        //    paramTooltip->nonValueText = modeText;
-        //    paramTooltip->paramWidget = this;
-        //    APP->scene->addChild(paramTooltip);
-        //    tooltip = paramTooltip;
-        //}
+        if (!settings::tooltips) {
+            return;
+        }
+        if (tooltip) {
+            return;
+        }
+        if (!module) {
+            return;
+        }
+        NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+        paramTooltip->nonValueText = modeText;
+        paramTooltip->paramWidget = this;
+        APP->scene->addChild(paramTooltip);
+        tooltip = paramTooltip;
+    }
+
+    void onLeave(const LeaveEvent& e) override {
+        if (!tooltip) {
+            return;
+        }
+        APP->scene->removeChild(tooltip);
+        delete tooltip;
+        tooltip = NULL;
     }
 
     void setModeText(const std::string& newModeText) {

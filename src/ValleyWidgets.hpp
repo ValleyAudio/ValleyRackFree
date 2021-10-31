@@ -399,11 +399,11 @@ DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
 
 struct NonValueParamTooltip : ui::Tooltip {
     ParamWidget* paramWidget;
-    ParamQuantity* paramQuantity = paramWidget->getParamQuantity();
     std::shared_ptr<std::string> nonValueText;
 
     void step() override {
-    if (paramQuantity) {
+        ParamQuantity* paramQuantity = paramWidget->getParamQuantity();
+        if (paramQuantity) {
             // Quantity string
             text = paramQuantity->getLabel();
             text += ": ";
@@ -429,19 +429,37 @@ struct NonValueParamTooltip : ui::Tooltip {
 
 struct ValleyRogan : Rogan {
     std::shared_ptr<std::string> modeText;
+    NonValueParamTooltip* tooltip;
 
     ValleyRogan() {
         modeText = std::make_shared<std::string>();
+        tooltip = NULL;
     }
 
-    void onEnter(const event::Enter& e) override {
-        //if (settings::paramTooltip && !tooltip && paramQuantity) {
-        //    NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
-        //    paramTooltip->nonValueText = modeText;
-        //    paramTooltip->paramWidget = this;
-        //    APP->scene->addChild(paramTooltip);
-        //    tooltip = paramTooltip;
-        //}
+    void onEnter(const EnterEvent& e) override {
+        if (!settings::tooltips) {
+            return;
+        }
+        if (tooltip) {
+            return;
+        }
+        if (!module) {
+            return;
+        }
+        NonValueParamTooltip* paramTooltip = new NonValueParamTooltip;
+        paramTooltip->nonValueText = modeText;
+        paramTooltip->paramWidget = this;
+        APP->scene->addChild(paramTooltip);
+        tooltip = paramTooltip;
+    }
+
+    void onLeave(const LeaveEvent& e) override {
+        if (!tooltip) {
+            return;
+        }
+        APP->scene->removeChild(tooltip);
+        delete tooltip;
+        tooltip = NULL;
     }
 
     void setModeText(const std::string& newModeText) {
