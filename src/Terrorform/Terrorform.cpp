@@ -153,9 +153,6 @@ Terrorform::~Terrorform() {
     aligned_free_16(skew);
 
     for(auto bank = 0; bank < TFORM_MAX_BANKS; ++bank) {
-        // for(auto wave = 0; wave < TFORM_MAX_NUM_WAVES; ++wave) {
-        //     delete[] userWaveTableData[bank][wave];
-        // }
         if (userWaveTableData[bank]) {
             delete[] userWaveTableData[bank];
         }
@@ -915,32 +912,45 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
 
     // Knobs
     octaveKnob = createParamCentered<RoganMedBlue>(octavePos, module, Terrorform::OCTAVE_PARAM);
-    octaveKnob->smooth = false;
-    octaveKnob->snap = true;
+    if (module) {
+        octaveKnob->getParamQuantity()->smoothEnabled = false;
+        octaveKnob->getParamQuantity()->snapEnabled = true;
+    }
     addParam(octaveKnob);
+
     coarseKnob = createParamCentered<RoganMedBlue>(coarsePos, module, Terrorform::COARSE_PARAM);
     addParam(coarseKnob);
+
     fineKnob = createParamCentered<RoganMedBlue>(finePos, module, Terrorform::FINE_PARAM);
     addParam(fineKnob);
 
     bankKnob = createParamCentered<RoganMedPurpleWithModeText>(bankPos, module, Terrorform::BANK_PARAM);
-    bankKnob->smooth = false;
-    bankKnob->snap = true;
+    if (module) {
+        bankKnob->getParamQuantity()->smoothEnabled = false;
+        bankKnob->getParamQuantity()->snapEnabled = true;
+    }
     addParam(bankKnob);
+
     waveKnob = createParamCentered<RoganMedPurple>(wavePos, module, Terrorform::WAVE_PARAM);
     addParam(waveKnob);
 
     shapeTypeKnob = createParamCentered<RoganMedRedWithModeText>(shapeTypePos, module, Terrorform::SHAPE_TYPE_PARAM);
-    shapeTypeKnob->smooth = false;
-    shapeTypeKnob->snap = true;
+    if (module) {
+        shapeTypeKnob->getParamQuantity()->smoothEnabled = false;
+        shapeTypeKnob->getParamQuantity()->snapEnabled = true;
+    }
     addParam(shapeTypeKnob);
+
     shapeDepthKnob = createParamCentered<RoganMedRed>(shapeDepthPos, module, Terrorform::SHAPE_DEPTH_PARAM);
     addParam(shapeDepthKnob);
 
     enhanceTypeKnob = createParamCentered<RoganMedGreenWithModeText>(enhanceTypePos, module, Terrorform::ENHANCE_TYPE_PARAM);
-    enhanceTypeKnob->smooth = false;
-    enhanceTypeKnob->snap = true;
+    if (module) {
+        enhanceTypeKnob->getParamQuantity()->smoothEnabled = false;
+        enhanceTypeKnob->getParamQuantity()->snapEnabled = true;
+    }
     addParam(enhanceTypeKnob);
+
     enhanceDepthKnob = createParamCentered<RoganMedGreen>(enhanceDepthPos, module, Terrorform::ENHANCE_DEPTH_PARAM);
     addParam(enhanceDepthKnob);
 
@@ -1412,8 +1422,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         inEditorMode = false;
     };
 
-    // TODO : Allow for loading of bigger wav files (2048 * 64 or 131,072 samples max).
-    // This will let users load their beloved Serum wavetables
     auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<float>> {
         const char FILE_FILTERS[] = "WAV File (.wav):wav";
         std::string filename;
@@ -1488,7 +1496,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         return waves;
     };
 
-    // TODO : Add downsampling ratio argument
     auto ingestNewTable = [=](int bank, int startWave, int endWave, int downSampleRatio,
                               const std::string name) -> void {
         int numWaves = (endWave - startWave) + 1;
@@ -1510,7 +1517,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
             writePos = i % TFORM_WAVELENGTH_CAP;
             module->userWaveTableData[bank][i] = newTable[readPos];
         }
-
 
         module->userWaveTableSizes[bank] = numWaves;
         module->userWaveTableFilled[bank] = true;
