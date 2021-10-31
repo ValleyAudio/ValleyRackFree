@@ -905,17 +905,49 @@ DexterWidget::DexterWidget(Dexter *module) {
     algo->box.pos = Vec(138.75, 88.245);
     addChild(algo);
 
-    addParam(createParam<RoganMedBlueSnap>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM));
+    RoganMedBlue* OctaveAKnob = createParam<RoganMedBlue>(OctaveAKnobPos, module, Dexter::OCTAVE_PARAM);
+    if (module) {
+        OctaveAKnob->smooth = false;
+        OctaveAKnob->getParamQuantity()->snapEnabled = true;
+    }
+    addParam(OctaveAKnob);
+
     addParam(createParam<RoganMedBlue>(CoarseKnobPos, module, Dexter::COARSE_PARAM));
     addParam(createParam<RoganMedBlue>(FineKnobPos, module, Dexter::FINE_PARAM));
-    addParam(createParam<RoganMedSmallBlueSnap>(ChordKnobPos, module, Dexter::CHORD_PARAM));
-    addParam(createParam<RoganMedSmallBlueSnap>(InvertKnobPos, module, Dexter::INVERT_PARAM));
+
+    RoganMedSmallBlue* ChordKnob = createParam<RoganMedSmallBlue>(ChordKnobPos, module, Dexter::CHORD_PARAM);
+    if (module) {
+        ChordKnob->smooth = false;
+        ChordKnob->getParamQuantity()->snapEnabled = true;
+    }
+    addParam(ChordKnob);
+
+    RoganMedSmallBlue* InvertKnob = createParam<RoganMedSmallBlue>(InvertKnobPos, module, Dexter::INVERT_PARAM);
+    if (module) {
+        InvertKnob->smooth = false;
+        InvertKnob->getParamQuantity()->snapEnabled = true;
+    }
+    addParam(InvertKnob);
+
     addParam(createParam<RoganMedSmallBlue>(DetuneKnobPos, module, Dexter::DETUNE_PARAM));
-    addParam(createParam<RoganMedBlueSnap>(Octave2KnobPos, module, Dexter::B_OCTAVE_PARAM));
+
+    RoganMedBlue* Octave2Knob = createParam<RoganMedBlue>(Octave2KnobPos, module, Dexter::B_OCTAVE_PARAM);
+    if (module) {
+        Octave2Knob->smooth = false;
+        Octave2Knob->getParamQuantity()->snapEnabled = true;
+    }
+    addParam(Octave2Knob);
+
     addParam(createParam<RoganMedBlue>(Coarse2KnobPos, module, Dexter::B_COARSE_PARAM));
     addParam(createParam<RoganMedBlue>(Fine2KnobPos, module, Dexter::B_FINE_PARAM));
 
-    addParam(createParam<RoganMedBlueSnap>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM));
+    RoganMedBlue* AlgoKnob = createParam<RoganMedBlue>(AlgoKnobPos, module, Dexter::ALGORITHM_PARAM);
+    if (module) {
+        AlgoKnob->smooth = false;
+        AlgoKnob->getParamQuantity()->snapEnabled = true;
+    }
+    addParam(AlgoKnob);
+
     addParam(createParam<RoganMedGreen>(BrightKnobPos, module, Dexter::BRIGHTNESS_PARAM));
     addParam(createParam<RoganMedRed>(ShapeKnobPos, module, Dexter::SHAPE_PARAM));
     addParam(createParam<RoganMedOrange>(FeedbackKnobPos, module, Dexter::FEEDBACK_PARAM));

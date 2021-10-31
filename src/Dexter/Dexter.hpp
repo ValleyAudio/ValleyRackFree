@@ -461,28 +461,28 @@ struct DexterWidget : ModuleWidget {
 
     // Control positions
     const float ledOffset = 2.5;
-    Vec ChordKnobPos = Vec(10.41, 84.625);
-    Vec InvertKnobPos = Vec(53.71, 84.625);
-    Vec DetuneKnobPos = Vec(96.41, 84.625);
-    Vec OctaveAKnobPos = Vec(8.41, 35.12); // 10.41
-    Vec CoarseKnobPos = Vec(51.71, 35.12); // 55.71
-    Vec FineKnobPos = Vec(94.41, 35.12); // 100.41
+    Vec ChordKnobPos = Vec(11.41, 84.625);
+    Vec InvertKnobPos = Vec(54.71, 84.625);
+    Vec DetuneKnobPos = Vec(97.41, 84.625);
+    Vec OctaveAKnobPos = Vec(8.41, 35.12);
+    Vec CoarseKnobPos = Vec(51.71, 35.12);
+    Vec FineKnobPos = Vec(94.41, 35.12);
     Vec AlgoKnobPos = Vec(143.71, 35.12);
     Vec BrightKnobPos = Vec(51.71, 205.625);
     Vec ShapeKnobPos = Vec(8.41, 205.625);
     Vec FeedbackKnobPos = Vec(94.41, 205.625);
 
-    Vec Octave2KnobPos = Vec(8.41, 153.12); // 153.12
+    Vec Octave2KnobPos = Vec(8.41, 153.12);
     Vec Coarse2KnobPos = Vec(51.71, 153.12);
     Vec Fine2KnobPos = Vec(94.41, 153.12);
 
     Vec ChordDepthKnobPos = Vec(5.5, 258.509);
     Vec InvertDepthKnobPos = Vec(31.7, 258.509);
-    Vec DetuneDepthKnobPos = Vec(58, 258.509); // 58
-    Vec AlgoDepthKnobPos = Vec(85.2, 258.509); // 84.2
-    Vec FBDepthKnobPos = Vec(110.55, 258.509); // 110.55
-    Vec BrightDepthKnobPos = Vec(136.85, 258.509); // 136.85
-    Vec ShapeDepthKnobPos = Vec(163.15, 258.509); // 163.15
+    Vec DetuneDepthKnobPos = Vec(58, 258.509);
+    Vec AlgoDepthKnobPos = Vec(85.2, 258.509);
+    Vec FBDepthKnobPos = Vec(110.55, 258.509);
+    Vec BrightDepthKnobPos = Vec(136.85, 258.509);
+    Vec ShapeDepthKnobPos = Vec(163.15, 258.509);
 
     Vec MasterLFOButtonPos = Vec(138.125, 166);
     Vec ResetPhaseButtonPos = Vec(138.125, 184.462);
