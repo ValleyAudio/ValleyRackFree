@@ -112,14 +112,6 @@ struct DynamicKnob : virtual Knob {
 	void setSvg(std::shared_ptr<Svg> svg);
 };
 
-struct DynamicSvgKnob : SvgKnob {
-    int* _visibility;
-    DynamicViewMode _viewMode;
-
-	DynamicSvgKnob();
-	void step() override;
-};
-
 template <class TParamWidget>
 TParamWidget *createDynamicParam(math::Vec pos, engine::Module *module,
                                  int paramId, int* visibilityHandle,
