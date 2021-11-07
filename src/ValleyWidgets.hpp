@@ -11,24 +11,6 @@
 #include <functional>
 #include <settings.hpp>
 
-// Dynamic Panel
-
-struct PanelBorderWidget : TransparentWidget {
-	void draw(const DrawArgs &args) override;
-};
-
-struct DynamicPanelWidget : FramebufferWidget {
-    int* mode;
-    int oldMode;
-    std::vector<std::shared_ptr<Svg>> panels;
-    SvgWidget* visiblePanel;
-    PanelBorderWidget* border;
-
-    DynamicPanelWidget();
-    void addPanel(std::shared_ptr<Svg> svg);
-    void step() override;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // View mode
 
