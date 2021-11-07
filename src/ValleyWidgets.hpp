@@ -125,7 +125,6 @@ struct DynamicText : TransparentWidget {
     std::shared_ptr<Font> font;
     int size;
     float blur;
-    int* visibility;
     DynamicViewMode viewMode;
 
     enum ColorMode {

@@ -4,7 +4,6 @@
     setFont(FONT_MODE_ALTEDIN);
     size = 16;
     blur = 0.f;
-    visibility = nullptr;
     colorHandle = nullptr;
     viewMode = ACTIVE_HIGH_VIEW;
     horzAlignment = NVG_ALIGN_CENTER;
@@ -39,17 +38,7 @@ void DynamicText::draw(const DrawArgs &args) {
 }
 
 void DynamicText::step() {
-    if(visibility != nullptr) {
-        if(*visibility) {
-            visible = true;
-        }
-        else {
-            visible = false;
-        }
-        if(viewMode == ACTIVE_LOW_VIEW) {
-            visible = !visible;
-        }
-    }
+    Widget::step();
 }
 
 void DynamicText::setFont(const FontMode& newFontMode) {
@@ -75,7 +64,6 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
     dynText->text = std::make_shared<std::string>(text);
     dynText->box.pos = pos;
     dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
     dynText->viewMode = viewMode;
     return dynText;
 }
@@ -87,7 +75,6 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::string text,
     dynText->text = std::make_shared<std::string>(text);
     dynText->box.pos = pos;
     dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
     dynText->viewMode = viewMode;
     dynText->colorHandle = colorHandle;
     return dynText;
@@ -100,7 +87,6 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::st
     dynText->text = text;
     dynText->box.pos = pos;
     dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
     dynText->viewMode = viewMode;
     return dynText;
 }
@@ -112,7 +98,6 @@ DynamicText* createDynamicText(const Vec& pos, int size, std::shared_ptr<std::st
     dynText->text = text;
     dynText->box.pos = pos;
     dynText->box.size = Vec(82,14);
-    dynText->visibility = visibilityHandle;
     dynText->viewMode = viewMode;
     dynText->colorHandle = colorHandle;
     return dynText;

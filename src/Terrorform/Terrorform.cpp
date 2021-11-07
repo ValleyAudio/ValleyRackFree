@@ -1025,7 +1025,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         t->size = 10;
         t->box.pos = pos;
         t->box.size = Vec(82, 14);
-        t->visibility = nullptr;
         t->viewMode = ACTIVE_LOW_VIEW;
         t->horzAlignment = align;
         t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
@@ -1042,7 +1041,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         tBlur1->size = 10;
         tBlur1->box.pos = pos;
         tBlur1->box.size = Vec(82, 14);
-        tBlur1->visibility = nullptr;
         tBlur1->viewMode = ACTIVE_LOW_VIEW;
         tBlur1->horzAlignment = align;
         tBlur1->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
@@ -1056,7 +1054,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         tBlur2->size = 10;
         tBlur2->box.pos = pos;
         tBlur2->box.size = Vec(82, 14);
-        tBlur2->visibility = nullptr;
         tBlur2->viewMode = ACTIVE_LOW_VIEW;
         tBlur2->horzAlignment = align;
         tBlur2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
@@ -1070,7 +1067,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         t->size = 10;
         t->box.pos = pos;
         t->box.size = Vec(82, 14);
-        t->visibility = nullptr;
         t->viewMode = ACTIVE_LOW_VIEW;
         t->horzAlignment = align;
         t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
