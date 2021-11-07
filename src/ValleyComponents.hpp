@@ -223,7 +223,7 @@ struct RoganSmallOrange : Rogan {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct LightLEDButton : DynamicSwitchWidget {
+struct LightLEDButton : SvgSwitch {
     LightLEDButton() {
         momentary = true;
         addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LightLEDButton80.svg")));

@@ -21,33 +21,6 @@ enum DynamicViewMode {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Dynamic Switch
-
-struct DynamicSwitchWidget : SvgSwitch {
-    int* _visibility;
-    DynamicViewMode _viewMode;
-
-    DynamicSwitchWidget();
-    void step() override;
-};
-
-template <class TDynamicSwitch>
-DynamicSwitchWidget* createDynamicSwitchWidget(Vec pos, Module *module, int paramId,
-                                               float minValue, float maxValue, float defaultValue,
-                                               int* visibilityHandle, DynamicViewMode viewMode) {
-	DynamicSwitchWidget *dynSwitch = new TDynamicSwitch();
-    ParamQuantity* paramQuantity = dynSwitch->getParamQuantity();
-	dynSwitch->box.pos = pos;
-    paramQuantity->paramId = paramId;
-    if (module) {
-		module->configParam(paramId, minValue, maxValue, defaultValue);
-	}
-    dynSwitch->_visibility = visibilityHandle;
-    dynSwitch->_viewMode = viewMode;
-	return dynSwitch;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic lights
 
 struct DynamicModuleLightWidget : MultiLightWidget {
