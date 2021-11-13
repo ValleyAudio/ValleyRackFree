@@ -138,8 +138,8 @@ void Amalgam::process(const ProcessArgs &args) {
     _mm_storeu_ps(andOut, __xyAnd);
     _mm_storeu_ps(xorOut, __xyXor);
 
-    zAnd = (zOut[0] > 0.f) & (zOut[2] > 0.f) ? 5.f : 0.f;
-    zXor = (zOut[0] > 0.f) ^ (zOut[2] > 0.f) ? 5.f : 0.f;
+    zAnd = ((zOut[0] > 0.f) & (zOut[2] > 0.f)) ? 5.f : 0.f;
+    zXor = ((zOut[0] > 0.f) ^ (zOut[2] > 0.f)) ? 5.f : 0.f;
     zAndDCFilter.input = zAnd;
     zXorDCFilter.input = zXor;
     zAndDCFilter.process();
