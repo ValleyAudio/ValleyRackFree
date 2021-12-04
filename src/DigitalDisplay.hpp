@@ -9,7 +9,6 @@ struct DigitalDisplayColours {
 
 struct DigitalDisplay : TransparentWidget {
     std::string text;
-    std::shared_ptr<Font> font;
     DigitalDisplayColours colours;
     NVGalign horzAlignment;
     NVGalign vertAlignment;

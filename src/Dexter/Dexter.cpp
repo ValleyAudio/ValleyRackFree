@@ -986,9 +986,10 @@ DexterWidget::DexterWidget(Dexter *module) {
     addInput(createInput<PJ301MDarkSmall>(BrightCVJack, module, Dexter::BRIGHTNESS_INPUT));
     addInput(createInput<PJ301MDarkSmall>(ShapeCVJack, module, Dexter::SHAPE_INPUT));
 
+    std::string fontPath = "res/din1451alt.ttf";
     chordText = new PlainText;
     chordText->size = 12;
-    chordText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    chordText->fontPath = fontPath;
     chordText->box.pos = Vec(24.91, 124.468);
     chordText->box.size = Vec(82, 14);
     chordText->color = nvgRGB(0xFF, 0xFF, 0xFF);
@@ -996,7 +997,7 @@ DexterWidget::DexterWidget(Dexter *module) {
 
     octaveAText = new PlainText;
     octaveAText->size = 14;
-    octaveAText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    octaveAText->fontPath = fontPath;
     octaveAText->box.pos = Vec(35.61, 68.076);
     octaveAText->box.size = Vec(82, 14);
     octaveAText->color = nvgRGB(0xFF, 0xFF, 0xFF);
@@ -1005,7 +1006,7 @@ DexterWidget::DexterWidget(Dexter *module) {
 
     octaveBText = new PlainText;
     octaveBText->size = 14;
-    octaveBText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    octaveBText->fontPath = fontPath;
     octaveBText->box.pos = Vec(35.61, 186.076);
     octaveBText->box.size = Vec(82, 14);
     octaveBText->color = nvgRGB(0xFF, 0xFF, 0xFF);
@@ -1052,7 +1053,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         multText[op] = new PlainText;
         multText[op]->box.pos = Vec(OpMainTextX[0] + offset + 19, OpMainTextY[0] - 2.718);
         multText[op]->size = 14;
-        multText[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        multText[op]->fontPath = fontPath;
         multText[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         multText[op]->text = "1";
         addChild(multText[op]);
@@ -1082,7 +1083,7 @@ DexterWidget::DexterWidget(Dexter *module) {
             mainText[op][i] = new PlainText;
             mainText[op][i]->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
             mainText[op][i]->size = 14;
-            mainText[op][i]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+            mainText[op][i]->fontPath = fontPath;
             mainText[op][i]->color = nvgRGB(0xFF, 0xFF, 0xFF);
             mainText[op][i]->text = OpMainText[i];
             addChild(mainText[op][i]);
@@ -1125,7 +1126,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         waveTableTabTopLabel[op] = new PlainText;
         waveTableTabTopLabel[op]->box.pos = Vec(203.2045 + offset, 125);
         waveTableTabTopLabel[op]->size = 12;
-        waveTableTabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        waveTableTabTopLabel[op]->fontPath = fontPath;
         waveTableTabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         waveTableTabTopLabel[op]->text = "Wave";
         waveTableTabTopLabel[op]->visible = false;
@@ -1134,7 +1135,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         waveTableTabBottomLabel[op] = new PlainText;
         waveTableTabBottomLabel[op]->box.pos = Vec(203.2045 + offset, 134);
         waveTableTabBottomLabel[op]->size = 12;
-        waveTableTabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        waveTableTabBottomLabel[op]->fontPath = fontPath;
         waveTableTabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         waveTableTabBottomLabel[op]->text = "Table";
         waveTableTabBottomLabel[op]->visible = false;
@@ -1143,7 +1144,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod1And2TabTopLabel[op] = new PlainText;
         mod1And2TabTopLabel[op]->box.pos = Vec(234.6105 + offset, 125);
         mod1And2TabTopLabel[op]->size = 12;
-        mod1And2TabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1And2TabTopLabel[op]->fontPath = fontPath;
         mod1And2TabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod1And2TabTopLabel[op]->text = "Mod";
         mod1And2TabTopLabel[op]->visible = false;
@@ -1152,7 +1153,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod1And2TabBottomLabel[op] = new PlainText;
         mod1And2TabBottomLabel[op]->box.pos = Vec(234.6105 + offset, 134);
         mod1And2TabBottomLabel[op]->size = 12;
-        mod1And2TabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1And2TabBottomLabel[op]->fontPath = fontPath;
         mod1And2TabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod1And2TabBottomLabel[op]->text = "1 & 2";
         mod1And2TabBottomLabel[op]->visible = false;
@@ -1161,7 +1162,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod3And4TabTopLabel[op] = new PlainText;
         mod3And4TabTopLabel[op]->box.pos = Vec(266.0295 + offset, 125);
         mod3And4TabTopLabel[op]->size = 12;
-        mod3And4TabTopLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3And4TabTopLabel[op]->fontPath = fontPath;
         mod3And4TabTopLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod3And4TabTopLabel[op]->text = "Mod";
         mod3And4TabTopLabel[op]->visible = false;
@@ -1170,7 +1171,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod3And4TabBottomLabel[op] = new PlainText;
         mod3And4TabBottomLabel[op]->box.pos = Vec(266.0295 + offset, 134);
         mod3And4TabBottomLabel[op]->size = 12;
-        mod3And4TabBottomLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3And4TabBottomLabel[op]->fontPath = fontPath;
         mod3And4TabBottomLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod3And4TabBottomLabel[op]->text = "3 & 4";
         mod3And4TabBottomLabel[op]->visible = false;
@@ -1199,7 +1200,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         tableLabel[op] = new PlainText;
         tableLabel[op]->box.pos = Vec(211.062 + offset, 81.468 - 2.718);
         tableLabel[op]->size = 14;
-        tableLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        tableLabel[op]->fontPath = fontPath;
         tableLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         tableLabel[op]->text = "Table";
         tableLabel[op]->visible = false;
@@ -1208,7 +1209,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         syncModeLabel[op] = new PlainText;
         syncModeLabel[op]->box.pos = Vec(273.222 + offset, 45.058 - 4.0);
         syncModeLabel[op]->size = 14;
-        syncModeLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        syncModeLabel[op]->fontPath = fontPath;
         syncModeLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         syncModeLabel[op]->text = "Sync Mode";
         syncModeLabel[op]->visible = false;
@@ -1217,7 +1218,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         shapeModeLabel[op] = new PlainText;
         shapeModeLabel[op]->box.pos = Vec(273.222 + offset, 77.933 - 4.0);
         shapeModeLabel[op]->size = 14;
-        shapeModeLabel[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        shapeModeLabel[op]->fontPath = fontPath;
         shapeModeLabel[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         shapeModeLabel[op]->text = "Shape Mode";
         shapeModeLabel[op]->visible = false;
@@ -1227,7 +1228,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         tableText[op]->box.pos = Vec(211.062 + offset, 91.468);
         tableText[op]->box.size = Vec(82, 14);
         tableText[op]->size = 12;
-        tableText[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        tableText[op]->fontPath = fontPath;
         tableText[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         tableText[op]->text = waveTableNames[0];
         tableText[op]->visible = false;
@@ -1265,7 +1266,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod1Label[op] = new PlainText;
         mod1Label[op]->box.pos = Vec(206.f + offset, 61.058f - 4.f);
         mod1Label[op]->size = 14;
-        mod1Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod1Label[op]->fontPath = fontPath;
         mod1Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod1Label[op]->text = "Mod 1";
         mod1Label[op]->visible = false;
@@ -1274,7 +1275,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod2Label[op] = new PlainText;
         mod2Label[op]->box.pos = Vec(206.f + offset, 92.933f - 4.f);
         mod2Label[op]->size = 14;
-        mod2Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod2Label[op]->fontPath = fontPath;
         mod2Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod2Label[op]->text = "Mod 2";
         mod2Label[op]->visible = false;
@@ -1283,7 +1284,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod3Label[op] = new PlainText;
         mod3Label[op]->box.pos = Vec(206.f + offset, 61.058f - 4.f);
         mod3Label[op]->size = 14;
-        mod3Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod3Label[op]->fontPath = fontPath;
         mod3Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod3Label[op]->text = "Mod 3";
         mod3Label[op]->visible = false;
@@ -1292,7 +1293,7 @@ DexterWidget::DexterWidget(Dexter *module) {
         mod4Label[op] = new PlainText;
         mod4Label[op]->box.pos = Vec(206.f + offset, 92.933f - 4.f);
         mod4Label[op]->size = 14;
-        mod4Label[op]->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        mod4Label[op]->fontPath = fontPath;
         mod4Label[op]->color = nvgRGB(0xFF, 0xFF, 0xFF);
         mod4Label[op]->text = "Mod 4";
         mod4Label[op]->visible = false;

@@ -86,7 +86,8 @@ void TFormCloneMenuSourcePage::step() {
 }
 
 void TFormCloneMenuSourcePage::draw(const DrawArgs& args) {
-    if(sourceBank) {
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    if(sourceBank && font) {
         std::string strCloningFrom = "Cloning from bank " + std::to_string(*sourceBank + 1);
         nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
         nvgFontFaceId(args.vg, font->handle);

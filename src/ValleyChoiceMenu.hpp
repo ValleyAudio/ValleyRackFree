@@ -4,7 +4,6 @@
 
 struct ValleyChoiceMenu : widget::OpaqueWidget {
     std::string text;
-    std::shared_ptr<Font> font;
     math::Vec textOffset;
     NVGcolor color;
     NVGcolor bgColor;

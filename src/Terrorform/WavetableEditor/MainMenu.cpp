@@ -90,17 +90,20 @@ void TFormEditMainMenu::step() {
 }
 
 void TFormEditMainMenu::draw(const DrawArgs& args) {
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     std::string strSelectedBank = "Bank: ";
-    nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
-    nvgFontFaceId(args.vg, font->handle);
-    nvgTextLetterSpacing(args.vg, 0.0);
-    nvgFontSize(args.vg, 12);
-    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
+    if (font) {
+        nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.0);
+        nvgFontSize(args.vg, 12);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(args.vg, 5, 5, strSelectedBank.c_str(), NULL);
 
-    std::string bankNum = std::to_string(*selectedBank + 1);
-    nvgTextAlign(args.vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
-    nvgText(args.vg, 3 + buttonWidth, 5, bankNum.c_str(), NULL);
+        std::string bankNum = std::to_string(*selectedBank + 1);
+        nvgTextAlign(args.vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+        nvgText(args.vg, 3 + buttonWidth, 5, bankNum.c_str(), NULL);
+    }
 
     Widget::draw(args);
 }

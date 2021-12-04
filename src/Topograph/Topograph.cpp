@@ -333,11 +333,13 @@ TopographWidget::TopographWidget(Topograph *module) {
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+    std::string fontPath = "res/din1451alt.ttf";
+
     // Tempo text
     tempoText = new PlainText;
     tempoText->box.pos = Vec(69, 83);
     tempoText->size = 14;
-    tempoText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    tempoText->fontPath = fontPath;
     tempoText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     tempoText->text = "120";
     addChild(tempoText);
@@ -346,7 +348,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     mapXText = new PlainText;
     mapXText->box.pos = Vec(27.1, 208.5);
     mapXText->size = 14;
-    mapXText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapXText->fontPath = fontPath;
     mapXText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     mapXText->text = "Map X";
     addChild(mapXText);
@@ -354,7 +356,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     mapYText = new PlainText;
     mapYText->box.pos = Vec(27.1, 268.5);
     mapYText->size = 14;
-    mapYText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapYText->fontPath = fontPath;
     mapYText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     mapYText->text = "Map Y";
     addChild(mapYText);
@@ -363,7 +365,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     chaosText = new PlainText;
     chaosText->box.pos = Vec(27.1, 329);
     chaosText->size = 14;
-    chaosText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    chaosText->fontPath = fontPath;
     chaosText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     chaosText->text = "Chaos";
     addChild(chaosText);

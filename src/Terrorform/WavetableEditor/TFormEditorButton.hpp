@@ -20,7 +20,6 @@ struct TFormEditorButtonStyleSet {
     TFormEditorButtonColors hoverColors;
     TFormEditorButtonColors highlightIdleColors;
     TFormEditorButtonColors highlightHoverColors;
-    std::shared_ptr<Font> font;
     float fontSize;
 
     TFormEditorButtonStyleSet();

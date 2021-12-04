@@ -600,11 +600,12 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+    std::string fontPath = "res/din1451alt.ttf";
     // Tempo text
     tempoText = new PlainText;
     tempoText->box.pos = Vec(53, 66.75);
     tempoText->size = 14;
-    tempoText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    tempoText->fontPath = fontPath;
     tempoText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     tempoText->text = "120";
     addChild(tempoText);
@@ -613,7 +614,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     mapXText = new PlainText;
     mapXText->box.pos = Vec(53, 163);
     mapXText->size = 14;
-    mapXText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapXText->fontPath = fontPath;
     mapXText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     mapXText->text = "Map X";
     addChild(mapXText);
@@ -621,7 +622,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     mapYText = new PlainText;
     mapYText->box.pos = Vec(89, 163);
     mapYText->size = 14;
-    mapYText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    mapYText->fontPath = fontPath;
     mapYText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     mapYText->text = "Map Y";
     addChild(mapYText);
@@ -630,7 +631,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     chaosText = new PlainText;
     chaosText->box.pos = Vec(125, 163);
     chaosText->size = 14;
-    chaosText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    chaosText->fontPath = fontPath;
     chaosText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     chaosText->text = "Chaos";
     addChild(chaosText);

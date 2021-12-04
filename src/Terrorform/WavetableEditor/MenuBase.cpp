@@ -1,7 +1,6 @@
 #include "MenuBase.hpp"
 
 TFormMenu::TFormMenu() {
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
 void TFormMenu::view() {

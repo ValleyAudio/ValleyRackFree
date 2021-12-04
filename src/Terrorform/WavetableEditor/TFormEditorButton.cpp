@@ -34,7 +34,6 @@ TFormEditorButtonStyleSet::TFormEditorButtonStyleSet() {
     highlightHoverColors = TFormEditorButtonColors(0xFF, 0xFF, 0xFF, 0xFF,
                                                    0x5F, 0x5F, 0xFF, 0xFF,
                                                    0xEF, 0xEF, 0xEF, 0xFF);
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     fontSize = 12;
 }
 
@@ -72,13 +71,16 @@ void TFormEditorButton::draw(const DrawArgs& args) {
     nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
     nvgStroke(args.vg);
 
-    nvgFillColor(args.vg, colors.textColor);
-    nvgFontFaceId(args.vg, style.font->handle);
-    nvgTextLetterSpacing(args.vg, 0.0);
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    if (font) {
+        nvgFillColor(args.vg, colors.textColor);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.0);
 
-    nvgFontSize(args.vg, style.fontSize);
-    nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-    nvgText(args.vg, box.size.x / 2, box.size.y / 2, text.c_str(), NULL);
+        nvgFontSize(args.vg, style.fontSize);
+        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+        nvgText(args.vg, box.size.x / 2, box.size.y / 2, text.c_str(), NULL);
+    }
 }
 
 void TFormEditorButton::onEnter(const event::Enter& e) {

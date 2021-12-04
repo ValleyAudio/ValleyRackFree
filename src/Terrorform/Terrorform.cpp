@@ -1013,7 +1013,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     // Right Hand VOct Text
     rightHandVOctText = new PlainText;
     rightHandVOctText->box.pos = rightHandVOctTextPos;
-    rightHandVOctText->font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    rightHandVOctText->fontPath = "res/din1451alt.ttf";
     rightHandVOctText->text = "VOct";
     rightHandVOctText->size = 12;
     rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);

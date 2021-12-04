@@ -33,8 +33,6 @@ TFormLoadMenu::TFormLoadMenu() {
     waveLineColor = nvgRGB(0xAF, 0xAF, 0xAF);
     waveFillColor = nvgRGBA(0xAF, 0xAF, 0xAF, 0x6F);
 
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
-
     nameFieldLabel = createWidget<PlainText>(Vec(5, 5));
     nameFieldLabel->box.size.x = buttonWidth;
     nameFieldLabel->color = nvgRGB(0xEF, 0xEF, 0xEF);
@@ -145,11 +143,15 @@ TFormLoadMenu::TFormLoadMenu() {
 void TFormLoadMenu::draw(const DrawArgs& args) {
     std::string strDetectedWaves = "Found " + std::to_string(maxWaves) + " waves";
     nvgFillColor(args.vg, nvgRGB(0xEF, 0xEF, 0xEF));
-    nvgFontFaceId(args.vg, font->handle);
-    nvgTextLetterSpacing(args.vg, 0.0);
 
-    nvgFontSize(args.vg, 12);
-    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    if (font) {
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.0);
+
+        nvgFontSize(args.vg, 12);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    }
 
     // Horizontal bar
     nvgBeginPath(args.vg);

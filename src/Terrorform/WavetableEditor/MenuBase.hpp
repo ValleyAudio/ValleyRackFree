@@ -16,7 +16,6 @@ public:
     const int buttonWidth = 44;
     const int buttonHeight = 15;
     const int buttonOffset = 3;
-    std::shared_ptr<Font> font;
 
     std::function<void()> onView;
     std::function<void()> onHide;

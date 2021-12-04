@@ -4,7 +4,6 @@
 #include <app/LedDisplay.hpp>
 
 struct TFormTextField : TextField {
-    std::shared_ptr<Font> font;
     NVGcolor bgColor;
     NVGcolor color;
     NVGcolor textColor;

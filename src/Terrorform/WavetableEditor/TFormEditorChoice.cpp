@@ -21,7 +21,6 @@ void TFormEditorChoiceItem::addOnChangeCallback(const std::function<void()>& onC
 TFormEditorChoice::TFormEditorChoice() {
     choice = std::make_shared<unsigned long>(0);
     maxItems = 0;
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     boxOnEnterColor = nvgRGB(0xEF, 0xEF, 0xEF);
     boxOnLeaveColor = nvgRGB(0xAF, 0xAF, 0xAF);
     boxColor = boxOnLeaveColor;
@@ -67,17 +66,20 @@ void TFormEditorChoice::draw(const DrawArgs& args) {
     nvgStroke(args.vg);
     nvgClosePath(args.vg);
 
-    nvgFontSize(args.vg, 12);
-    nvgFontFaceId(args.vg, font->handle);
-    nvgTextLetterSpacing(args.vg, 0);
-    Vec textPos = Vec(3, box.size.y / 2).round();
-    nvgFillColor(args.vg, textColor);
-    nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-    if(choice) {
-        nvgText(args.vg, textPos.x, textPos.y, items[*choice].c_str(), NULL);
-    }
-    else {
-        nvgText(args.vg, textPos.x, textPos.y, "--", NULL);
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    if (font) {
+        nvgFontSize(args.vg, 12);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0);
+        Vec textPos = Vec(3, box.size.y / 2).round();
+        nvgFillColor(args.vg, textColor);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+        if(choice) {
+            nvgText(args.vg, textPos.x, textPos.y, items[*choice].c_str(), NULL);
+        }
+        else {
+            nvgText(args.vg, textPos.x, textPos.y, "--", NULL);
+        }
     }
 
     nvgBeginPath(args.vg);

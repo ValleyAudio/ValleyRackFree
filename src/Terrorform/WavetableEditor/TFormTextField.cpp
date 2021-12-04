@@ -2,7 +2,6 @@
 #include <iostream>
 
 TFormTextField::TFormTextField() {
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
     bgColor = nvgRGB(0x00, 0x00, 0x00);
     color = nvgRGB(0x7F, 0x7F, 0x7F);
     textColor = nvgRGB(0xCF, 0xCF, 0xCF);
@@ -18,7 +17,8 @@ void TFormTextField::draw(const DrawArgs& args) {
     nvgFill(args.vg);
 
     // Text
-    if (font->handle >= 0) {
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+    if (font) {
         const int maxChars = 9;
         bndSetFont(font->handle);
 

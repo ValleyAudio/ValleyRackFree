@@ -93,8 +93,6 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     };
     moveMenu->visible = false;
     addChild(moveMenu);
-
-    font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
 }
 
 void TFormEditorBankEditMenu::setSlotFilledFlag(int slot, bool isFilled) {

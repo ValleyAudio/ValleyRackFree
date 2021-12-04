@@ -106,8 +106,8 @@ struct SvgStepSlider : app::SvgSlider {
 };
 
 struct PlainText : TransparentWidget {
+    std::string fontPath = "res/ShareTechMono-Regular.ttf";
     std::string text;
-    std::shared_ptr<Font> font;
     NVGcolor color;
     NVGalign horzAlignment;
     NVGalign vertAlignment;
@@ -171,7 +171,6 @@ struct DynamicFrameText : DynamicText {
 template<class T>
 class DynamicValueText : public TransformWidget {
 public:
-    std::shared_ptr<Font> font;
     int size;
     int* visibility;
     DynamicViewMode viewMode;
@@ -184,7 +183,6 @@ public:
     NVGcolor textColor;
 
     DynamicValueText(std::shared_ptr<T> value, std::function<std::string(T)> valueToText)  {
-        font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
         size = 16;
         visibility = nullptr;
         colorHandle = nullptr;
@@ -194,24 +192,27 @@ public:
     }
 
     void draw(const DrawArgs &args) override {
-        nvgFontSize(args.vg, size);
-        nvgFontFaceId(args.vg, font->handle);
-        nvgTextLetterSpacing(args.vg, 0.f);
-        Vec textPos = Vec(0.f, 0.f);
-        if(colorHandle != nullptr) {
-            switch((ColorMode)*colorHandle) {
-                case COLOR_MODE_WHITE: textColor = nvgRGB(0xFF,0xFF,0xFF); break;
-                case COLOR_MODE_BLACK: textColor = nvgRGB(0x14,0x14, 0x14); break;
-                default: textColor = nvgRGB(0xFF,0xFF,0xFF);
+        std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+        if (font) {
+            nvgFontSize(args.vg, size);
+            nvgFontFaceId(args.vg, font->handle);
+            nvgTextLetterSpacing(args.vg, 0.f);
+            Vec textPos = Vec(0.f, 0.f);
+            if(colorHandle != nullptr) {
+                switch((ColorMode)*colorHandle) {
+                    case COLOR_MODE_WHITE: textColor = nvgRGB(0xFF,0xFF,0xFF); break;
+                    case COLOR_MODE_BLACK: textColor = nvgRGB(0x14,0x14, 0x14); break;
+                    default: textColor = nvgRGB(0xFF,0xFF,0xFF);
+                }
             }
-        }
-        else {
-            textColor = nvgRGB(0xFF,0xFF,0xFF);
-        }
+            else {
+                textColor = nvgRGB(0xFF,0xFF,0xFF);
+            }
 
-        nvgFillColor(args.vg, textColor);
-        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
-        nvgText(args.vg, textPos.x, textPos.y, _text.c_str(), NULL);
+            nvgFillColor(args.vg, textColor);
+            nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+            nvgText(args.vg, textPos.x, textPos.y, _text.c_str(), NULL);
+        }
     }
 
     void step() override {
