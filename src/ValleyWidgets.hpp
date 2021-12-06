@@ -120,13 +120,8 @@ struct PlainText : TransparentWidget {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic text
 
+// This whole object, if not my hole Dynamic* thing, is a hot mess right now.
 struct DynamicText : TransparentWidget {
-    std::shared_ptr<std::string> text;
-    std::shared_ptr<Font> font;
-    int size;
-    float blur;
-    DynamicViewMode viewMode;
-
     enum ColorMode {
         COLOR_MODE_WHITE = 0,
         COLOR_MODE_BLACK,
@@ -137,6 +132,13 @@ struct DynamicText : TransparentWidget {
         FONT_MODE_ALTEDIN = 0,
         FONT_MODE_7SEG
     };
+
+    FontMode fontMode = FONT_MODE_ALTEDIN;
+
+    std::shared_ptr<std::string> text;
+    int size;
+    float blur;
+    DynamicViewMode viewMode;
 
     int* colorHandle;
     NVGcolor textColor;
@@ -263,7 +265,6 @@ struct /*DEPRECATED*/ DynamicChoice : ChoiceButton {
     long _oldChoice;
     std::vector<std::string> _items;
     std::shared_ptr<std::string> _text;
-    std::shared_ptr<Font> _font;
     bool _transparent;
     int* _visibility;
     int _textSize;
@@ -326,7 +327,6 @@ struct DynamicMenu : ChoiceButton {
 	int _subMenuGroupSize;
     std::vector<std::string> _items;
     std::shared_ptr<std::string> _text;
-    std::shared_ptr<Font> _font;
     bool _isTransparent;
     bool _showTick;
     int _textSize;

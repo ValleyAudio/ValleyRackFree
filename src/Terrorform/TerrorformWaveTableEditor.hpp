@@ -25,8 +25,6 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     std::function<std::shared_ptr<std::vector<float>>()> onLoadWAVCallback;
     std::function<void(int, TerrorformWaveBank&)> onGetBankCallback;
 
-    std::shared_ptr<Font> font;
-
     TFormEditorBankEditMenu();
     void setSlotFilledFlag(int slot, bool isFilled);
 };

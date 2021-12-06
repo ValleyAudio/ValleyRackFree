@@ -23,7 +23,6 @@ struct TFormTextField : TextField {
 };
 
 struct TFormNumberField : TextField {
-    std::shared_ptr<Font> font;
     NVGcolor bgColor;
     NVGcolor color;
     NVGcolor textColor;

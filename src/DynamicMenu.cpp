@@ -37,7 +37,6 @@ Menu* DynamicSubMenu::createChildMenu() {
 }
 
 DynamicMenu::DynamicMenu() {
-    _font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     _text = std::make_shared<std::string>("");
     _textSize = 14;
     _isTransparent = false;
@@ -123,14 +122,17 @@ void DynamicMenu::draw(const DrawArgs &args) {
         return;
     }
 
-    nvgFontSize(args.vg, _textSize);
-    nvgFontFaceId(args.vg, _font->handle);
-    nvgTextLetterSpacing(args.vg, 0.f);
-    Vec textPos = Vec(this->box.size.x / 2.f, this->box.size.y / 2.f - 2.f);
-    NVGcolor textColor = nvgRGB(0xFF,0xFF,0xFF);
-    nvgFillColor(args.vg, textColor);
-    nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-    nvgText(args.vg, textPos.x, textPos.y, _text->c_str(), NULL);
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    if (font) {
+        nvgFontSize(args.vg, _textSize);
+        nvgFontFaceId(args.vg, font->handle);
+        nvgTextLetterSpacing(args.vg, 0.f);
+        Vec textPos = Vec(this->box.size.x / 2.f, this->box.size.y / 2.f - 2.f);
+        NVGcolor textColor = nvgRGB(0xFF,0xFF,0xFF);
+        nvgFillColor(args.vg, textColor);
+        nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+        nvgText(args.vg, textPos.x, textPos.y, _text->c_str(), NULL);
+    }
 }
 
 DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
