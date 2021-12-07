@@ -4,13 +4,13 @@
 
 ## Version
 
-2.0.0b
+2.0.1
 
 ## Compatibility
 
 The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
-You must have at least Rack v2.0.0 use these modules.
+You must have at least Rack v2.0.x use these modules.
 
 ## Modules
 
@@ -24,13 +24,14 @@ well known Dattorro (1997) plate reverb algorithm.
 * Interzone - A complete, monophonic, virtual analogue synth voice
 * Terrorform - A wavetable oscillator based of the operator section of Dexter, but far more enhanced. Allows for loading of user wavetables.
 
-![Valley](./ValleyImg.png)
+![Valley](./ValleyImg_v2.png)
 
 ## Installation
 
-As of now there are only macOS and Windows releases. Eventually the release will then be available through the online Rack library as before.
+The latest version of these modules is available from the official [VCV Rack Library](https://library.vcvrack.com/?query=&brand=Valley&tag=&license=).
 
 ## Usage
+
 See the official [Valley Audio Soft](https://valleyaudio.github.io/index.html) website for complete documentation of all of the modules in this plugin.
 
 ## Bibliography
