@@ -1418,15 +1418,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         inEditorMode = false;
     };
 
-    auto loadWAVFile = [=]() -> std::shared_ptr<std::vector<float>> {
-        const char FILE_FILTERS[] = "WAV File (.wav):wav";
-        std::string filename;
-
-        osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
-        DEFER({
-            osdialog_filters_free(filters);
-        });
-
+    auto loadWAVFile = [=](char* path) -> std::shared_ptr<std::vector<float>> {
         numChannels = 1;
         drwav_uint64 numSamples = 0;
         unsigned int sampleRate = 44100;
@@ -1437,10 +1429,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         newTable = NULL;
 
         // Open file
-        if (dir.empty()) {
-            dir = asset::user("");
-        }
-        char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
         if (path) {
             newTable = drwav_open_file_and_read_f32(path, &numChannels, &sampleRate, &numSamples);
             std::string filepath(path);
@@ -2010,20 +1998,30 @@ void TerrorformWidget::changeDisplayStyle() {
 }
 
 void TerrorformWidget::exportWavetables() {
-    Terrorform* tform = dynamic_cast<Terrorform*>(module);
-    std::fstream outFile;
-
     const char FILE_FILTERS[] = "Valley Wavetable ROM(.vwt):vwt";
     std::string dir = asset::user("");
     std::string filename;
-    std::string filepath;
 
+#ifdef USING_CARDINAL_NOT_RACK
+    async_dialog_filebrowser(true, dir.c_str(), "Export wavetables", [this](char* path) {
+        exportWavetablesPathSelected(path);
+    });
+#else
     osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
     DEFER({
         osdialog_filters_free(filters);
     });
 
     char* path = osdialog_file(OSDIALOG_SAVE, dir.c_str(), filename.c_str(), filters);
+    exportWavetablesPathSelected(path);
+#endif
+}
+
+void TerrorformWidget::exportWavetablesPathSelected(char* path) {
+    Terrorform* tform = dynamic_cast<Terrorform*>(module);
+    std::string filepath;
+    std::fstream outFile;
+
     if (path) {
         filepath = std::string(path);
         DEFER({
@@ -2083,20 +2081,30 @@ void TerrorformWidget::exportWavetables() {
 }
 
 void TerrorformWidget::importWavetables() {
-    Terrorform* tform = dynamic_cast<Terrorform*>(module);
-    std::fstream inFile;
-
     const char FILE_FILTERS[] = "Valley Wavetable (.vwt):vwt";
     std::string dir = asset::user("");
     std::string filename;
-    std::string filepath;
 
+#ifdef USING_CARDINAL_NOT_RACK
+    async_dialog_filebrowser(false, dir.c_str(), "Load wavetables", [this](char* path) {
+        importWavetablesPathSelected(path);
+    });
+#else
     osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
     DEFER({
         osdialog_filters_free(filters);
     });
 
     char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
+    importWavetablesPathSelected(path);
+#endif
+}
+
+void TerrorformWidget::importWavetablesPathSelected(char* path) {
+    Terrorform* tform = dynamic_cast<Terrorform*>(module);
+    std::string filepath;
+    std::fstream inFile;
+
     if (path) {
         filepath = std::string(path);
         DEFER({

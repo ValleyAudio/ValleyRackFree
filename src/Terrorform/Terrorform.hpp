@@ -839,7 +839,9 @@ struct TerrorformWidget : ModuleWidget {
     void step() override;
     void changeDisplayStyle();
     void exportWavetables();
+    void exportWavetablesPathSelected(char* path);
     void importWavetables();
+    void importWavetablesPathSelected(char* path);
 };
 
 #endif
