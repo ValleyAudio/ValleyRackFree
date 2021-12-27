@@ -1,9 +1,7 @@
 #include "Plateau.hpp"
 
-Plateau::Plateau() :
-    reverb(APP->engine->getSampleRate(), maxBlockSize)
-{
-    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+Plateau::Plateau() {
+	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry Level");
     configParam(Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, "Wet Level");
     configParam(Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, "Pre-delay");
@@ -37,9 +35,7 @@ Plateau::Plateau() :
     configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
     configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
 
-    preDelayTrajectory.fill(1.f);
-    sizeTrajectory.fill(1.f);
-
+    reverb.setSampleRate(APP->engine->getSampleRate());
     envelope.setSampleRate(APP->engine->getSampleRate());
     envelope.setTime(0.004f);
     envelope._value = 1.f;
@@ -69,8 +65,6 @@ Plateau::Plateau() :
     preDelayCVSensState = 0;
     inputSensitivityState = 0;
     outputSaturationState = 0;
-    dspModeState = 0;
-    prevDspModeState = 0;
 
     clear = false;
     cleared = true;
@@ -84,25 +78,6 @@ Plateau::Plateau() :
 }
 
 void Plateau::process(const ProcessArgs &args) {
-    if (dspModeState != prevDspModeState) {
-        std::fill(leftInputBlock.begin(), leftInputBlock.end(), 0.f);
-        std::fill(rightInputBlock.begin(), rightInputBlock.end(), 0.f);
-        std::fill(leftOutputBlock.begin(), leftOutputBlock.end(), 0.f);
-        std::fill(rightOutputBlock.begin(), rightOutputBlock.end(), 0.f);
-        std::fill(sizeTrajectory.begin(), sizeTrajectory.end(), 0.f);
-        std::fill(preDelayTrajectory.begin(), preDelayTrajectory.end(), 0.f);
-        reverb.clear();
-
-        if (dspModeState == 0) {
-            blockSize = minBlockSize;
-        }
-        else {
-            blockSize = maxBlockSize;
-        }
-        frameCounter = 0;
-    }
-    prevDspModeState = dspModeState;
-
     //Freeze
     freezeToggle = params[FREEZE_TOGGLE_PARAM].getValue() > 0.5f ? true : false;
     lights[FREEZE_TOGGLE_LIGHT].value = freezeToggle ? 10.f : 0.f;
@@ -120,11 +95,12 @@ void Plateau::process(const ProcessArgs &args) {
 
     if(freeze && !frozen) {
         frozen = true;
+        reverb.freeze();
     }
     else if(!freeze && frozen){
         frozen = false;
+        reverb.unFreeze();
     }
-    reverb.freeze(frozen);
     lights[FREEZE_LIGHT].value = freeze ? 10.f : 0.f;
 
     tuned = params[TUNED_MODE_PARAM].getValue() > 0.5f ? 1 : 0;
@@ -134,10 +110,10 @@ void Plateau::process(const ProcessArgs &args) {
     lights[DIFFUSE_INPUT_LIGHT].value = diffuseInput ? 10.f : 0.f;
 
     // Clear
-    lights[CLEAR_LIGHT].value = params[CLEAR_PARAM].getValue() > 0.5f ? 10.f : 0.f;
     if((params[CLEAR_PARAM].getValue() > 0.5f || inputs[CLEAR_CV_INPUT].getVoltage() > 0.5f) && !clear && cleared) {
         cleared = false;
         clear = true;
+        //clear = 1;
     }
     else if((params[CLEAR_PARAM].getValue() < 0.5f && inputs[CLEAR_CV_INPUT].getVoltage() < 0.5f) && cleared) {
         clear = false;
@@ -148,13 +124,10 @@ void Plateau::process(const ProcessArgs &args) {
             fadeOut = true;
             envelope.setStartEndPoints(1.f, 0.f);
             envelope.trigger();
+            lights[CLEAR_LIGHT].value = 10.f;
         }
         if(fadeOut && envelope._justFinished) {
             reverb.clear();
-            leftInput = 0.f;
-            rightInput = 0.f;
-            leftInputBlock.fill(0.0);
-            rightInputBlock.fill(0.0);
             fadeOut = false;
             fadeIn = true;
             envelope.setStartEndPoints(0.f, 1.f);
@@ -163,6 +136,7 @@ void Plateau::process(const ProcessArgs &args) {
         if(fadeIn && envelope._justFinished) {
             fadeIn = false;
             cleared = true;
+            lights[CLEAR_LIGHT].value = 0.f;
             envelope._value = 1.f;
         }
     }
@@ -175,8 +149,7 @@ void Plateau::process(const ProcessArgs &args) {
     }
     preDelay = params[PRE_DELAY_PARAM].getValue();
     preDelay += 0.5f * (powf(2.f, inputs[PRE_DELAY_CV_INPUT].getVoltage() * preDelayCVSens) - 1.f);
-    preDelayTrajectory[frameCounter] = clamp(preDelay, 0.f, 1.f);
-    preDelayTrajectory[frameCounter] *= args.sampleRate;
+    reverb.setPreDelay(clamp(preDelay, 0.f, 1.f));
 
     size = inputs[SIZE_CV_INPUT].getVoltage() * params[SIZE_CV_PARAM].getValue() * 0.1f;
     size += params[SIZE_PARAM].getValue();
@@ -189,7 +162,7 @@ void Plateau::process(const ProcessArgs &args) {
         size = rescale(size, 0.f, 1.f, 0.01f, sizeMax);
         size = clamp(size, 0.01f, sizeMax);
     }
-    sizeTrajectory[frameCounter] = size;
+    reverb.setTimeScale(size);
 
     diffusion = inputs[DIFFUSION_CV_INPUT].getVoltage() * params[DIFFUSION_CV_PARAM].getValue();
     diffusion += params[DIFFUSION_PARAM].getValue();
@@ -221,13 +194,13 @@ void Plateau::process(const ProcessArgs &args) {
     reverbDampHigh += params[REVERB_HIGH_DAMP_PARAM].getValue();
     reverbDampHigh = clamp(reverbDampHigh, 0.f, 10.f);
 
-    reverb.diffuseInput = diffuseInput > 0.5f;
+    reverb.diffuseInput = (double)diffuseInput;
 
-    reverb.setDecay(decay);
-    reverb.setAbsorption(440.f * dsp::approxExp2_taylor5(inputDampLow) / 32.f,
-                         440.f * dsp::approxExp2_taylor5(inputDampHigh) / 32.f,
-                         440.f * dsp::approxExp2_taylor5(reverbDampLow) / 32.f,
-                         440.f * dsp::approxExp2_taylor5(reverbDampHigh) / 32.f);
+    reverb.decay = decay;
+    reverb.inputLowCut = 440.f * powf(2.f, inputDampLow - 5.f);
+    reverb.inputHighCut = 440.f * powf(2.f, inputDampHigh - 5.f);
+    reverb.reverbLowCut = 440.f * powf(2.f, reverbDampLow - 5.f);
+    reverb.reverbHighCut = 440.f * powf(2.f, reverbDampHigh - 5.f);
 
     modSpeed = inputs[MOD_SPEED_CV_INPUT].getVoltage() * params[MOD_SPEED_CV_PARAM].getValue() * 0.1f;
     modSpeed += params[MOD_SPEED_PARAM].getValue();
@@ -245,11 +218,12 @@ void Plateau::process(const ProcessArgs &args) {
     modDepth += params[MOD_DEPTH_PARAM].getValue();
     modDepth = clamp(modDepth, modDepthMin, modDepthMax);
 
-    reverb.setModulation(modSpeed, modShape, modDepth);
+    reverb.modSpeed = modSpeed;
+    reverb.modDepth = modDepth;
+    reverb.setModShape(modShape);
 
     leftInput = inputs[LEFT_INPUT].getVoltageSum();
     rightInput = inputs[RIGHT_INPUT].getVoltageSum();
-
     if(inputs[LEFT_INPUT].isConnected() == false && inputs[RIGHT_INPUT].isConnected() == true) {
         leftInput = inputs[RIGHT_INPUT].getVoltageSum();
     }
@@ -259,25 +233,9 @@ void Plateau::process(const ProcessArgs &args) {
     leftInput = clamp(leftInput, -10.f, 10.f);
     rightInput = clamp(rightInput, -10.f, 10.f);
 
-    inputSensitivity = inputSensitivityState ? 0.125893f : 1.f; // Magically drop to -18 dB
-
-    leftInputBlock[frameCounter] = leftInput * 0.1f * inputSensitivity * envelope._value;
-    rightInputBlock[frameCounter] = rightInput * 0.1f * inputSensitivity * envelope._value;
-
-    leftOutput = leftInput * dry + leftOutputBlock[frameCounter] * wet * envelope._value;
-    rightOutput = rightInput * dry + rightOutputBlock[frameCounter] * wet * envelope._value;
-
-    if (outputSaturationState) {
-        leftOutput = tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f;
-        rightOutput = tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f;
-    }
-    else {
-        leftOutput = clamp(leftOutput, -10.f, 10.f);
-        rightOutput = clamp(rightOutput, -10.f, 10.f);
-    }
-
-    outputs[LEFT_OUTPUT].setVoltage(leftOutput);
-    outputs[RIGHT_OUTPUT].setVoltage(rightOutput);
+    inputSensitivity = inputSensitivityState ? 0.125893f : 1.f;
+    reverb.process(leftInput * 0.1f * inputSensitivity * envelope._value,
+                   rightInput * 0.1f * inputSensitivity * envelope._value);
 
     dry = inputs[DRY_CV_INPUT].getVoltage() * params[DRY_CV_PARAM].getValue();
     dry += params[DRY_PARAM].getValue();
@@ -287,19 +245,21 @@ void Plateau::process(const ProcessArgs &args) {
     wet += params[WET_PARAM].getValue();
     wet = clamp(wet, 0.f, 1.f) * 10.f;
 
-    ++frameCounter;
-    if (frameCounter == blockSize) {
-        frameCounter = 0;
-        reverb.setPreDelayTrajectory(preDelayTrajectory);
-        reverb.setSizeTrajectory(sizeTrajectory);
-        reverb.blockProcess(leftInputBlock.data(), rightInputBlock.data(),
-                            leftOutputBlock.data(), rightOutputBlock.data(),
-                            blockSize);
+    leftOutput = leftInput * dry + reverb.leftOut * wet * envelope._value;
+    rightOutput = rightInput * dry + reverb.rightOut * wet * envelope._value;
+
+    if(outputSaturationState) {
+        outputs[LEFT_OUTPUT].setVoltage(tanhDriveSignal(leftOutput * 0.111f, 0.95f) * 9.999f);
+        outputs[RIGHT_OUTPUT].setVoltage(tanhDriveSignal(rightOutput * 0.111f, 0.95f) * 9.999f);
+    }
+    else {
+        outputs[LEFT_OUTPUT].setVoltage(clamp(leftOutput, -10.f, 10.f));
+        outputs[RIGHT_OUTPUT].setVoltage(clamp(rightOutput, -10.f, 10.f));
     }
 }
 
 void Plateau::onSampleRateChange() {
-    reverb = DattorroV2(APP->engine->getSampleRate(), maxBlockSize);
+    reverb.setSampleRate(APP->engine->getSampleRate());
     envelope.setSampleRate(APP->engine->getSampleRate());
 }
 

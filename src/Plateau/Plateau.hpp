@@ -31,7 +31,7 @@
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
 #include "Dattorro.hpp"
-#include "DattorroV2.hpp"
+//#include "DattorroV2.hpp"
 #include "../Common/DSP/NonLinear.hpp"
 #include "../Common/DSP/LinearEnvelope.hpp"
 #include <vector>
@@ -194,16 +194,12 @@ struct Plateau : Module {
     std::array<double, maxBlockSize> rightInputBlock = {0.0};
     std::array<double, maxBlockSize> rightOutputBlock = {0.0};
 
-    DattorroV2 reverb;
+    Dattorro reverb;
     LinearEnvelope envelope;
 
     int panelStyle = 0;
     int tuned;
     int diffuseInput;
-
-    bool printy = true;
-    int printLength = 512;
-    int printCount = 0;
 
     Plateau();
     void process(const ProcessArgs &args) override;
