@@ -1,6 +1,7 @@
 #pragma once
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"
+#include "../Common/Utilities.hpp"
 #include "WavetableEditor/MenuBase.hpp"
 #include "WavetableEditor/TFormEditorButton.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"
@@ -19,10 +20,11 @@ struct TFormEditorBankEditMenu : OpaqueWidget {
     TFormCloneMenu* cloneMenu;
     TFormMoveMenu* moveMenu;
     TFormClearMenu* clearMenu;
+    std::string dir;
     std::shared_ptr<int> selectedBank;
     std::vector<bool> slotFilled;
 
-    std::function<std::shared_ptr<std::vector<float>>()> onLoadWAVCallback;
+    std::function<std::shared_ptr<std::vector<float>>(char* path)> onLoadWAVCallback;
     std::function<void(int, TerrorformWaveBank&)> onGetBankCallback;
 
     TFormEditorBankEditMenu();
@@ -79,7 +81,7 @@ struct TFormEditor : OpaqueWidget {
 
     TFormEditor();
     void addOnExitCallback(const std::function<void()>& onExitCallback);
-    void addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<float>>()>& onLoadWAVCallback);
+    void addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<float>>(char* path)>& onLoadWAVCallback);
     void addIngestTableCallback(const std::function<void(int, int, int, int, const std::string&)>& onIngestTableCallback);
     void addClearBankCallback(const std::function<void(int)>& onClearBankCallback);
     void addCloneBankCallback(const std::function<void(int, int, int, int)>& onCloneBankCallback);

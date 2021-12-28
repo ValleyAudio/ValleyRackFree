@@ -1,4 +1,5 @@
 #include "TerrorformWaveTableEditor.hpp"
+#include "osdialog.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Edit menu
@@ -15,12 +16,38 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
     mainMenu->selectedBank = selectedBank;
     mainMenu->loadButton->onClick = [=]() {
         if (onLoadWAVCallback) {
-            std::shared_ptr<std::vector<float>> detectedWaves = onLoadWAVCallback();
-            if (detectedWaves->size() > 0) {
-                loadMenu->detectedWaves = detectedWaves;
-                mainMenu->hide();
-                loadMenu->view();
+            if (dir.empty()) {
+                dir = asset::user("");
             }
+
+            auto wavPathSelected = [=](char* path) {
+                if (path) {
+                    dir = extractDirectoryFromFilePath(std::string(path));
+                }
+                std::shared_ptr<std::vector<float>> detectedWaves = onLoadWAVCallback(path);
+                if (detectedWaves->size() > 0) {
+                    loadMenu->detectedWaves = detectedWaves;
+                    mainMenu->hide();
+                    loadMenu->view();
+                }
+            };
+
+#ifdef USING_CARDINAL_NOT_RACK
+            async_dialog_filebrowser(false, dir.c_str(), "Load sample", [=](char* path) {
+                wavPathSelected(path);
+            });
+#else
+            const char FILE_FILTERS[] = "WAV File (.wav):wav";
+            std::string filename;
+
+            osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
+            DEFER({
+                osdialog_filters_free(filters);
+            });
+
+            char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
+            wavPathSelected(path);
+#endif
         }
     };
 
@@ -323,7 +350,7 @@ void TFormEditor::addOnExitCallback(const std::function<void()>& onExitCallback)
     mainMenu->exitButton->onClick = onExitCallback;
 }
 
-void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<float>>()>& onLoadWAVCallback) {
+void TFormEditor::addLoadWAVCallback(const std::function<std::shared_ptr<std::vector<float>>(char* path)>& onLoadWAVCallback) {
     editMenu->onLoadWAVCallback = onLoadWAVCallback;
 }
 
