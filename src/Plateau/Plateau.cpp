@@ -16,7 +16,6 @@ Plateau::Plateau() {
     configParam(Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, "Modulation Depth");
     configParam(Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, "Modulation Shape");
 
-
     configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f, "Dry CV Depth");
     configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f, "Wet CV Depth");
     configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input Low Cut CV");
@@ -34,6 +33,9 @@ Plateau::Plateau() {
     configParam(Plateau::CLEAR_PARAM, 0.f, 1.f, 0.f, "Clear");
     configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
     configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
+
+    configBypass(Plateau::LEFT_INPUT, Plateau::LEFT_OUTPUT);
+    configBypass(Plateau::RIGHT_INPUT, Plateau::RIGHT_OUTPUT);
 
     reverb.setSampleRate(APP->engine->getSampleRate());
     envelope.setSampleRate(APP->engine->getSampleRate());
