@@ -1,16 +1,22 @@
 # ValleyRackFree Change Log
 
+## 2.0.2
+
+    - [Fixed] Revert Plateau DSP to original V1 code.
+    - [Added] Bypass mode to Plateau.
+    - [Added] Compatibility for Terrorform in Cardinal (thanks Filipe).
+
 ## 2.0.1
 
-    * [Fixed] Fonts are now loaded and cached during draw()
+    - [Fixed] Fonts are now loaded and cached during draw()
 
 ## 2.0.0
     
-    * [Update] Overhauled codebase to work with Rack V2
-    * [Fixed] Corrected text overwrite bug in TFormNumberField that would cause cursor to overshoot text size
-    * [Update] Plateau now features a block processing mode to help with efficiency on older systems.
-    * [Fixed] Corrected the output saturation and clipping modes on Plateau.
-    * [Update] Updated graphics to v2 style 
+    - [Update] Overhauled codebase to work with Rack V2
+    - [Fixed] Corrected text overwrite bug in TFormNumberField that would cause cursor to overshoot text size
+    - [Update] Plateau now features a block processing mode to help with efficiency on older systems.
+    - [Fixed] Corrected the output saturation and clipping modes on Plateau.
+    - [Update] Updated graphics to v2 style 
 
 ## 1.1.1
 
