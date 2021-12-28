@@ -206,6 +206,7 @@ struct Plateau : Module {
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
+    void onReset(const ResetEvent& e) override;
 };
 
 struct PlateauPanelStyleItem : MenuItem {

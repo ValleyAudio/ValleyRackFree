@@ -306,6 +306,13 @@ void Plateau::dataFromJson(json_t *rootJ) {
     dspModeState = json_integer_value(dspModeJ);
 }
 
+void Plateau::onReset(const ResetEvent& e) {
+    params[FREEZE_TOGGLE_PARAM].setValue(0.f);
+    params[TUNED_MODE_PARAM].setValue(0.f);
+    params[DIFFUSE_INPUT_PARAM].setValue(1.f);
+    Module::onReset(e);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PlateauPanelStyleItem::onAction(const event::Action &e) {
@@ -441,17 +448,17 @@ PlateauWidget::PlateauWidget(Plateau* module) {
     addParam(createParam<LightLEDButton>(Vec(157.875, 244.85), module, Plateau::CLEAR_PARAM));
     addChild(createLight<MediumLight<RedLight>>(Vec(160.375, 247.35), module, Plateau::CLEAR_LIGHT));
 
-    freezeToggleButton = createParam<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM); 
+    freezeToggleButton = createParam<LightLEDButton>(Vec(31.375, 256.35), module, Plateau::FREEZE_TOGGLE_PARAM);
     freezeToggleButton->momentary = false;
     addParam(freezeToggleButton);
     addChild(createLight<MediumLight<RedLight>>(Vec(33.875, 258.85), module, Plateau::FREEZE_TOGGLE_LIGHT));
 
-    tunedModeButton = createParam<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM); 
+    tunedModeButton = createParam<LightLEDButton>(Vec(13.875, 127.35), module, Plateau::TUNED_MODE_PARAM);
     tunedModeButton->momentary = false;
     addParam(tunedModeButton);
     addChild(createLight<MediumLight<RedLight>>(Vec(16.375, 129.85), module, Plateau::TUNED_MODE_LIGHT));
 
-    diffuseInputButton = createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM); 
+    diffuseInputButton = createParam<LightLEDButton>(Vec(151.875, 127.35), module, Plateau::DIFFUSE_INPUT_PARAM);
     diffuseInputButton->momentary = false;
     addParam(diffuseInputButton);
     addChild(createLight<MediumLight<RedLight>>(Vec(154.375, 129.85), module, Plateau::DIFFUSE_INPUT_LIGHT));
