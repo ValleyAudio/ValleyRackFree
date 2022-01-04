@@ -1029,9 +1029,9 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         t->horzAlignment = align;
         t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
         t->text = make_shared<std::string>(length, '~');
-        t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][0],
-                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][1],
-                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][2]);
+        //t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][0],
+        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][1],
+        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][2]);
         return t;
     };
 
@@ -1045,10 +1045,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         tBlur1->horzAlignment = align;
         tBlur1->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
         tBlur1->text = text;
-        tBlur1->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][0],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][1],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][2],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][3]);
+        //tBlur1->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][0],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][1],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][2],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][3]);
         tBlur1->blur = 10.f;
 
         tBlur2->size = 10;
@@ -1058,10 +1058,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         tBlur2->horzAlignment = align;
         tBlur2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
         tBlur2->text = text;
-        tBlur2->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][0],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][1],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][2],
-                                      cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][3]);
+        //tBlur2->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][0],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][1],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][2],
+        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][3]);
         tBlur2->blur = 8.f;
 
         t->size = 10;
@@ -1071,52 +1071,50 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         t->horzAlignment = align;
         t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
         t->text = text;
-        t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][0],
-                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][1],
-                                cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][2]);
+        //t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][0],
+        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][1],
+        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][2]);
     };
 
 
     bool inBrowser = module == nullptr ? true : false;
 
     // Back Text
-    bankBackText = makeBackText(bankTextPos, 13, NVG_ALIGN_LEFT);
-    addChild(bankBackText);
-    shapeBackText = makeBackText(shapeTextPos, 13, NVG_ALIGN_LEFT);
-    addChild(shapeBackText);
     enhanceBackText = makeBackText(enhanceTextPos, 13, NVG_ALIGN_LEFT);
     addChild(enhanceBackText);
     syncBackText = makeBackText(syncTextPos, 10, NVG_ALIGN_CENTER);
     addChild(syncBackText);
 
     // Wave Text
-    bankStr = std::make_shared<std::string>(inBrowser ? "NEVER" : bankNames[0]);
-    bankBlurText = new DynamicText;
-    bankBlurText2 = new DynamicText;
-    bankText = new DynamicText;
-    setupFrontText(bankText, bankBlurText, bankBlurText2, bankStr, bankTextPos, NVG_ALIGN_LEFT);
-    addChild(bankBlurText);
-    addChild(bankBlurText2);
+    bankText = new DigitalDisplay(10);
+    bankText->box.pos = bankTextPos;
+    bankText->box.size = Vec(82, 14);
+    bankText->size = 10;
+    bankText->horzAlignment = NVG_ALIGN_LEFT;
+    bankText->setText("NEVER");
     addChild(bankText);
 
+    bankStr = std::make_shared<std::string>(inBrowser ? "NEVER" : bankNames[0]);
+
     waveStr = std::make_shared<std::string>("0");
-    waveBlurText = new DynamicText;
-    waveBlurText2 = new DynamicText;
-    waveText = new DynamicText;
-    setupFrontText(waveText, waveBlurText, waveBlurText2, waveStr, waveTextPos, NVG_ALIGN_RIGHT);
-    addChild(waveBlurText);
-    addChild(waveBlurText2);
+    waveText = new DigitalDisplay(3);
+    waveText->box.pos = waveTextPos;
+    waveText->box.size = Vec(82,14);
+    waveText->size = 10;
+    waveText->horzAlignment = NVG_ALIGN_RIGHT;
+    waveText->colours = redDisplayNormal;
     addChild(waveText);
 
     // Shape Text
-    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
-    shapeBlurText = new DynamicText;
-    shapeBlurText2 = new DynamicText;
-    shapeText = new DynamicText;
-    setupFrontText(shapeText, shapeBlurText, shapeBlurText2, shapeTypeStr, shapeTextPos, NVG_ALIGN_LEFT);
-    addChild(shapeBlurText);
-    addChild(shapeBlurText2);
+    shapeText = new DigitalDisplay(13);
+    shapeText->box.pos = shapeTextPos;
+    shapeText->box.size = Vec(82, 14);
+    shapeText->size = 10;
+    shapeText->horzAlignment = NVG_ALIGN_LEFT;
+    shapeText->setText("GONNA");
     addChild(shapeText);
+
+    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
 
     shapeDepthStr = std::make_shared<std::string>("0");
     shapeDepthBlurText = new DynamicText;
@@ -1159,50 +1157,17 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     // Yeaaaahhhh I know all display stuff should be wrapped up in a class.
     // I'll tidy my room later mum!
     if (module) {
-        auto setOnHoverColour = [=](DynamicText* backText, DynamicText* frontText,
-                                    DynamicText* blurText1, DynamicText* blurText2) {
-            backText->customColor = nvgRGB(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][0],
-                                           cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][1],
-                                           cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BACK][2]);
-            frontText->customColor = nvgRGB(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][0],
-                                            cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][1],
-                                            cellDisplayColours[displayStyle + 1][CELL_DISPLAY_FRONT][2]);
-            blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][0],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][1],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][2],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_1][3]);
-            blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][0],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][1],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][2],
-                                             cellDisplayColours[displayStyle + 1][CELL_DISPLAY_BLUR_2][3]);
-        };
-
-        auto setOnLeaveColour = [=](DynamicText* backText, DynamicText* frontText,
-                                    DynamicText* blurText1, DynamicText* blurText2) {
-            backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
-                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
-                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
-            frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
-                                            cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
-                                            cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
-            blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
-            blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
-                                             cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
-        };
-
         bankMenu = createDynamicMenu(bankTextPos, bankText->box.size,
                                      bankMenuItems, true, false, 16);
+
         bankMenu->onMouseEnter = [=]() {
-            setOnHoverColour(bankBackText, bankText, bankBlurText, bankBlurText2);
+            bankText->colours = redDisplayHover;
+            waveText->colours = redDisplayHover;
         };
 
         bankMenu->onMouseLeave = [=]() {
-            setOnLeaveColour(bankBackText, bankText, bankBlurText, bankBlurText2);
+            bankText->colours = redDisplayNormal;
+            waveText->colours = redDisplayNormal;
         };
 
         bankMenu->setChoice = [=](int i) {
@@ -1213,11 +1178,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeMenu = createDynamicMenu(shapeTextPos, shapeText->box.size,
                                       shapeMenuItems, true, false, 0);
         shapeMenu->onMouseEnter = [=]() {
-            setOnHoverColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
+            shapeText->colours = redDisplayHover;
         };
 
         shapeMenu->onMouseLeave = [=]() {
-            setOnLeaveColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
+            shapeText->colours = redDisplayNormal;
         };
 
         shapeMenu->setChoice = [=](int i) {
@@ -1228,11 +1193,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         enhanceMenu = createDynamicMenu(enhanceTextPos, enhanceText->box.size,
                                         enhanceMenuItems, true, false, 0);
         enhanceMenu->onMouseEnter = [=]() {
-            setOnHoverColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
+            //setOnHoverColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
         };
 
         enhanceMenu->onMouseLeave = [=]() {
-            setOnLeaveColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
+            //setOnLeaveColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
         };
 
         enhanceMenu->setChoice = [=](int i) {
@@ -1243,11 +1208,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         syncMenu = createDynamicMenu(syncTextPos.minus(Vec(syncText->box.size.x / 2.f, 0.f)), syncText->box.size,
                                      syncMenuItems, true, true, 0);
         syncMenu->onMouseEnter = [=]() {
-            setOnHoverColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+            //setOnHoverColour(syncBackText, syncText, syncBlurText, syncBlurText2);
         };
 
         syncMenu->onMouseLeave = [=]() {
-            setOnLeaveColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+            //setOnLeaveColour(syncBackText, syncText, syncBlurText, syncBlurText2);
         };
 
         syncMenu->setChoice = [=](int i) {
@@ -1353,8 +1318,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         attackKnob->visible = true;
         decayKnob->visible = true;
 
-        bankBackText->visible = true;
-        shapeBackText->visible = true;
         enhanceBackText->visible = true;
 
         bankText->visible = true;
@@ -1364,12 +1327,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeDepthText->visible = true;
         enhanceDepthText->visible = true;
 
-        bankBlurText->visible = true;
-        bankBlurText2->visible = true;
         waveBlurText->visible = true;
         waveBlurText2->visible = true;
-        shapeBlurText->visible = true;
-        shapeBlurText2->visible = true;
         shapeDepthBlurText->visible = true;
         shapeDepthBlurText2->visible = true;
         enhanceBlurText->visible = true;
@@ -1589,8 +1548,6 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         attackKnob->visible = false;
         decayKnob->visible = false;
 
-        bankBackText->visible = false;
-        shapeBackText->visible = false;
         enhanceBackText->visible = false;
 
         bankText->visible = false;
@@ -1600,12 +1557,8 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         shapeDepthText->visible = false;
         enhanceDepthText->visible = false;
 
-        bankBlurText->visible = false;
-        bankBlurText2->visible = false;
         waveBlurText->visible = false;
         waveBlurText2->visible = false;
-        shapeBlurText->visible = false;
-        shapeBlurText2->visible = false;
         shapeDepthBlurText->visible = false;
         shapeDepthBlurText2->visible = false;
         enhanceBlurText->visible = false;
@@ -1781,6 +1734,7 @@ void TerrorformWidget::step() {
     }
 
     std::replace(bankStr->begin(), bankStr->end(), ' ', '!');
+    bankText->setText(*bankStr);
 
     if ((tform->readFromUserWaves != prevReadUserWavesState)
         && !updateBankNames) {
@@ -1805,7 +1759,7 @@ void TerrorformWidget::step() {
     float waveValue = (float)(tform->waveAmountDisplay);
     wavePercent = (int)(waveValue * 100.f);
     wavePercent = clamp(wavePercent, 0, 100);
-    *waveStr = std::to_string(wavePercent);
+    waveText->setText(std::to_string(wavePercent));
 
     // Shape Knob and Display
     shapeTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::SHAPE_TYPE_PARAM));
@@ -1968,29 +1922,26 @@ void TerrorformWidget::step() {
 void TerrorformWidget::changeDisplayStyle() {
     auto setNewColour = [=](DynamicText* backText, DynamicText* frontText,
                             DynamicText* blurText1, DynamicText* blurText2) {
-        if (backText) {
-            backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
-                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
-                                           cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
-        }
+        //if (backText) {
+        //    backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
+        //                                   cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
+        //                                   cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
+        //}
 
-        frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
-                                        cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
-                                        cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
+        //frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
+        //                                cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
+        //                                cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
 
-        blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
+        //blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
 
-        blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
-                                         cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
+        //blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
+        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
     };
-    setNewColour(bankBackText, bankText, bankBlurText, bankBlurText2);
-    setNewColour(nullptr, waveText, waveBlurText, waveBlurText2);
-    setNewColour(shapeBackText, shapeText, shapeBlurText, shapeBlurText2);
     setNewColour(nullptr, shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2);
     setNewColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
     setNewColour(nullptr, enhanceDepthText, enhanceDepthBlurText, enhanceDepthBlurText2);
