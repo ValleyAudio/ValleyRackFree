@@ -23,7 +23,7 @@ struct DigitalDisplay : TransparentWidget {
     int size;
 
     DigitalDisplay(unsigned long maxDisplayLength = 8);
-    void draw(const DrawArgs &args) override;
+    void drawLayer(const DrawArgs &args, int layer) override;
     void step() override;
     void setText(const std::string& newText);
 private:

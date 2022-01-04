@@ -545,6 +545,9 @@ struct TerrorformWidget : ModuleWidget {
         {0xEF,0xEF,0xEF,0xBF}, {0xFF,0xFF,0xFF,0xFF}
     };
 
+    DigitalDisplayColours normalColours = redDisplayNormal;
+    DigitalDisplayColours hoverColours = redDisplayHover;
+
     // Knobs
     Vec octavePos = Vec(93, 49);
     Vec coarsePos = Vec(150, 49);
@@ -725,36 +728,18 @@ struct TerrorformWidget : ModuleWidget {
 
     Vec syncTextPos = Vec(149.829, 303);
 
-    //widget::Widget* panels[NUM_TRRFORM_PANELS];
     SvgPanel* panels[NUM_TRRFORM_PANELS];
     SvgPanel* darkPanel;
     SvgPanel* lightPanel;
     bool inEditorMode = false;
     DigitalDisplay* bankText;
     DigitalDisplay* shapeText;
-    DynamicText* enhanceBackText;
-    DynamicText* syncBackText;
+    DigitalDisplay* enhanceText;
 
-    DynamicText* enhanceText;
     DigitalDisplay* waveText;
-    DynamicText* shapeDepthText;
-    DynamicText* enhanceDepthText;
-    DynamicText* syncText;
-
-    //DynamicText* bankBlurText;
-    //DynamicText* bankBlurText2;
-    DynamicText* waveBlurText;
-    DynamicText* waveBlurText2;
-    DynamicText* shapeBlurText;
-    DynamicText* shapeBlurText2;
-    DynamicText* shapeDepthBlurText;
-    DynamicText* shapeDepthBlurText2;
-    DynamicText* enhanceBlurText;
-    DynamicText* enhanceBlurText2;
-    DynamicText* enhanceDepthBlurText;
-    DynamicText* enhanceDepthBlurText2;
-    DynamicText* syncBlurText;
-    DynamicText* syncBlurText2;
+    DigitalDisplay* shapeDepthText;
+    DigitalDisplay* enhanceDepthText;
+    DigitalDisplay* syncText;
 
     PlainText* rightHandVOctText;
     Vec rightHandVOctTextPos = Vec(284.5, 51.5);

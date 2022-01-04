@@ -1019,73 +1019,10 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     rightHandVOctText->color = nvgRGB(0xFF, 0xFF, 0xFF);
     addChild(rightHandVOctText);
 
-    // Back text
-    auto makeBackText = [=](const Vec& pos, int length, const NVGalign& align) {
-        DynamicText* t = new DynamicText;
-        t->size = 10;
-        t->box.pos = pos;
-        t->box.size = Vec(82, 14);
-        t->viewMode = ACTIVE_LOW_VIEW;
-        t->horzAlignment = align;
-        t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-        t->text = make_shared<std::string>(length, '~');
-        //t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][0],
-        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][1],
-        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BACK][2]);
-        return t;
-    };
-
-    auto setupFrontText = [=](DynamicText* t, DynamicText* tBlur1, DynamicText* tBlur2,
-                             std::shared_ptr<std::string> text, const Vec& pos,
-                             const NVGalign& align) {
-        tBlur1->size = 10;
-        tBlur1->box.pos = pos;
-        tBlur1->box.size = Vec(82, 14);
-        tBlur1->viewMode = ACTIVE_LOW_VIEW;
-        tBlur1->horzAlignment = align;
-        tBlur1->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-        tBlur1->text = text;
-        //tBlur1->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][0],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][1],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][2],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_1][3]);
-        tBlur1->blur = 10.f;
-
-        tBlur2->size = 10;
-        tBlur2->box.pos = pos;
-        tBlur2->box.size = Vec(82, 14);
-        tBlur2->viewMode = ACTIVE_LOW_VIEW;
-        tBlur2->horzAlignment = align;
-        tBlur2->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-        tBlur2->text = text;
-        //tBlur2->customColor = nvgRGBA(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][0],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][1],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][2],
-        //                              cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_BLUR_2][3]);
-        tBlur2->blur = 8.f;
-
-        t->size = 10;
-        t->box.pos = pos;
-        t->box.size = Vec(82, 14);
-        t->viewMode = ACTIVE_LOW_VIEW;
-        t->horzAlignment = align;
-        t->setFont(DynamicText::FontMode::FONT_MODE_7SEG);
-        t->text = text;
-        //t->customColor = nvgRGB(cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][0],
-        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][1],
-        //                        cellDisplayColours[CELL_RED_LED_COLOUR][CELL_DISPLAY_FRONT][2]);
-    };
-
-
     bool inBrowser = module == nullptr ? true : false;
 
-    // Back Text
-    enhanceBackText = makeBackText(enhanceTextPos, 13, NVG_ALIGN_LEFT);
-    addChild(enhanceBackText);
-    syncBackText = makeBackText(syncTextPos, 10, NVG_ALIGN_CENTER);
-    addChild(syncBackText);
-
     // Wave Text
+    bankStr = std::make_shared<std::string>(inBrowser ? "NEVER" : bankNames[0]);
     bankText = new DigitalDisplay(10);
     bankText->box.pos = bankTextPos;
     bankText->box.size = Vec(82, 14);
@@ -1093,8 +1030,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     bankText->horzAlignment = NVG_ALIGN_LEFT;
     bankText->setText("NEVER");
     addChild(bankText);
-
-    bankStr = std::make_shared<std::string>(inBrowser ? "NEVER" : bankNames[0]);
 
     waveStr = std::make_shared<std::string>("0");
     waveText = new DigitalDisplay(3);
@@ -1106,7 +1041,8 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(waveText);
 
     // Shape Text
-    shapeText = new DigitalDisplay(13);
+    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
+    shapeText = new DigitalDisplay(10);
     shapeText->box.pos = shapeTextPos;
     shapeText->box.size = Vec(82, 14);
     shapeText->size = 10;
@@ -1114,44 +1050,42 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     shapeText->setText("GONNA");
     addChild(shapeText);
 
-    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
-
     shapeDepthStr = std::make_shared<std::string>("0");
-    shapeDepthBlurText = new DynamicText;
-    shapeDepthBlurText2 = new DynamicText;
-    shapeDepthText = new DynamicText;
-    setupFrontText(shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2, shapeDepthStr, shapeDepthTextPos, NVG_ALIGN_RIGHT);
-    addChild(shapeDepthBlurText);
-    addChild(shapeDepthBlurText2);
+    shapeDepthText = new DigitalDisplay(3);
+    shapeDepthText->box.pos = shapeDepthTextPos;
+    shapeDepthText->box.size = Vec(82, 14);
+    shapeDepthText->size = 10;
+    shapeDepthText->horzAlignment = NVG_ALIGN_RIGHT;
+    shapeDepthText->colours = redDisplayNormal;
     addChild(shapeDepthText);
 
     // Enhance Text
-    enhanceTypeStr = make_shared<std::string>(inBrowser ? "LET_YOU" : enhanceNames[0]);
-    enhanceBlurText = new DynamicText;
-    enhanceBlurText2 = new DynamicText;
-    enhanceText = new DynamicText;
-    setupFrontText(enhanceText, enhanceBlurText, enhanceBlurText2, enhanceTypeStr, enhanceTextPos, NVG_ALIGN_LEFT);
-    addChild(enhanceBlurText);
-    addChild(enhanceBlurText2);
+    enhanceTypeStr = make_shared<std::string>(inBrowser ? "LET!YOU" : shapeNames[0]);
+    enhanceText = new DigitalDisplay(10);
+    enhanceText->box.pos = enhanceTextPos;
+    enhanceText->box.size = Vec(82, 14);
+    enhanceText->size = 10;
+    enhanceText->horzAlignment = NVG_ALIGN_LEFT;
+    enhanceText->setText("LET!YOU");
     addChild(enhanceText);
 
     enhanceDepthStr = std::make_shared<std::string>("0");
-    enhanceDepthBlurText = new DynamicText;
-    enhanceDepthBlurText2 = new DynamicText;
-    enhanceDepthText = new DynamicText;
-    setupFrontText(enhanceDepthText, enhanceDepthBlurText, enhanceDepthBlurText2, enhanceDepthStr, enhanceDepthTextPos, NVG_ALIGN_RIGHT);
-    addChild(enhanceDepthBlurText);
-    addChild(enhanceDepthBlurText2);
+    enhanceDepthText = new DigitalDisplay(3);
+    enhanceDepthText->box.pos = enhanceDepthTextPos;
+    enhanceDepthText->box.size = Vec(82, 14);
+    enhanceDepthText->size = 10;
+    enhanceDepthText->horzAlignment = NVG_ALIGN_RIGHT;
+    enhanceDepthText->colours = redDisplayNormal;
     addChild(enhanceDepthText);
 
     // Sync Text
-    syncStr = make_shared<std::string>(inBrowser ? "DOWN" : syncNames[0]);
-    syncBlurText = new DynamicText;
-    syncBlurText2 = new DynamicText;
-    syncText = new DynamicText;
-    setupFrontText(syncText, syncBlurText, syncBlurText2, syncStr, syncTextPos, NVG_ALIGN_CENTER);
-    addChild(syncBlurText);
-    addChild(syncBlurText2);
+    syncText = new DigitalDisplay(10);
+    syncText->box.pos = syncTextPos;
+    syncText->box.size = Vec(82, 14);
+    syncText->size = 10;
+    syncText->horzAlignment = NVG_ALIGN_CENTER;
+    syncText->colours = redDisplayNormal;
+    syncText->setText("DOWN");
     addChild(syncText);
 
     // Yeaaaahhhh I know all display stuff should be wrapped up in a class.
@@ -1161,13 +1095,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
                                      bankMenuItems, true, false, 16);
 
         bankMenu->onMouseEnter = [=]() {
-            bankText->colours = redDisplayHover;
-            waveText->colours = redDisplayHover;
+            bankText->colours = hoverColours;
+            waveText->colours = hoverColours;
         };
 
         bankMenu->onMouseLeave = [=]() {
-            bankText->colours = redDisplayNormal;
-            waveText->colours = redDisplayNormal;
+            bankText->colours = normalColours;
+            waveText->colours = normalColours;
         };
 
         bankMenu->setChoice = [=](int i) {
@@ -1178,11 +1112,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         shapeMenu = createDynamicMenu(shapeTextPos, shapeText->box.size,
                                       shapeMenuItems, true, false, 0);
         shapeMenu->onMouseEnter = [=]() {
-            shapeText->colours = redDisplayHover;
+            shapeText->colours = hoverColours;
+            shapeDepthText->colours = hoverColours;
         };
 
         shapeMenu->onMouseLeave = [=]() {
-            shapeText->colours = redDisplayNormal;
+            shapeText->colours = normalColours;
+            shapeDepthText->colours = normalColours;
         };
 
         shapeMenu->setChoice = [=](int i) {
@@ -1193,11 +1129,13 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         enhanceMenu = createDynamicMenu(enhanceTextPos, enhanceText->box.size,
                                         enhanceMenuItems, true, false, 0);
         enhanceMenu->onMouseEnter = [=]() {
-            //setOnHoverColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
+            enhanceText->colours = hoverColours;
+            enhanceDepthText->colours = hoverColours;
         };
 
         enhanceMenu->onMouseLeave = [=]() {
-            //setOnLeaveColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
+            enhanceText->colours = normalColours;
+            enhanceDepthText->colours = normalColours;
         };
 
         enhanceMenu->setChoice = [=](int i) {
@@ -1208,11 +1146,11 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         syncMenu = createDynamicMenu(syncTextPos.minus(Vec(syncText->box.size.x / 2.f, 0.f)), syncText->box.size,
                                      syncMenuItems, true, true, 0);
         syncMenu->onMouseEnter = [=]() {
-            //setOnHoverColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+            syncText->colours = hoverColours;
         };
 
         syncMenu->onMouseLeave = [=]() {
-            //setOnLeaveColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+            syncText->colours = normalColours;
         };
 
         syncMenu->setChoice = [=](int i) {
@@ -1318,23 +1256,12 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         attackKnob->visible = true;
         decayKnob->visible = true;
 
-        enhanceBackText->visible = true;
-
         bankText->visible = true;
         shapeText->visible = true;
         enhanceText->visible = true;
         waveText->visible = true;
         shapeDepthText->visible = true;
         enhanceDepthText->visible = true;
-
-        waveBlurText->visible = true;
-        waveBlurText2->visible = true;
-        shapeDepthBlurText->visible = true;
-        shapeDepthBlurText2->visible = true;
-        enhanceBlurText->visible = true;
-        enhanceBlurText2->visible = true;
-        enhanceDepthBlurText->visible = true;
-        enhanceDepthBlurText2->visible = true;
 
         vOct1CV->visible = true;
         vOct2CV->visible = true;
@@ -1548,23 +1475,12 @@ void TerrorformWidget::appendContextMenu(Menu *menu) {
         attackKnob->visible = false;
         decayKnob->visible = false;
 
-        enhanceBackText->visible = false;
-
         bankText->visible = false;
         shapeText->visible = false;
         enhanceText->visible = false;
         waveText->visible = false;
         shapeDepthText->visible = false;
         enhanceDepthText->visible = false;
-
-        waveBlurText->visible = false;
-        waveBlurText2->visible = false;
-        shapeDepthBlurText->visible = false;
-        shapeDepthBlurText2->visible = false;
-        enhanceBlurText->visible = false;
-        enhanceBlurText2->visible = false;
-        enhanceDepthBlurText->visible = false;
-        enhanceDepthBlurText2->visible = false;
 
         vOct1CV->visible = false;
         vOct2CV->visible = false;
@@ -1771,14 +1687,15 @@ void TerrorformWidget::step() {
     nameIndex = clamp(nameIndex, 0, shapeNames.size() - 1);
 
     // TODO : Make display widget that handles this internally
-    if (shapeTypeStr) {
-        *shapeTypeStr = shapeNames[nameIndex];
-    }
+    //if (shapeTypeStr) {
+    //    *shapeTypeStr = shapeNames[nameIndex];
+    //}
+    shapeText->setText(shapeNames[nameIndex]);
 
     float shapeValue = (float)(tform->shapeAmountDisplay);
     shapeDepthPercent = (int)(shapeValue * 100.f);
     shapeDepthPercent = clamp(shapeDepthPercent, 0, 100);
-    *shapeDepthStr = std::to_string(shapeDepthPercent);
+    shapeDepthText->setText(std::to_string(shapeDepthPercent));
 
     // Enhance Knob and Display
     enhanceTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::ENHANCE_TYPE_PARAM));
@@ -1789,18 +1706,15 @@ void TerrorformWidget::step() {
     nameIndex = (int)(tform->enhanceDisplay);
     nameIndex = clamp(nameIndex, 0, enhanceNames.size() - 1);
 
-    // TODO : Make display widget that handles this internally
-    if (enhanceTypeStr) {
-        *enhanceTypeStr = enhanceNames[nameIndex];
-    }
+    enhanceText->setText(enhanceNames[nameIndex]);
 
     float enhanceValue = (float)(tform->enhanceAmountDisplay);
     enhanceDepthPercent = (int)(enhanceValue * 100.f);
     enhanceDepthPercent = clamp(enhanceDepthPercent, 0, 100);
-    *enhanceDepthStr = std::to_string(enhanceDepthPercent);
+    enhanceDepthText->setText(std::to_string(enhanceDepthPercent));
 
     int syncChoice = (int)tform->syncChoice;
-    *syncStr = syncNames[syncChoice];
+    syncText->setText(syncNames[syncChoice]);
     if (syncMenu->_choice != syncChoice) {
         syncMenu->_choice = syncChoice;
     }
@@ -1920,32 +1834,36 @@ void TerrorformWidget::step() {
 }
 
 void TerrorformWidget::changeDisplayStyle() {
-    auto setNewColour = [=](DynamicText* backText, DynamicText* frontText,
-                            DynamicText* blurText1, DynamicText* blurText2) {
-        //if (backText) {
-        //    backText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][0],
-        //                                   cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][1],
-        //                                   cellDisplayColours[displayStyle][CELL_DISPLAY_BACK][2]);
-        //}
+    if (displayStyle == CELL_RED_LED_COLOUR) {
+        normalColours = redDisplayNormal;
+        hoverColours = redDisplayHover;
+    }
+    else if (displayStyle == CELL_YELLOW_COLOUR) {
+        normalColours = yellowDisplayNormal;
+        hoverColours = yellowDisplayHover;
+    }
+    else if (displayStyle == CELL_GREEN_COLOUR) {
+        normalColours = greenDisplayNormal;
+        hoverColours = greenDisplayHover;
+    }
+    else if (displayStyle == CELL_VFD_COLOUR) {
+        normalColours = blueDisplayNormal;
+        hoverColours = blueDisplayHover;
+    }
+    else {
+        normalColours = whiteDisplayNormal;
+        hoverColours = whiteDisplayHover;
+    }
 
-        //frontText->customColor = nvgRGB(cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][0],
-        //                                cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][1],
-        //                                cellDisplayColours[displayStyle][CELL_DISPLAY_FRONT][2]);
+    bankText->colours = normalColours;
+    shapeText->colours = normalColours;
+    enhanceText->colours = normalColours;
 
-        //blurText1->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][0],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][1],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][2],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_1][3]);
+    waveText->colours = normalColours;
+    shapeDepthText->colours = normalColours;
+    enhanceDepthText->colours = normalColours;
 
-        //blurText2->customColor = nvgRGBA(cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][0],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][1],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][2],
-        //                                 cellDisplayColours[displayStyle][CELL_DISPLAY_BLUR_2][3]);
-    };
-    setNewColour(nullptr, shapeDepthText, shapeDepthBlurText, shapeDepthBlurText2);
-    setNewColour(enhanceBackText, enhanceText, enhanceBlurText, enhanceBlurText2);
-    setNewColour(nullptr, enhanceDepthText, enhanceDepthBlurText, enhanceDepthBlurText2);
-    setNewColour(syncBackText, syncText, syncBlurText, syncBlurText2);
+    syncText->colours = normalColours;
 }
 
 void TerrorformWidget::exportWavetables() {
