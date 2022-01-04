@@ -1,5 +1,15 @@
 #include "DigitalDisplay.hpp"
 
+DigitalDisplayColours::DigitalDisplayColours(const std::array<unsigned char, 4>& bgColourHex,
+                                             const std::array<unsigned char, 4>& colourHex,
+                                             const std::array<unsigned char, 4>& blur1ColourHex,
+                                             const std::array<unsigned char, 4>& blur2ColourHex) {
+    bgColour = nvgRGBA(bgColourHex[0], bgColourHex[1], bgColourHex[2], bgColourHex[3]);
+    colour = nvgRGBA(colourHex[0], colourHex[1], colourHex[2], colourHex[3]);
+    blur1Colour = nvgRGBA(blur1ColourHex[0], blur1ColourHex[1], blur1ColourHex[2], blur1ColourHex[3]);
+    blur2Colour = nvgRGBA(blur2ColourHex[0], blur2ColourHex[1], blur2ColourHex[2], blur2ColourHex[3]);
+}
+
 DigitalDisplay::DigitalDisplay(unsigned long maxDisplayLength) {
     horzAlignment = NVG_ALIGN_CENTER;
     vertAlignment = NVG_ALIGN_TOP;

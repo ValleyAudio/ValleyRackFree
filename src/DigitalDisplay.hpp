@@ -1,10 +1,18 @@
 #include "Valley.hpp"
+#include <array>
 
 struct DigitalDisplayColours {
     NVGcolor bgColour = nvgRGB(0x3F, 0x00, 0x00);
     NVGcolor colour = nvgRGB(0xFF, 0x00, 0x00);
     NVGcolor blur1Colour = nvgRGBA(0xFF, 0x5F, 0x5F, 0xBF);
     NVGcolor blur2Colour = nvgRGBA(0xFF, 0x2F, 0x2F, 0xBF);
+
+    DigitalDisplayColours() = default;
+
+    DigitalDisplayColours(const std::array<unsigned char, 4>& bgColourHex,
+                          const std::array<unsigned char, 4>& colourHex,
+                          const std::array<unsigned char, 4>& blur1ColourHex,
+                          const std::array<unsigned char, 4>& blur2ColourHex);
 };
 
 struct DigitalDisplay : TransparentWidget {
