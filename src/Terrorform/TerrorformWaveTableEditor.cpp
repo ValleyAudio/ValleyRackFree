@@ -139,7 +139,7 @@ TFormEditorDefragMenu::TFormEditorDefragMenu() {
     defragDoneMessage->box.size = box.size;
     defragDoneMessage->text = "Defragmentation Complete";
     addChild(defragDoneMessage);
-    viewCounter = (int) std::ceil(APP->window->getLastFrameDuration());
+    viewCounter = 0;
 }
 
 void TFormEditorDefragMenu::step() {
