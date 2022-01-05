@@ -1,5 +1,11 @@
 # ValleyRackFree Change Log
 
+## 2.0.3
+
+    - [Fixed] Crash when Terrorform is loaded in a recent DAW project.
+    - [Update] Replace raw text drawing with DigitalDisplay object in Terrorform.
+    - [Added] Digital displays stay lit when 'Room brightness' is reduced.
+
 ## 2.0.2
 
     - [Fixed] Revert Plateau DSP to original V1 code.
