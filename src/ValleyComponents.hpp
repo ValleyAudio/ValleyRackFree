@@ -311,12 +311,6 @@ struct LightLEDButtonWithModeText : SvgSwitch {
     }
 };
 
-struct RedDynamicLight : DynamicModuleLightWidget {
-    RedDynamicLight() {
-        addBaseColor(SCHEME_RED);
-    }
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct PJ301MDarkPort : SvgPort {

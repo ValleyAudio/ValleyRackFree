@@ -411,21 +411,70 @@ PlateauWidget::PlateauWidget(Plateau* module) {
 
     float minAngle = -0.77f * M_PI;
     float maxAngle = 0.77f * M_PI;
-    addParam(createValleyKnob<RoganMedSmallWhite>(dryPos, module, Plateau::DRY_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedSmallWhite>(wetPos, module, Plateau::WET_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganSmallWhite>(preDelayPos, module, Plateau::PRE_DELAY_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    RoganMedSmallWhite* knobDryParam = createParam<RoganMedSmallWhite>(dryPos, module, Plateau::DRY_PARAM);
+    knobDryParam->minAngle = minAngle;
+    knobDryParam->maxAngle = maxAngle;
+    addParam(knobDryParam);
 
-    addParam(createValleyKnob<RoganMedBlue>(sizePos, module, Plateau::SIZE_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedBlue>(diffPos, module, Plateau::DIFFUSION_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedBlue>(decayPos, module, Plateau::DECAY_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedGreen>(reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    RoganMedSmallWhite* knobWetParam = createParam<RoganMedSmallWhite>(wetPos, module, Plateau::WET_PARAM);
+    knobWetParam->minAngle = minAngle;
+    knobWetParam->maxAngle = maxAngle;
+    addParam(knobWetParam);
 
-    addParam(createValleyKnob<RoganMedRed>(modRatePos, module, Plateau::MOD_SPEED_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedRed>(modDepthPos, module, Plateau::MOD_DEPTH_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
-    addParam(createValleyKnob<RoganMedRed>(modShapePos, module, Plateau::MOD_SHAPE_PARAM, minAngle, maxAngle, DynamicKnobMotion::SMOOTH_MOTION));
+    RoganSmallWhite* knobPreDelayParam = createParam<RoganSmallWhite>(preDelayPos, module, Plateau::PRE_DELAY_PARAM);
+    knobPreDelayParam->minAngle = minAngle;
+    knobPreDelayParam->maxAngle = maxAngle;
+    addParam(knobPreDelayParam);
+
+    RoganMedGreen* knobInputLowDamp = createParam<RoganMedGreen>(inputLowDampPos, module, Plateau::INPUT_LOW_DAMP_PARAM);
+    knobInputLowDamp->minAngle = minAngle;
+    knobInputLowDamp->maxAngle = maxAngle;
+    addParam(knobInputLowDamp);
+
+    RoganMedGreen* knobInputHighDamp = createParam<RoganMedGreen>(inputHighDampPos, module, Plateau::INPUT_HIGH_DAMP_PARAM);
+    knobInputHighDamp->minAngle = minAngle;
+    knobInputHighDamp->maxAngle = maxAngle;
+    addParam(knobInputHighDamp);
+
+    RoganMedBlue* knobSize = createParam<RoganMedBlue>(sizePos, module, Plateau::SIZE_PARAM);
+    knobSize->minAngle = minAngle;
+    knobSize->maxAngle = maxAngle;
+    addParam(knobSize);
+
+    RoganMedBlue* knobDiffusion = createParam<RoganMedBlue>(diffPos, module, Plateau::DIFFUSION_PARAM);
+    knobDiffusion->minAngle = minAngle;
+    knobDiffusion->maxAngle = maxAngle;
+    addParam(knobDiffusion);
+
+    RoganMedBlue* knobDecay = createParam<RoganMedBlue>(decayPos, module, Plateau::DECAY_PARAM);
+    knobDecay->minAngle = minAngle;
+    knobDecay->maxAngle = maxAngle;
+    addParam(knobDecay);
+
+    RoganMedGreen* knobReverbLowDamp = createParam<RoganMedGreen>(reverbLowDampPos, module, Plateau::REVERB_LOW_DAMP_PARAM);
+    knobReverbLowDamp->minAngle = minAngle;
+    knobReverbLowDamp->maxAngle = maxAngle;
+    addParam(knobReverbLowDamp);
+
+    RoganMedGreen* knobReverbHighDamp = createParam<RoganMedGreen>(reverbHighDampPos, module, Plateau::REVERB_HIGH_DAMP_PARAM);
+    knobReverbHighDamp->minAngle = minAngle;
+    knobReverbHighDamp->maxAngle = maxAngle;
+    addParam(knobReverbHighDamp);
+
+    RoganMedRed* knobModRate = createParam<RoganMedRed>(modRatePos, module, Plateau::MOD_SPEED_PARAM);
+    knobModRate->minAngle = minAngle;
+    knobModRate->maxAngle = maxAngle;
+    addParam(knobModRate);
+
+    RoganMedRed* knobModDepth = createParam<RoganMedRed>(modDepthPos, module, Plateau::MOD_DEPTH_PARAM);
+    knobModDepth->minAngle = minAngle;
+    knobModDepth->maxAngle = maxAngle;
+    addParam(knobModDepth);
+
+    RoganMedRed* knobModShape = createParam<RoganMedRed>(modShapePos, module, Plateau::MOD_SHAPE_PARAM);
+    knobModShape->minAngle = minAngle;
+    knobModShape->maxAngle = maxAngle;
+    addParam(knobModShape);
 
     // Make Attenuverters
     addParam(createParam<RoganSmallWhite>(dryAttenPos, module, Plateau::DRY_CV_PARAM));
