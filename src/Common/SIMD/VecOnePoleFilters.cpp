@@ -1,6 +1,7 @@
 #include "VecOnePoleFilters.hpp"
 
 VecOnePoleLPFilter::VecOnePoleLPFilter() {
+    _cutoffFreq = 0.f;
     setSampleRate(44100.f);
     setCutoffFreq(_sampleRate / 2.f);
     clear();
@@ -67,6 +68,7 @@ float VecOnePoleLPFilter::getMaxCutoffFreq() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 VecOnePoleHPFilter::VecOnePoleHPFilter() {
+    _cutoffFreq = 0.f;
     setSampleRate(44100.f);
     setCutoffFreq(_sampleRate / 2.f);
     clear();

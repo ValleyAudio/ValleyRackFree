@@ -22,6 +22,8 @@ public:
         _b = 0.405284735;
         setSampleRate(44100.f);
         setFrequency(0.75f);
+        _syncHigh = false;
+        _triggerHigh = false;
         _shTriggered = false;
         out[SH_WAVE] = _noise.getValue();
     }
