@@ -20,6 +20,24 @@ Topograph::Topograph() {
     configParam(Topograph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0, "Reset");
     configParam(Topograph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0, "Run");
 
+    configInput(Topograph::CLOCK_INPUT, "External clock");
+    configInput(Topograph::RESET_INPUT, "Reset");
+    configInput(Topograph::MAPX_CV, "Map X position");
+    configInput(Topograph::MAPY_CV, "Map Y position");
+    configInput(Topograph::CHAOS_CV, "Chaos");
+    configInput(Topograph::BD_FILL_CV, "Bass density");
+    configInput(Topograph::SN_FILL_CV, "Snare density");
+    configInput(Topograph::HH_FILL_CV, "Hi-Hat density");
+    configInput(Topograph::SWING_CV, "Swing");
+    configInput(Topograph::RUN_INPUT, "Run");
+
+    configOutput(Topograph::BD_OUTPUT, "Bass");
+    configOutput(Topograph::SN_OUTPUT, "Snare");
+    configOutput(Topograph::HH_OUTPUT, "Hi-hat");
+    configOutput(Topograph::BD_ACC_OUTPUT, "Bass accent");
+    configOutput(Topograph::SN_ACC_OUTPUT, "Snare accent");
+    configOutput(Topograph::HH_ACC_OUTPUT, "Hi-hat accent");
+
     metro = Metronome(120, APP->engine->getSampleRate(), 24.0, 0.0);
     numTicks = ticks_granularity[2];
     srand(time(NULL));

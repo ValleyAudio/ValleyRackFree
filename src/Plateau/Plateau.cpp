@@ -2,37 +2,59 @@
 
 Plateau::Plateau() {
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-    configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry Level");
-    configParam(Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, "Wet Level");
+    configParam(Plateau::DRY_PARAM, 0.0f, 1.f, 1.f, "Dry level");
+    configParam(Plateau::WET_PARAM, 0.0f, 1.f, 0.5f, "Wet level");
     configParam(Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, "Pre-delay");
-    configParam(Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, "Input Low Cut");
-    configParam(Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, "Input High Cut");
+    configParam(Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f, "Input low cut");
+    configParam(Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f, "Input high cut");
     configParam(Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, "Size");
     configParam(Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, "Diffusion");
     configParam(Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, "Decay");
-    configParam(Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, "Reverb Low Cut");
-    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, "Reverb High Cut");
-    configParam(Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, "Modulation Rate");
-    configParam(Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, "Modulation Depth");
-    configParam(Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, "Modulation Shape");
+    configParam(Plateau::REVERB_LOW_DAMP_PARAM, 0.0f, 10.f, 10.f, "Reverb low cut");
+    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, 0.0f, 10.f, 10.f, "Reverb high cut");
+    configParam(Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, "Modulation rate");
+    configParam(Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, "Modulation depth");
+    configParam(Plateau::MOD_SHAPE_PARAM, 0.f, 1.f, 0.5f, "Modulation shape");
 
-    configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f, "Dry CV Depth");
-    configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f, "Wet CV Depth");
-    configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input Low Cut CV");
-    configParam(Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input High Cut CV");
+    configParam(Plateau::DRY_CV_PARAM, -1.f, 1.f, 0.f, "Dry CV depth");
+    configParam(Plateau::WET_CV_PARAM, -1.f, 1.f, 0.f, "Wet CV depth");
+    configParam(Plateau::INPUT_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input low cut CV");
+    configParam(Plateau::INPUT_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Input high cut CV");
     configParam(Plateau::SIZE_CV_PARAM, -1.f, 1.f, 0.f, "Size CV");
     configParam(Plateau::DIFFUSION_CV_PARAM, -1.f, 1.f, 0.f, "Diffusion CV");
     configParam(Plateau::DECAY_CV_PARAM, -1.f, 1.f, 0.f, "Decay CV");
-    configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb Low Cut CV");
-    configParam(Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb High Cut CV");
-    configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f, "Mod Speed CV");
-    configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f, "Mod Shape CV");
-    configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f, "Mod Depth CV");
+    configParam(Plateau::REVERB_LOW_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb low cut CV");
+    configParam(Plateau::REVERB_HIGH_DAMP_CV_PARAM, -1.f, 1.f, 0.f, "Reverb high cut CV");
+    configParam(Plateau::MOD_SPEED_CV_PARAM, -1.f, 1.f, 0.f, "Mod speed CV");
+    configParam(Plateau::MOD_SHAPE_CV_PARAM, -1.f, 1.f, 0.f, "Mod shape CV");
+    configParam(Plateau::MOD_DEPTH_CV_PARAM, -1.f, 1.f, 0.f, "Mod depth CV");
     configParam(Plateau::FREEZE_PARAM, 0.f, 1.f, 0.f, "Freeze");
-    configParam(Plateau::FREEZE_TOGGLE_PARAM, 0.f, 1.f, 0.f, "Freeze Toggle");
+    configParam(Plateau::FREEZE_TOGGLE_PARAM, 0.f, 1.f, 0.f, "Freeze toggle");
     configParam(Plateau::CLEAR_PARAM, 0.f, 1.f, 0.f, "Clear");
-    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned Mode");
-    configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse Input");
+    configParam(Plateau::TUNED_MODE_PARAM, 0.f, 1.f, 0.f, "Tuned mode");
+    configParam(Plateau::DIFFUSE_INPUT_PARAM, 0.f, 1.f, 1.f, "Diffuse input");
+
+    
+    configInput(Plateau::LEFT_INPUT, "Left");
+    configInput(Plateau::RIGHT_INPUT, "Right");
+    configInput(Plateau::DRY_CV_INPUT, "Dry level CV");
+    configInput(Plateau::WET_CV_INPUT, "Wet level CV");
+    configInput(Plateau::PRE_DELAY_CV_INPUT, "Pre delay CV");
+    configInput(Plateau::INPUT_LOW_DAMP_CV_INPUT, "Input low cut CV");
+    configInput(Plateau::INPUT_HIGH_DAMP_CV_INPUT, "Input high cut CV");
+    configInput(Plateau::SIZE_CV_INPUT, "Size CV");
+    configInput(Plateau::DIFFUSION_CV_INPUT, "Diffusion CV");
+    configInput(Plateau::DECAY_CV_INPUT, "Decay CV");
+    configInput(Plateau::REVERB_HIGH_DAMP_CV_INPUT, "Reverb high cut CV");
+    configInput(Plateau::REVERB_LOW_DAMP_CV_INPUT, "Reverb low cut CV");
+    configInput(Plateau::MOD_SPEED_CV_INPUT, "Mod. speed CV");
+    configInput(Plateau::MOD_SHAPE_CV_INPUT, "Mod. shape CV");
+    configInput(Plateau::MOD_DEPTH_CV_INPUT, "Mod. depth CV");
+    configInput(Plateau::FREEZE_CV_INPUT, "Hold");
+    configInput(Plateau::CLEAR_CV_INPUT, "Clear");
+
+    configOutput(Plateau::LEFT_OUTPUT, "Left");
+    configOutput(Plateau::RIGHT_OUTPUT, "Right");
 
     configBypass(Plateau::LEFT_INPUT, Plateau::LEFT_OUTPUT);
     configBypass(Plateau::RIGHT_INPUT, Plateau::RIGHT_OUTPUT);

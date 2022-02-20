@@ -51,6 +51,37 @@ Interzone::Interzone() {
     configParam(Interzone::VCA_SOURCE_PARAM, 0.0f, 1.f, 0.0f, "VCA Source");
     configParam(Interzone::VCA_LEVEL_CV_PARAM, -1.f, 1.f, 0.f, "VCA Level CV Depth");
 
+    configInput(VOCT_INPUT_1, "V/Oct / pitch");
+    configInput(VOCT_INPUT_2, "V/Oct / pitch");
+    configInput(PW_MOD_INPUT, "Pulse width modulation");
+    configInput(GATE_INPUT, "Gate");
+    configInput(TRIG_INPUT, "Trigger");
+    configInput(EXT_INPUT, "Mixer external");
+    configInput(FILTER_CUTOFF_INPUT_1, "Filter cutoff CV");
+    configInput(FILTER_CUTOFF_INPUT_2, "Filter cutoff CV");
+    configInput(FILTER_RES_INPUT, "Filter resonance CV");
+    configInput(FILTER_INPUT, "Filter external");
+    configInput(LFO_RATE_INPUT, "LFO rate CV");
+    configInput(LFO_TRIG_INPUT, "LFO S+H trigger");
+    configInput(LFO_SYNC_INPUT, "LFO sync");
+    configInput(VCA_LEVEL_CV_INPUT, "VCA level CV");
+
+    configOutput(SAW_OUTPUT, "Sawtooth");
+    configOutput(PULSE_OUTPUT, "Pulse");
+    configOutput(SUB_OUTPUT, "Sub oscillator");
+    configOutput(MIX_OUTPUT, "Mixer");
+    configOutput(FILTER_OUTPUT, "Filter");
+    configOutput(VCA_OUTPUT, "VCA");
+    configOutput(LFO_SINE_OUTPUT, "LFO sine");
+    configOutput(LFO_TRI_OUTPUT, "LFO triangle");
+    configOutput(LFO_SAW_UP_OUTPUT, "LFO rising sawtooth");
+    configOutput(LFO_SAW_DOWN_OUTPUT, "LFO falling ramp");
+    configOutput(LFO_PULSE_OUTPUT, "LFO pulse");
+    configOutput(LFO_SH_OUTPUT, "LFO sample and hold");
+    configOutput(LFO_NOISE_OUTPUT, "LFO noise");
+    configOutput(ENV_POSITIVE_OUTPUT, "Envelope positive");
+    configOutput(ENV_NEGATIVE_OUTPUT, "Envelope negative");
+
     float initSampleRate = APP->engine->getSampleRate();
     calcGTable(initSampleRate);
     lfo.setSampleRate(initSampleRate);

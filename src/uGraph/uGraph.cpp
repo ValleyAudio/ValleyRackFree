@@ -185,6 +185,24 @@ struct UGraph : Module {
         configParam(UGraph::RESET_BUTTON_PARAM, 0.0, 1.0, 0.0, "Reset");
         configParam(UGraph::RUN_BUTTON_PARAM, 0.0, 1.0, 0.0, "Run");
 
+        configInput(UGraph::CLOCK_INPUT, "External clock");
+        configInput(UGraph::RESET_INPUT, "Reset");
+        configInput(UGraph::MAPX_CV, "Map X position");
+        configInput(UGraph::MAPY_CV, "Map Y position");
+        configInput(UGraph::CHAOS_CV, "Chaos");
+        configInput(UGraph::BD_FILL_CV, "Bass density");
+        configInput(UGraph::SN_FILL_CV, "Snare density");
+        configInput(UGraph::HH_FILL_CV, "Hi-Hat density");
+        configInput(UGraph::SWING_CV, "Swing");
+        configInput(UGraph::RUN_INPUT, "Run");
+
+        configOutput(UGraph::BD_OUTPUT, "Bass");
+        configOutput(UGraph::SN_OUTPUT, "Snare");
+        configOutput(UGraph::HH_OUTPUT, "Hi-hat");
+        configOutput(UGraph::BD_ACC_OUTPUT, "Bass accent");
+        configOutput(UGraph::SN_ACC_OUTPUT, "Snare accent");
+        configOutput(UGraph::HH_ACC_OUTPUT, "Hi-hat accent");
+
         float sampleRate = APP->engine->getSampleRate();
         metro = Metronome(120, sampleRate, 24.0, 0.0);
         numTicks = ticks_granularity[2];
