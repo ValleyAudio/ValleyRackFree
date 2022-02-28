@@ -77,6 +77,42 @@ Dexter::Dexter() {
         configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
     }
 
+    configInput(CHORD_INPUT, "Chord CV");
+    configInput(INVERT_INPUT, "Invert CV");
+    configInput(DETUNE_INPUT, "Detune CV");
+    configInput(ALGO_INPUT, "Algorithm CV");
+    configInput(FEEDBACK_INPUT, "Feedback CV");
+    configInput(BRIGHTNESS_INPUT, "Brightness CV");
+    configInput(SHAPE_INPUT, "Shape CV");
+    configInput(A_VOCT_INPUT, "Voice A pitch");
+    configInput(B_VOCT_INPUT, "Voice B pitch");
+
+    for (size_t op = 0; op < kNumOperators; ++op) {
+        std::string opStr = "Op. " + std::to_string(op + 1);
+        for (size_t cvGroup = 0; cvGroup < NUM_CV_GROUPS; ++cvGroup) {
+            configInput(opCVInputs[op][OP_MOD_CV_1], opStr + " assignable mod 1");
+            configInput(opCVInputs[op][OP_MOD_CV_2], opStr + " assignable mod 2");
+            configInput(opCVInputs[op][OP_MOD_CV_3], opStr + " assignable mod 3");
+            configInput(opCVInputs[op][OP_MOD_CV_4], opStr + " assignable mod 4");
+            configInput(opCVInputs[op][OP_PITCH_CV_1], opStr + " pitch CV 1");
+            configInput(opCVInputs[op][OP_WAVE_CV_1], opStr + " wave CV 1");
+            configInput(opCVInputs[op][OP_SHAPE_CV_1], opStr + " shape CV 1");
+            configInput(opCVInputs[op][OP_LEVEL_CV_1], opStr + " level CV 1");
+            configInput(opCVInputs[op][OP_PITCH_CV_2], opStr + " pitch CV 2");
+            configInput(opCVInputs[op][OP_WAVE_CV_2], opStr + " wave CV 2");
+            configInput(opCVInputs[op][OP_SHAPE_CV_2], opStr + " shape CV 2");
+            configInput(opCVInputs[op][OP_LEVEL_CV_2], opStr + " level CV 2");
+        }
+    }
+
+    configOutput(A_LEFT_OUTPUT, "Voice A left");
+    configOutput(A_RIGHT_OUTPUT, "Voice A right");
+    configOutput(OP_1_OUTPUT, "Operator 1");
+    configOutput(OP_2_OUTPUT, "Operator 2");
+    configOutput(OP_3_OUTPUT, "Operator 3");
+    configOutput(OP_4_OUTPUT, "Operator 4");
+    configOutput(B_OUTPUT, "Voice B");
+
     resetPhaseState = false;
     octave = 0;
     aPitch = 0.f;

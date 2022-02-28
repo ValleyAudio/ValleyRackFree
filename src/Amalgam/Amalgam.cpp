@@ -17,6 +17,32 @@ Amalgam::Amalgam() {
     configParam(Amalgam::PARAM_B_CV2_PARAM, -1.0f, 1.f, 0.0f, "Param. B CV 1 Depth");
     configParam(Amalgam::DC_COUPLE_PARAM, 0.f, 1.f, 0.f, "DC Couple");
 
+    configInput(Amalgam::X_LEFT_INPUT, "X Left");
+    configInput(Amalgam::X_RIGHT_INPUT, "X Right");
+    configInput(Amalgam::Y_LEFT_INPUT, "Y Left");
+    configInput(Amalgam::Y_RIGHT_INPUT, "Y Right");
+    configInput(Amalgam::X_GAIN_CV_INPUT, "X Gain CV");
+    configInput(Amalgam::Y_GAIN_CV_INPUT, "Y Gain CV");
+    configInput(Amalgam::TYPE_CV1_INPUT, "Type CV");
+    configInput(Amalgam::TYPE_CV2_INPUT, "Type CV");
+    configInput(Amalgam::PARAM_A_CV1_INPUT, "Param A CV");
+    configInput(Amalgam::PARAM_A_CV2_INPUT, "Param A CV");
+    configInput(Amalgam::PARAM_B_CV1_INPUT, "Param B CV");
+    configInput(Amalgam::PARAM_B_CV2_INPUT, "Param B CV");
+
+    configOutput(Amalgam::X_Y_LEFT_AND_OUTPUT, "X left AND Y left");
+    configOutput(Amalgam::X_Y_LEFT_XOR_OUTPUT, "X left XOR Y left");
+    configOutput(Amalgam::X_Y_RIGHT_AND_OUTPUT, "X left AND Y left");
+    configOutput(Amalgam::X_Y_RIGHT_XOR_OUTPUT, "X left XOR Y left");
+    configOutput(Amalgam::Z_LEFT_OUTPUT, "Z left");
+    configOutput(Amalgam::Z_RIGHT_OUTPUT, "Z right");
+    configOutput(Amalgam::Z_AND_OUTPUT, "Z left AND Z right");
+    configOutput(Amalgam::Z_XOR_OUTPUT, "Z left XOR Z right");
+    configOutput(Amalgam::Z_LEFT_PULSE_1_OUTPUT, "Z left pulse x1");
+    configOutput(Amalgam::Z_RIGHT_PULSE_1_OUTPUT, "Z right pulse x1");
+    configOutput(Amalgam::Z_LEFT_PULSE_2_OUTPUT, "Z left pulse x2");
+    configOutput(Amalgam::Z_RIGHT_PULSE_2_OUTPUT, "Z right pulse x2");
+
     amalgamType = 0;
     __zeros = _mm_set1_ps(0.f);
     __fives = _mm_set1_ps(5.f);
