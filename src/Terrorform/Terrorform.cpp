@@ -63,6 +63,29 @@ Terrorform::Terrorform() {
     configParam(Terrorform::POST_PM_SHAPE_PARAM, 0.0, 1.0, 0.0, "Phasor shaping");
     configParam(Terrorform::DISPLAY_CV_SWITCH_PARAM, 0.0, 1.0, 1.0, "Display CV Offset");
 
+    // Inputs
+    std::vector<std::string> inputLabels = {
+        "Pitch 1", "Pitch 2", "Bank 1", "Bank 2", "Wave 1", "Wave 2", "Shape Type 1",
+        "Shape Type 2", "Shape Depth 1", "Shape Depth 2", "Enhancer Type 1", "Enhancer Type 2",
+        "Enhancer Depth 1", "Enhancer Depth 2", "FM A VCA", "FM A 1", "FM A 2", "FM B VCA",
+        "FM B 1", "FM B 2", "Sync", "Sync", "Attack", "Attack", "Decay", "Decay", "LPG Trigger",
+        "LPG Trigger", "Skew"
+    };
+
+    for (size_t i = 0; i < NUM_INPUTS; ++i) {
+        configInput(InputIds::VOCT_1_INPUT + i, inputLabels[i] + " CV");
+    }
+
+    // Outputs
+    std::vector<std::string> outputLabels = {
+        "Phasor", "End Of Cycle", "Shaped Phasor", "Raw Wave", "Enhancer", "Envelope",
+        "Sub Oscillator", "Main"
+    };
+
+    for (size_t i = 0; i < NUM_OUTPUTS; ++i) {
+        configOutput(OutputIds::PHASOR_OUTPUT + i, outputLabels[i]);
+    }
+
     for(int i = 0; i < kMaxNumGroups; ++i) {
         osc[i].setWavebank(wavetables[0], wavetable_sizes[0], wavetable_lengths[0]);
         osc[i].setScanPosition(0.f);

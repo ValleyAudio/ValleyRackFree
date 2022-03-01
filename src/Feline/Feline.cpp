@@ -18,8 +18,16 @@ Feline::Feline() {
             p = Feline::CV1_1_PARAM + row * 5 + col;
             i = Feline::CV1_1_INPUT + row * 5 + col;
             configParam(p, -1.f, 1.f, 0.f, cvNames[col] + " CV " + std::to_string(row + 1));
+            configInput(i, cvNames[col] + " CV " + std::to_string(row + 1));
         }
     }
+
+    configInput(Feline::LEFT_INPUT, "Left");
+    configInput(Feline::RIGHT_INPUT, "Right");
+
+    configOutput(Feline::LEFT_OUTPUT, "Left");
+    configOutput(Feline::RIGHT_OUTPUT, "Right");
+    configOutput(Feline::SUM_OUTPUT, "Left + Right Mix");
 
     panelStyle = 0;
     calcGTable(APP->engine->getSampleRate());
