@@ -7,16 +7,11 @@
 #include "../Common/DSP/OnePoleFilters.hpp"
 #include "../Common/DSP/LFO.hpp"
 #include <iostream>
-#include <cstdint>
-#include <array>
 
 class Dattorro {
 public:
     Dattorro();
     void process(double leftInput, double rightInput);
-    void blockProcess(const double* leftInput, const double* rightInput,
-                      double* leftOutput, double* rightOutput,
-                      const uint64_t blockSize);
     void clear();
     void setTimeScale(double timeScale);
     void setPreDelay(double time);
@@ -85,8 +80,6 @@ private:
     OnePoleHPFilter _rightInputDCBlock;
     OnePoleLPFilter _inputLpf;
     OnePoleHPFilter _inputHpf;
-
-    std::array<double, 256> inputChainBuffer = {0.0};
 
     InterpDelay2<double> _preDelay;
 
