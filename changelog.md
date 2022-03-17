@@ -1,5 +1,11 @@
 # ValleyRackFree Change Log
 
+## 2.0.4
+
+    - [Fixed] Completely restore the behaviour of Plateau.
+    - [Added] Tooltips for all I/O.
+    - [Added] Descriptions to all modules (thanks Sonic State).
+
 ## 2.0.3
 
     - [Fixed] Crash when Terrorform is loaded in a recent DAW project.
