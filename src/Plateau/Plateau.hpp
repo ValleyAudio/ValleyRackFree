@@ -187,12 +187,6 @@ struct Plateau : Module {
     static const uint64_t maxBlockSize = 32;
     uint64_t blockSize = 1;
     uint64_t frameCounter = 0;
-    std::array<double, maxBlockSize> preDelayTrajectory;
-    std::array<double, maxBlockSize> sizeTrajectory;
-    std::array<double, maxBlockSize> leftInputBlock = {0.0};
-    std::array<double, maxBlockSize> leftOutputBlock = {0.0};
-    std::array<double, maxBlockSize> rightInputBlock = {0.0};
-    std::array<double, maxBlockSize> rightOutputBlock = {0.0};
 
     Dattorro reverb;
     LinearEnvelope envelope;
