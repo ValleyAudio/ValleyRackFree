@@ -12,7 +12,7 @@ Interzone::Interzone() {
     configParam(Interzone::FINE_PARAM, -0.0833333f, 0.0833333f, 0.f, "Fine Tune");
     configParam(Interzone::PITCH_MOD_ENV_POL_PARAM, 0.f, 1.f, 1.f, "Pitch Mod Envelope Polarity");
     configParam(Interzone::PITCH_MOD_SOURCE_PARAM, 0.0f, 1.f, 0.f, "Pitch Mod Source");
-    configParam(Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f, "Pitch Mod Envelope Depth");
+    configParam(Interzone::PW_MOD_ENV_POL_PARAM, 0.f, 1.f, 0.f, "PWM Envelope Polarity");
     configParam(Interzone::COARSE_MODE_PARAM, 0.f, 1.f, 0.f, "Coarse Tune Quantisation");
     configParam(Interzone::PW_MOD_SOURCE_PARAM, 0.0f, 2.f, 1.f, "PWM Source");
     configParam(Interzone::SUB_OCTAVE_PARAM, 0.f, 6.f, 3.f, "Sub Wave Octave");

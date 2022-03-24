@@ -3,8 +3,10 @@
 ## 2.0.4
 
     - [Fixed] Completely restore the behaviour of Plateau.
+    - [Fixed] Corrected typo in Interzone PWM envelope polarity switch tooltip.
     - [Added] Tooltips for all I/O.
     - [Added] Descriptions to all modules (thanks Sonic State).
+    - [Added] Proper intialisation of variables (thanks Filipe).
 
 ## 2.0.3
 
