@@ -1893,7 +1893,7 @@ void TerrorformWidget::exportWavetables() {
     std::string filename;
 
 #ifdef USING_CARDINAL_NOT_RACK
-    async_dialog_filebrowser(true, dir.c_str(), "Export wavetables", [this](char* path) {
+    async_dialog_filebrowser(true, "wavetable.vwt", dir.c_str(), "Export wavetables", [this](char* path) {
         exportWavetablesPathSelected(path);
     });
 #else
@@ -1976,7 +1976,7 @@ void TerrorformWidget::importWavetables() {
     std::string filename;
 
 #ifdef USING_CARDINAL_NOT_RACK
-    async_dialog_filebrowser(false, dir.c_str(), "Load wavetables", [this](char* path) {
+    async_dialog_filebrowser(false, NULL, dir.c_str(), "Load wavetables", [this](char* path) {
         importWavetablesPathSelected(path);
     });
 #else
