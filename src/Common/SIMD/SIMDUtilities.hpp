@@ -78,14 +78,6 @@ inline __m128i _mm_switch_int32(const __m128i& a, const __m128i& b, const __m128
     return _mm_or_si128(_mm_andnot_si128(cond, a), _mm_and_si128(cond, b));
 }
 
-inline __m64 _mm_switch_si64(const __m64& a, const __m64& b, const __m64& cond) {
-    return _mm_or_si64(_mm_andnot_si64(cond, a), _mm_and_si64(cond, b));
-}
-
-inline __m64 _mm_switch_pi16(const __m64& a, const __m64& b, const __m64& cond) {
-    return _mm_or_si64(_mm_andnot_si64(cond, a), _mm_and_si64(cond, b));
-}
-
 inline __m128 _mm_clamp_ps(const __m128& a, const __m128& min, const __m128& max) {
     return _mm_min_ps(_mm_max_ps(a, min), max);
 }
