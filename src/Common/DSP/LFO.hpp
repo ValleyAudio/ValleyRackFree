@@ -72,7 +72,6 @@ public:
         _output = 0.0;
         _sampleRate = sampleRate;
         _step = 0.0;
-        _rising = true;
         setFrequency(frequency);
         setRevPoint(0.5);
     }
@@ -80,14 +79,9 @@ public:
     double process() {
         if(_step > 1.0) {
             _step -= 1.0;
-            _rising = true;
         }
 
-        if(_step >= _revPoint) {
-            _rising = false;
-        }
-
-        if(_rising) {
+        if(_step < _revPoint) {
             _output = _step * _riseRate;
         }
         else {
@@ -104,14 +98,9 @@ public:
         for (uint64_t i = 0; i < blockSize; ++i) {
             if(_step > 1.0) {
                 _step -= 1.0;
-                _rising = true;
             }
 
-            if(_step >= _revPoint) {
-                _rising = false;
-            }
-
-            if(_rising) {
+            if(_step < _revPoint) {
                 _output = _step * _riseRate;
             }
             else {
@@ -166,7 +155,6 @@ private:
     double _fallRate;
     double _step;
     double _stepSize;
-    bool _rising;
 
     void calcStepSize() {
         _stepSize = _frequency / _sampleRate;
