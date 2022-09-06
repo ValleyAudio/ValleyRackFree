@@ -79,7 +79,6 @@ void VecAmalgam::setMode(int mode) {
 void VecAmalgam::setSampleRate(float sampleRate) {
     _engineSampleRate = sampleRate;
     _quarterNyquist = _engineSampleRate / 32.f;
-    calcStepSize();
 }
 
 void VecAmalgam::calcStepSize() {
