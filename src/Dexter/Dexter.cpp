@@ -1055,33 +1055,27 @@ DexterWidget::DexterWidget(Dexter *module) {
     for(auto op = 0; op < kNumOperators; ++op) {
         offset = operatorSpacing * op;
 
-        OpMultKnob[op] = new RoganMedBlue;
         OpMultKnob[op] = createParam<RoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module,
                                                        Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         OpMultKnob[op]->snap = true;
         addChild(OpMultKnob[op]);
 
-        OpCoarseKnob[op] = new RoganMedBlue;
         OpCoarseKnob[op] = createParam<RoganMedBlue>(Vec(OpCoarseKnobRootX + offset, OpRow1Y), module,
                                                          Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         addChild(OpCoarseKnob[op]);
 
-        OpFineKnob[op] = new RoganMedBlue;
         OpFineKnob[op] = createParam<RoganMedBlue>(Vec(OpFineKnobRootX + offset, OpRow1Y), module,
                                                          Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         addChild(OpFineKnob[op]);
 
-        OpWaveKnob[op] = new RoganMedPurple;
         OpWaveKnob[op] = createParam<RoganMedPurple>(Vec(OpWaveKnobRootX + offset, OpRow2Y), module,
                                                          Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         addChild(OpWaveKnob[op]);
 
-        OpShapeKnob[op] = new RoganMedRed;
         OpShapeKnob[op] = createParam<RoganMedRed>(Vec(OpShapeKnobRootX + offset, OpRow2Y), module,
                                                          Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         addChild(OpShapeKnob[op]);
 
-        OpLevelKnob[op] = new RoganMedGreen;
         OpLevelKnob[op] = createParam<RoganMedGreen>(Vec(OpLevelKnobRootX + offset, OpRow2Y), module,
                                                          Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op);
         addChild(OpLevelKnob[op]);

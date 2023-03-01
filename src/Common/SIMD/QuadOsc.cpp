@@ -413,8 +413,8 @@ QuadOsc::QuadOsc() {
     __b = __zeros;
     __readPhase = __zeros;
     __dir = __ones;
+    _syncMode = 0;
     setFrequency(1.f);
-    setSyncMode(0);
     setShapeMethod(0);
     _shaper.setShapeMode(0);
 }

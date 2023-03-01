@@ -40,9 +40,9 @@ TFormEditorButtonStyleSet::TFormEditorButtonStyleSet() {
 TFormEditorButton::TFormEditorButton() {
     isEnabled = true;
     isHighlighted = false;
+    isFilled = true;
     respondToMouse = true;
     setMode(IDLE_MODE);
-    setFilled(true);
 }
 
 void TFormEditorButton::draw(const DrawArgs& args) {
