@@ -7,7 +7,9 @@
 //
 
 #pragma once
-#include <pmmintrin.h>
+
+#include "valley_sse_include.h"
+
 #include <iostream>
 #include <simd/sse_mathfun_extension.h>
 #define VALLEY_1F2 0.5
