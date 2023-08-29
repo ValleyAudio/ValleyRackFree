@@ -9,7 +9,7 @@
 #ifndef QuadOsc_hpp
 #define QuadOsc_hpp
 
-#include <pmmintrin.h>
+#include "valley_sse_include.h"
 #include <cmath>
 #include <cstdint>
 #include <ctime>

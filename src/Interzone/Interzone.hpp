@@ -25,7 +25,7 @@
 #ifndef DSJ_INTERZONE_HPP
 #define DSJ_INTERZONE_HPP
 
-#include <pmmintrin.h>
+#include "valley_sse_include.h"
 #include <iostream>
 #include "../Valley.hpp"
 #include "../ValleyComponents.hpp"

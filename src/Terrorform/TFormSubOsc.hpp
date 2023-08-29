@@ -1,5 +1,7 @@
 #pragma once
-#include <pmmintrin.h>
+
+#include "valley_sse_include.h"
+
 #include <cmath>
 #include <cstdint>
 #include "../Common/SIMD/SIMDUtilities.hpp"
