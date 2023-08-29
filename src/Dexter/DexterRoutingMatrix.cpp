@@ -8,11 +8,6 @@
 
 #include "DexterRoutingMatrix.hpp"
 
-DexterRoutingMatrixRow::DexterRoutingMatrixRow() {
-    _sourceValue = 0.f;
-    _depth = 0.f;
-    _destination = PITCH_DEST;
-}
 
 DexterRoutingMatrix::DexterRoutingMatrix() {
     for(auto i = 0; i < NUM_DESTS; ++i) {
@@ -41,23 +36,38 @@ void DexterRoutingMatrix::process() {
     }
 
     for(auto i = 0; i < kNumMatrixRows; ++i) {
-        _destValues[_rows[i]._destination] += _rows[i]._sourceValue * _rows[i]._depth *
-                                              kMatrixDestScaling[_rows[i]._destination];
+        auto rowDest = _rows[i]._destination;
+        _destValues[rowDest] += _rows[i]._sourceValue * _rows[i]._depth *
+                                kMatrixDestScaling[rowDest];
     }
 }
 
-float DexterRoutingMatrix::getDestinationValue(DexterRoutingMatrixDestination dest) const {
+float DexterRoutingMatrix::getDestinationValue(
+        const DexterRoutingMatrix::Destination dest) const
+{
     return _destValues[dest];
 }
 
-void DexterRoutingMatrix::setRowSourceValue(int row, float sourceValue) {
+void DexterRoutingMatrix::setRowSourceValue(
+        const int row,
+        const float sourceValue)
+{
     _rows[row]._sourceValue = sourceValue;
 }
 
-void DexterRoutingMatrix::setRowDepth(int row, float depth) {
+void DexterRoutingMatrix::setRowDepth(const int row, const float depth) {
     _rows[row]._depth = depth;
 }
 
-void DexterRoutingMatrix::setRowDestination(int row, DexterRoutingMatrixDestination dest) {
+void DexterRoutingMatrix::setRowDestination(
+        const int row,
+        const DexterRoutingMatrix::Destination dest)
+{
     _rows[row]._destination = dest;
+}
+
+DexterRoutingMatrix::DexterRoutingMatrixRow::DexterRoutingMatrixRow() {
+    _sourceValue = 0.f;
+    _depth = 0.f;
+    _destination = PITCH_DEST;
 }

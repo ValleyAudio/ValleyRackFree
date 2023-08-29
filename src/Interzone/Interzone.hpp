@@ -27,19 +27,17 @@
 
 #include "valley_sse_include.h"
 #include <iostream>
-#include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../Common/DSP/OTAFilter.hpp"
-#include "../Common/DSP/OnePoleFilters.hpp"
-#include "../Common/DSP/DOsc.hpp"
-#include "../Common/DSP/DLFO.hpp"
-#include "../Common/DSP/DADSR.hpp"
-#include "../Common/DSP/Noise.hpp"
 
-#include "../Common/SIMD/VecDirectOsc.hpp"
-#include "../Common/SIMD/VecOTAFilter.hpp"
-#include "../Common/SIMD/VecOnePoleFilters.hpp"
-#include "../Common/SIMD/VecLoopingADSR.hpp"
+#include "../Valley.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../dsp/generators/VecDirectOsc.hpp"
+#include "../dsp/filters/VecOTAFilter.hpp"
+#include "../dsp/filters/VecOnePoleFilters.hpp"
+#include "../dsp/modulation/VecLoopingADSR.hpp"
+
+#include "../dsp/filters/OnePoleFilters.hpp"
+#include "../dsp/modulation/DLFO.hpp"
+#include "../dsp/generators/Noise.hpp"
 
 struct Interzone : Module {
     enum InputIds {
@@ -150,6 +148,11 @@ struct Interzone : Module {
 
     Interzone();
     void process(const ProcessArgs &args) override;
+
+    void getParams();
+    void getCV();
+    void tickSynth();
+
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
@@ -161,13 +164,14 @@ struct Interzone : Module {
 
     // Param Variables
     dsp::ClockDivider cvDivider;
-    float pitchParam, glideParam;
+    float pitchParam = 0.f;
+    float glideParam = 0.f;
     __m128 vPitchParam, vPitchModParam, vPitchModSource, vPitchModEnvPol;
     __m128 vPitch;
     simd::float_4 rackSimd_vPitch;
     __m128 vFreq;
     simd::float_4 rackSimd_vFreq;
-    int subOctave;
+    int subOctave = 0;
     __m128 vPwmDepth, vPulseWidth, vSubWidth;
     __m128 vSawLevel, vPulseLevel, vSubLevel, vNoiseLevel, vExtInLevel;
     __m128 vFilterKeyTrack;
@@ -175,32 +179,26 @@ struct Interzone : Module {
     __m128 vPwmEnvPol, vFilterEnvPol;
 
     // DSP Variables
-    float pitch;
-
-    float pwm;
-    int pwmSource;
     __m128 vPwmSource;
     __m128 vExternalPwm;
     __m128 vLfoPwm;
     __m128 vEnvPwm;
     __m128 vPwm;
-
-    float oscPitchMod;
     __m128 vOscPitchMod;
 
-    float filterCutoff;
     __m128 vFilterCutoffParam, vFilterCutoff;
     __m128 vFilterQParam, vFilterQ;
-    int filterMode;
+
+    int filterMode = 0;
     __m128 vFilterCV1In, vFilterCV2In;
     __m128 vFilterCV1Depth, vFilterCV2Depth, vFilterLFODepth, vFilterEnvParam;
     __m128 vHpfCutoff;
     __m128 vFilterOutput;
     __m128 vVCACVInput, vVCACVParam;
 
-    float lfoValue;
+    float lfoValue = 0.f;
     __m128 vLfoValue;
-    float gateLevel;
+    float gateLevel = 0.f;
     rack::simd::float_4 vGate;
     rack::simd::float_4 vManualGate;
     rack::simd::float_4 vTrigger;
@@ -213,21 +211,17 @@ struct Interzone : Module {
 
     VecOnePoleLPFilter vGlide[kMaxNumVoiceGroups];
     VecDirectOsc vOsc[kMaxNumVoiceGroups];
-    float noise;
+    float noise = 0.f;
     __m128 vNoise;
-    float subWave;
     __m128 vSubWave;
 
-    float mix;
     __m128 vMix;
     __m128 vFilterInput;
     __m128 vExtInput;
 
     VecOTAFilter vFilter[kMaxNumVoiceGroups];
     VecOnePoleHPFilter vHighpass[kMaxNumVoiceGroups];
-    float outputLevel;
     __m128 vOutputLevel[kMaxNumVoiceGroups];
-    float output;
     __m128 vOutput;
 
     DLFO lfo;

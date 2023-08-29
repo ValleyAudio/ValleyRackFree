@@ -94,8 +94,8 @@ void TFormWaveViewPane::onShow(const event::Show& e) {
         waveDisplay->waveData.assign(numSamplesToCopy, 0.f);
 
         int index = 0;
-        for (int i = 0; i < bank.data.size(); ++i) {
-            for (int j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
+        for (size_t i = 0; i < bank.data.size(); ++i) {
+            for (size_t j = 0; j < TFORM_MAX_WAVELENGTH; ++j) {
                 index = i * TFORM_WAVELENGTH_CAP + j;
                 waveDisplay->waveData[index] =  bank.data[i][j];
             }

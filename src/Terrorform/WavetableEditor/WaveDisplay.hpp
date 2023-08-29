@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_WAVE_DISPLAY_HPP
 #define TFORM_EDITOR_WAVE_DISPLAY_HPP
 #include "../../Valley.hpp"
-#include "../../ValleyComponents.hpp"
+#include "../../gui/ValleyComponents.hpp"
 
 struct TFormEditorWaveDisplay : TransparentWidget {
     NVGcolor offColor;

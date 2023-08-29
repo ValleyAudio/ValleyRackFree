@@ -24,26 +24,26 @@ Dexter::Dexter() {
     configParam(Dexter::SHAPE_PARAM, 0.0, 1.0, 0.0, "Shape");
     configParam(Dexter::FEEDBACK_PARAM, 0.0, 0.25, 0.0, "Feedback");
 
-    configParam(Dexter::CHORD_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord");
+    configParam(Dexter::CHORD_DEPTH_PARAM, -0.1, 0.1, 0.0, "Chord");
     configParam(Dexter::INVERT_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord Inversion");
-    configParam(Dexter::DETUNE_DEPTH_PARAM, -1.0, 1.0, 0.0, "Chord Detune");
-    configParam(Dexter::ALGO_DEPTH_PARAM, -1.0, 1.0, 0.0, "Algorithm Mod Depth");
-    configParam(Dexter::FB_DEPTH_PARAM, -1.0, 1.0, 0.0, "Feedback Mod Depth");
-    configParam(Dexter::BRIGHT_DEPTH_PARAM, -1.0, 1.0, 0.0, "Brightness Mod Depth");
-    configParam(Dexter::SHAPE_DEPTH_PARAM, -1.0, 1.0, 0.0, "Shape Mod Depth");
+    configParam(Dexter::DETUNE_DEPTH_PARAM, -0.1, 0.1, 0.0, "Chord Detune");
+    configParam(Dexter::ALGO_DEPTH_PARAM, -0.1, 0.1, 0.0, "Algorithm Mod Depth");
+    configParam(Dexter::FB_DEPTH_PARAM, -0.1, 0.1, 0.0, "Feedback Mod Depth");
+    configParam(Dexter::BRIGHT_DEPTH_PARAM, -0.1, 0.1, 0.0, "Brightness Mod Depth");
+    configParam(Dexter::SHAPE_DEPTH_PARAM, -0.1, 0.1, 0.0, "Shape Mod Depth");
 
     configParam(Dexter::MASTER_LFO_BUTTON, 0.0, 1.0, 0.0, "Global LFO Enable");
     configParam(Dexter::RESET_PHASE_BUTTON, 0.0, 1.0, 0.0, "Reset Operator Phases");
     configParam(Dexter::FULL_INVERSION_BUTTON, 0.0, 1.0, 0.0, "Full Chord Inversion Enable");
 
-    for(int op = 0; op < kNumOperators; ++op) {
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         std::string opStr = "Op. " + std::to_string(op + 1) + " ";
         configParam(Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0, 26, 3, opStr + "Multiplier");
         configParam(Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -1.0, 1.0, 0.0, opStr + "Coarse");
         configParam(Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -0.25, 0.25, 0.0, opStr + "Fine");
         configParam(Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Wave");
         configParam(Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Phase Shape");
-        if(op == 0) {
+        if (op == 0) {
             configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 1.0, opStr + "Level");
         }
         else {
@@ -64,15 +64,15 @@ Dexter::Dexter() {
         configParam(OP_1_MOD_3_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 3 Depth");
         configParam(OP_1_MOD_4_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 4 Depth");
 
-        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Pitch CV 1 Depth");
-        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Wave CV 1 Depth");
-        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 1 Depth");
-        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 1 Depth");
+        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Pitch CV 1 Depth");
+        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Wave CV 1 Depth");
+        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Phase Shape CV 1 Depth");
+        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Level CV 1 Depth");
 
-        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Pitch CV 2 Depth");
-        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Wave CV 2 Depth");
-        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Phase Shape CV 2 Depth");
-        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Level CV 2 Depth");
+        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Pitch CV 2 Depth");
+        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Wave CV 2 Depth");
+        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Phase Shape CV 2 Depth");
+        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Level CV 2 Depth");
 
         configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
     }
@@ -87,7 +87,7 @@ Dexter::Dexter() {
     configInput(A_VOCT_INPUT, "Voice A pitch");
     configInput(B_VOCT_INPUT, "Voice B pitch");
 
-    for (size_t op = 0; op < kNumOperators; ++op) {
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         std::string opStr = "Op. " + std::to_string(op + 1);
         for (size_t cvGroup = 0; cvGroup < NUM_CV_GROUPS; ++cvGroup) {
             configInput(opCVInputs[op][OP_MOD_CV_1], opStr + " assignable mod 1");
@@ -116,7 +116,8 @@ Dexter::Dexter() {
     resetPhaseState = false;
     octave = 0;
     aPitch = 0.f;
-    for(auto i = 0; i < kNumOperators; ++i) {
+
+    for (size_t i = 0; i < DexterCore::kNumOperators; ++i) {
         opPitch[i] = 0.f;
         opLowFreq[i][0] = 440.f;
         opLowFreq[i][1] = 440.f;
@@ -146,9 +147,11 @@ Dexter::Dexter() {
         opModBMenuVis[i] = 0;
         opMiscMenuVis[i] = 0;
     }
+
     brightness = 0.f;
     feedback = 0.f;
     allShape = 0.f;
+
     int NaN = 0xFFFFFFFF;
     __0000 = _mm_castsi128_ps(_mm_set1_epi32(0));
     __0001 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   0,   NaN));
@@ -216,12 +219,7 @@ Dexter::Dexter() {
     currentChord = 0;
     syncMode = 0;
     algo = 0;
-    chordNotes = getChord(0, 0, 0, 0);
-    pOpFreqs = (float*)aligned_alloc_16(sizeof(float) * 8);
-
-    for(auto i = 0; i < 8; ++i) {
-        pOpFreqs[i] = 0.f;
-    }
+    chordNotes = chords[0].getNotes();
 
     pLeftOut = (float*)aligned_alloc_16(sizeof(float) * 4);
     pRightOut = (float*)aligned_alloc_16(sizeof(float) * 4);
@@ -230,7 +228,8 @@ Dexter::Dexter() {
     pOP3 = (float*)aligned_alloc_16(sizeof(float) * 4);
     pOP4 = (float*)aligned_alloc_16(sizeof(float) * 4);
     pBOut = (float*)aligned_alloc_16(sizeof(float) * 4);
-    for(auto i = 0; i < 4; ++i) {
+
+    for (auto i = 0; i < 4; ++i) {
         pLeftOut[i] = 0.f;
         pRightOut[i] = 0.f;
         pOP1[i] = 0.f;
@@ -239,6 +238,7 @@ Dexter::Dexter() {
         pOP4[i] = 0.f;
         pBOut[i] = 0.f;
     }
+
     __zeros = _mm_set1_ps(0.f);
     __leftOut = __zeros;
     __rightOut = __zeros;
@@ -255,7 +255,6 @@ Dexter::~Dexter() {
     aligned_free_16(pOP3);
     aligned_free_16(pOP4);
     aligned_free_16(pBOut);
-    aligned_free_16(pOpFreqs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,202 +262,85 @@ Dexter::~Dexter() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Dexter::step() {
-    if(params[RESET_PHASE_BUTTON].getValue()) {
-        if(!resetPhaseState) {
-            resetPhaseState = true;
-            coreA.resetPhase();
-            coreB.resetPhase();
-        }
-        lights[RESET_PHASE_LIGHT].value = 1.f;
-    } else {
-        resetPhaseState = false;
-        lights[RESET_PHASE_LIGHT].value = 0.f;
-    }
+    getParameters();
 
-    if(masterLFOButtonTrig.process(params[MASTER_LFO_BUTTON].getValue())) {
-        masterLFO = 1.f - masterLFO;
-    }
-    lights[MASTER_LFO_LIGHT].value = masterLFO ? 1.f : 0.f;
-
-    if(fullInversionButtonTrig.process(params[FULL_INVERSION_BUTTON].getValue())) {
-        buttonFullInversion = buttonFullInversion ? 0 : 1;
-    }
-    lights[FULL_INVERSION_LIGHT].value = buttonFullInversion ? 1.f : 0.f;
-
-    // Menu system
-    for(auto op = 0; op < kNumOperators; ++op) {
-        if(opSettBtnTrig[op].process(params[opParams[op][OP_SETTINGS_PARAM]].getValue())) {
-            opSettingsMenu[op] = !opSettingsMenu[op];
-        }
-        lights[opLights[op][OP_SETTINGS]].value = opSettingsMenu[op] ? 1.f : 0.f;
-
-        if(opSyncBtnTrig[op].process(params[opParams[op][OP_SYNC_PARAM]].getValue())) {
-            opButtonSync[op] = 1.f - opButtonSync[op];
-        }
-        lights[opLights[op][OP_SYNC]].value = opButtonSync[op] ? 1.f : 0.f;
-
-        if(opPostShapeBtnTrig[op].process(params[opParams[op][OP_POST_SHAPE_PARAM]].getValue())) {
-            opButtonPostShape[op] = 1.f - opButtonPostShape[op];
-        }
-        lights[opLights[op][OP_POST_SHAPE]].value = opButtonPostShape[op] ? 1.f : 0.f;
-
-        if(opWeakBtnTrig[op].process(params[opParams[op][OP_WEAK_PARAM]].getValue())) {
-            opButtonWeakSync[op] = 1.f - opButtonWeakSync[op];
-        }
-        lights[opLights[op][OP_WEAK]].value = opButtonWeakSync[op] ? 1.f : 0.f;
-
-        if(opLFOBtnTrig[op].process(params[opParams[op][OP_LFO_PARAM]].getValue())) {
-            opButtonLFO[op] = 1.f - opButtonLFO[op];
-        }
-        lights[opLights[op][OP_LFO]].value = (opButtonLFO[op] + masterLFO) ? 1.f : 0.f;
-
-        if(opPreFadeBtnTrig[op].process(params[opParams[op][OP_PRE_PARAM]].getValue())) {
-            opButtonPreFade[op] = 1.f - opButtonPreFade[op];
-        }
-        lights[opLights[op][OP_PRE_LIGHT]].value = opButtonPreFade[op] ? 1.f : 0.f;
-    }
-
-    for(auto op = 0; op < kNumOperators; ++op) {
-        if(opWaveMenuBtnTrig[op].process(params[opParams[op][OP_WAVE_MENU_PARAM]].getValue())) {
-            opMenuPage[op] = 0;
-        }
-        else if (opModAMenuBtnTrig[op].process(params[opParams[op][OP_MODA_MENU_PARAM]].getValue())) {
-            opMenuPage[op] = 1;
-        }
-        else if (opModBMenuBtnTrig[op].process(params[opParams[op][OP_MODB_MENU_PARAM]].getValue())) {
-            opMenuPage[op] = 2;
-        }
-
-        opWaveMenuVis[op] = 0;
-        opModAMenuVis[op] = 0;
-        opModBMenuVis[op] = 0;
-        opMiscMenuVis[op] = 0;
-        if(opSettingsMenu[op]) {
-            switch(opMenuPage[op]) {
-                case 0:
-                    opWaveMenuVis[op] = 1;
-                    break;
-                case 1:
-                    opModAMenuVis[op] = 1;
-                    break;
-                case 2:
-                    opModBMenuVis[op] = 1;
-            }
-        }
-        lights[opLights[op][OP_WAVE_LIGHT]].value = opWaveMenuVis[op] ? 1.f : 0.f;
-        lights[opLights[op][OP_MODA_LIGHT]].value = opModAMenuVis[op] ? 1.f : 0.f;
-        lights[opLights[op][OP_MODB_LIGHT]].value = opModBMenuVis[op] ? 1.f : 0.f;
-    }
-
-    brightness = params[BRIGHTNESS_PARAM].getValue();
-    brightness += inputs[BRIGHTNESS_INPUT].getVoltage() * 0.1f * params[BRIGHT_DEPTH_PARAM].getValue();
+    brightness = brightnessKnob;
+    brightness += inputs[BRIGHTNESS_INPUT].getVoltage() * brightnessDepthKnob;
     brightness = clamp(brightness, -1.f, 1.f);
-    allShape = params[SHAPE_PARAM].getValue() + inputs[SHAPE_INPUT].getVoltage() * 0.1f * params[SHAPE_DEPTH_PARAM].getValue();
+    allShape = allShapeKnob + inputs[SHAPE_INPUT].getVoltage() * allShapeDepthKnob;
 
-    octaveAKnob = (int)params[OCTAVE_PARAM].getValue();
-    aPitch = (float)(octaveAKnob - 3) + params[COARSE_PARAM].getValue() + params[FINE_PARAM].getValue();
+    aPitch = (float)(octaveAKnob - 3) + coreACoarseKnob + coreAFineKnob;
     aPitch += inputs[A_VOCT_INPUT].getVoltage();
-    chordKnob = (int)params[CHORD_PARAM].getValue();
-    chordParam = (float)chordKnob + (inputs[CHORD_INPUT].getVoltage() * 0.1f * params[CHORD_DEPTH_PARAM].getValue() * (float)(NUM_CHORDS - 1));
-    chordParam = clamp(chordParam, 0.f, (float)NUM_CHORDS - 1.f);
-    chordDetuneParam = params[DETUNE_PARAM].getValue() + inputs[DETUNE_INPUT].getVoltage() * 0.1f * params[DETUNE_DEPTH_PARAM].getValue();
-    chordDetuneParam = clamp(chordDetuneParam, 0.f, 1.f) * -0.1f;
-    invDepthKnob = (int)params[INVERT_PARAM].getValue();
-    invDepthParam = invDepthKnob + (int)(inputs[INVERT_INPUT].getVoltage() * params[INVERT_DEPTH_PARAM].getValue()) - 10;
-    invDepthParam = clamp(invDepthParam, -10, 10);
-    if((Chords)chordParam != currentChord || invDepthParam != invDepth || chordDetuneParam != chordDetune
-       || buttonFullInversion != fullInversion) {
-        fullInversion = buttonFullInversion;
-        chordDetune = chordDetuneParam;
-        makeChord(chordParam, invDepthParam);
-    }
-
-    octaveBKnob = (int)params[B_OCTAVE_PARAM].getValue();
-    bPitch = (float)(octaveBKnob - 3) + params[B_COARSE_PARAM].getValue() + params[B_FINE_PARAM].getValue();
+    bPitch = (float)(octaveBKnob - 3) + coreBCoarseKnob + coreBFineKnob;
     bPitch += inputs[B_VOCT_INPUT].getVoltage();
 
-    coreA.setSyncSource(opSyncSource);
-    coreB.setSyncSource(opSyncSource);
-
-    for(auto op = 0; op < kNumOperators; ++op) {
-        modMatrix[op].setRowDestination(0, (DexterRoutingMatrixDestination) opMod1Assign[op]);
-        modMatrix[op].setRowDestination(1, (DexterRoutingMatrixDestination) opMod2Assign[op]);
-        modMatrix[op].setRowDestination(2, (DexterRoutingMatrixDestination) opMod3Assign[op]);
-        modMatrix[op].setRowDestination(3, (DexterRoutingMatrixDestination) opMod4Assign[op]);
-
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         modMatrix[op].setRowSourceValue(0, inputs[opCVInputs[op][OP_MOD_CV_1]].getVoltage() * 0.1f);
         modMatrix[op].setRowSourceValue(1, inputs[opCVInputs[op][OP_MOD_CV_2]].getVoltage() * 0.1f);
         modMatrix[op].setRowSourceValue(2, inputs[opCVInputs[op][OP_MOD_CV_3]].getVoltage() * 0.1f);
         modMatrix[op].setRowSourceValue(3, inputs[opCVInputs[op][OP_MOD_CV_4]].getVoltage() * 0.1f);
 
-        modMatrix[op].setRowDepth(0, params[opCVAtten[op][OP_MOD_CV_1]].getValue());
-        modMatrix[op].setRowDepth(1, params[opCVAtten[op][OP_MOD_CV_2]].getValue());
-        modMatrix[op].setRowDepth(2, params[opCVAtten[op][OP_MOD_CV_3]].getValue());
-        modMatrix[op].setRowDepth(3, params[opCVAtten[op][OP_MOD_CV_4]].getValue());
-
         modMatrix[op].process();
+    }
 
-        opPitch[op] = params[opParams[op][OP_COARSE_PARAM]].getValue();
-        opPitch[op] += params[opParams[op][OP_FINE_PARAM]].getValue();
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].getVoltage() * params[opCVAtten[op][OP_PITCH_CV_1]].getValue();
-        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].getVoltage() * params[opCVAtten[op][OP_PITCH_CV_2]].getValue();
-        opPitch[op] += modMatrix[op].getDestinationValue(PITCH_DEST);
-        opMultipleKnob[op] = (int)params[opParams[op][OP_MULT_PARAM]].getValue();
-        multiple = opMultipleKnob[op] + (int)modMatrix[op].getDestinationValue(RATIO_DEST);
-
-        pOpFreqs[0] = freqLUT.getFrequency((opPitch[op]) + bPitch) * multiples[clamp(multiple, 0, 26)];
-        if(pOpFreqs[0] >= 22049.f) {
-            pOpFreqs[0] = 22049.f;
-        }
-        __lowChordMask = __lowChordMaskTable[chordNotes.size() - 1];
-        __highChordMask = __highChordMaskTable[chordNotes.size() - 1];
-        __lowLeftGain = __lowLeftGainTable[chordNotes.size() - 1];
-        __lowRightGain = __lowRightGainTable[chordNotes.size() - 1];
-        __highLeftGain = __highLeftGainTable[chordNotes.size() - 1];
-        __highRightGain = __highRightGainTable[chordNotes.size() - 1];
-
-        for(unsigned long i = 0; i < chordNotes.size(); ++i) {
-            pOpFreqs[i + 1] = freqLUT.getFrequency((opPitch[op]) + aPitch + chordNotes[i]) * multiples[clamp(multiple, 0, 26)];
-            if(pOpFreqs[i + 1] >= 22049.f) {
-                pOpFreqs[i + 1] = 22049.f;
-            }
-            if(opButtonLFO[op] > 0.f || masterLFO > 0.f) {
-                pOpFreqs[i + 1] /= 100.f;
-            }
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        opPitch[op] = opCoarseKnob[op] + opFineKnob[op];;
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].getVoltage() * opPitchCV1Knob[op];
+        opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].getVoltage() * opPitchCV2Knob[op];
+        opPitch[op] += modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::PITCH_DEST);
+        multiple = opMultipleKnob[op] + (int)modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::RATIO_DEST);
+        multiple = clamp(multiple, 0, 26);
+        
+        pOpPitches[0] = opPitch[op] + bPitch;
+        for (size_t i = 0; i < chordNotes.size(); ++i) {
+            pOpPitches[i + 1] = opPitch[i] + aPitch + chordNotes[i];
         }
 
-        __opLowFreq[op] = _mm_load_ps(pOpFreqs);
-        __opHighFreq[op] = _mm_load_ps(pOpFreqs + 4);
+        __opLowPitch[op] = _mm_loadu_ps(pOpPitches);
+        __opHighPitch[op] = _mm_loadu_ps(pOpPitches + 4);
+        __opLowFreq[op] = valley::_mm_pitch_freq_ps(__opLowPitch[op]);
+        __opHighFreq[op] = valley::_mm_pitch_freq_ps(__opHighPitch[op]);
+        __opLowFreq[op] = _mm_mul_ps(__opLowFreq[op], _mm_set1_ps(multiples[multiple]));
+        __opHighFreq[op] = _mm_mul_ps(__opHighFreq[op], _mm_set1_ps(multiples[multiple]));
 
-        opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].getValue();
-        opWaveBank[op] = opWaveBankKnob[op] + modMatrix[op].getDestinationValue(WAVE_BANK_DEST);
+        if (masterLFO > 0.f || opButtonLFO[op] > 0.f) {
+            __opLowFreq[op] = _mm_mul_ps(__opLowFreq[op], _mm_set1_ps(0.01f));
+            __opHighFreq[op] = _mm_mul_ps(__opHighFreq[op], _mm_set1_ps(0.01f));
+        }
+    }
+
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        opWaveBank[op] = opWaveBankKnob[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::WAVE_BANK_DEST);
         opWaveBank[op] = clamp(opWaveBank[op], 0, NUM_DEXTER_WAVETABLES - 1);
 
-        opWave[op] = params[opParams[op][OP_WAVE_PARAM]].getValue();
-        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
-        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_WAVE_CV_2]].getValue();
-        opWave[op] += modMatrix[op].getDestinationValue(WAVE_POS_DEST);
+        opWave[op] = opWaveKnob[op];
+        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_1]].getVoltage() * opCVAttenKnob[op][OP_WAVE_CV_1];
+        opWave[op] += inputs[opCVInputs[op][OP_WAVE_CV_2]].getVoltage() * opCVAttenKnob[op][OP_WAVE_CV_2];
+        opWave[op] += modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::WAVE_POS_DEST);
         opWave[op] = clamp(opWave[op], 0.f, 1.f);
 
-        opShape[op] = params[opParams[op][OP_SHAPE_PARAM]].getValue() + allShape;
-        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_1]].getValue();
-        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_SHAPE_CV_2]].getValue();
-        opShape[op] += modMatrix[op].getDestinationValue(SHAPE_DEST);
+        opShape[op] = opShapeKnob[op] + allShape;
+        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_1]].getVoltage() * opCVAttenKnob[op][OP_SHAPE_CV_1];
+        opShape[op] += inputs[opCVInputs[op][OP_SHAPE_CV_2]].getVoltage() * opCVAttenKnob[op][OP_SHAPE_CV_2];
+        opShape[op] += modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::SHAPE_DEST);
         opShape[op] = clamp(opShape[op], -1.f, 1.f);
 
-        opLevel[op] = params[opParams[op][OP_LEVEL_PARAM]].getValue();
-        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_1]].getVoltage() * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_1]].getValue();
-        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_2]].getVoltage() * 0.1f * params[opCVAtten[op][OP_LEVEL_CV_2]].getValue();
-        opLevel[op] += modMatrix[op].getDestinationValue(LEVEL_DEST);
+        opLevel[op] = opLevelKnob[op] + inputs[opCVInputs[op][OP_LEVEL_CV_1]].getVoltage() * opCVAttenKnob[op][OP_LEVEL_CV_1];
+        opLevel[op] += inputs[opCVInputs[op][OP_LEVEL_CV_2]].getVoltage() * opCVAttenKnob[op][OP_LEVEL_CV_2];
+        opLevel[op] += modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::LEVEL_DEST);
         opLevel[op] = clamp(opLevel[op], 0.f, 1.0f);
+    }
 
+    // Load parameters into each core
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         coreA._mm_setFrequency(op, __opLowFreq[op]);
         coreB._mm_setFrequency(op, __opHighFreq[op]);
+
         coreA.setWavebank(op, opWaveBank[op]);
         coreB.setWavebank(op, opWaveBank[op]);
         coreA.setWavePosition(op, opWave[op]);
         coreB.setWavePosition(op, opWave[op]);
-        opShapeMode[op] = opMenuShapeMode[op] + modMatrix[op].getDestinationValue(SHAPE_MODE_DEST);
+        opShapeMode[op] = opMenuShapeMode[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::SHAPE_MODE_DEST);
         opShapeMode[op] = clamp(opShapeMode[op], 0, kNumShapeModes - 1);
         coreA.setShapeMode(op, opShapeMode[op]);
         coreB.setShapeMode(op, opShapeMode[op]);
@@ -466,33 +348,37 @@ void Dexter::step() {
         coreB.setShape(op, opShape[op]);
         coreA.setPMPostShape(op, opPostShape[op]);
         coreB.setPMPostShape(op, opPostShape[op]);
-        if(opButtonPostShape[op] + modMatrix[op].getDestinationValue(POST_SHAPE_DEST) > 0.5f) {
+
+        if (opButtonPostShape[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::POST_SHAPE_DEST) > 0.5f) {
             opPostShape[op] = true;
         }
         else {
             opPostShape[op] = false;
         }
+
         coreA.enableSync(op, opSync[op]);
         coreB.enableSync(op, opSync[op]);
 
-        coreA.externalFM(op, modMatrix[op].getDestinationValue(EXT_FM_DEST));
-        coreB.externalFM(op, modMatrix[op].getDestinationValue(EXT_FM_DEST));
-        coreA.externalSync(op, modMatrix[op].getDestinationValue(EXT_SYNC_DEST));
-        coreB.externalSync(op, modMatrix[op].getDestinationValue(EXT_SYNC_DEST));
+        coreA.externalFM(op, modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::EXT_FM_DEST));
+        coreB.externalFM(op, modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::EXT_FM_DEST));
+        coreA.externalSync(op, modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::EXT_SYNC_DEST));
+        coreB.externalSync(op, modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::EXT_SYNC_DEST));
 
-        opSyncMode[op] = opMenuSyncMode[op] + modMatrix[op].getDestinationValue(SYNC_MODE_DEST);
+        opSyncMode[op] = opMenuSyncMode[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::SYNC_MODE_DEST);
         opSyncMode[op] = clamp(opSyncMode[op], 0, kNumSyncModes - 1);
         coreA.setSyncMode(op, opSyncMode[op]);
         coreB.setSyncMode(op, opSyncMode[op]);
 
         // Enable sync if any external mod jack is connected, regardless of the sync button state
-        bool modJackState = inputs[opCVInputs[op][OP_MOD_CV_1]].isConnected() | inputs[opCVInputs[op][OP_MOD_CV_2]].isConnected()
-                          | inputs[opCVInputs[op][OP_MOD_CV_3]].isConnected() | inputs[opCVInputs[op][OP_MOD_CV_4]].isConnected();
+        bool modJackState = inputs[opCVInputs[op][OP_MOD_CV_1]].isConnected() ||
+                            inputs[opCVInputs[op][OP_MOD_CV_2]].isConnected() ||
+                            inputs[opCVInputs[op][OP_MOD_CV_3]].isConnected() ||
+                            inputs[opCVInputs[op][OP_MOD_CV_4]].isConnected();
         coreA.enableSync(op, modJackState);
         coreB.enableSync(op, modJackState);
 
         // Internal sync enable
-        if((opButtonSync[op] + modMatrix[op].getDestinationValue(SYNC_ENABLE_DEST) > 0.5f)) {
+        if ((opButtonSync[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::SYNC_ENABLE_DEST) > 0.5f)) {
             opSync[op] = true;
         }
         else {
@@ -501,7 +387,7 @@ void Dexter::step() {
         coreA.enableIntSync(op, opSync[op]);
         coreB.enableIntSync(op, opSync[op]);
 
-        if(opButtonWeakSync[op] + modMatrix[op].getDestinationValue(WEAK_SYNC_DEST) > 0.f) {
+        if (opButtonWeakSync[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::WEAK_SYNC_DEST) > 0.f) {
             opWeakSync[op] = true;
         }
         else {
@@ -509,7 +395,8 @@ void Dexter::step() {
         }
         coreA.enableWeakSync(op, opWeakSync[op]);
         coreB.enableWeakSync(op, opWeakSync[op]);
-        if(opButtonPreFade[op] > 0.f) {
+
+        if (opButtonPreFade[op] > 0.f) {
             coreA.setOpPreFade(op, true);
         }
         else {
@@ -518,27 +405,33 @@ void Dexter::step() {
         coreA.setLevel(op, opLevel[op]);
         coreB.setLevel(op, opLevel[op]);
     }
-    algo = round_int(params[ALGORITHM_PARAM].getValue() + inputs[ALGO_INPUT].getVoltage() * 0.1f * params[ALGO_DEPTH_PARAM].getValue() * (float)(kNumAlgorithms - 1.f));
-    algo = clamp(algo, 0, kNumAlgorithms - 1);
+
+    auto round_int = [](double r) {
+        return (r > 0.0) ? (r + 0.5) : (r - 0.5);
+    };
+
+    algo = round_int(algoKnob + inputs[ALGO_INPUT].getVoltage() * algoDepthKnob * (float)(DexterCore::kNumAlgorithms - 1.f));
+    algo = clamp(algo, 0, DexterCore::kNumAlgorithms - 1);
     coreA.setAlgorithm(algo);
     coreB.setAlgorithm(algo);
-    feedback = params[FEEDBACK_PARAM].getValue();
-    feedback += inputs[FEEDBACK_INPUT].getVoltage() * 0.025 * params[FB_DEPTH_PARAM].getValue();
+    feedback = feedbackKnob;
+    feedback += inputs[FEEDBACK_INPUT].getVoltage() * 0.025f * feedbackDepthKnob;
     feedback = clamp(feedback, 0.f, 0.25f);
     coreA.setFeedback(feedback);
     coreB.setFeedback(feedback);
     coreA.setBrightness(brightness);
     coreB.setBrightness(brightness);
 
+    // Process
     coreA.process();
-    if(chordNotes.size() > 3) {
+    if (chordNotes.size() > 3) {
         coreB.process();
     }
 
     _mm_store_ps(pBOut, _mm_and_ps(coreA.getBOutput(), __bOutMask));
     outputs[B_OUTPUT].setVoltage(pBOut[0]);
 
-    if(outputs[A_RIGHT_OUTPUT].isConnected()) {
+    if (outputs[A_RIGHT_OUTPUT].isConnected()) {
         __leftOut = __zeros;
         __rightOut = __zeros;
         __leftOut = _mm_mul_ps(coreA.getMainOutput(), __lowLeftGain);
@@ -554,7 +447,7 @@ void Dexter::step() {
         _mm_store_ps(pRightOut, __zeros);
     }
 
-    if(indivBOutputs) {
+    if (indivBOutputs) {
         _mm_store_ps(pOP1, _mm_and_ps(coreA.getOpOutput(0), __0001));
         _mm_store_ps(pOP2, _mm_and_ps(coreA.getOpOutput(1), __0001));
         _mm_store_ps(pOP3, _mm_and_ps(coreA.getOpOutput(2), __0001));
@@ -577,7 +470,8 @@ void Dexter::step() {
     outputs[OP_2_OUTPUT].setVoltage(0);
     outputs[OP_3_OUTPUT].setVoltage(0);
     outputs[OP_4_OUTPUT].setVoltage(0);
-    for(auto i = 0; i < 4; ++i) {
+
+    for (auto i = 0; i < 4; ++i) {
         outputs[A_LEFT_OUTPUT].value += pLeftOut[i];
         outputs[A_RIGHT_OUTPUT].value += pRightOut[i];
         outputs[OP_1_OUTPUT].value += pOP1[i];
@@ -585,6 +479,7 @@ void Dexter::step() {
         outputs[OP_3_OUTPUT].value += pOP3[i];
         outputs[OP_4_OUTPUT].value += pOP4[i];
     }
+
     outputs[A_LEFT_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
     outputs[A_RIGHT_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
     outputs[OP_1_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
@@ -593,21 +488,205 @@ void Dexter::step() {
     outputs[OP_4_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
 }
 
+void Dexter::getParameters() {
+    brightnessKnob = params[BRIGHTNESS_PARAM].getValue();
+    brightnessDepthKnob = params[BRIGHT_DEPTH_PARAM].getValue();
+    feedbackKnob = params[FEEDBACK_PARAM].getValue();
+    feedbackDepthKnob = params[FB_DEPTH_PARAM].getValue();
+    allShapeKnob = params[SHAPE_PARAM].getValue();
+    allShapeDepthKnob = params[SHAPE_DEPTH_PARAM].getValue();
+
+    coreACoarseKnob = params[COARSE_PARAM].getValue();
+    coreAFineKnob= params[FINE_PARAM].getValue();
+    coreBCoarseKnob = params[B_COARSE_PARAM].getValue();
+    coreBFineKnob = params[B_FINE_PARAM].getValue();
+
+    chordDepthKnob = params[CHORD_DEPTH_PARAM].getValue();
+
+    detuneKnob = params[DETUNE_PARAM].getValue();
+    detuneDepthKnob = params[DETUNE_DEPTH_PARAM].getValue();
+
+    octaveAKnob = (int)params[OCTAVE_PARAM].getValue();
+    octaveBKnob = (int)params[B_OCTAVE_PARAM].getValue();
+    chordKnob = (int)params[CHORD_PARAM].getValue();
+    invertKnob = (int)params[INVERT_PARAM].getValue();
+    invertDepthKnob = params[INVERT_DEPTH_PARAM].getValue();
+
+    algoKnob = params[ALGORITHM_PARAM].getValue();
+    algoDepthKnob = 0.1f * params[ALGO_DEPTH_PARAM].getValue();
+
+    // Chords
+    chordParam = (float)chordKnob + (inputs[CHORD_INPUT].getVoltage() * chordDepthKnob * (float)(NUM_CHORDS - 1));
+    chordParam = clamp(chordParam, 0.f, (float)NUM_CHORDS - 1.f);
+    chordDetuneParam = detuneKnob + inputs[DETUNE_INPUT].getVoltage() * detuneDepthKnob;
+    chordDetuneParam = clamp(chordDetuneParam, 0.f, 1.f) * -0.1f;
+    invDepthParam = invertKnob + (int)(inputs[INVERT_INPUT].getVoltage() * invertDepthKnob) - 10;
+    invDepthParam = clamp(invDepthParam, -10, 10);
+
+    if ((Chords)chordParam != currentChord || invDepthParam != invDepth || chordDetuneParam != chordDetune
+       || buttonFullInversion != fullInversion) {
+        fullInversion = buttonFullInversion;
+        chordDetune = chordDetuneParam;
+        makeChord(chordParam, invDepthParam);
+    }
+
+    __lowChordMask = __lowChordMaskTable[chordNotes.size() - 1];
+    __highChordMask = __highChordMaskTable[chordNotes.size() - 1];
+    __lowLeftGain = __lowLeftGainTable[chordNotes.size() - 1];
+    __lowRightGain = __lowRightGainTable[chordNotes.size() - 1];
+    __highLeftGain = __highLeftGainTable[chordNotes.size() - 1];
+    __highRightGain = __highRightGainTable[chordNotes.size() - 1];
+
+    // Mod Matrix
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        modMatrix[op].setRowDestination(0, (DexterRoutingMatrix::Destination) opMod1Assign[op]);
+        modMatrix[op].setRowDestination(1, (DexterRoutingMatrix::Destination) opMod2Assign[op]);
+        modMatrix[op].setRowDestination(2, (DexterRoutingMatrix::Destination) opMod3Assign[op]);
+        modMatrix[op].setRowDestination(3, (DexterRoutingMatrix::Destination) opMod4Assign[op]);
+    }
+
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        modMatrix[op].setRowDepth(0, params[opCVAtten[op][OP_MOD_CV_1]].getValue());
+        modMatrix[op].setRowDepth(1, params[opCVAtten[op][OP_MOD_CV_2]].getValue());
+        modMatrix[op].setRowDepth(2, params[opCVAtten[op][OP_MOD_CV_3]].getValue());
+        modMatrix[op].setRowDepth(3, params[opCVAtten[op][OP_MOD_CV_4]].getValue());
+    }
+
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        opCoarseKnob[op] = params[opParams[op][OP_COARSE_PARAM]].getValue();
+        opFineKnob[op] = params[opParams[op][OP_FINE_PARAM]].getValue();
+        opPitchCV1Knob[op] = params[opCVAtten[op][OP_PITCH_CV_1]].getValue();
+        opPitchCV2Knob[op] = params[opCVAtten[op][OP_PITCH_CV_2]].getValue();
+        opMultipleKnob[op] = (int)params[opParams[op][OP_MULT_PARAM]].getValue();
+        opWaveBankKnob[op] = (int)params[opParams[op][OP_BANK_PARAM]].getValue();
+        opWaveKnob[op] = params[opParams[op][OP_WAVE_PARAM]].getValue();
+        opShapeKnob[op] = params[opParams[op][OP_SHAPE_PARAM]].getValue();
+        opLevelKnob[op] = params[opParams[op][OP_LEVEL_PARAM]].getValue();
+    }
+
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        opCVAttenKnob[op][OP_WAVE_CV_1] = params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
+        opCVAttenKnob[op][OP_WAVE_CV_2] = params[opCVAtten[op][OP_WAVE_CV_2]].getValue();
+        opCVAttenKnob[op][OP_SHAPE_CV_1] = params[opCVAtten[op][OP_SHAPE_CV_1]].getValue();
+        opCVAttenKnob[op][OP_SHAPE_CV_2] = params[opCVAtten[op][OP_SHAPE_CV_2]].getValue();
+        opCVAttenKnob[op][OP_LEVEL_CV_1] = params[opCVAtten[op][OP_LEVEL_CV_1]].getValue();
+        opCVAttenKnob[op][OP_LEVEL_CV_2] = params[opCVAtten[op][OP_LEVEL_CV_2]].getValue();
+    }
+    
+    if (params[RESET_PHASE_BUTTON].getValue()) {
+        if (!resetPhaseState) {
+            resetPhaseState = true;
+            coreA.resetPhase();
+            coreB.resetPhase();
+        }
+        lights[RESET_PHASE_LIGHT].value = 1.f;
+    }
+    else {
+        resetPhaseState = false;
+        lights[RESET_PHASE_LIGHT].value = 0.f;
+    }
+
+    if (masterLFOButtonTrig.process(params[MASTER_LFO_BUTTON].getValue())) {
+        masterLFO = 1.f - masterLFO;
+    }
+    lights[MASTER_LFO_LIGHT].value = masterLFO ? 1.f : 0.f;
+
+    if (fullInversionButtonTrig.process(params[FULL_INVERSION_BUTTON].getValue())) {
+        buttonFullInversion = buttonFullInversion ? 0 : 1;
+    }
+    lights[FULL_INVERSION_LIGHT].value = buttonFullInversion ? 1.f : 0.f;
+
+    // Menu system
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        if (opSettBtnTrig[op].process(params[opParams[op][OP_SETTINGS_PARAM]].getValue())) {
+            opSettingsMenu[op] = !opSettingsMenu[op];
+        }
+        lights[opLights[op][OP_SETTINGS]].value = opSettingsMenu[op] ? 1.f : 0.f;
+
+        if (opSyncBtnTrig[op].process(params[opParams[op][OP_SYNC_PARAM]].getValue())) {
+            opButtonSync[op] = 1.f - opButtonSync[op];
+        }
+        lights[opLights[op][OP_SYNC]].value = opButtonSync[op] ? 1.f : 0.f;
+
+        if (opPostShapeBtnTrig[op].process(params[opParams[op][OP_POST_SHAPE_PARAM]].getValue())) {
+            opButtonPostShape[op] = 1.f - opButtonPostShape[op];
+        }
+        lights[opLights[op][OP_POST_SHAPE]].value = opButtonPostShape[op] ? 1.f : 0.f;
+
+        if (opWeakBtnTrig[op].process(params[opParams[op][OP_WEAK_PARAM]].getValue())) {
+            opButtonWeakSync[op] = 1.f - opButtonWeakSync[op];
+        }
+        lights[opLights[op][OP_WEAK]].value = opButtonWeakSync[op] ? 1.f : 0.f;
+
+        if (opLFOBtnTrig[op].process(params[opParams[op][OP_LFO_PARAM]].getValue())) {
+            opButtonLFO[op] = 1.f - opButtonLFO[op];
+        }
+        lights[opLights[op][OP_LFO]].value = (opButtonLFO[op] + masterLFO) ? 1.f : 0.f;
+
+        if (opPreFadeBtnTrig[op].process(params[opParams[op][OP_PRE_PARAM]].getValue())) {
+            opButtonPreFade[op] = 1.f - opButtonPreFade[op];
+        }
+        lights[opLights[op][OP_PRE_LIGHT]].value = opButtonPreFade[op] ? 1.f : 0.f;
+    }
+
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
+        if (opWaveMenuBtnTrig[op].process(params[opParams[op][OP_WAVE_MENU_PARAM]].getValue())) {
+            opMenuPage[op] = 0;
+        }
+        else if (opModAMenuBtnTrig[op].process(params[opParams[op][OP_MODA_MENU_PARAM]].getValue())) {
+            opMenuPage[op] = 1;
+        }
+        else if (opModBMenuBtnTrig[op].process(params[opParams[op][OP_MODB_MENU_PARAM]].getValue())) {
+            opMenuPage[op] = 2;
+        }
+
+        opWaveMenuVis[op] = 0;
+        opModAMenuVis[op] = 0;
+        opModBMenuVis[op] = 0;
+        opMiscMenuVis[op] = 0;
+        if (opSettingsMenu[op]) {
+            switch(opMenuPage[op]) {
+                case 0:
+                    opWaveMenuVis[op] = 1;
+                    break;
+                case 1:
+                    opModAMenuVis[op] = 1;
+                    break;
+                case 2:
+                    opModBMenuVis[op] = 1;
+            }
+        }
+
+        lights[opLights[op][OP_WAVE_LIGHT]].value = opWaveMenuVis[op] ? 1.f : 0.f;
+        lights[opLights[op][OP_MODA_LIGHT]].value = opModAMenuVis[op] ? 1.f : 0.f;
+        lights[opLights[op][OP_MODB_LIGHT]].value = opModBMenuVis[op] ? 1.f : 0.f;
+    }
+
+    coreA.setSyncSource(opSyncSource);
+    coreB.setSyncSource(opSyncSource);
+}
+
 void Dexter::makeChord(float chord, float invert) {
     currentChord = (Chords)chord;
     invDepth = invert;
-    chordNotes = getChord(currentChord, chordDetune, invDepth, fullInversion);
+
+    chordNotes = chords[currentChord].getNotes();
+    invertNotes(chordNotes, (int)invert, fullInversion);
+    detuneNotes(chordNotes, chordDetune);
+
+    for (auto& n : chordNotes)
+        n /= 12.f;
 }
 
 void Dexter::onSampleRateChange() {
-    for(auto i = 0; i < kMaxChordSize; ++i) {
+    for (auto i = 0; i < kMaxChordSize; ++i) {
         coreA.setSampleRate(APP->engine->getSampleRate());
         coreB.setSampleRate(APP->engine->getSampleRate());
     }
 }
 
 void Dexter::onReset() {
-    for(auto i = 0; i < kNumOperators; ++i) {
+    for (size_t i = 0; i < DexterCore::kNumOperators; ++i) {
         opButtonSync[i] = 0;
         opButtonPostShape[i] = 0;
         opButtonWeakSync[i] = 0;
@@ -782,7 +861,7 @@ void Dexter::dataFromJson(json_t *rootJ) {
     panelStyle = json_integer_value(j_panelStyle);
 
     json_t *j_opSyncToParent = json_object_get(rootJ, "opSyncSource");
-    opSyncSource = (FourVoiceOPCore::OpSyncSource)json_integer_value(j_opSyncToParent);
+    opSyncSource = (DexterCore::OpSyncSource)json_integer_value(j_opSyncToParent);
 
     json_t *j_masterLFO = json_object_get(rootJ, "masterLFO");
     masterLFO = json_integer_value(j_masterLFO);
@@ -805,10 +884,10 @@ AlgoGraphic::AlgoGraphic() {
     style = 0;
     styleOffset = 0;
     std::string algoGraphicFile;
-    for(auto i = 0; i < 2; ++i) {
-        for(auto j = 0; j < kNumAlgorithms; ++j) {
+    for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = 0; j < DexterCore::kNumAlgorithms; ++j) {
             algoGraphicFile = "res/algo" + std::to_string(j);
-            if(i) {
+            if (i) {
                 algoGraphicFile += "Dark";
             }
             algoGraphicFile += ".svg";
@@ -827,11 +906,11 @@ void AlgoGraphic::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void AlgoGraphic::step() {
-    if(style == 0) {
+    if (style == 0) {
         styleOffset = 0;
     }
     else {
-        styleOffset = kNumAlgorithms;
+        styleOffset = DexterCore::kNumAlgorithms;
     }
     int index = clamp(value + styleOffset, 0, frames.size() - 1);
     sw->setSvg(frames[index]);
@@ -924,7 +1003,7 @@ DexterWidget::DexterWidget(Dexter *module) {
 
     darkPanel = new SvgPanel;
     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelDark.svg")));
-    if(module) {
+    if (module) {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DexterPanelLight.svg")));
         lightPanel->visible = false;
@@ -1052,7 +1131,7 @@ DexterWidget::DexterWidget(Dexter *module) {
     // Operator Controls
     float operatorSpacing = 125.5275;
     float offset = 0.0;
-    for(auto op = 0; op < kNumOperators; ++op) {
+    for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         offset = operatorSpacing * op;
 
         OpMultKnob[op] = createParam<RoganMedBlue>(Vec(OpMultKnobRootX + offset, OpRow1Y), module,
@@ -1109,7 +1188,7 @@ DexterWidget::DexterWidget(Dexter *module) {
                                                     module, Dexter::OP_1_SYNC_LIGHT + Dexter::NUM_LIGHT_GROUPS * op));
 
         // Text for all the main controls, hidden when the settings menu opens
-        for(auto i = 0; i < 6; ++i){
+        for (auto i = 0; i < 6; ++i){
             mainText[op][i] = new PlainText;
             mainText[op][i]->box.pos = Vec(OpMainTextX[i] + offset, OpMainTextY[i] - 2.718);
             mainText[op][i]->size = 14;
@@ -1381,7 +1460,7 @@ struct DexterPanelStyleItem : MenuItem {
 
 struct DexterOpSyncSourceItem : MenuItem {
     Dexter* module;
-    FourVoiceOPCore::OpSyncSource opSyncSource = FourVoiceOPCore::PARENT_SYNC_SOURCE;
+    DexterCore::OpSyncSource opSyncSource = DexterCore::PARENT_SYNC_SOURCE;
     void onAction(const event::Action &e) override {
         module->opSyncSource = opSyncSource;
     }
@@ -1424,10 +1503,10 @@ void DexterWidget::appendContextMenu(Menu *menu) {
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Operator Sync Source"));
     menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Parent",
                                                      &DexterOpSyncSourceItem::module, module,
-                                                     &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::PARENT_SYNC_SOURCE));
+                                                     &DexterOpSyncSourceItem::opSyncSource, DexterCore::PARENT_SYNC_SOURCE));
     menu->addChild(construct<DexterOpSyncSourceItem>(&MenuItem::text, "Neighbour",
                                                      &DexterOpSyncSourceItem::module, module,
-                                                     &DexterOpSyncSourceItem::opSyncSource, FourVoiceOPCore::NEIGHBOUR_SYNC_SOURCE));
+                                                     &DexterOpSyncSourceItem::opSyncSource, DexterCore::NEIGHBOUR_SYNC_SOURCE));
 
     // Indiv output source
     menu->addChild(construct<MenuLabel>());
@@ -1441,7 +1520,7 @@ void DexterWidget::appendContextMenu(Menu *menu) {
 }
 
 void DexterWidget::step() {
-    if(!module) {
+    if (!module) {
         algo->value = 0;
         return;
     }
@@ -1465,8 +1544,8 @@ void DexterWidget::step() {
             algo->style = 1;
         }
 
-        for (int i = 0; i < kNumOperators; ++i) {
-            for (int j = 0; j < 6; ++j) {
+        for (size_t i = 0; i < DexterCore::kNumOperators; ++i) {
+            for (size_t j = 0; j < 6; ++j) {
                 mainText[i][j]->color = newTextColour;
             }
             multText[i]->color = newTextColour;
@@ -1492,12 +1571,12 @@ void DexterWidget::step() {
     }
 
     algo->value = dexter->algo;
-    chordText->text = chordNames[(int)dexter->chordKnob];
+    chordText->text = chords[(int)dexter->chordKnob].getName();
     octaveAText->text = octaveTextItems[(int)dexter->octaveAKnob];
     octaveBText->text = octaveTextItems[(int)dexter->octaveBKnob];
 
-    for (int i = 0; i < kNumOperators; ++i) {
-        for (int j = 0; j < 6; ++j) {
+    for (size_t i = 0; i < DexterCore::kNumOperators; ++i) {
+        for (size_t j = 0; j < 6; ++j) {
             mainText[i][j]->visible = !dexter->opSettingsMenu[i];
         }
         multText[i]->text = multiplesText[(int)dexter->opMultipleKnob[i]];

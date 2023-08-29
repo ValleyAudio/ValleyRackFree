@@ -22,9 +22,9 @@
 
 #pragma once
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../Common/Metronome.hpp"
-#include "../Common/Oneshot.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../timers/Metronome.hpp"
+#include "../timers/Oneshot.hpp"
 #include "TopographPatternGenerator.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
@@ -78,7 +78,7 @@ struct Topograph : Module {
    };
 
    Metronome metro;
-   PatternGenerator grids;
+   PatternGenerator patternGenerator;
    uint8_t numTicks;
    dsp::SchmittTrigger clockTrig;
    dsp::SchmittTrigger resetTrig;

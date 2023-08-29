@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_NUMBER_CHOICE_HPP
 #define TFORM_EDITOR_NUMBER_CHOICE_HPP
 #include "../../Valley.hpp"
-#include "../../ValleyComponents.hpp"
+#include "../../gui/ValleyComponents.hpp"
 
 struct TFormEditorChoiceItem : MenuItem {
     unsigned long _itemNumber;
@@ -18,7 +18,7 @@ struct TFormEditorChoiceItem : MenuItem {
 struct TFormEditorChoice : ChoiceButton {
     std::shared_ptr<unsigned long> choice;
     std::vector<std::string> items;
-    int maxItems;
+    size_t maxItems;
 
     std::shared_ptr<Font> font;
     NVGcolor boxColor;

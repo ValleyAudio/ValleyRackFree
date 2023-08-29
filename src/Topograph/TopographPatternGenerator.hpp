@@ -101,14 +101,13 @@ public:
     void tick(uint8_t numPulses);
     void reset();
 
-    void setMapX(uint8_t x);
-    void setMapY(uint8_t y);
-    void setBDDensity(uint8_t density);
-    void setSDDensity(uint8_t density);
-    void setHHDensity(uint8_t density);
-    void setDrumDensity(uint8_t channel, uint8_t density);
-    void setEuclideanLength(uint8_t channel, uint8_t length);
-    void setRandomness(uint8_t randomness);
+    void setMapX(float x);
+    void setMapY(float y);
+    void setBDDensity(float density);
+    void setSDDensity(float density);
+    void setHHDensity(float density);
+    void setEuclideanLength(unsigned int channel, float length);
+    void setRandomness(float randomness);
     void setAccentAltMode(bool accAlt);
     void setPatternMode(PatternGeneratorMode mode);
 
@@ -117,6 +116,7 @@ public:
     PatternGeneratorMode getPatternMode() const;
     uint8_t getBeat() const;
     uint8_t getEuclideanLength(uint8_t channel);
+
 private:
     PatternGeneratorOptions _settings;
     uint8_t _pulse;

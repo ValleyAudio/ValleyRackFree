@@ -26,18 +26,18 @@
 #define DSJ_CELL_HPP
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../DigitalDisplay.hpp"
-#include "../Common/SIMD/QuadOsc.hpp"
-#include "../Common/SIMD/VecLPG.hpp"
-#include "../Common/FreqLUT.hpp"
+
+#include "../gui/ValleyComponents.hpp"
+#include "../gui/DigitalDisplay.hpp"
+#include "../dsp/generators/QuadOsc.hpp"
+#include "../dsp/filters/VecLPG.hpp"
 #include "../dep/dr_wav.h"
 #include "TerrorformWavetableROM.hpp"
 #include "TerrorformWaveTableEditor.hpp"
 #include "TerrorformWaveBank.hpp"
-#include "Enhancer.hpp"
-#include "TFormSubOsc.hpp"
-#include "VecSineLFO.hpp"
+#include "../dsp/shaping/Enhancer.hpp"
+#include "../dsp/generators/TFormSubOsc.hpp"
+#include "../dsp/generators/VecSineLFO.hpp"
 #include "osdialog.h"
 #include <cstdio>
 #include <fstream>
@@ -185,7 +185,6 @@ struct Terrorform : Module {
         0.066666667, 0.2, 0.333333333, 0.466666667, 0.6, 0.733333333, 0.866666667, 1
     };
 
-    FreqLUT freqLUT;
     int numVoices = 0;
     ScanningQuadOsc osc[kMaxNumGroups];
     VecEnhancer enhancer[kMaxNumGroups];

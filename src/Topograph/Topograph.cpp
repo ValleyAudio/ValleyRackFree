@@ -76,13 +76,13 @@ void Topograph::dataFromJson(json_t* rootJ) {
         inEuclideanMode = 0;
         switch (sequencerMode) {
             case HENRI:
-                grids.setPatternMode(PATTERN_HENRI);
+                patternGenerator.setPatternMode(PATTERN_HENRI);
                 break;
             case ORIGINAL:
-                grids.setPatternMode(PATTERN_ORIGINAL);
+                patternGenerator.setPatternMode(PATTERN_ORIGINAL);
                 break;
             case EUCLIDEAN:
-                grids.setPatternMode(PATTERN_EUCLIDEAN);
+                patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
                 inEuclideanMode = 1;
                 break;
         }
@@ -98,17 +98,17 @@ void Topograph::dataFromJson(json_t* rootJ) {
 		accOutputMode = (Topograph::AccOutputMode) json_integer_value(accOutputModeJ);
         switch (accOutputMode) {
             case INDIVIDUAL_ACCENTS:
-                grids.setAccentAltMode(false);
+                patternGenerator.setAccentAltMode(false);
                 break;
             case ACC_CLK_RST:
-                grids.setAccentAltMode(true);
+                patternGenerator.setAccentAltMode(true);
         }
 	}
 
     json_t* extClockResolutionJ = json_object_get(rootJ, "extClockResolution");
 	if (extClockResolutionJ) {
 		extClockResolution = (Topograph::ExtClockResolution) json_integer_value(extClockResolutionJ);
-        grids.reset();
+        patternGenerator.reset();
 	}
 
     json_t* chaosKnobModeJ = json_object_get(rootJ, "chaosKnobMode");
@@ -151,7 +151,7 @@ void Topograph::process(const ProcessArgs &args) {
 
     if (resetButtonTrig.process(params[RESET_BUTTON_PARAM].getValue()) ||
         resetTrig.process(inputs[RESET_INPUT].getVoltage())) {
-        grids.reset();
+        patternGenerator.reset();
         metro.reset();
         resetLed.trigger();
         seqStep = 0;
@@ -174,7 +174,7 @@ void Topograph::process(const ProcessArgs &args) {
     // External clock select
     if (tempoParam < 0.01) {
         if (initExtReset) {
-            grids.reset();
+            patternGenerator.reset();
             initExtReset = false;
         }
         numTicks = ticks_granularity[extClockResolution];
@@ -217,22 +217,22 @@ void Topograph::process(const ProcessArgs &args) {
             advStep = false;
         }
 
-        grids.setMapX((uint8_t)(mapX * 255.0));
-        grids.setMapY((uint8_t)(mapY * 255.0));
-        grids.setBDDensity((uint8_t)(BDFill * 255.0));
-        grids.setSDDensity((uint8_t)(SNFill * 255.0));
-        grids.setHHDensity((uint8_t)(HHFill * 255.0));
-        grids.setRandomness((uint8_t)(chaos * 255.0));
+        patternGenerator.setMapX(mapX);
+        patternGenerator.setMapY(mapY);
+        patternGenerator.setBDDensity(BDFill);
+        patternGenerator.setSDDensity(SNFill);
+        patternGenerator.setHHDensity(HHFill);
+        patternGenerator.setRandomness(chaos);
 
-        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
-        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
-        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
+        patternGenerator.setEuclideanLength(0, mapX);
+        patternGenerator.setEuclideanLength(1, mapY);
+        patternGenerator.setEuclideanLength(2, chaos);
     }
 
     if (advStep) {
-        grids.tick(numTicks);
+        patternGenerator.tick(numTicks);
         for (int i = 0; i < 6; ++i) {
-            if (grids.getDrumState(i)) {
+            if (patternGenerator.getDrumState(i)) {
                 drumTriggers[i].trigger();
                 gateState[i] = true;
                 if (i < 3) {
@@ -447,13 +447,13 @@ struct TopographSequencerModeItem : MenuItem {
         module->inEuclideanMode = 0;
         switch(sequencerMode) {
             case Topograph::HENRI:
-                module->grids.setPatternMode(PATTERN_HENRI);
+                module->patternGenerator.setPatternMode(PATTERN_HENRI);
                 break;
             case Topograph::ORIGINAL:
-                module->grids.setPatternMode(PATTERN_ORIGINAL);
+                module->patternGenerator.setPatternMode(PATTERN_ORIGINAL);
                 break;
             case Topograph::EUCLIDEAN:
-                module->grids.setPatternMode(PATTERN_EUCLIDEAN);
+                module->patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
                 module->inEuclideanMode = 1;
                 break;
         }
@@ -483,10 +483,10 @@ struct TopographAccOutputModeItem : MenuItem {
         module->accOutputMode = accOutputMode;
         switch(accOutputMode) {
             case Topograph::INDIVIDUAL_ACCENTS:
-                module->grids.setAccentAltMode(false);
+                module->patternGenerator.setAccentAltMode(false);
                 break;
             case Topograph::ACC_CLK_RST:
-                module->grids.setAccentAltMode(true);
+                module->patternGenerator.setAccentAltMode(true);
         }
     }
     void step() override {
@@ -500,7 +500,7 @@ struct TopographClockResolutionItem : MenuItem {
     Topograph::ExtClockResolution extClockResolution;
     void onAction(const event::Action &e) override {
         module->extClockResolution = extClockResolution;
-        module->grids.reset();
+        module->patternGenerator.reset();
     }
     void step() override {
         rightText = (module->extClockResolution == extClockResolution) ? "✔" : "";

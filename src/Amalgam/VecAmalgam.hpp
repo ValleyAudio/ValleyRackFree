@@ -10,10 +10,10 @@
 #define VecAmalgam_hpp
 #include <ctime>
 #include <cmath>
-#include "../Common/Utilities.hpp"
-#include "../Common/SIMD/SIMDUtilities.hpp"
-#include "../Common/SIMD/VecOnePoleFilters.hpp"
-#include "VecDiodeRingMod.hpp"
+#include "../utilities/Utilities.hpp"
+#include "../simd/SIMDUtilities.hpp"
+#include "../dsp/filters/VecOnePoleFilters.hpp"
+#include "../dsp/fx/VecDiodeRingMod.hpp"
 
 class VecAmalgam {
 public:

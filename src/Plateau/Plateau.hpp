@@ -29,11 +29,10 @@
 #define DSJ_PLATEAU_HPP
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
+#include "../gui/ValleyComponents.hpp"
 #include "Dattorro.hpp"
-//#include "DattorroV2.hpp"
-#include "../Common/DSP/NonLinear.hpp"
-#include "../Common/DSP/LinearEnvelope.hpp"
+#include "../dsp/shaping/NonLinear.hpp"
+#include "../dsp/modulation/LinearEnvelope.hpp"
 #include <vector>
 
 struct Plateau : Module {
@@ -146,57 +145,65 @@ struct Plateau : Module {
     const float modShapeMin = 0.001f;
     const float modShapeMax = 0.999f;
 
-    float wet;
-    float dry;
-    float preDelay;
-    float preDelayCVSens;
-    float size;
-    float diffusion;
-    float decay;
-    float inputSensitivity;
-    float inputDampLow;
-    float inputDampHigh;
-    float reverbDampLow;
-    float reverbDampHigh;
-    float modSpeed;
-    float modShape;
-    float modDepth;
+    static constexpr float minus20dBGain = 0.1f;
+    static constexpr float minus18dBGain = 0.12589254f;
+    static constexpr float zerodBGain = 1.f;
 
-    bool freezeButtonState;
-    bool freezeToggle;
-    bool freezeToggleButtonState;
-    bool freeze;
-    bool frozen;
-    bool tunedButtonState;
-    bool diffuseButtonState;
-    int preDelayCVSensState;
-    int inputSensitivityState;
-    int outputSaturationState;
+    static constexpr float saturatorPreGain = 0.111f;
+    static constexpr float saturatorDrive = 0.95f;
+    static constexpr float saturatorPostGain = 9.999f;
 
-    int dspModeState;
-    int prevDspModeState;
+    float wet = 0.5f;
+    float dry = 1.f;
+    float preDelay = 0.f;
+    float preDelayCVSens = preDelayNormSens;
+    float size = 1.f;
+    float diffusion = 1.f;
+    float decay = 0.f;
+    float inputSensitivity = minus18dBGain;
+    float inputDampLow = 0.f;
+    float inputDampHigh = 10.f;
+    float reverbDampLow = 0.f;
+    float reverbDampHigh = 10.f;
+    float modSpeed = 0.1f;
+    float modShape = 0.5f;
+    float modDepth = 0.f;
 
-    bool clear;
-    bool cleared;
-    bool fadeOut, fadeIn;
+    bool freezeButtonState = false;
+    bool freezeToggle = false;
+    bool freezeToggleButtonState = false;
+    bool freeze = false;
+    bool frozen = false;
+    bool tunedButtonState = false;
+    bool diffuseButtonState = false;
+    int preDelayCVSensState = 0;
+    int inputSensitivityState = 0;
+    bool softDriveOutput = 0;
 
-    float leftInput, rightInput;
-    float leftOutput, rightOutput;
+    bool clear = false;
+    bool cleared = true;
+    bool fadeOut = false;
+    bool fadeIn = false;
 
-    const uint64_t minBlockSize = 1;
-    static const uint64_t maxBlockSize = 32;
-    uint64_t blockSize = 1;
-    uint64_t frameCounter = 0;
+    float leftInput = 0.f;
+    float rightInput = 0.f;
+    float leftOutput = 0.f;
+    float rightOutput = 0.f;
 
     Dattorro reverb;
     LinearEnvelope envelope;
 
     int panelStyle = 0;
-    int tuned;
-    int diffuseInput;
+    int tuned = 0;
+    int diffuseInput = 1;
 
     Plateau();
+
     void process(const ProcessArgs &args) override;
+
+    void getParameters();
+    void setLights();
+
     void onSampleRateChange() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
@@ -226,14 +233,7 @@ struct PlateauInputSensItem : MenuItem {
 
 struct PlateauOutputSaturationItem : MenuItem {
     Plateau* module;
-    int outputSaturationState;
-    void onAction(const event::Action &e) override;
-    void step() override;
-};
-
-struct PlateauDSPModeItem : MenuItem {
-    Plateau* module;
-    int dspModeState;
+    bool softDriveOutput = false;
     void onAction(const event::Action &e) override;
     void step() override;
 };

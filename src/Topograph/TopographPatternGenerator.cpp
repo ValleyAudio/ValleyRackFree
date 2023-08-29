@@ -73,36 +73,32 @@ void PatternGenerator::reset() {
     }
 }
 
-void PatternGenerator::setMapX(uint8_t x) {
-    _settings.x = x;
+void PatternGenerator::setMapX(float x) {
+    _settings.x = static_cast<uint8_t>(x * 255.0);
 }
 
-void PatternGenerator::setMapY(uint8_t y) {
-    _settings.y = y;
+void PatternGenerator::setMapY(float y) {
+    _settings.y = static_cast<uint8_t>(y * 255.0);
 }
 
-void PatternGenerator::setBDDensity(uint8_t density) {
-    _settings.density[0] = density;
+void PatternGenerator::setBDDensity(float density) {
+    _settings.density[0] = static_cast<uint8_t>(density * 255.0);
 }
 
-void PatternGenerator::setSDDensity(uint8_t density) {
-    _settings.density[1] = density;
+void PatternGenerator::setSDDensity(float density) {
+    _settings.density[1] = static_cast<uint8_t>(density * 255.0);
 }
 
-void PatternGenerator::setHHDensity(uint8_t density) {
-    _settings.density[2] = density;
+void PatternGenerator::setHHDensity(float density) {
+    _settings.density[2] = static_cast<uint8_t>(density * 255.0);
 }
 
-void PatternGenerator::setDrumDensity(uint8_t channel, uint8_t density) {
-    _settings.density[channel] = density;
+void PatternGenerator::setEuclideanLength(unsigned int channel, float length){
+    _settings.euclidean_length[channel] = static_cast<uint8_t>(length * 255.0);
 }
 
-void PatternGenerator::setEuclideanLength(uint8_t channel, uint8_t length){
-    _settings.euclidean_length[channel] = length;
-}
-
-void PatternGenerator::setRandomness(uint8_t randomness) {
-    _settings.randomness = randomness;
+void PatternGenerator::setRandomness(float randomness) {
+    _settings.randomness = static_cast<uint8_t>(randomness * 255.0);
 }
 
 void PatternGenerator::setAccentAltMode(bool accAlt){

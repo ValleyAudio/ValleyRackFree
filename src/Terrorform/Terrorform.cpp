@@ -405,9 +405,9 @@ void Terrorform::process(const ProcessArgs &args) {
     decayCV2Depth = params[LPG_DECAY_CV_2_PARAM].getValue();
 
     for(auto i = 0; i < numActiveChannels; ++i) {
-        freqs[i] = freqLUT.getFrequency(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
-                                        inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
-                                        rootPitch);
+        freqs[i] = pitch2freq(inputs[VOCT_1_INPUT].getPolyVoltage(i) * pitchCV1 +
+                              inputs[VOCT_2_INPUT].getPolyVoltage(i) * pitchCV2 +
+                              rootPitch);
         wavesCV[i] = inputs[WAVE_INPUT_1].getPolyVoltage(i) * waveCV1 * 0.1f;
         wavesCV[i] += inputs[WAVE_INPUT_2].getPolyVoltage(i) * waveCV2 * 0.1f;
         waves[i] = (rootWave + wavesCV[i]) * numWavesInTable;
@@ -678,7 +678,9 @@ void Terrorform::dataFromJson(json_t *rootJ) {
     panelStyle = panelStyle > 1 ? 1 : panelStyle;
     displayStyle = displayStyle > 4 ? 4 : displayStyle;
     lpgMode = lpgMode > 3 ? 3 : lpgMode;
-    syncChoice = syncChoice > QuadOsc::SyncModes::NUM_SYNC_MODES - 1 ? QuadOsc::SyncModes::NUM_SYNC_MODES - 1 : syncChoice;
+    if (syncChoice > ScanningQuadOsc::SyncModes::NUM_SYNC_MODES - 1) {
+        syncChoice = ScanningQuadOsc::SyncModes::NUM_SYNC_MODES - 1;
+    }
 
     int destBank;
     int numWaves;
@@ -1397,8 +1399,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         int tableLength = numWaves * TFORM_WAVELENGTH_CAP;
         int readPos = 0;
         int startPos = startWave * TFORM_WAVELENGTH_CAP;
-        int writePos = 0;
-        int wave = 0;
 
         // TODO : Implement better wavetable downsampler.
         // i.e., use dsp::Decimator<N,1> downsampler;
@@ -1406,8 +1406,6 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
         for (int i = 0; i < tableLength; i++) {
             readPos = (startPos + i * downSampleRatio) * numChannels;
             readPos += downSampleRatio / 2;
-            wave = i / TFORM_WAVELENGTH_CAP;
-            writePos = i % TFORM_WAVELENGTH_CAP;
             module->userWaveTableData[bank][i] = newTable[readPos];
         }
 
@@ -1736,7 +1734,7 @@ void TerrorformWidget::step() {
     enhanceDepthPercent = clamp(enhanceDepthPercent, 0, 100);
     enhanceDepthText->setText(std::to_string(enhanceDepthPercent));
 
-    int syncChoice = (int)tform->syncChoice;
+    size_t syncChoice = static_cast<size_t>(tform->syncChoice);
     syncText->setText(syncNames[syncChoice]);
     if (syncMenu->_choice != syncChoice) {
         syncMenu->_choice = syncChoice;

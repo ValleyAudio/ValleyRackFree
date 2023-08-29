@@ -26,13 +26,14 @@
 #define DSJ_AMALGAM_HPP
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "DiodeRingMod.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../gui/DigitalDisplay.hpp"
+
 #include "VecAmalgam.hpp"
-#include "../Common/DSP/OnePoleFilters.hpp"
-#include "../Common/DSP/NonLinear.hpp"
-#include "../Common/SIMD/VecNonLinear.hpp"
-#include "../DigitalDisplay.hpp"
+#include "../dsp/fx/DiodeRingMod.hpp"
+#include "../dsp/filters/OnePoleFilters.hpp"
+#include "../dsp/shaping/NonLinear.hpp"
+#include "../dsp/shaping/VecNonLinear.hpp"
 #include <vector>
 #include <cstdint>
 #include <vector>

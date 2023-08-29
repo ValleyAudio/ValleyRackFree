@@ -37,7 +37,7 @@ void TFormEditorChoice::onAction(const event::Action &e) {
     menu->box.pos = getAbsoluteOffset(Vec(0, box.size.y)).round();
 	menu->box.size.x = box.size.x;
 
-    for(unsigned long i = 0; i < maxItems; ++i) {
+    for(size_t i = 0; i < maxItems; ++i) {
         TFormEditorChoiceItem *item = new TFormEditorChoiceItem(i);
         item->_itemNumber = i;
         item->choice = choice;

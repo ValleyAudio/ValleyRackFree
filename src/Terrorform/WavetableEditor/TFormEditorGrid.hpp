@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_GRID_HPP
 #define TFORM_EDITOR_GRID_HPP
 #include "../../Valley.hpp"
-#include "../../ValleyComponents.hpp"
+#include "../../gui/ValleyComponents.hpp"
 #include "TFormEditorButton.hpp"
 
 template<const int NRows, const int NCols>

@@ -25,32 +25,18 @@
 #define VALLEY_DEXTER_HPP
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../ValleyChoiceMenu.hpp"
-#include "../Common/FreqLUT.hpp"
-#include "Osc4Core_SIMD.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../gui/ValleyChoiceMenu.hpp"
 #include "Chords.hpp"
+#include "DexterCore.hpp"
 #include "DexterRoutingMatrix.hpp"
-#include <algorithm>
-
-float vOct2Freq(float vOct) {
-    return 261.6255f * powf(2.0, vOct);
-}
-
-int modulo(int a, int b) {
-    return a - ((b) * floor(a/b));
-}
-
-const unsigned long kNumShapeModes = 12;
-const unsigned long kNumSyncModes = 15;
-const unsigned long kNumModDests = 11;
-const unsigned long kNumMultiples = 27;
-
-const std::string modDest[NUM_DESTS] = {"Pitch", "Multiple", "Wave Pos.", "Wave Bank", "Shape",
-                                        "Level", "Ext FM", "Ext Sync", "Shape Mode", "Post Shape",
-                                        "Sync Mode", "Sync En.", "Weak Sync"};
 
 struct Dexter : Module {
+    static constexpr unsigned long kNumShapeModes = 12;
+    static constexpr unsigned long kNumSyncModes = 15;
+    static constexpr unsigned long kNumModDests = 11;
+    static constexpr unsigned long kNumCVInputs = 12;
+
     enum ParamIds {
         CHORD_PARAM, INVERT_PARAM, DETUNE_PARAM,
         OCTAVE_PARAM, COARSE_PARAM, FINE_PARAM, B_OCTAVE_PARAM, B_COARSE_PARAM, B_FINE_PARAM,
@@ -197,7 +183,7 @@ struct Dexter : Module {
         NUM_LIGHT_GROUPS
     };
 
-    ParamIds opParams[kNumOperators][NUM_PARAM_GROUPS] = {
+    ParamIds opParams[DexterCore::kNumOperators][NUM_PARAM_GROUPS] = {
         {OP_1_MULT_PARAM, OP_1_COARSE_PARAM, OP_1_FINE_PARAM, OP_1_WAVE_PARAM, OP_1_SHAPE_PARAM, OP_1_LEVEL_PARAM,
          OP_1_SETTINGS_PARAM, OP_1_POST_SHAPE_PARAM, OP_1_LFO_PARAM, OP_1_WEAK_PARAM, OP_1_SYNC_PARAM,
          OP_1_WAVE_MENU_PARAM, OP_1_MODA_MENU_PARAM, OP_1_MODB_MENU_PARAM, OP_1_MISC_MENU_PARAM, OP_1_BANK_PARAM,
@@ -216,7 +202,7 @@ struct Dexter : Module {
          OP_4_PRE_PARAM}
     };
 
-    LightIds opLights[kNumOperators][NUM_LIGHT_GROUPS] {
+    LightIds opLights[DexterCore::kNumOperators][NUM_LIGHT_GROUPS] {
         {OP_1_SETTINGS_LIGHT, OP_1_POST_SHAPE_LIGHT, OP_1_LFO_LIGHT, OP_1_WEAK_LIGHT, OP_1_SYNC_LIGHT,
          OP_1_WAVE_MENU_LIGHT, OP_1_MODA_MENU_LIGHT, OP_1_MODB_MENU_LIGHT, OP_1_MISC_MENU_LIGHT, OP_1_PRE_LIGHT},
         {OP_2_SETTINGS_LIGHT, OP_2_POST_SHAPE_LIGHT, OP_2_LFO_LIGHT, OP_2_WEAK_LIGHT, OP_2_SYNC_LIGHT,
@@ -227,7 +213,7 @@ struct Dexter : Module {
          OP_4_WAVE_MENU_LIGHT, OP_4_MODA_MENU_LIGHT, OP_4_MODB_MENU_LIGHT, OP_4_MISC_MENU_LIGHT, OP_4_PRE_LIGHT}
     };
 
-    InputIds opCVInputs[kNumOperators][NUM_CV_GROUPS] = {
+    InputIds opCVInputs[DexterCore::kNumOperators][NUM_CV_GROUPS] = {
         {OP_1_MOD_1_INPUT,   OP_1_MOD_2_INPUT,   OP_1_MOD_3_INPUT,   OP_1_MOD_4_INPUT,
          OP_1_PITCH_1_INPUT, OP_1_WAVE_1_INPUT,  OP_1_SHAPE_1_INPUT,  OP_1_LEVEL_1_INPUT,
          OP_1_PITCH_2_INPUT, OP_1_WAVE_2_INPUT,  OP_1_SHAPE_2_INPUT,  OP_1_LEVEL_2_INPUT},
@@ -242,7 +228,7 @@ struct Dexter : Module {
          OP_4_PITCH_2_INPUT, OP_4_WAVE_2_INPUT,  OP_4_SHAPE_2_INPUT,  OP_4_LEVEL_2_INPUT}
     };
 
-    ParamIds opCVAtten[kNumOperators][12] = {
+    ParamIds opCVAtten[DexterCore::kNumOperators][kNumCVInputs] = {
         {OP_1_MOD_1_PARAM, OP_1_MOD_2_PARAM, OP_1_MOD_3_PARAM, OP_1_MOD_4_PARAM,
          OP_1_PITCH_CV1_PARAM, OP_1_WAVE_CV1_PARAM, OP_1_SHAPE_CV1_PARAM, OP_1_LEVEL_CV1_PARAM,
          OP_1_PITCH_CV2_PARAM, OP_1_WAVE_CV2_PARAM, OP_1_SHAPE_CV2_PARAM, OP_1_LEVEL_CV2_PARAM,},
@@ -257,10 +243,10 @@ struct Dexter : Module {
          OP_4_PITCH_CV2_PARAM, OP_4_WAVE_CV2_PARAM, OP_4_SHAPE_CV2_PARAM, OP_4_LEVEL_CV2_PARAM,}
     };
 
-    FourVoiceOPCore::OpSyncSource opSyncSource = FourVoiceOPCore::PARENT_SYNC_SOURCE;
+    DexterCore::OpSyncSource opSyncSource = DexterCore::PARENT_SYNC_SOURCE;
 
-    FourVoiceOPCore coreA, coreB;
-    DexterRoutingMatrix modMatrix[kNumOperators];
+    DexterCore coreA, coreB;
+    DexterRoutingMatrix modMatrix[DexterCore::kNumOperators];
 
     float results[4] = {0.f, 0.f, 0.f, 0.f};
     __m128 __leftOut, __rightOut;
@@ -278,11 +264,10 @@ struct Dexter : Module {
     dsp::SchmittTrigger resetPhaseButtonTrig;
     dsp::SchmittTrigger masterLFOButtonTrig;
     int octave;
-    float timer = 0.f;
     float aPitch = 0.f;
     float bPitch = 0.f;
+
     int multiple = 0;
-    int opMultipleKnob[kNumOperators];
     float multiples[27] = {0.125f, 0.25f, 0.5f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f,
                            9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f,
                            17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f};
@@ -301,14 +286,15 @@ struct Dexter : Module {
     float chordParam;
     float chordDetune;
     float chordDetuneParam;
+
     int buttonFullInversion = 0;
     int fullInversion = 0;
     dsp::SchmittTrigger fullInversionButtonTrig;
     int chordKnob;
     int invDepth;
     int invDepthParam;
-    int invDepthKnob;
-    FreqLUT freqLUT;
+    int invertKnob;
+
     __m128 __lowChordMaskTable[7];
     __m128 __highChordMaskTable[7];
     __m128 __lowChordMask, __highChordMask;
@@ -319,78 +305,125 @@ struct Dexter : Module {
 
     int octaveAKnob = 0;
     int octaveBKnob = 0;
-    float opPitch[kNumOperators];
-    float opLowFreq[kNumOperators][4];
-    float opHighFreq[kNumOperators][4];
-    float* pOpFreqs;
-    __m128 __opLowFreq[kNumOperators];
-    __m128 __opHighFreq[kNumOperators];
+    float opPitch[DexterCore::kNumOperators];
+    float opLowFreq[DexterCore::kNumOperators][4];
+    float opHighFreq[DexterCore::kNumOperators][4];
 
-    float opLevel[kNumOperators];
-    float opWave[kNumOperators];
-    int opWaveBankKnob[kNumOperators];
-    int opWaveBank[kNumOperators];
-    float opShape[kNumOperators];
-    float opButtonSync[kNumOperators];
-    float opButtonWeakSync[kNumOperators];
-    float opButtonPostShape[kNumOperators];
-    float opButtonLFO[kNumOperators];
-    float opButtonPreFade[kNumOperators];
-    bool opSync[kNumOperators];
-    bool opWeakSync[kNumOperators];
-    bool opPostShape[kNumOperators];
-    bool opPreFade[kNumOperators];
+    float pOpPitches[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+    float pOpFreqs[8] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
+    float pOpMutiples[8] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
+
+    __m128 __opLowPitch[DexterCore::kNumOperators];
+    __m128 __opHighPitch[DexterCore::kNumOperators];
+    __m128 __opLowFreq[DexterCore::kNumOperators];
+    __m128 __opHighFreq[DexterCore::kNumOperators];
+
+    float opLevel[DexterCore::kNumOperators];
+    float opWave[DexterCore::kNumOperators];
+    int opWaveBank[DexterCore::kNumOperators];
+    float opShape[DexterCore::kNumOperators];
+    float opButtonSync[DexterCore::kNumOperators];
+    float opButtonWeakSync[DexterCore::kNumOperators];
+    float opButtonPostShape[DexterCore::kNumOperators];
+    float opButtonLFO[DexterCore::kNumOperators];
+    float opButtonPreFade[DexterCore::kNumOperators];
+    bool opSync[DexterCore::kNumOperators];
+    bool opWeakSync[DexterCore::kNumOperators];
+    bool opPostShape[DexterCore::kNumOperators];
+    bool opPreFade[DexterCore::kNumOperators];
+
+    // Knob variables
+    float brightnessKnob = 0.f;
+    float brightnessDepthKnob = 0.f;
+    float feedbackKnob = 0.f;
+    float feedbackDepthKnob = 0.f;
+    float allShapeKnob = 0.f;
+    float allShapeDepthKnob = 0.f;
+    float coreACoarseKnob = 0.f;
+    float coreAFineKnob = 0.f;
+    float coreBCoarseKnob = 0.f;
+    float coreBFineKnob = 0.f;
+
+    float chordDepthKnob = 0.f;
+
+    float detuneKnob = 0.f;
+    float detuneDepthKnob = 0.f;
+    
+    float invertDepthKnob = 0.f;
+
     float brightness;
     float feedback;
     float allShape;
+
+    float algoKnob = 0.f;
+    float algoDepthKnob = 0.f;
+
+    float opCoarseKnob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opFineKnob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opPitchCV1Knob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opPitchCV2Knob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    int opMultipleKnob[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    int opWaveBankKnob[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    float opWaveKnob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opShapeKnob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opLevelKnob[DexterCore::kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+
+    float opCVAttenKnob[DexterCore::kNumOperators][kNumCVInputs];
+
+    // Core control variables
     int syncMode = 0;
     int shapeMode = 0;
     int algo = 0;
 
-    unsigned long opSyncMode[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opShapeMode[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMenuSyncMode[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMenuShapeMode[kNumOperators] = {0, 0, 0, 0};
+    unsigned long opSyncMode[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opShapeMode[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMenuSyncMode[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMenuShapeMode[DexterCore::kNumOperators] = {0, 0, 0, 0};
 
-    unsigned long opMod1Assign[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMod2Assign[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMod3Assign[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMod4Assign[kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMod1Assign[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMod2Assign[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMod3Assign[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMod4Assign[DexterCore::kNumOperators] = {0, 0, 0, 0};
 
-    int opSettingsMenu[kNumOperators] = {0, 0, 0, 0};
-    int opWaveMenuVis[kNumOperators] = {0, 0, 0, 0};
-    int opModAMenuVis[kNumOperators] = {0, 0, 0, 0};
-    int opModBMenuVis[kNumOperators] = {0, 0, 0, 0};
-    int opMiscMenuVis[kNumOperators] = {0, 0, 0, 0};
-    unsigned long opMenuPage[kNumOperators] = {0, 0, 0, 0};
+    int opSettingsMenu[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    int opWaveMenuVis[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    int opModAMenuVis[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    int opModBMenuVis[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    int opMiscMenuVis[DexterCore::kNumOperators] = {0, 0, 0, 0};
+    unsigned long opMenuPage[DexterCore::kNumOperators] = {0, 0, 0, 0};
 
-    dsp::SchmittTrigger opSettBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opSyncBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opWeakBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opLFOBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opPreFadeBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opPostShapeBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opWaveMenuBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opModAMenuBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opModBMenuBtnTrig[kNumOperators];
-    dsp::SchmittTrigger opMiscMenuBtnTrig[kNumOperators];
+    dsp::SchmittTrigger opSettBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opSyncBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opWeakBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opLFOBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opPreFadeBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opPostShapeBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opWaveMenuBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opModAMenuBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opModBMenuBtnTrig[DexterCore::kNumOperators];
+    dsp::SchmittTrigger opMiscMenuBtnTrig[DexterCore::kNumOperators];
 
     float sampleRate = 44100.f;
     int panelStyle = 0;
 
+    static constexpr float paramUpdateRateHz = 30.f;
+    int paramCounterMax = 128;
+    int paramCounter = 0;
+
     Dexter();
     ~Dexter();
     void step() override;
+
+    void getParameters();
+    void setLowPriorityCoreSettings();
+    void setTimeCriticalCoreSettings();
+
     void makeChord(float chord, float invert);
     void onSampleRateChange() override;
     void onReset() override;
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 };
-
-int round_int( double r ) {
-    return (r > 0.0) ? (r + 0.5) : (r - 0.5);
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -455,9 +488,15 @@ struct OpModModeChoice : ValleyChoiceMenu {
 };
 
 struct DexterWidget : ModuleWidget {
-    DexterWidget(Dexter *module);
-    void appendContextMenu(Menu *menu) override;
-    void step() override;
+    static constexpr unsigned long kNumMultiples = 27;
+
+    std::string waveTableNames[NUM_DEXTER_WAVETABLES] = {
+        "Opal", "Basic", "TeeEks", "SinHarm", "AddSin", "AMHarm", "SwpHarm",
+        "AddSaw", "AddSqr", "AddBank", "Oboe", "Sax", "Cello1", "Cello2",
+        "Violin", "Piano", "Thrmin", "Pluck", "OvrTne1", "OvrTne2", "Sym",
+        "Chip1", "Chip2", "BitCrsh1", "BitCrsh2", "Voice1", "Voice2", "Voice3",
+        "Voice4", "Voice5", "PWM", "BiPls", "SawGap1", "SawGap2", "VGame"
+    };
 
     // Control positions
     const float ledOffset = 2.5;
@@ -561,50 +600,50 @@ struct DexterWidget : ModuleWidget {
     PlainText* chordText;
     PlainText* octaveAText;
     PlainText* octaveBText;
-    PlainText* mainText[kNumOperators][6];
-    PlainText* multText[kNumOperators];
+    PlainText* mainText[DexterCore::kNumOperators][6];
+    PlainText* multText[DexterCore::kNumOperators];
 
-    PlainText* waveTableTabTopLabel[kNumOperators];
-    PlainText* waveTableTabBottomLabel[kNumOperators];
-    PlainText* mod1And2TabTopLabel[kNumOperators];
-    PlainText* mod1And2TabBottomLabel[kNumOperators];
-    PlainText* mod3And4TabTopLabel[kNumOperators];
-    PlainText* mod3And4TabBottomLabel[kNumOperators];
+    PlainText* waveTableTabTopLabel[DexterCore::kNumOperators];
+    PlainText* waveTableTabBottomLabel[DexterCore::kNumOperators];
+    PlainText* mod1And2TabTopLabel[DexterCore::kNumOperators];
+    PlainText* mod1And2TabBottomLabel[DexterCore::kNumOperators];
+    PlainText* mod3And4TabTopLabel[DexterCore::kNumOperators];
+    PlainText* mod3And4TabBottomLabel[DexterCore::kNumOperators];
 
-    RoganMedBlue* OpMultKnob[kNumOperators];
-    RoganMedBlue* OpCoarseKnob[kNumOperators];
-    RoganMedBlue* OpFineKnob[kNumOperators];
-    RoganMedPurple* OpWaveKnob[kNumOperators];
-    RoganMedRed* OpShapeKnob[kNumOperators];
-    RoganMedGreen* OpLevelKnob[kNumOperators];
+    RoganMedBlue* OpMultKnob[DexterCore::kNumOperators];
+    RoganMedBlue* OpCoarseKnob[DexterCore::kNumOperators];
+    RoganMedBlue* OpFineKnob[DexterCore::kNumOperators];
+    RoganMedPurple* OpWaveKnob[DexterCore::kNumOperators];
+    RoganMedRed* OpShapeKnob[DexterCore::kNumOperators];
+    RoganMedGreen* OpLevelKnob[DexterCore::kNumOperators];
 
-    RoganMedBlue* waveBankKnob[kNumOperators];
+    RoganMedBlue* waveBankKnob[DexterCore::kNumOperators];
 
-    OpSyncModeChoice* syncModeChoice[kNumOperators];
-    OpShapeModeChoice* shapeModeChoice[kNumOperators];
-    OpModModeChoice* mod1ModeChoice[kNumOperators];
-    OpModModeChoice* mod2ModeChoice[kNumOperators];
-    OpModModeChoice* mod3ModeChoice[kNumOperators];
-    OpModModeChoice* mod4ModeChoice[kNumOperators];
+    OpSyncModeChoice* syncModeChoice[DexterCore::kNumOperators];
+    OpShapeModeChoice* shapeModeChoice[DexterCore::kNumOperators];
+    OpModModeChoice* mod1ModeChoice[DexterCore::kNumOperators];
+    OpModModeChoice* mod2ModeChoice[DexterCore::kNumOperators];
+    OpModModeChoice* mod3ModeChoice[DexterCore::kNumOperators];
+    OpModModeChoice* mod4ModeChoice[DexterCore::kNumOperators];
 
-    PlainText* tableLabel[kNumOperators];
-    PlainText* syncModeLabel[kNumOperators];
-    PlainText* shapeModeLabel[kNumOperators];
+    PlainText* tableLabel[DexterCore::kNumOperators];
+    PlainText* syncModeLabel[DexterCore::kNumOperators];
+    PlainText* shapeModeLabel[DexterCore::kNumOperators];
 
-    PlainText* tableText[kNumOperators];
+    PlainText* tableText[DexterCore::kNumOperators];
 
-    PlainText* mod1Label[kNumOperators];
-    PlainText* mod2Label[kNumOperators];
-    PlainText* mod3Label[kNumOperators];
-    PlainText* mod4Label[kNumOperators];
+    PlainText* mod1Label[DexterCore::kNumOperators];
+    PlainText* mod2Label[DexterCore::kNumOperators];
+    PlainText* mod3Label[DexterCore::kNumOperators];
+    PlainText* mod4Label[DexterCore::kNumOperators];
 
-    LightLEDButtonNonDyn* opWaveButton[kNumOperators];
-    LightLEDButtonNonDyn* opModAButton[kNumOperators];
-    LightLEDButtonNonDyn* opModBButton[kNumOperators];
+    LightLEDButtonNonDyn* opWaveButton[DexterCore::kNumOperators];
+    LightLEDButtonNonDyn* opModAButton[DexterCore::kNumOperators];
+    LightLEDButtonNonDyn* opModBButton[DexterCore::kNumOperators];
 
-    MediumLight<RedLight>* opWaveButtonLight[kNumOperators];
-    MediumLight<RedLight>* opModAButtonLight[kNumOperators];
-    MediumLight<RedLight>* opModBButtonLight[kNumOperators];
+    MediumLight<RedLight>* opWaveButtonLight[DexterCore::kNumOperators];
+    MediumLight<RedLight>* opModAButtonLight[DexterCore::kNumOperators];
+    MediumLight<RedLight>* opModBButtonLight[DexterCore::kNumOperators];
 
     bool panelChanged = true;
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
@@ -613,6 +652,10 @@ struct DexterWidget : ModuleWidget {
     SvgPanel* darkPanel;
     SvgPanel* lightPanel;
     AlgoGraphic* algo;
+
+    DexterWidget(Dexter *module);
+    void appendContextMenu(Menu *menu) override;
+    void step() override;
 };
 
 #endif

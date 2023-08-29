@@ -26,9 +26,9 @@
 #define DSJ_FELINE_HPP
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../Common/SIMD/VecOTAFilter.hpp"
-#include "../Common/SIMD/VecOnePoleFilters.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../dsp/filters/VecOTAFilter.hpp"
+#include "../dsp/filters/VecOnePoleFilters.hpp"
 #include <vector>
 
 struct Feline : Module {

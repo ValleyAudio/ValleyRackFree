@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_MENU_ROWS
 #define TFORM_EDITOR_MENU_ROWS
 #include "../../Valley.hpp"
-#include "../../ValleyComponents.hpp"
+#include "../../gui/ValleyComponents.hpp"
 #include "TFormEditorButton.hpp"
 #include "TFormEditorChoice.hpp"
 #include "TFormEditorGrid.hpp"

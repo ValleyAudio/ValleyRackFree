@@ -1,7 +1,7 @@
 #pragma once
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../Common/Utilities.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../utilities/Utilities.hpp"
 #include "WavetableEditor/MenuBase.hpp"
 #include "WavetableEditor/TFormEditorButton.hpp"
 #include "WavetableEditor/TFormEditorGrid.hpp"

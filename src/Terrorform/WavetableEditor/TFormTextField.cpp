@@ -239,7 +239,7 @@ void TFormNumberField::setValue(int newValue) {
 
 void TFormNumberField::updateText(const std::string& newText) {
     auto isNumeric = [](const std::string& str) -> bool {
-        for(int i = 0; i < str.size(); ++i) {
+        for(size_t i = 0; i < str.size(); ++i) {
             if(!std::isdigit(str[i])) {
                 return false;
             }

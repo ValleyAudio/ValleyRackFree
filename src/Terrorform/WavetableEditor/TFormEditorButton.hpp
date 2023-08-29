@@ -1,7 +1,7 @@
 #ifndef TFORM_EDITOR_BUTTON_HPP
 #define TFORM_EDITOR_BUTTON_HPP
 #include "../../Valley.hpp"
-#include "../../ValleyComponents.hpp"
+#include "../../gui/ValleyComponents.hpp"
 
 struct TFormEditorButtonColors {
     NVGcolor textColor;

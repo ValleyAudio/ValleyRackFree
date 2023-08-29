@@ -21,10 +21,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Valley.hpp"
-#include "../ValleyComponents.hpp"
-#include "../ValleyChoiceMenu.hpp"
-#include "../Common/Metronome.hpp"
-#include "../Common/Oneshot.hpp"
+#include "../gui/ValleyComponents.hpp"
+#include "../gui/ValleyChoiceMenu.hpp"
+#include "../timers/Metronome.hpp"
+#include "../timers/Oneshot.hpp"
 #include "../Topograph/TopographPatternGenerator.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
