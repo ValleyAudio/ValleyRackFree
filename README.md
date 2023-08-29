@@ -4,11 +4,11 @@
 
 ## Version
 
-2.0.4
+2.4.0
 
 ## Compatibility
 
-The modules are Mac, Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
+The modules are Mac (Intel and Apple Silicon), Windows and Linux compatible. Some source is inherently open source, so you are free to download / clone and build on your own computer. See the appropriate license information for more details.
 
 You must have at least Rack v2.0.x use these modules.
 

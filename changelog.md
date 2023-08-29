@@ -1,5 +1,9 @@
 # ValleyRackFree Change Log
 
+## 2.4.0
+
+    - TODO: Update changelog
+
 ## 2.0.4
 
     - [Fixed] Completely restore the behaviour of Plateau.
