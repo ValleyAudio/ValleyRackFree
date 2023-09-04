@@ -8,19 +8,19 @@
                 100.f);
     configParam(Plateau::PRE_DELAY_PARAM, 0.f, 0.500f, 0.f, "Pre-delay", "ms",
                 0.f, 1000.f);
-    configParam(Plateau::INPUT_LOW_DAMP_PARAM, -5.f, 5.f, 5.f,
-                "Input low cut", "Hz", 2.f, 440.f);
-    configParam(Plateau::INPUT_HIGH_DAMP_PARAM, -5.f, 5.f, 5.f,
-                "Input high cut", "Hz", 2.f, 440.f);
+    configParam(Plateau::INPUT_LOW_DAMP_PARAM, 0.f, 10.f, 10.f,
+                "Input low cut", "Hz", 2.f, 13.75f);
+    configParam(Plateau::INPUT_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f,
+                "Input high cut", "Hz", 2.f, 13.75f);
     configParam(Plateau::SIZE_PARAM, 0.f, 1.f, 0.5f, "Size", "%", 0.f, 100.f);
     configParam(Plateau::DIFFUSION_PARAM, 0.f, 10.f, 10.f, "Diffusion", "%",
                 0.f, 10.f);
     configParam(Plateau::DECAY_PARAM, 0.1f, 0.9999f, 0.54995f, "Decay", "%",
                 0.f, 111.12345816f, -11.11234582f);
-    configParam(Plateau::REVERB_LOW_DAMP_PARAM, -5.0f, 5.f, 5.f,
-                "Reverb low cut", "Hz", 2.f, 440.f);
-    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, -5.f, 5.f, 5.f,
-                "Reverb high cut", "Hz", 2.f, 440.f);
+    configParam(Plateau::REVERB_LOW_DAMP_PARAM, 0.f, 10.f, 10.f,
+                "Reverb low cut", "Hz", 2.f, 13.75f);
+    configParam(Plateau::REVERB_HIGH_DAMP_PARAM, 0.f, 10.f, 10.f,
+                "Reverb high cut", "Hz", 2.f, 13.75f);
     configParam(Plateau::MOD_SPEED_PARAM, 0.f, 1.f, 0.f, "Modulation rate", "%",
                 0.f, 100.f);
     configParam(Plateau::MOD_DEPTH_PARAM, 0.f, 16.f, 0.5f, "Modulation depth",
