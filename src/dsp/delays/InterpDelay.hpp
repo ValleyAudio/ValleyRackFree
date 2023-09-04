@@ -64,9 +64,6 @@ public:
     }
 
     void setDelayTime(T newDelayTime) {
-        if (newDelayTime >= l) 
-            std::cout << newDelayTime << ", " << l << std::endl;
-
         if (newDelayTime >= l) {
             newDelayTime = l - 1;
         }
