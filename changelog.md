@@ -1,8 +1,16 @@
 # ValleyRackFree Change Log
 
+## 2.4.1
+
+    - [Fixed] Plateau recalls correct damping parameter values when loading older patches.
+
 ## 2.4.0
 
-    - TODO: Update changelog
+    - [Added] Tooltips to all controls for each module.
+    - [Update] Improve CPU usage in Dexter, particularly in the CV controls of the Chord parameter.
+    - [Update] Major restructuring of the source code hierarchy.
+    - [Update] Major refactoring of the Dattorro and Plateau source code.
+    - [Fixed] Various anamolies detected by Valgrind e.g. unitialised variables and memory leaks
 
 ## 2.0.4
 
