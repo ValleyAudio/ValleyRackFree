@@ -1,6 +1,15 @@
+# Macro to use on any target where we don't normally want asserts
+ASSERTOFF = -D NDEBUG
+
+# Make _ASSERT=true will nullify our ASSERTOFF flag, thus allowing them
+ifdef _ASSERT
+ASSERTOFF =
+endif
+
+# This turns asserts off for make (plugin), not for test or perf
+FLAGS += $(ASSERTOFF)
 
 # FLAGS will be passed to both the C and C++ compiler
-FLAGS +=
 CFLAGS += -O3 -std=c99 -Isrc
 CXXFLAGS += -O3 -Isrc
 

@@ -4,7 +4,7 @@
 
 ## Version
 
-2.4.1
+2.4.2
 
 ## Compatibility
 
@@ -40,4 +40,4 @@ Dattorro, J. (1997). Effect design part 1: Reverberator and other filters, J. Au
 
 ## License
 
-All code is licensed under GNU Public License v3.0, Copyright (c) 2020 Dale Johnson
+All code is licensed under GNU Public License v3.0, Copyright (c) 2023 Dale Johnson

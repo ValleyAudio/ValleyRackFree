@@ -1,5 +1,9 @@
 # ValleyRackFree Change Log
 
+## 2.4.2
+
+    - [Fixed] Assertions are now set off by default. Patches that crashed between 2.0 and 2.4 will now work fine.
+
 ## 2.4.1
 
     - [Fixed] Plateau recalls correct damping parameter values when loading older patches.
