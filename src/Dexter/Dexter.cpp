@@ -38,16 +38,16 @@ Dexter::Dexter() {
 
     for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
         std::string opStr = "Op. " + std::to_string(op + 1) + " ";
-        configParam(Dexter::OP_1_MULT_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0, 26, 3, opStr + "Multiplier");
-        configParam(Dexter::OP_1_COARSE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -1.0, 1.0, 0.0, opStr + "Coarse");
-        configParam(Dexter::OP_1_FINE_PARAM + Dexter::NUM_PARAM_GROUPS * op, -0.25, 0.25, 0.0, opStr + "Fine");
-        configParam(Dexter::OP_1_WAVE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Wave");
-        configParam(Dexter::OP_1_SHAPE_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Phase Shape");
+        configParam(opParams[op][Dexter::OP_MULT_PARAM], 0, 26, 3, opStr + "Multiplier");
+        configParam(opParams[op][Dexter::OP_COARSE_PARAM], -1.0, 1.0, 0.0, opStr + "Coarse");
+        configParam(opParams[op][Dexter::OP_FINE_PARAM], -0.25, 0.25, 0.0, opStr + "Fine");
+        configParam(opParams[op][Dexter::OP_WAVE_PARAM], 0.0, 1.0, 0.0, opStr + "Wave");
+        configParam(opParams[op][Dexter::OP_SHAPE_PARAM], 0.0, 1.0, 0.0, opStr + "Phase Shape");
         if (op == 0) {
-            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 1.0, opStr + "Level");
+            configParam(opParams[op][Dexter::OP_LEVEL_PARAM], 0.0, 1.0, 1.0, opStr + "Level");
         }
         else {
-            configParam(Dexter::OP_1_LEVEL_PARAM + Dexter::NUM_PARAM_GROUPS * op, 0.0, 1.0, 0.0, opStr + "Level");
+            configParam(opParams[op][Dexter::OP_LEVEL_PARAM], 0.0, 1.0, 0.0, opStr + "Level");
         }
         configParam(opParams[op][Dexter::OP_PRE_PARAM], 0.0, 1.0, 0.0, opStr + "Indiv. Out Pre-fade");
         configParam(opParams[op][Dexter::OP_SETTINGS_PARAM], 0.0, 1.0, 0.0, opStr + "Settings");
@@ -56,7 +56,7 @@ Dexter::Dexter() {
         configParam(opParams[op][Dexter::OP_LFO_PARAM], 0.0, 1.0, 0.0, opStr + "LFO Mode");
         configParam(opParams[op][Dexter::OP_SYNC_PARAM], 0.0, 1.0, 0.0, opStr + "Sync");
 
-        configParam(Dexter::OP_1_WAVE_MENU_PARAM + Dexter::NUM_PARAM_GROUPS * op,
+        configParam(opParams[op][Dexter::OP_WAVE_MENU_PARAM],
                     0.0, 1.0, 0.0, opStr + "Wave Menu");
 
         configParam(OP_1_MOD_1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 1 Depth");
@@ -74,7 +74,7 @@ Dexter::Dexter() {
         configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Phase Shape CV 2 Depth");
         configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Level CV 2 Depth");
 
-        configParam(OP_1_BANK_PARAM + NUM_PARAM_GROUPS * op, 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
+        configParam(opParams[op][Dexter::OP_BANK_PARAM], 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
     }
 
     configInput(CHORD_INPUT, "Chord CV");
@@ -284,7 +284,7 @@ void Dexter::step() {
     }
 
     for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
-        opPitch[op] = opCoarseKnob[op] + opFineKnob[op];;
+        opPitch[op] = opCoarseKnob[op] + opFineKnob[op];
         opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_1]].getVoltage() * opPitchCV1Knob[op];
         opPitch[op] += inputs[opCVInputs[op][OP_PITCH_CV_2]].getVoltage() * opPitchCV2Knob[op];
         opPitch[op] += modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::PITCH_DEST);
@@ -293,7 +293,7 @@ void Dexter::step() {
         
         pOpPitches[0] = opPitch[op] + bPitch;
         for (size_t i = 0; i < chordNotes.size(); ++i) {
-            pOpPitches[i + 1] = opPitch[i] + aPitch + chordNotes[i];
+            pOpPitches[i + 1] = opPitch[op] + aPitch + chordNotes[i];
         }
 
         __opLowPitch[op] = _mm_loadu_ps(pOpPitches);

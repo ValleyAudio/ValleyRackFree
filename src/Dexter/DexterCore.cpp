@@ -868,10 +868,10 @@ void DexterCore::doAlgorithm12() {
     //
     auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
     _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
     _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[2];
-    __bCol = __opOut[0];
+    __mainCol = __opOut[0];
+    __bCol = __opOut[2];
 }
 
 void DexterCore::doAlgorithm13() {
@@ -881,9 +881,9 @@ void DexterCore::doAlgorithm13() {
     // [3]--> B
     //
     auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
+    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
     __bCol = __opOut[3];
 
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
     _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
     _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
     __mainCol = __opOut[0];
@@ -914,6 +914,7 @@ void DexterCore::doAlgorithm15() {
     __mainCol = __opOut[3];
 
     _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
+    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
     __bCol = __opOut[0];
 }
 

@@ -1,5 +1,10 @@
 # ValleyRackFree Change Log
 
+## 2.4.3
+
+    - [Fixed] Fixed parameter mapping issues with Dexter.
+    - [Fixed] Fixed algorithm 13, 14, and 16 implementations in Dexter.
+
 ## 2.4.2
 
     - [Fixed] Assertions are now set off by default. Patches that crashed between 2.0 and 2.4 will now work fine.
