@@ -319,19 +319,24 @@ void Topograph::onSampleRateChange() {
     }
 }
 
-void Topograph::onReset() {
+void Topograph::onReset(const ResetEvent& e) {
+    Module::onReset(e);
     running = false;
+}
+
+void Topograph::onRandomize(const RandomizeEvent& e) {
+    params[Topograph::MAPX_PARAM].setValue(random::uniform());
+    params[Topograph::MAPY_PARAM].setValue(random::uniform());
+    params[Topograph::CHAOS_PARAM].setValue(random::uniform());
+    params[Topograph::BD_DENS_PARAM].setValue(random::uniform());
+    params[Topograph::SN_DENS_PARAM].setValue(random::uniform());
+    params[Topograph::HH_DENS_PARAM].setValue(random::uniform());
+    params[Topograph::SWING_PARAM].setValue(random::uniform());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// Widget //////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TempoKnob::randomize() {
-    if (randomizationAllowed) {
-        //Knob::randomize();
-    }
-}
 
 TopographWidget::TopographWidget(Topograph *module) {
     setModule(module);
@@ -388,8 +393,7 @@ TopographWidget::TopographWidget(Topograph *module) {
     chaosText->text = "Chaos";
     addChild(chaosText);
 
-    tempoKnob = createParam<TempoKnob>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM);
-    addParam(tempoKnob);
+    addParam(createParam<Rogan1PSBlue>(Vec(49, 40.15), module, Topograph::TEMPO_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM));
@@ -592,15 +596,8 @@ void TopographWidget::step() {
     }
     Topograph* tgraph = dynamic_cast<Topograph*>(module);
 
-    if (!isInExtClockMode && tgraph->externalClockConnected) {
-        isInExtClockMode = true;
-        tempoKnob->randomizationAllowed = false;
-        //tempoKnob->paramQuantity->setValue(0.f);
+    if (tgraph->externalClockConnected) {
         APP->engine->setParamValue(module, Topograph::TEMPO_PARAM, 0.f);
-    }
-    else if (isInExtClockMode && !tgraph->externalClockConnected) {
-        isInExtClockMode = false;
-        tempoKnob->randomizationAllowed = true;
     }
 
     // Panel text

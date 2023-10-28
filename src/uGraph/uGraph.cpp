@@ -288,7 +288,8 @@ struct UGraph : Module {
     void onSampleRateChange() override;
     void updateUI();
     void updateOutputs();
-    void onReset() override;
+    void onReset(const ResetEvent& e) override;
+    void onRandomize(const RandomizeEvent& e) override;
 };
 
 void UGraph::step() {
@@ -498,8 +499,19 @@ void UGraph::onSampleRateChange() {
     }
 }
 
-void UGraph::onReset() {
+void UGraph::onReset(const ResetEvent& e) {
+    Module::onReset(e);
     running = false;
+}
+
+void UGraph::onRandomize(const RandomizeEvent& e) {
+    params[UGraph::MAPX_PARAM].setValue(random::uniform());
+    params[UGraph::MAPY_PARAM].setValue(random::uniform());
+    params[UGraph::CHAOS_PARAM].setValue(random::uniform());
+    params[UGraph::BD_DENS_PARAM].setValue(random::uniform());
+    params[UGraph::SN_DENS_PARAM].setValue(random::uniform());
+    params[UGraph::HH_DENS_PARAM].setValue(random::uniform());
+    params[UGraph::SWING_PARAM].setValue(random::uniform());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -590,7 +602,7 @@ struct UGraphWidget : ModuleWidget {
     ValleyChoiceMenu* seqModeChoice;
     ValleyChoiceMenu* clockResChoice;
 
-    TempoKnob* tempoKnob;
+    //TempoKnob* tempoKnob;
     PlainText* tempoText;
     PlainText* mapXText;
     PlainText* mapYText;
@@ -654,8 +666,7 @@ UGraphWidget::UGraphWidget(UGraph *module) {
     chaosText->text = "Chaos";
     addChild(chaosText);
 
-    tempoKnob = createParam<TempoKnob>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM);
-    addParam(tempoKnob);
+    addParam(createParam<TempoKnob>(Vec(36.5, 30.15), module, UGraph::TEMPO_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(43.5, 137), module, UGraph::MAPX_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(79.5, 137), module, UGraph::MAPY_PARAM));
     addParam(createParam<RoganSmallWhite>(Vec(115.5, 137), module, UGraph::CHAOS_PARAM));
@@ -803,14 +814,8 @@ void UGraphWidget::step() {
     }
     UGraph* ugraph = reinterpret_cast<UGraph*>(module);
 
-    if (!isInExtClockMode && ugraph->externalClockConnected) {
-        isInExtClockMode = true;
-        tempoKnob->randomizationAllowed = false;
+    if (ugraph->externalClockConnected) {
         APP->engine->setParamValue(module, UGraph::TEMPO_PARAM, 0.f);
-    }
-    else if (isInExtClockMode && !ugraph->externalClockConnected) {
-        isInExtClockMode = false;
-        tempoKnob->randomizationAllowed = true;
     }
 
     // Panel text

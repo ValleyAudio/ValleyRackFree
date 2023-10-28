@@ -169,14 +169,10 @@ struct Topograph : Module {
    void dataFromJson(json_t *rootJ) override;
    void process(const ProcessArgs &args) override;
    void onSampleRateChange() override;
-   void onReset() override;
+   void onReset(const ResetEvent& e) override;
+   void onRandomize(const RandomizeEvent& e) override;
    void updateUI();
    void updateOutputs();
-};
-
-struct TempoKnob : Rogan1PSBlue {
-    bool randomizationAllowed = true;
-    void randomize();
 };
 
 struct TopographWidget : ModuleWidget {
@@ -186,7 +182,6 @@ struct TopographWidget : ModuleWidget {
 
     SvgPanel* darkPanel;
     SvgPanel* lightPanel;
-    TempoKnob* tempoKnob;
     PlainText* tempoText;
     PlainText* mapXText;
     PlainText* mapYText;
