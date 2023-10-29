@@ -89,6 +89,7 @@ struct UGraph : Module {
     int running = 0;
     bool externalClockConnected = false;
     bool inExternalClockMode = false;
+    bool canRandomiseTempo = false;
     bool advStep = false;
     long seqStep = 0;
     float swing = 0.5;
@@ -505,6 +506,10 @@ void UGraph::onReset(const ResetEvent& e) {
 }
 
 void UGraph::onRandomize(const RandomizeEvent& e) {
+    if (!externalClockConnected && canRandomiseTempo) {
+        params[UGraph::TEMPO_PARAM].setValue(random::uniform());
+    }
+
     params[UGraph::MAPX_PARAM].setValue(random::uniform());
     params[UGraph::MAPY_PARAM].setValue(random::uniform());
     params[UGraph::CHAOS_PARAM].setValue(random::uniform());
@@ -805,6 +810,11 @@ void UGraphWidget::appendContextMenu(Menu *menu) {
                                                    module, &UGraphRunModeItem::runMode, UGraph::RunMode::TOGGLE));
     menu->addChild(construct<UGraphRunModeItem>(&MenuItem::text, "Momentary", &UGraphRunModeItem::module,
                                                    module, &UGraphRunModeItem::runMode, UGraph::RunMode::MOMENTARY));
+
+    // Randomisation
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Randomisation"));
+    menu->addChild(createBoolPtrMenuItem("Randomise Tempo Knob", "", &module->canRandomiseTempo));
 }
 
 void UGraphWidget::step() {

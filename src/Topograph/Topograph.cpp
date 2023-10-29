@@ -325,6 +325,10 @@ void Topograph::onReset(const ResetEvent& e) {
 }
 
 void Topograph::onRandomize(const RandomizeEvent& e) {
+    if(!externalClockConnected && canRandomiseTempo) {
+        params[Topograph::TEMPO_PARAM].setValue(random::uniform());
+    }
+
     params[Topograph::MAPX_PARAM].setValue(random::uniform());
     params[Topograph::MAPY_PARAM].setValue(random::uniform());
     params[Topograph::CHAOS_PARAM].setValue(random::uniform());
@@ -587,6 +591,11 @@ void TopographWidget::appendContextMenu(Menu *menu) {
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::TOGGLE));
     menu->addChild(construct<TopographRunModeItem>(&MenuItem::text, "Momentary", &TopographRunModeItem::module,
                                                    module, &TopographRunModeItem::runMode, Topograph::RunMode::MOMENTARY));
+
+    // Randomisation
+    menu->addChild(construct<MenuLabel>());
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Randomisation"));
+    menu->addChild(createBoolPtrMenuItem("Randomise Tempo Knob", "", &module->canRandomiseTempo));
 }
 
 void TopographWidget::step() {
@@ -596,7 +605,8 @@ void TopographWidget::step() {
     }
     Topograph* tgraph = dynamic_cast<Topograph*>(module);
 
-    if (tgraph->externalClockConnected) {
+    isInExtClockMode = tgraph->externalClockConnected;
+    if (isInExtClockMode) {
         APP->engine->setParamValue(module, Topograph::TEMPO_PARAM, 0.f);
     }
 

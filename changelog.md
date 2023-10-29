@@ -1,5 +1,11 @@
 # ValleyRackFree Change Log
 
+## 2.4.4
+
+    - [Fixed] More issues with Dexter's algorithms.
+    - [Fixed] Topograph and uGraph tempo knob no longer affected by the parameter randomization function.
+    - [Added] Option to allow tempo knob in Topograph and uGraph to be randomised.
+
 ## 2.4.3
 
     - [Fixed] Fixed parameter mapping issues with Dexter.

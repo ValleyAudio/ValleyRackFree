@@ -89,6 +89,7 @@ struct Topograph : Module {
    int running = 0;
    bool externalClockConnected = false;
    bool inExternalClockMode = false;
+   bool canRandomiseTempo = false;
    bool advStep = false;
    long seqStep = 0;
    float swing = 0.5;
