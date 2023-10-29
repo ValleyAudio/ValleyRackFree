@@ -400,16 +400,16 @@ void UGraph::step() {
             advStep = false;
         }
 
-        grids.setMapX((uint8_t)(mapX * 255.0));
-        grids.setMapY((uint8_t)(mapY * 255.0));
-        grids.setBDDensity((uint8_t)(BDFill * 255.0));
-        grids.setSDDensity((uint8_t)(SNFill * 255.0));
-        grids.setHHDensity((uint8_t)(HHFill * 255.0));
-        grids.setRandomness((uint8_t)(chaos * 255.0));
+        grids.setMapX(mapX);
+        grids.setMapY(mapY);
+        grids.setBDDensity(BDFill);
+        grids.setSDDensity(SNFill);
+        grids.setHHDensity(HHFill);
+        grids.setRandomness(chaos);
 
-        grids.setEuclideanLength(0, (uint8_t)(mapX * 255.0));
-        grids.setEuclideanLength(1, (uint8_t)(mapY * 255.0));
-        grids.setEuclideanLength(2, (uint8_t)(chaos * 255.0));
+        grids.setEuclideanLength(0, mapX);
+        grids.setEuclideanLength(1, mapY);
+        grids.setEuclideanLength(2, chaos);
     }
 
     if (advStep) {

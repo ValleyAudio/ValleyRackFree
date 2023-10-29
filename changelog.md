@@ -2,9 +2,10 @@
 
 ## 2.4.4
 
+    - [Added] Option to allow tempo knob in Topograph and uGraph to be randomised.
     - [Fixed] More issues with Dexter's algorithms.
     - [Fixed] Topograph and uGraph tempo knob no longer affected by the parameter randomization function.
-    - [Added] Option to allow tempo knob in Topograph and uGraph to be randomised.
+    - [Fixed] uGraph CV inputs now track correctly.
 
 ## 2.4.3
 
