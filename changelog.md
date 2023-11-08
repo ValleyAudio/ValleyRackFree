@@ -1,5 +1,9 @@
 # ValleyRackFree Change Log
 
+## 2.4.5
+
+    - [Fixed] Operator CV inputs now track from +/- 1
+
 ## 2.4.4
 
     - [Added] Option to allow tempo knob in Topograph and uGraph to be randomised.
