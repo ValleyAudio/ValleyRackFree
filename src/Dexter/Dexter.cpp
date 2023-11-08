@@ -59,20 +59,20 @@ Dexter::Dexter() {
         configParam(opParams[op][Dexter::OP_WAVE_MENU_PARAM],
                     0.0, 1.0, 0.0, opStr + "Wave Menu");
 
-        configParam(OP_1_MOD_1_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 1 Depth");
-        configParam(OP_1_MOD_2_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 2 Depth");
-        configParam(OP_1_MOD_3_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 3 Depth");
-        configParam(OP_1_MOD_4_PARAM + 12 * op, -1.0, 1.0, 0.0, opStr + "Assignable Mod 4 Depth");
+        configParam(OP_1_MOD_1_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Assignable Mod 1 Depth");
+        configParam(OP_1_MOD_2_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Assignable Mod 2 Depth");
+        configParam(OP_1_MOD_3_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Assignable Mod 3 Depth");
+        configParam(OP_1_MOD_4_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Assignable Mod 4 Depth");
 
-        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Pitch CV 1 Depth");
-        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Wave CV 1 Depth");
-        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Phase Shape CV 1 Depth");
-        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Level CV 1 Depth");
+        configParam(OP_1_PITCH_CV1_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Pitch CV 1 Depth");
+        configParam(OP_1_WAVE_CV1_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Wave CV 1 Depth");
+        configParam(OP_1_SHAPE_CV1_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Phase Shape CV 1 Depth");
+        configParam(OP_1_LEVEL_CV1_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Level CV 1 Depth");
 
-        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Pitch CV 2 Depth");
-        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Wave CV 2 Depth");
-        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Phase Shape CV 2 Depth");
-        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -0.1, 0.1, 0.0, opStr + "Level CV 2 Depth");
+        configParam(OP_1_PITCH_CV2_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Pitch CV 2 Depth");
+        configParam(OP_1_WAVE_CV2_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Wave CV 2 Depth");
+        configParam(OP_1_SHAPE_CV2_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Phase Shape CV 2 Depth");
+        configParam(OP_1_LEVEL_CV2_PARAM + 12 * op, -1.f, 1.f, 0.0, opStr + "Level CV 2 Depth");
 
         configParam(opParams[op][Dexter::OP_BANK_PARAM], 0.0, NUM_DEXTER_WAVETABLES - 1.f, 0.0, opStr + "Wave Bank");
     }
@@ -513,7 +513,7 @@ void Dexter::getParameters() {
     invertDepthKnob = params[INVERT_DEPTH_PARAM].getValue();
 
     algoKnob = params[ALGORITHM_PARAM].getValue();
-    algoDepthKnob = 0.1f * params[ALGO_DEPTH_PARAM].getValue();
+    algoDepthKnob = params[ALGO_DEPTH_PARAM].getValue();
 
     // Chords
     chordParam = (float)chordKnob + (inputs[CHORD_INPUT].getVoltage() * chordDepthKnob * (float)(NUM_CHORDS - 1));
@@ -565,12 +565,12 @@ void Dexter::getParameters() {
     }
 
     for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
-        opCVAttenKnob[op][OP_WAVE_CV_1] = params[opCVAtten[op][OP_WAVE_CV_1]].getValue();
-        opCVAttenKnob[op][OP_WAVE_CV_2] = params[opCVAtten[op][OP_WAVE_CV_2]].getValue();
-        opCVAttenKnob[op][OP_SHAPE_CV_1] = params[opCVAtten[op][OP_SHAPE_CV_1]].getValue();
-        opCVAttenKnob[op][OP_SHAPE_CV_2] = params[opCVAtten[op][OP_SHAPE_CV_2]].getValue();
-        opCVAttenKnob[op][OP_LEVEL_CV_1] = params[opCVAtten[op][OP_LEVEL_CV_1]].getValue();
-        opCVAttenKnob[op][OP_LEVEL_CV_2] = params[opCVAtten[op][OP_LEVEL_CV_2]].getValue();
+        opCVAttenKnob[op][OP_WAVE_CV_1] = params[opCVAtten[op][OP_WAVE_CV_1]].getValue() * 0.1f;
+        opCVAttenKnob[op][OP_WAVE_CV_2] = params[opCVAtten[op][OP_WAVE_CV_2]].getValue() * 0.1f;
+        opCVAttenKnob[op][OP_SHAPE_CV_1] = params[opCVAtten[op][OP_SHAPE_CV_1]].getValue() * 0.1f;
+        opCVAttenKnob[op][OP_SHAPE_CV_2] = params[opCVAtten[op][OP_SHAPE_CV_2]].getValue() * 0.1f;
+        opCVAttenKnob[op][OP_LEVEL_CV_1] = params[opCVAtten[op][OP_LEVEL_CV_1]].getValue() * 0.1f;
+        opCVAttenKnob[op][OP_LEVEL_CV_2] = params[opCVAtten[op][OP_LEVEL_CV_2]].getValue() * 0.1f;
     }
     
     if (params[RESET_PHASE_BUTTON].getValue()) {
