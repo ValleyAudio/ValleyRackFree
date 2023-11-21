@@ -43,18 +43,18 @@ public:
 
     inline __m128 process(const __m128& x, const __m128& y, float paramA, float paramB) {
         // Calculate sample clock for bit wise ops
-        _updateRate = 1.f - paramB;
+        updateRate_ = 1.f - paramB;
         calcStepSize();
-        __sample = __zeros;
-        _step += _stepSize;
-        if(_step >= 1.f) {
-            _step -= 1.f;
-            __sample = __high;
+        sampleVec = zerosVec;
+        step_ += stepSize_;
+        if(step_ >= 1.f) {
+            step_ -= 1.f;
+            sampleVec = highVec;
         }
 
-        __x = x;
-        __y = y;
-        return (this->*p[_mode])(__x, __y, paramA, paramB);
+        xVec = x;
+        yVec = y;
+        return (this->*p[_mode])(xVec, yVec, paramA, paramB);
     }
 
     void setMode(int mode);
@@ -62,38 +62,32 @@ public:
 
 private:
     int _mode;
-    __m128 __x, __y, __z;
-    __m128 __zeros, __ones, __negOnes, __halfs, __high;
+    __m128 xVec, yVec, zVec;
+    __m128 zerosVec, onesVec, negOnesVec, halfsVec, highVec;
 
     // Ring Mod
-    __m128 __xFolded, __yFolded, __xLogic, __yLogic, __zLogic;
+    __m128 xFoldedVec, yFoldedVec, xLogicVec, yLogicVec, zLogicVec;
 
     // Flip Flop
-    __m128 __ffTarget;
-    __m128 __xPrev, __yPrev, __xREdge, __yREdge;
-    __m128 __chanceX, __chanceY;
-    uint32_t _z[4];
-    uint32_t _w[4];
-    float _k[4];
+    __m128 ffTargetVec;
+    __m128 xPrevVec, yPrevVec, xREdgeVec, yREdgeVec;
+    __m128 chanceXVec, chanceYVec;
+    uint32_t z_[4];
+    uint32_t w_[4];
+    float k_[4];
 
-    VecDiodeRingMod _d;
+    VecDiodeRingMod diodeRingModCore;
 
     // 32 bit mode vars
-    int _k32[4];
-    __m128 __chance32;
-    __m128i __a32, __b32, __c32;
-
-    // 16 bit mode vars
-    __m64 __zero16, __one16;
-    __m64 __a, __b, __c;
-    __m64 __aPrev, __bPrev, __aREdge, __bREdge;
-    __m64 __count;
+    int k32_[4];
+    __m128 chance32Vec;
+    __m128i a32Vec, b32Vec, c32Vec;
 
     // Sample reduction
-    float _step, _stepSize, _engineSampleRate, _internalSampleRate;
-    float _quarterNyquist, _updateRate;
-    __m128 __sample;
-    __m128 __xDS, __yDS, __zDS;
+    float step_, stepSize_, engineSampleRate_, internalSampleRate_;
+    float quarterNyquist_, updateRate_;
+    __m128 sampleVec;
+    __m128 xDSVec, yDSVec, zDSVec;
 
     void calcStepSize();
 
@@ -118,8 +112,8 @@ private:
     __m128 bitHackFloat(const __m128& x, const __m128& y, float paramA, float paramB);
 
     inline void downSample(const __m128& x, const __m128& y) {
-        __xDS = _mm_switch_ps(__xDS, x, __sample);
-        __yDS = _mm_switch_ps(__yDS, y, __sample);
+        xDSVec = _mm_switch_ps(xDSVec, x, sampleVec);
+        yDSVec = _mm_switch_ps(yDSVec, y, sampleVec);
     }
 };
 #endif /* VecAmalgam_hpp */
