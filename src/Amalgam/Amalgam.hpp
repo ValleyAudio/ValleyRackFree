@@ -102,10 +102,10 @@ struct Amalgam : Module {
         NUM_LIGHTS
     };
 
-    __m128 __zeros, __fives, __halfs;
-    __m128 __x, __y, __z;
-    __m128 __xyAnd, __xyXor;
-    __m128 __zPls1Mask, __zPls1, __zPls2;
+    __m128 zerosVec, fivesVec, halfsVec;
+    __m128 xVec, yVec, zVec;
+    __m128 xyAndVec, xyXorVec;
+    __m128 zPls1MaskVec, zPls1Vec, zPls2Vec;
     float xGain, yGain;
     float xIn[2];
     float yIn[2];
