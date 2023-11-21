@@ -24,24 +24,24 @@
 #define VALLEY_1F13 0.000000001605904
 
 #ifdef _WIN32
-    inline void* aligned_alloc_16(size_t __size) {
-        return _aligned_malloc(__size, 16);
+    inline void* aligned_alloc_16(size_t size) {
+        return _aligned_malloc(size, 16);
     }
 
     inline void aligned_free_16(void* ptr) {
         _aligned_free(ptr);
     }
 #elif __APPLE__
-    inline void* aligned_alloc_16(size_t __size) {
-        return malloc(__size);
+    inline void* aligned_alloc_16(size_t size) {
+        return malloc(size);
     }
 
     inline void aligned_free_16(void* ptr) {
         free(ptr);
     }
 #elif __linux__
-    inline void* aligned_alloc_16(size_t __size) {
-        return aligned_alloc(16, __size);
+    inline void* aligned_alloc_16(size_t size) {
+        return aligned_alloc(16, size);
     }
 
     inline void aligned_free_16(void* ptr) {
@@ -177,14 +177,14 @@ inline __m128 _mm_lean_ps(const __m128& a, const __m128& f) {
 }
 
 inline __m128 _mm_twist_ps(const __m128& a, const __m128& f) {
-    __m128 _f = _mm_add_ps(_mm_mul_ps(f, _mm_set1_ps(1.98f)), _mm_set1_ps(1.f));
+    __m128 fVec = _mm_add_ps(_mm_mul_ps(f, _mm_set1_ps(1.98f)), _mm_set1_ps(1.f));
     __m128 midMask = _mm_and_ps(_mm_cmpgt_ps(a ,_mm_set1_ps(0.333333f)),
                                  _mm_cmple_ps(a ,_mm_set1_ps(0.666666f)));
     __m128 highMask = _mm_cmpgt_ps(a, _mm_set1_ps(0.666666f));
 
-    __m128 k = _mm_add_ps(_mm_mul_ps(_f, _mm_set1_ps(-0.5f)), _mm_set1_ps(1.5f));
+    __m128 k = _mm_add_ps(_mm_mul_ps(fVec, _mm_set1_ps(-0.5f)), _mm_set1_ps(1.5f));
     __m128 x1 = _mm_mul_ps(a, k);
-    __m128 x2 = _mm_add_ps(_mm_mul_ps(a, _f), _mm_mul_ps(_mm_sub_ps(_f, _mm_set1_ps(1.f)), _mm_set1_ps(-0.5f)));
+    __m128 x2 = _mm_add_ps(_mm_mul_ps(a, fVec), _mm_mul_ps(_mm_sub_ps(fVec, _mm_set1_ps(1.f)), _mm_set1_ps(-0.5f)));
     __m128 out = x1;
     out = _mm_switch_ps(out, x2, midMask);
     return _mm_switch_ps(out, _mm_add_ps(x1, _mm_sub_ps(_mm_set1_ps(1.f), k)), highMask);
@@ -204,18 +204,18 @@ inline __m128 _mm_wrap_1_ps(const __m128& a) {
 }
 
 inline __m128 _mm_circle_ps(const __m128& a) {
-    __m128 __pos = _mm_posRectify_ps(a);
-    __m128 __neg = _mm_negRectify_ps(a);
-    __m128 __shifts = _mm_add_ps(_mm_mul_ps(__pos, _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
-    __m128i __shiftsI = _mm_cvttps_epi32(__shifts);
-    __shifts = _mm_mul_ps(_mm_cvtepi32_ps(__shiftsI), _mm_set1_ps(2.f));
-    __pos = _mm_sub_ps(__pos, __shifts);
+    __m128 pos = _mm_posRectify_ps(a);
+    __m128 neg = _mm_negRectify_ps(a);
+    __m128 shifts = _mm_add_ps(_mm_mul_ps(pos, _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
+    __m128i shiftsI = _mm_cvttps_epi32(shifts);
+    shifts = _mm_mul_ps(_mm_cvtepi32_ps(shiftsI), _mm_set1_ps(2.f));
+    pos = _mm_sub_ps(pos, shifts);
 
-    __shifts = _mm_add_ps(_mm_mul_ps(_mm_abs_ps(__neg), _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
-    __shiftsI = _mm_cvttps_epi32(__shifts);
-    __shifts = _mm_mul_ps(_mm_cvtepi32_ps(__shiftsI), _mm_set1_ps(2.f));
-    __neg = _mm_add_ps(__neg, __shifts);
-    return _mm_add_ps(__pos, __neg);
+    shifts = _mm_add_ps(_mm_mul_ps(_mm_abs_ps(neg), _mm_set1_ps(0.5f)), _mm_set1_ps(0.5f));
+    shiftsI = _mm_cvttps_epi32(shifts);
+    shifts = _mm_mul_ps(_mm_cvtepi32_ps(shiftsI), _mm_set1_ps(2.f));
+    neg = _mm_add_ps(neg, shifts);
+    return _mm_add_ps(pos, neg);
 }
 
 inline __m128 _mm_reflect_ps(const __m128& a, const __m128& f) {
@@ -270,16 +270,16 @@ inline __m128 _mm_varStep_ps(const __m128& a, const __m128& f) {
 
 inline __m128 _mm_polyblep_ps(const __m128& t, const __m128& dt) {
     __m128 ones = _mm_set1_ps(1.f);
-    __m128 __t, __tt, __y;
+    __m128 tVec, ttVec, yVec;
     __m128 lowMask = _mm_cmplt_ps(t, dt);
     __m128 highMask = _mm_cmpgt_ps(t, _mm_sub_ps(ones, dt));
 
-    __t = _mm_sub_ps(t, _mm_and_ps(ones, highMask));
-    __t = _mm_div_ps(__t, dt);
-    __tt = _mm_mul_ps(__t, __t);
-    __t = _mm_add_ps(__t, __t);
-    __y = _mm_and_ps(_mm_sub_ps(_mm_sub_ps(__t, __tt), ones), lowMask);
-    return _mm_switch_ps(__y, _mm_add_ps(_mm_add_ps(__t, __tt), ones), highMask);
+    tVec = _mm_sub_ps(t, _mm_and_ps(ones, highMask));
+    tVec = _mm_div_ps(tVec, dt);
+    ttVec = _mm_mul_ps(tVec, tVec);
+    tVec = _mm_add_ps(tVec, tVec);
+    yVec = _mm_and_ps(_mm_sub_ps(_mm_sub_ps(tVec, ttVec), ones), lowMask);
+    return _mm_switch_ps(yVec, _mm_add_ps(_mm_add_ps(tVec, ttVec), ones), highMask);
 }
 
 namespace valley {
