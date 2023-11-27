@@ -8,7 +8,7 @@
 #include "DexterCore.hpp"
 
 DexterCore::DexterCore() {
-    _algorithm = -1;
+    algorithm = -1;
     setWavebank(0, 0);
     setWavebank(1, 0);
     setWavebank(2, 0);
@@ -17,58 +17,58 @@ DexterCore::DexterCore() {
     setWavePosition(1, 0.f);
     setWavePosition(2, 0.f);
     setWavePosition(3, 0.f);
-    __ones = _mm_set1_ps(1.f);
-    __zeros = _mm_set1_ps(0.f);
-    __five = _mm_set1_ps(5.f);
-    __outputLevels[0] = _mm_set1_ps(5.f);
-    __outputLevels[1] = _mm_set1_ps(3.3f);
-    __outputLevels[2] = _mm_set1_ps(2.5f);
-    __outputLevels[3] = _mm_set1_ps(2.f);
-    __opLevel[0] = __zeros;
-    __opLevel[1] = __zeros;
-    __opLevel[2] = __zeros;
-    __opLevel[3] = __zeros;
-    __opOut[0] = __zeros;
-    __opOut[1] = __zeros;
-    __opOut[2] = __zeros;
-    __opOut[3] = __zeros;
-    __opAuxOut[0] = __zeros;
-    __opAuxOut[1] = __zeros;
-    __opAuxOut[2] = __zeros;
-    __opAuxOut[3] = __zeros;
-    __op1Eoc = __zeros;
-    __op2Eoc = __zeros;
-    __op3Eoc = __zeros;
-    __op4Eoc = __zeros;
-    __opExtFM[0] = __zeros;
-    __opExtFM[1] = __zeros;
-    __opExtFM[2] = __zeros;
-    __opExtFM[3] = __zeros;
-    __opExtSync[0] = __zeros;
-    __opExtSync[1] = __zeros;
-    __opExtSync[2] = __zeros;
-    __opExtSync[3] = __zeros;
-    __opSyncEnable[0] = __zeros;
-    __opSyncEnable[1] = __zeros;
-    __opSyncEnable[2] = __zeros;
-    __opSyncEnable[3] = __zeros;
+    onesVec = _mm_set1_ps(1.f);
+    zerosVec = _mm_set1_ps(0.f);
+    fiveVec = _mm_set1_ps(5.f);
+    outputLevelsVec[0] = _mm_set1_ps(5.f);
+    outputLevelsVec[1] = _mm_set1_ps(3.3f);
+    outputLevelsVec[2] = _mm_set1_ps(2.5f);
+    outputLevelsVec[3] = _mm_set1_ps(2.f);
+    opLevelVec[0] = zerosVec;
+    opLevelVec[1] = zerosVec;
+    opLevelVec[2] = zerosVec;
+    opLevelVec[3] = zerosVec;
+    opOutVec[0] = zerosVec;
+    opOutVec[1] = zerosVec;
+    opOutVec[2] = zerosVec;
+    opOutVec[3] = zerosVec;
+    opAuxOutVec[0] = zerosVec;
+    opAuxOutVec[1] = zerosVec;
+    opAuxOutVec[2] = zerosVec;
+    opAuxOutVec[3] = zerosVec;
+    op1EocVec = zerosVec;
+    op2EocVec = zerosVec;
+    op3EocVec = zerosVec;
+    op4EocVec = zerosVec;
+    opExtFMVec[0] = zerosVec;
+    opExtFMVec[1] = zerosVec;
+    opExtFMVec[2] = zerosVec;
+    opExtFMVec[3] = zerosVec;
+    opExtSyncVec[0] = zerosVec;
+    opExtSyncVec[1] = zerosVec;
+    opExtSyncVec[2] = zerosVec;
+    opExtSyncVec[3] = zerosVec;
+    opSyncEnableVec[0] = zerosVec;
+    opSyncEnableVec[1] = zerosVec;
+    opSyncEnableVec[2] = zerosVec;
+    opSyncEnableVec[3] = zerosVec;
     setAlgorithm(0);
 }
 
 void DexterCore::process() {
     calcOpLevels();
 
-    __opAuxOut[0] = _op[0].getOutput();
-    __opAuxOut[1] = _op[1].getOutput();
-    __opAuxOut[2] = _op[2].getOutput();
-    __opAuxOut[3] = _op[3].getOutput();
+    opAuxOutVec[0] = op[0].getOutput();
+    opAuxOutVec[1] = op[1].getOutput();
+    opAuxOutVec[2] = op[2].getOutput();
+    opAuxOutVec[3] = op[3].getOutput();
 
-    __opOut[0] = _mm_mul_ps(__opAuxOut[0], __opLevel[0]);
-    __opOut[1] = _mm_mul_ps(__opAuxOut[1], __opLevel[1]);
-    __opOut[2] = _mm_mul_ps(__opAuxOut[2], __opLevel[2]);
-    __opOut[3] = _mm_mul_ps(__opAuxOut[3], __opLevel[3]);
+    opOutVec[0] = _mm_mul_ps(opAuxOutVec[0], opLevelVec[0]);
+    opOutVec[1] = _mm_mul_ps(opAuxOutVec[1], opLevelVec[1]);
+    opOutVec[2] = _mm_mul_ps(opAuxOutVec[2], opLevelVec[2]);
+    opOutVec[3] = _mm_mul_ps(opAuxOutVec[3], opLevelVec[3]);
 
-    switch (_algorithm) {
+    switch (algorithm) {
         case 0: doAlgorithm0(); break;
         case 1: doAlgorithm1(); break;
         case 2: doAlgorithm2(); break;
@@ -94,73 +94,73 @@ void DexterCore::process() {
         case 22: doAlgorithm22();
     }
 
-    _op[0].__inputPhase = _mm_add_ps(_op[0].__inputPhase, __opExtFM[0]);
-    _op[1].__inputPhase = _mm_add_ps(_op[1].__inputPhase, __opExtFM[1]);
-    _op[2].__inputPhase = _mm_add_ps(_op[2].__inputPhase, __opExtFM[2]);
-    _op[3].__inputPhase = _mm_add_ps(_op[3].__inputPhase, __opExtFM[3]);
+    op[0].__inputPhase = _mm_add_ps(op[0].__inputPhase, opExtFMVec[0]);
+    op[1].__inputPhase = _mm_add_ps(op[1].__inputPhase, opExtFMVec[1]);
+    op[2].__inputPhase = _mm_add_ps(op[2].__inputPhase, opExtFMVec[2]);
+    op[3].__inputPhase = _mm_add_ps(op[3].__inputPhase, opExtFMVec[3]);
 
     // Sync
     for (size_t i = 0; i < kNumOperators; ++i) {
-        __opSyncIn[i] = __zeros;
+        opSyncIn[i] = zerosVec;
     }
 
     for (size_t i = 0; i < kNumOperators; ++i) {
-        __opSyncSignal[i] = _op[i].getEOCPulse();
-        __opSyncIn[0] = _mm_add_ps(__opSyncIn[0], _mm_mul_ps(__opSyncSignal[i], __matrix[i][0]));
-        __opSyncIn[1] = _mm_add_ps(__opSyncIn[1], _mm_mul_ps(__opSyncSignal[i], __matrix[i][1]));
-        __opSyncIn[2] = _mm_add_ps(__opSyncIn[2], _mm_mul_ps(__opSyncSignal[i], __matrix[i][2]));
-        __opSyncIn[3] = _mm_add_ps(__opSyncIn[3], _mm_mul_ps(__opSyncSignal[i], __matrix[i][3]));
+        opSyncSignalVec[i] = op[i].getEOCPulse();
+        opSyncIn[0] = _mm_add_ps(opSyncIn[0], _mm_mul_ps(opSyncSignalVec[i], matrixVec[i][0]));
+        opSyncIn[1] = _mm_add_ps(opSyncIn[1], _mm_mul_ps(opSyncSignalVec[i], matrixVec[i][1]));
+        opSyncIn[2] = _mm_add_ps(opSyncIn[2], _mm_mul_ps(opSyncSignalVec[i], matrixVec[i][2]));
+        opSyncIn[3] = _mm_add_ps(opSyncIn[3], _mm_mul_ps(opSyncSignalVec[i], matrixVec[i][3]));
     }
 
-    if (_opSyncSource == NEIGHBOUR_SYNC_SOURCE) {
-        __opSyncIn[0] = __opSyncSignal[1];
-        __opSyncIn[1] = __opSyncSignal[2];
-        __opSyncIn[2] = __opSyncSignal[3];
-        __opSyncIn[3] = __zeros;
+    if (opSyncSource == NEIGHBOUR_SYNC_SOURCE) {
+        opSyncIn[0] = opSyncSignalVec[1];
+        opSyncIn[1] = opSyncSignalVec[2];
+        opSyncIn[2] = opSyncSignalVec[3];
+        opSyncIn[3] = zerosVec;
     }
 
     for (size_t i = 0; i < kNumOperators; ++i) {
-        __opSyncIn[i] = _mm_mul_ps(__opSyncIn[i], __opSyncEnable[i]);
-        __opSyncIn[i] = _mm_add_ps(__opSyncIn[i], __opExtSync[i]);
-        if (_weakSync[i]) {
-            __opSyncIn[i] = _mm_and_ps(__opSyncIn[i], _mm_cmplt_ps(_op[i].getPhasor(), _mm_set1_ps(0.25f)));
+        opSyncIn[i] = _mm_mul_ps(opSyncIn[i], opSyncEnableVec[i]);
+        opSyncIn[i] = _mm_add_ps(opSyncIn[i], opExtSyncVec[i]);
+        if (weakSync[i]) {
+            opSyncIn[i] = _mm_and_ps(opSyncIn[i], _mm_cmplt_ps(op[i].getPhasor(), _mm_set1_ps(0.25f)));
         }
-        _op[i].sync(__opSyncIn[i]);
+        op[i].sync(opSyncIn[i]);
     }
 
-    _op[3].tick();
-    _op[2].tick();
-    _op[1].tick();
-    _op[0].tick();
+    op[3].tick();
+    op[2].tick();
+    op[1].tick();
+    op[0].tick();
 }
 
 void DexterCore::resetPhase() {
-    _op[0].resetPhase();
-    _op[1].resetPhase();
-    _op[2].resetPhase();
-    _op[3].resetPhase();
+    op[0].resetPhase();
+    op[1].resetPhase();
+    op[2].resetPhase();
+    op[3].resetPhase();
 }
 
 __m128 DexterCore::getMainOutput() const {
-    return _mm_mul_ps(__mainCol, __aOutLevel);
+    return _mm_mul_ps(mainColVec, aOutLevelVec);
 }
 
 __m128 DexterCore::getBOutput() const {
-    return _mm_mul_ps(__bCol, __bOutLevel);
+    return _mm_mul_ps(bColVec, bOutLevelVec);
 }
 
 __m128 DexterCore::getOpOutput(size_t opNum) const {
-    if (_opPreFade[opNum]) {
-        return _mm_mul_ps(__opAuxOut[opNum], __five);
+    if (outputOpPreFade[opNum]) {
+        return _mm_mul_ps(opAuxOutVec[opNum], fiveVec);
     }
-    return _mm_mul_ps(__opOut[opNum], __five);
+    return _mm_mul_ps(opOutVec[opNum], fiveVec);
 }
 
 void DexterCore::setAlgorithm(int newAlgorithm) {
-    if (newAlgorithm != _algorithm) {
-        _algorithm = newAlgorithm;
+    if (newAlgorithm != algorithm) {
+        algorithm = newAlgorithm;
         clearMatrix();
-        switch (_algorithm) {
+        switch (algorithm) {
             case 0: setMatrixAlgo0(); break;
             case 1: setMatrixAlgo1(); break;
             case 2: setMatrixAlgo2(); break;
@@ -190,20 +190,20 @@ void DexterCore::setAlgorithm(int newAlgorithm) {
 }
 
 void DexterCore::setFeedback(float feedback) {
-    __op3FeedbackDepth = _mm_set1_ps(feedback);
+    op3FeedbackDepthVec = _mm_set1_ps(feedback);
 }
 
 void DexterCore::externalFM(size_t opNum, float extFM) {
-    __opExtFM[opNum] = _mm_set1_ps(extFM);
+    opExtFMVec[opNum] = _mm_set1_ps(extFM);
 }
 
 void DexterCore::externalSync(size_t opNum, float extSync) {
     if (extSync > 0 && !extSyncing) {
         extSyncing = true;
-        __opExtSync[opNum] = __ones;
+        opExtSyncVec[opNum] = onesVec;
     }
     else {
-        __opExtSync[opNum] = __zeros;
+        opExtSyncVec[opNum] = zerosVec;
     }
     if (extSync <= 0) {
         extSyncing = false;
@@ -212,11 +212,11 @@ void DexterCore::externalSync(size_t opNum, float extSync) {
 }
 
 void DexterCore::setFrequency(size_t opNum, float frequency) {
-    _op[opNum].setFrequency(frequency);
+    op[opNum].setFrequency(frequency);
 }
 
 void DexterCore::_mm_setFrequency(size_t opNum, const __m128& frequency) {
-    _op[opNum].setFrequency(frequency);
+    op[opNum].setFrequency(frequency);
 }
 
 void DexterCore::setWavebank(size_t opNum, int bankNum) {
@@ -227,87 +227,87 @@ void DexterCore::setWavebank(size_t opNum, int bankNum) {
     wavebank = dexterWavetables[bankNum];
     numWaves = wavetable_sizes[bankNum];
     tableSize = wavetable_lengths[bankNum];
-    _op[opNum].setWavebank(wavebank, numWaves, tableSize);
+    op[opNum].setWavebank(wavebank, numWaves, tableSize);
 }
 
 void DexterCore::setWavePosition(size_t opNum, float position) {
-    float scanPosition = position * ((float)_op[opNum].getNumwaves() - 1.f);
-    _op[opNum].setScanPosition(scanPosition);
+    float scanPosition = position * ((float)op[opNum].getNumwaves() - 1.f);
+    op[opNum].setScanPosition(scanPosition);
 }
 
 void DexterCore::setShape(size_t opNum, float shape) {
-    _op[opNum].setShape(shape);
+    op[opNum].setShape(shape);
 }
 
 void DexterCore::setLevel(size_t opNum, float level) {
-    _inLevels[opNum] = level;
+    inLevels[opNum] = level;
 }
 
 void DexterCore::setOpPreFade(size_t opNum, bool opPreFade) {
-    _opPreFade[opNum] = opPreFade;
+    outputOpPreFade[opNum] = opPreFade;
 }
 
-void DexterCore::setBrightness(float brightness) {
-    _brightness = brightness;
+void DexterCore::setBrightness(float newBrightness) {
+    brightness = newBrightness;
 }
 
 void DexterCore::setSyncMode(size_t opNum, int syncMode) {
-    _op[opNum].setSyncMode(syncMode);
+    op[opNum].setSyncMode(syncMode);
 }
 
-void DexterCore::setSyncSource(OpSyncSource opSyncSource) {
-    _opSyncSource = opSyncSource;
+void DexterCore::setSyncSource(OpSyncSource newOpSyncSource) {
+    opSyncSource = newOpSyncSource;
 }
 
 void DexterCore::enableSync(size_t opNum, bool enableSync) {
-    _op[opNum].enableSync(enableSync);
+    op[opNum].enableSync(enableSync);
 }
 
 void DexterCore::enableIntSync(size_t opNum, bool enableSync) {
     if (enableSync) {
-        _op[opNum].enableSync(enableSync);
-        __opSyncEnable[opNum] = __ones;
+        op[opNum].enableSync(enableSync);
+        opSyncEnableVec[opNum] = onesVec;
     }
     else {
-        __opSyncEnable[opNum] = __zeros;
+        opSyncEnableVec[opNum] = zerosVec;
     }
 }
 
 void DexterCore::enableWeakSync(size_t opNum, bool weakEnable) {
     // TODO: Handle weak sync in this class rather than in QuadOsc
-    //_op[opNum].enableWeakSync(weakEnable);
-    _weakSync[opNum] = weakEnable;
+    //op[opNum].enableWeakSync(weakEnable);
+    weakSync[opNum] = weakEnable;
 }
 
 void DexterCore::setShapeMode(size_t opNum, int shapeMode) {
-    _op[opNum].setShapeMethod(shapeMode);
+    op[opNum].setShapeMethod(shapeMode);
 }
 
 void DexterCore::setPMPostShape(size_t opNum, bool PMPostShape) {
-    _op[opNum].setPMPostShape(PMPostShape);
+    op[opNum].setPMPostShape(PMPostShape);
 }
 
 void DexterCore::setSampleRate(float sampleRate) {
-    _op[0].setSampleRate(sampleRate);
-    _op[1].setSampleRate(sampleRate);
-    _op[2].setSampleRate(sampleRate);
-    _op[3].setSampleRate(sampleRate);
+    op[0].setSampleRate(sampleRate);
+    op[1].setSampleRate(sampleRate);
+    op[2].setSampleRate(sampleRate);
+    op[3].setSampleRate(sampleRate);
 }
 
 void DexterCore::calcOpLevels() {
     int _opMask = 1;
     for (size_t i = 0; i < kNumOperators; ++i) {
-        _opLevels[i] = _inLevels[i];
-        if (_opMask & _brightnessMask) {
-            _opLevels[i] += _brightness;
+        opLevels[i] = inLevels[i];
+        if (_opMask & brightnessMask) {
+            opLevels[i] += brightness;
         }
-        if (_opLevels[i] < 0.f) {
-            _opLevels[i] = 0.f;
+        if (opLevels[i] < 0.f) {
+            opLevels[i] = 0.f;
         }
-        else if(_opLevels[i] > 1.f) {
-            _opLevels[i] = 1.f;
+        else if(opLevels[i] > 1.f) {
+            opLevels[i] = 1.f;
         }
-        __opLevel[i] = _mm_set1_ps(_opLevels[i]);
+        opLevelVec[i] = _mm_set1_ps(opLevels[i]);
         _opMask <<= 1;
     }
 }
@@ -315,7 +315,7 @@ void DexterCore::calcOpLevels() {
 void DexterCore::clearMatrix() {
     for (size_t i = 0; i < MatrixRows::NUM_ROWS; ++i) {
         for (size_t j = 0; j < MatrixColumns::NUM_COLS; ++j) {
-            __matrix[i][j] = __zeros;
+            matrixVec[i][j] = zerosVec;
         }
     }
 }
@@ -324,14 +324,14 @@ void DexterCore::setMatrixAlgo0() {
     //
     // [3]-->[2]-->[1]-->[0]--> A & B
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo1() {
@@ -339,14 +339,14 @@ void DexterCore::setMatrixAlgo1() {
     // [3]-->+-->[1]-->[0]--> A & B
     // [2]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_1_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_1_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo2() {
@@ -354,14 +354,14 @@ void DexterCore::setMatrixAlgo2() {
     // [2]-->[1]-->+-->[0]--> out
     //       [3]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_3_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo3() {
@@ -369,14 +369,14 @@ void DexterCore::setMatrixAlgo3() {
     // [3]-->[2]-->+-->[0]--> out
     //       [1]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_0_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo4() {
@@ -385,15 +385,15 @@ void DexterCore::setMatrixAlgo4() {
     // [3]-->|         +-->[0]--> out
     //       |-->[1]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_0_COL] = __ones;
-    __matrix[OP_3_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo5() {
@@ -402,16 +402,16 @@ void DexterCore::setMatrixAlgo5() {
     // [3]-->[2]-->|         +--> out
     //             |-->[0]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[1];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x0C;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[1];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x0C;
 }
 
 void DexterCore::setMatrixAlgo6() {
@@ -419,15 +419,15 @@ void DexterCore::setMatrixAlgo6() {
     // [3]-->[2]-->[1]-->+--> outputs
     //             [0]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[1];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x0C;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[1];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x0C;
 }
 
 void DexterCore::setMatrixAlgo7() {
@@ -436,14 +436,14 @@ void DexterCore::setMatrixAlgo7() {
     // [2]-->+-->[0]--> out
     // [1]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_0_COL] = __ones;
-    __matrix[OP_3_ROW][OP_0_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0E;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_0_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0E;
 }
 
 void DexterCore::setMatrixAlgo8() {
@@ -452,15 +452,15 @@ void DexterCore::setMatrixAlgo8() {
     //             +--> out
     // [1]-->[0]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[1];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x0A;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[1];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x0A;
 }
 
 void DexterCore::setMatrixAlgo9() {
@@ -469,18 +469,18 @@ void DexterCore::setMatrixAlgo9() {
     // [3]-->|-->[1]-->+--> out
     //       |-->[0]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_0_COL] = __ones;
-    __matrix[OP_3_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[2];
-    __bOutLevel = __outputLevels[2];
-    _brightnessMask = 0x08;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[2];
+    bOutLevelVec = outputLevelsVec[2];
+    brightnessMask = 0x08;
 }
 
 void DexterCore::setMatrixAlgo10() {
@@ -489,31 +489,31 @@ void DexterCore::setMatrixAlgo10() {
     //       [1]-->+--> out
     //       [0]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[2];
-    __bOutLevel = __outputLevels[2];
-    _brightnessMask = 0x08;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[2];
+    bOutLevelVec = outputLevelsVec[2];
+    brightnessMask = 0x08;
 }
 
 void DexterCore::setMatrixAlgo11() {
     // All going to all outputs
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[3];
-    __bOutLevel = __outputLevels[3];
-    _brightnessMask = 0x00;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[3];
+    bOutLevelVec = outputLevelsVec[3];
+    brightnessMask = 0x00;
 }
 
 void DexterCore::setMatrixAlgo12() {
@@ -522,13 +522,13 @@ void DexterCore::setMatrixAlgo12() {
     //
     // [3]-->[2]--> B
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0A;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0A;
 }
 
 void DexterCore::setMatrixAlgo13() {
@@ -537,13 +537,13 @@ void DexterCore::setMatrixAlgo13() {
     //
     // [3]--> B
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x06;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x06;
 }
 
 void DexterCore::setMatrixAlgo14() {
@@ -552,13 +552,13 @@ void DexterCore::setMatrixAlgo14() {
     //
     // [0]--> B
     //
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0C;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0C;
 }
 
 void DexterCore::setMatrixAlgo15() {
@@ -567,13 +567,13 @@ void DexterCore::setMatrixAlgo15() {
     //
     // [2]-->[1]-->[0]--> B
     //
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][MAIN_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0C;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][MAIN_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0C;
 }
 
 void DexterCore::setMatrixAlgo16() {
@@ -582,13 +582,13 @@ void DexterCore::setMatrixAlgo16() {
     //
     // [3]-->[2]-->[1]--> B
     //
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][OP_1_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x0C;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][OP_1_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x0C;
 }
 
 void DexterCore::setMatrixAlgo17() {
@@ -598,13 +598,13 @@ void DexterCore::setMatrixAlgo17() {
     // [2]-->+--> B
     // [3]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][OP_0_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x02;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][OP_0_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x02;
 }
 
 void DexterCore::setMatrixAlgo18() {
@@ -614,13 +614,13 @@ void DexterCore::setMatrixAlgo18() {
     // [0]-->+--> B
     // [1]-->|
     //
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x08;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x08;
 }
 
 void DexterCore::setMatrixAlgo19() {
@@ -630,13 +630,13 @@ void DexterCore::setMatrixAlgo19() {
     //
     // [3]-->[2]--> B
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][OP_2_COL] = __ones;
-    __aOutLevel = __outputLevels[1];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x08;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][OP_2_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[1];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x08;
 }
 
 void DexterCore::setMatrixAlgo20() {
@@ -647,13 +647,13 @@ void DexterCore::setMatrixAlgo20() {
     // [2]-->+--> B
     // [3]-->|
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[1];
-    __bOutLevel = __outputLevels[1];
-    _brightnessMask = 0x00;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[1];
+    bOutLevelVec = outputLevelsVec[1];
+    brightnessMask = 0x00;
 }
 
 void DexterCore::setMatrixAlgo21() {
@@ -664,13 +664,13 @@ void DexterCore::setMatrixAlgo21() {
     //
     // [3]--> B
     //
-    __matrix[OP_0_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][MAIN_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][B_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[2];
-    __bOutLevel = __outputLevels[0];
-    _brightnessMask = 0x00;
+    matrixVec[OP_0_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][MAIN_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][B_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[2];
+    bOutLevelVec = outputLevelsVec[0];
+    brightnessMask = 0x00;
 }
 
 void DexterCore::setMatrixAlgo22() {
@@ -681,26 +681,26 @@ void DexterCore::setMatrixAlgo22() {
     // [1]-->+--> B
     // [2]-->|
     //
-    __matrix[OP_0_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_1_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_2_ROW][B_OUT_COL] = __ones;
-    __matrix[OP_3_ROW][MAIN_OUT_COL] = __ones;
-    __aOutLevel = __outputLevels[0];
-    __bOutLevel = __outputLevels[2];
-    _brightnessMask = 0x00;
+    matrixVec[OP_0_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_1_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_2_ROW][B_OUT_COL] = onesVec;
+    matrixVec[OP_3_ROW][MAIN_OUT_COL] = onesVec;
+    aOutLevelVec = outputLevelsVec[0];
+    bOutLevelVec = outputLevelsVec[2];
+    brightnessMask = 0x00;
 }
 
 void DexterCore::doAlgorithm0() {
     //
     // [3]-->[2]-->[1]-->[0]--> A & B
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm1() {
@@ -708,13 +708,13 @@ void DexterCore::doAlgorithm1() {
     // [3]-->+-->[1]-->[0]--> A & B
     // [2]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(_mm_add_ps(__opOut[3], __opOut[2]),
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(_mm_add_ps(opOutVec[3], opOutVec[2]),
                                      _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm2() {
@@ -722,13 +722,13 @@ void DexterCore::doAlgorithm2() {
     // [2]-->[1]-->+-->[0]--> out
     //       [3]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(__opOut[2], __opOut[1]),
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(opOutVec[2], opOutVec[1]),
                                      _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm3() {
@@ -736,13 +736,13 @@ void DexterCore::doAlgorithm3() {
     // [3]-->[2]-->+-->[0]--> out
     //       [1]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(__opOut[2], __opOut[1]),
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(opOutVec[2], opOutVec[1]),
                                      _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm4() {
@@ -751,14 +751,14 @@ void DexterCore::doAlgorithm4() {
     // [3]-->|         +-->[0]--> out
     //       |-->[1]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(__opOut[2], __opOut[1]),
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(_mm_add_ps(opOutVec[2], opOutVec[1]),
                                      _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm5() {
@@ -767,14 +767,14 @@ void DexterCore::doAlgorithm5() {
     // [3]-->[2]-->|         +--> out
     //             |-->[0]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    auto op0and1Sum = _mm_add_ps(__opOut[0], __opOut[1]);
-    __mainCol = op0and1Sum;
-    __bCol = op0and1Sum;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    auto op0and1Sum = _mm_add_ps(opOutVec[0], opOutVec[1]);
+    mainColVec = op0and1Sum;
+    bColVec = op0and1Sum;
 }
 
 void DexterCore::doAlgorithm6() {
@@ -782,13 +782,13 @@ void DexterCore::doAlgorithm6() {
     // [3]-->[2]-->[1]-->+--> outputs
     //             [0]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    auto op0and1Sum = _mm_add_ps(__opOut[0], __opOut[1]);
-    __mainCol = op0and1Sum;
-    __bCol = op0and1Sum;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    auto op0and1Sum = _mm_add_ps(opOutVec[0], opOutVec[1]);
+    mainColVec = op0and1Sum;
+    bColVec = op0and1Sum;
 }
 
 void DexterCore::doAlgorithm7() {
@@ -797,15 +797,15 @@ void DexterCore::doAlgorithm7() {
     // [2]-->+-->[0]--> out
     // [1]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
 
-    auto op123Sum = _mm_add_ps(_mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f)),
-                               _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f)));
-    op123Sum = _mm_add_ps(op123Sum, _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f)));
-    _op[0].__inputPhase = _mm_mul_ps(op123Sum, _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[0];
+    auto op123Sum = _mm_add_ps(_mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f)),
+                               _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f)));
+    op123Sum = _mm_add_ps(op123Sum, _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f)));
+    op[0].__inputPhase = _mm_mul_ps(op123Sum, _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm8() {
@@ -814,12 +814,12 @@ void DexterCore::doAlgorithm8() {
     //             +--> out
     // [1]-->[0]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = _mm_add_ps(__opOut[2], __opOut[0]);
-    __bCol = __mainCol;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = _mm_add_ps(opOutVec[2], opOutVec[0]);
+    bColVec = mainColVec;
 }
 
 void DexterCore::doAlgorithm9() {
@@ -828,13 +828,13 @@ void DexterCore::doAlgorithm9() {
     // [3]-->|-->[1]-->+--> out
     //       |-->[0]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    __mainCol = _mm_add_ps(_mm_add_ps(__opOut[2], __opOut[1]), __opOut[0]);
-    __bCol = __mainCol;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    mainColVec = _mm_add_ps(_mm_add_ps(opOutVec[2], opOutVec[1]), opOutVec[0]);
+    bColVec = mainColVec;
 }
 
 void DexterCore::doAlgorithm10() {
@@ -843,21 +843,21 @@ void DexterCore::doAlgorithm10() {
     //       [1]-->+--> out
     //       [0]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    __mainCol = _mm_add_ps(_mm_add_ps(__opOut[2], __opOut[1]), __opOut[0]);
-    __bCol = __mainCol;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    mainColVec = _mm_add_ps(_mm_add_ps(opOutVec[2], opOutVec[1]), opOutVec[0]);
+    bColVec = mainColVec;
 }
 
 void DexterCore::doAlgorithm11() {
     // All going to all outputs
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __mainCol = _mm_add_ps(__opOut[3], __opOut[2]);
-    __mainCol = _mm_add_ps(__mainCol, __opOut[1]);
-    __mainCol = _mm_add_ps(__mainCol, __opOut[0]);
-    __bCol = __mainCol;
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    mainColVec = _mm_add_ps(opOutVec[3], opOutVec[2]);
+    mainColVec = _mm_add_ps(mainColVec, opOutVec[1]);
+    mainColVec = _mm_add_ps(mainColVec, opOutVec[0]);
+    bColVec = mainColVec;
 }
 
 void DexterCore::doAlgorithm12() {
@@ -866,12 +866,12 @@ void DexterCore::doAlgorithm12() {
     //
     // [3]-->[2]--> B
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
-    __bCol = __opOut[2];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
+    bColVec = opOutVec[2];
 }
 
 void DexterCore::doAlgorithm13() {
@@ -880,13 +880,13 @@ void DexterCore::doAlgorithm13() {
     //
     // [3]--> B
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __bCol = __opOut[3];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    bColVec = opOutVec[3];
 
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm14() {
@@ -895,12 +895,12 @@ void DexterCore::doAlgorithm14() {
     //
     // [0]--> B
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[1];
-    __bCol = __opOut[0];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[1];
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm15() {
@@ -909,13 +909,13 @@ void DexterCore::doAlgorithm15() {
     //
     // [2]-->[1]-->[0]--> B
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __mainCol = __opOut[3];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[3];
 
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __bCol = __opOut[0];
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    bColVec = opOutVec[0];
 }
 
 void DexterCore::doAlgorithm16() {
@@ -924,13 +924,13 @@ void DexterCore::doAlgorithm16() {
     //
     // [3]-->[2]-->[1]--> B
     //
-    __mainCol = __opOut[0];
+    mainColVec = opOutVec[0];
 
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    _op[1].__inputPhase = _mm_mul_ps(__opOut[2], _mm_set1_ps(2.5f));
-    __bCol = __opOut[1];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    op[1].__inputPhase = _mm_mul_ps(opOutVec[2], _mm_set1_ps(2.5f));
+    bColVec = opOutVec[1];
 }
 
 void DexterCore::doAlgorithm17() {
@@ -940,12 +940,12 @@ void DexterCore::doAlgorithm17() {
     // [2]-->+--> B
     // [3]-->|
     //
-    _op[0].__inputPhase = _mm_mul_ps(__opOut[1], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[0];
+    op[0].__inputPhase = _mm_mul_ps(opOutVec[1], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[0];
 
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __bCol = _mm_add_ps(__opOut[3], __opOut[2]);
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    bColVec = _mm_add_ps(opOutVec[3], opOutVec[2]);
 }
 
 void DexterCore::doAlgorithm18() {
@@ -955,12 +955,12 @@ void DexterCore::doAlgorithm18() {
     // [0]-->+--> B
     // [1]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    __mainCol = __opOut[2];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[2];
 
-    __bCol = _mm_add_ps(__opOut[1], __opOut[0]);
+    bColVec = _mm_add_ps(opOutVec[1], opOutVec[0]);
 }
 
 void DexterCore::doAlgorithm19() {
@@ -970,12 +970,12 @@ void DexterCore::doAlgorithm19() {
     //
     // [3]-->[2]--> B
     //
-    __mainCol = _mm_add_ps(__opOut[1], __opOut[0]);
+    mainColVec = _mm_add_ps(opOutVec[1], opOutVec[0]);
 
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    _op[2].__inputPhase = _mm_mul_ps(__opOut[3], _mm_set1_ps(2.5f));
-    __bCol = __opOut[2];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    op[2].__inputPhase = _mm_mul_ps(opOutVec[3], _mm_set1_ps(2.5f));
+    bColVec = opOutVec[2];
 }
 
 void DexterCore::doAlgorithm20() {
@@ -986,11 +986,11 @@ void DexterCore::doAlgorithm20() {
     // [2]-->+--> B
     // [3]-->|
     //
-    __mainCol = _mm_add_ps(__opOut[1], __opOut[0]);
+    mainColVec = _mm_add_ps(opOutVec[1], opOutVec[0]);
 
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __bCol = _mm_add_ps(__opOut[3], __opOut[2]);
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    bColVec = _mm_add_ps(opOutVec[3], opOutVec[2]);
 }
 
 void DexterCore::doAlgorithm21() {
@@ -1001,11 +1001,11 @@ void DexterCore::doAlgorithm21() {
     //
     // [3]--> B
     //
-    __mainCol = _mm_add_ps(__opOut[2], _mm_add_ps(__opOut[1], __opOut[0]));
+    mainColVec = _mm_add_ps(opOutVec[2], _mm_add_ps(opOutVec[1], opOutVec[0]));
 
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __bCol = __opOut[3];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    bColVec = opOutVec[3];
 }
 
 void DexterCore::doAlgorithm22() {
@@ -1016,10 +1016,10 @@ void DexterCore::doAlgorithm22() {
     // [1]-->+--> B
     // [2]-->|
     //
-    auto op3Out = _mm_mul_ps(_op[3].getOutput(), __op3FeedbackDepth);
-    _op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
-    __mainCol = __opOut[3];
+    auto op3Out = _mm_mul_ps(op[3].getOutput(), op3FeedbackDepthVec);
+    op[3].__inputPhase = _mm_mul_ps(op3Out, _mm_set1_ps(2.5f));
+    mainColVec = opOutVec[3];
 
-    __bCol = _mm_add_ps(__opOut[2], _mm_add_ps(__opOut[1], __opOut[0]));
+    bColVec = _mm_add_ps(opOutVec[2], _mm_add_ps(opOutVec[1], opOutVec[0]));
 }
 

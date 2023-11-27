@@ -57,9 +57,9 @@ public:
     void setShape(size_t opNum, float shape);
     void setLevel(size_t opNum, float level);
     void setOpPreFade(size_t opNum, bool opPreFade);
-    void setBrightness(float brightness);
+    void setBrightness(float newBrightness);
     void setSyncMode(size_t opNum, int syncMode);
-    void setSyncSource(OpSyncSource opSyncSource);
+    void setSyncSource(OpSyncSource newOpSyncSource);
     void enableSync(size_t opNum, bool enableSync);
     void enableIntSync(size_t opNum, bool enableIntSync);
     void enableWeakSync(size_t opNum, bool weakEnable);
@@ -68,7 +68,7 @@ public:
     void setSampleRate(float sampleRate);
 
 private:
-    ScanningQuadOsc _op[4];
+    ScanningQuadOsc op[4];
 
     enum MatrixRows{
          OP_0_ROW,
@@ -88,32 +88,32 @@ private:
          NUM_COLS
     };
 
-    float _inLevels[kNumOperators] = {0.f, 0.f, 0.f, 0.f};
-    float _opLevels[kNumOperators] = {0.f, 0.f, 0.f, 0.f};
-    bool _opPreFade[kNumOperators] = {false, false, false, false};
-    __m128 __opLevel[kNumOperators];
-    __m128 __opOut[kNumOperators];
-    __m128 __opAuxOut[kNumOperators];
-    __m128 __op1Eoc, __op2Eoc, __op3Eoc, __op4Eoc;
-    __m128 __opExtFM[kNumOperators];
-    __m128 __opExtSync[kNumOperators];
-    __m128 __opSyncEnable[kNumOperators];
+    float inLevels[kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    float opLevels[kNumOperators] = {0.f, 0.f, 0.f, 0.f};
+    bool outputOpPreFade[kNumOperators] = {false, false, false, false};
+    __m128 opLevelVec[kNumOperators];
+    __m128 opOutVec[kNumOperators];
+    __m128 opAuxOutVec[kNumOperators];
+    __m128 op1EocVec, op2EocVec, op3EocVec, op4EocVec;
+    __m128 opExtFMVec[kNumOperators];
+    __m128 opExtSyncVec[kNumOperators];
+    __m128 opSyncEnableVec[kNumOperators];
 
-    __m128 __op3FeedbackDepth;
-    __m128 __matrix[NUM_ROWS][NUM_COLS]; // Row = Source, Col = Dest
-    __m128 __mainCol, __bCol;
-    OpSyncSource _opSyncSource;
-    __m128 __opSyncSignal[kNumOperators];
-    __m128 __opSyncIn[kNumOperators];
-    __m128 __ones, __zeros, __five;
-    __m128 __outputLevels[kNumOperators];
-    __m128 __aOutLevel, __bOutLevel;
-    bool _weakSync[kNumOperators] = {false, false, false, false};
+    __m128 op3FeedbackDepthVec;
+    __m128 matrixVec[NUM_ROWS][NUM_COLS]; // Row = Source, Col = Dest
+    __m128 mainColVec, bColVec;
+    OpSyncSource opSyncSource;
+    __m128 opSyncSignalVec[kNumOperators];
+    __m128 opSyncIn[kNumOperators];
+    __m128 onesVec, zerosVec, fiveVec;
+    __m128 outputLevelsVec[kNumOperators];
+    __m128 aOutLevelVec, bOutLevelVec;
+    bool weakSync[kNumOperators] = {false, false, false, false};
     bool extSyncing = false;
 
-    float _brightness = 0.f;
-    int _brightnessMask = 0;
-    int _algorithm = -1;
+    float brightness = 0.f;
+    int brightnessMask = 0;
+    int algorithm = -1;
 
     void calcOpLevels();
     void clearMatrix();
