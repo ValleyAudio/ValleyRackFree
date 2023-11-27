@@ -153,67 +153,67 @@ Dexter::Dexter() {
     allShape = 0.f;
 
     int NaN = 0xFFFFFFFF;
-    __0000 = _mm_castsi128_ps(_mm_set1_epi32(0));
-    __0001 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   0,   NaN));
-    __0011 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   NaN, NaN));
-    __0111 = _mm_castsi128_ps(_mm_set_epi32(0,   NaN, NaN, NaN));
-    __1111 = _mm_castsi128_ps(_mm_set_epi32(NaN, NaN, NaN, NaN));
+    v0000 = _mm_castsi128_ps(_mm_set1_epi32(0));
+    v0001 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   0,   NaN));
+    v0011 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   NaN, NaN));
+    v0111 = _mm_castsi128_ps(_mm_set_epi32(0,   NaN, NaN, NaN));
+    v1111 = _mm_castsi128_ps(_mm_set_epi32(NaN, NaN, NaN, NaN));
 
-    __0010 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   NaN, 0));
-    __0110 = _mm_castsi128_ps(_mm_set_epi32(0,   NaN, NaN, 0));
-    __1110 = _mm_castsi128_ps(_mm_set_epi32(NaN, NaN, NaN, 0));
+    v0010 = _mm_castsi128_ps(_mm_set_epi32(0,   0,   NaN, 0));
+    v0110 = _mm_castsi128_ps(_mm_set_epi32(0,   NaN, NaN, 0));
+    v1110 = _mm_castsi128_ps(_mm_set_epi32(NaN, NaN, NaN, 0));
 
-    __bOutMask = __0001;
-    __lowChordMask = __0010;
-    __highChordMask = __0000;
+    bOutMaskVec = v0001;
+    lowChordMaskVec = v0010;
+    highChordMaskVec = v0000;
 
-    __lowChordMaskTable[0] = __0010;
-    __lowChordMaskTable[1] = __0110;
-    __lowChordMaskTable[2] = __1110;
-    __lowChordMaskTable[3] = __1110;
-    __lowChordMaskTable[4] = __1110;
-    __lowChordMaskTable[5] = __1110;
-    __lowChordMaskTable[6] = __1110;
+    lowChordMaskTableVec[0] = v0010;
+    lowChordMaskTableVec[1] = v0110;
+    lowChordMaskTableVec[2] = v1110;
+    lowChordMaskTableVec[3] = v1110;
+    lowChordMaskTableVec[4] = v1110;
+    lowChordMaskTableVec[5] = v1110;
+    lowChordMaskTableVec[6] = v1110;
 
-    __highChordMaskTable[0] = __0000;
-    __highChordMaskTable[1] = __0000;
-    __highChordMaskTable[2] = __0000;
-    __highChordMaskTable[3] = __0001;
-    __highChordMaskTable[4] = __0011;
-    __highChordMaskTable[5] = __0111;
-    __highChordMaskTable[6] = __1111;
+    highChordMaskTableVec[0] = v0000;
+    highChordMaskTableVec[1] = v0000;
+    highChordMaskTableVec[2] = v0000;
+    highChordMaskTableVec[3] = v0001;
+    highChordMaskTableVec[4] = v0011;
+    highChordMaskTableVec[5] = v0111;
+    highChordMaskTableVec[6] = v1111;
 
-    __lowLeftGainTable[0] = _mm_set_ps(0.f,    0.f,    1.f, 0.f);
-    __lowLeftGainTable[1] = _mm_set_ps(0.f,    0.f,    1.f, 0.f);
-    __lowLeftGainTable[2] = _mm_set_ps(0.f,    0.5f,   1.f, 0.f);
-    __lowLeftGainTable[3] = _mm_set_ps(0.333f, 0.666f, 1.f, 0.f);
-    __lowLeftGainTable[4] = _mm_set_ps(0.5f,   0.75f,  1.f, 0.f);
-    __lowLeftGainTable[5] = _mm_set_ps(0.6f,   0.8f,   1.f, 0.f);
-    __lowLeftGainTable[6] = _mm_set_ps(0.666f, 0.833f, 1.f, 0.f);
+    lowLeftGainTableVec[0] = _mm_set_ps(0.f,    0.f,    1.f, 0.f);
+    lowLeftGainTableVec[1] = _mm_set_ps(0.f,    0.f,    1.f, 0.f);
+    lowLeftGainTableVec[2] = _mm_set_ps(0.f,    0.5f,   1.f, 0.f);
+    lowLeftGainTableVec[3] = _mm_set_ps(0.333f, 0.666f, 1.f, 0.f);
+    lowLeftGainTableVec[4] = _mm_set_ps(0.5f,   0.75f,  1.f, 0.f);
+    lowLeftGainTableVec[5] = _mm_set_ps(0.6f,   0.8f,   1.f, 0.f);
+    lowLeftGainTableVec[6] = _mm_set_ps(0.666f, 0.833f, 1.f, 0.f);
 
-    __lowRightGainTable[0] = _mm_set_ps(0.f,    0.f,    1.f,    0.f);
-    __lowRightGainTable[1] = _mm_set_ps(0.f,    1.f,    0.f,    0.f);
-    __lowRightGainTable[2] = _mm_set_ps(1.f,    0.5f,   0.f,    0.f);
-    __lowRightGainTable[3] = _mm_set_ps(0.666f, 0.333f, 0.f,    0.f);
-    __lowRightGainTable[4] = _mm_set_ps(0.5f,   0.25f,  0.f,    0.f);
-    __lowRightGainTable[5] = _mm_set_ps(0.4f,   0.2f,   0.f,    0.f);
-    __lowRightGainTable[6] = _mm_set_ps(0.333f, 0.166f, 0.f,    0.f);
+    lowRightGainTableVec[0] = _mm_set_ps(0.f,    0.f,    1.f,    0.f);
+    lowRightGainTableVec[1] = _mm_set_ps(0.f,    1.f,    0.f,    0.f);
+    lowRightGainTableVec[2] = _mm_set_ps(1.f,    0.5f,   0.f,    0.f);
+    lowRightGainTableVec[3] = _mm_set_ps(0.666f, 0.333f, 0.f,    0.f);
+    lowRightGainTableVec[4] = _mm_set_ps(0.5f,   0.25f,  0.f,    0.f);
+    lowRightGainTableVec[5] = _mm_set_ps(0.4f,   0.2f,   0.f,    0.f);
+    lowRightGainTableVec[6] = _mm_set_ps(0.333f, 0.166f, 0.f,    0.f);
 
-    __highLeftGainTable[0] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highLeftGainTable[1] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highLeftGainTable[2] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highLeftGainTable[3] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highLeftGainTable[4] = _mm_set_ps(0.f,    0.f,    0.f,    0.25f);
-    __highLeftGainTable[5] = _mm_set_ps(0.f,    0.f,    0.2f,   0.4f);
-    __highLeftGainTable[6] = _mm_set_ps(0.f,    0.166f, 0.333f, 0.5f);
+    highLeftGainTableVec[0] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highLeftGainTableVec[1] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highLeftGainTableVec[2] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highLeftGainTableVec[3] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highLeftGainTableVec[4] = _mm_set_ps(0.f,    0.f,    0.f,    0.25f);
+    highLeftGainTableVec[5] = _mm_set_ps(0.f,    0.f,    0.2f,   0.4f);
+    highLeftGainTableVec[6] = _mm_set_ps(0.f,    0.166f, 0.333f, 0.5f);
 
-    __highRightGainTable[0] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highRightGainTable[1] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highRightGainTable[2] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
-    __highRightGainTable[3] = _mm_set_ps(0.f,    0.f,    0.f,    1.f);
-    __highRightGainTable[4] = _mm_set_ps(0.f,    0.f,    1.f,    0.75f);
-    __highRightGainTable[5] = _mm_set_ps(0.f,    1.f,    0.8f,   0.6f);
-    __highRightGainTable[6] = _mm_set_ps(1.f,    0.833f, 0.666f, 0.5f);
+    highRightGainTableVec[0] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highRightGainTableVec[1] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highRightGainTableVec[2] = _mm_set_ps(0.f,    0.f,    0.f,    0.f);
+    highRightGainTableVec[3] = _mm_set_ps(0.f,    0.f,    0.f,    1.f);
+    highRightGainTableVec[4] = _mm_set_ps(0.f,    0.f,    1.f,    0.75f);
+    highRightGainTableVec[5] = _mm_set_ps(0.f,    1.f,    0.8f,   0.6f);
+    highRightGainTableVec[6] = _mm_set_ps(1.f,    0.833f, 0.666f, 0.5f);
 
     chordKnob = 0;
     currentChord = 0;
@@ -239,9 +239,9 @@ Dexter::Dexter() {
         pBOut[i] = 0.f;
     }
 
-    __zeros = _mm_set1_ps(0.f);
-    __leftOut = __zeros;
-    __rightOut = __zeros;
+    zerosVec = _mm_set1_ps(0.f);
+    leftOutVec = zerosVec;
+    rightOutVec = zerosVec;
 
     coreA.setSampleRate(APP->engine->getSampleRate());
     coreB.setSampleRate(APP->engine->getSampleRate());
@@ -296,16 +296,16 @@ void Dexter::step() {
             pOpPitches[i + 1] = opPitch[op] + aPitch + chordNotes[i];
         }
 
-        __opLowPitch[op] = _mm_loadu_ps(pOpPitches);
-        __opHighPitch[op] = _mm_loadu_ps(pOpPitches + 4);
-        __opLowFreq[op] = valley::_mm_pitch_freq_ps(__opLowPitch[op]);
-        __opHighFreq[op] = valley::_mm_pitch_freq_ps(__opHighPitch[op]);
-        __opLowFreq[op] = _mm_mul_ps(__opLowFreq[op], _mm_set1_ps(multiples[multiple]));
-        __opHighFreq[op] = _mm_mul_ps(__opHighFreq[op], _mm_set1_ps(multiples[multiple]));
+        opLowPitchVec[op] = _mm_loadu_ps(pOpPitches);
+        opHighPitchVec[op] = _mm_loadu_ps(pOpPitches + 4);
+        opLowFreqVec[op] = valley::_mm_pitch_freq_ps(opLowPitchVec[op]);
+        opHighFreqVec[op] = valley::_mm_pitch_freq_ps(opHighPitchVec[op]);
+        opLowFreqVec[op] = _mm_mul_ps(opLowFreqVec[op], _mm_set1_ps(multiples[multiple]));
+        opHighFreqVec[op] = _mm_mul_ps(opHighFreqVec[op], _mm_set1_ps(multiples[multiple]));
 
         if (masterLFO > 0.f || opButtonLFO[op] > 0.f) {
-            __opLowFreq[op] = _mm_mul_ps(__opLowFreq[op], _mm_set1_ps(0.01f));
-            __opHighFreq[op] = _mm_mul_ps(__opHighFreq[op], _mm_set1_ps(0.01f));
+            opLowFreqVec[op] = _mm_mul_ps(opLowFreqVec[op], _mm_set1_ps(0.01f));
+            opHighFreqVec[op] = _mm_mul_ps(opHighFreqVec[op], _mm_set1_ps(0.01f));
         }
     }
 
@@ -333,8 +333,8 @@ void Dexter::step() {
 
     // Load parameters into each core
     for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
-        coreA._mm_setFrequency(op, __opLowFreq[op]);
-        coreB._mm_setFrequency(op, __opHighFreq[op]);
+        coreA._mm_setFrequency(op, opLowFreqVec[op]);
+        coreB._mm_setFrequency(op, opHighFreqVec[op]);
 
         coreA.setWavebank(op, opWaveBank[op]);
         coreB.setWavebank(op, opWaveBank[op]);
@@ -428,40 +428,40 @@ void Dexter::step() {
         coreB.process();
     }
 
-    _mm_store_ps(pBOut, _mm_and_ps(coreA.getBOutput(), __bOutMask));
+    _mm_store_ps(pBOut, _mm_and_ps(coreA.getBOutput(), bOutMaskVec));
     outputs[B_OUTPUT].setVoltage(pBOut[0]);
 
     if (outputs[A_RIGHT_OUTPUT].isConnected()) {
-        __leftOut = __zeros;
-        __rightOut = __zeros;
-        __leftOut = _mm_mul_ps(coreA.getMainOutput(), __lowLeftGain);
-        __leftOut = _mm_add_ps(__leftOut, _mm_mul_ps(coreB.getMainOutput(), __highLeftGain));
-        __rightOut = _mm_mul_ps(coreA.getMainOutput(), __lowRightGain);
-        __rightOut = _mm_add_ps(__rightOut, _mm_mul_ps(coreB.getMainOutput(), __highRightGain));
-        _mm_store_ps(pLeftOut, __leftOut);
-        _mm_store_ps(pRightOut, __rightOut);
+        leftOutVec = zerosVec;
+        rightOutVec = zerosVec;
+        leftOutVec = _mm_mul_ps(coreA.getMainOutput(), lowLeftGainVec);
+        leftOutVec = _mm_add_ps(leftOutVec, _mm_mul_ps(coreB.getMainOutput(), highLeftGainVec));
+        rightOutVec = _mm_mul_ps(coreA.getMainOutput(), lowRightGainVec);
+        rightOutVec = _mm_add_ps(rightOutVec, _mm_mul_ps(coreB.getMainOutput(), highRightGainVec));
+        _mm_store_ps(pLeftOut, leftOutVec);
+        _mm_store_ps(pRightOut, rightOutVec);
     }
     else {
-        _mm_store_ps(pLeftOut, _mm_add_ps(_mm_and_ps(coreA.getMainOutput(), __lowChordMask),
-                                          _mm_and_ps(coreB.getMainOutput(), __highChordMask)));
-        _mm_store_ps(pRightOut, __zeros);
+        _mm_store_ps(pLeftOut, _mm_add_ps(_mm_and_ps(coreA.getMainOutput(), lowChordMaskVec),
+                                          _mm_and_ps(coreB.getMainOutput(), highChordMaskVec)));
+        _mm_store_ps(pRightOut, zerosVec);
     }
 
     if (indivBOutputs) {
-        _mm_store_ps(pOP1, _mm_and_ps(coreA.getOpOutput(0), __0001));
-        _mm_store_ps(pOP2, _mm_and_ps(coreA.getOpOutput(1), __0001));
-        _mm_store_ps(pOP3, _mm_and_ps(coreA.getOpOutput(2), __0001));
-        _mm_store_ps(pOP4, _mm_and_ps(coreA.getOpOutput(3), __0001));
+        _mm_store_ps(pOP1, _mm_and_ps(coreA.getOpOutput(0), v0001));
+        _mm_store_ps(pOP2, _mm_and_ps(coreA.getOpOutput(1), v0001));
+        _mm_store_ps(pOP3, _mm_and_ps(coreA.getOpOutput(2), v0001));
+        _mm_store_ps(pOP4, _mm_and_ps(coreA.getOpOutput(3), v0001));
     }
     else {
-        _mm_store_ps(pOP1, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(0), __lowChordMask),
-                                      _mm_and_ps(coreB.getOpOutput(0), __highChordMask)));
-        _mm_store_ps(pOP2, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(1), __lowChordMask),
-                                      _mm_and_ps(coreB.getOpOutput(1), __highChordMask)));
-        _mm_store_ps(pOP3, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(2), __lowChordMask),
-                                      _mm_and_ps(coreB.getOpOutput(2), __highChordMask)));
-        _mm_store_ps(pOP4, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(3), __lowChordMask),
-                                      _mm_and_ps(coreB.getOpOutput(3), __highChordMask)));
+        _mm_store_ps(pOP1, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(0), lowChordMaskVec),
+                                      _mm_and_ps(coreB.getOpOutput(0), highChordMaskVec)));
+        _mm_store_ps(pOP2, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(1), lowChordMaskVec),
+                                      _mm_and_ps(coreB.getOpOutput(1), highChordMaskVec)));
+        _mm_store_ps(pOP3, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(2), lowChordMaskVec),
+                                      _mm_and_ps(coreB.getOpOutput(2), highChordMaskVec)));
+        _mm_store_ps(pOP4, _mm_add_ps(_mm_and_ps(coreA.getOpOutput(3), lowChordMaskVec),
+                                      _mm_and_ps(coreB.getOpOutput(3), highChordMaskVec)));
     }
 
     outputs[A_LEFT_OUTPUT].setVoltage(0);
@@ -530,12 +530,12 @@ void Dexter::getParameters() {
         makeChord(chordParam, invDepthParam);
     }
 
-    __lowChordMask = __lowChordMaskTable[chordNotes.size() - 1];
-    __highChordMask = __highChordMaskTable[chordNotes.size() - 1];
-    __lowLeftGain = __lowLeftGainTable[chordNotes.size() - 1];
-    __lowRightGain = __lowRightGainTable[chordNotes.size() - 1];
-    __highLeftGain = __highLeftGainTable[chordNotes.size() - 1];
-    __highRightGain = __highRightGainTable[chordNotes.size() - 1];
+    lowChordMaskVec = lowChordMaskTableVec[chordNotes.size() - 1];
+    highChordMaskVec = highChordMaskTableVec[chordNotes.size() - 1];
+    lowLeftGainVec = lowLeftGainTableVec[chordNotes.size() - 1];
+    lowRightGainVec = lowRightGainTableVec[chordNotes.size() - 1];
+    highLeftGainVec = highLeftGainTableVec[chordNotes.size() - 1];
+    highRightGainVec = highRightGainTableVec[chordNotes.size() - 1];
 
     // Mod Matrix
     for (size_t op = 0; op < DexterCore::kNumOperators; ++op) {
