@@ -23,9 +23,9 @@ public:
     }
 
     T inline process() {
-        _inSum = input + delay.output * gain;
-        output = delay.output + _inSum * gain * -1;
-        delay.input = _inSum;
+        inSum = input + delay.output * gain;
+        output = delay.output + inSum * gain * -1;
+        delay.input = inSum;
         delay.process();
         return output;
     }
@@ -33,7 +33,7 @@ public:
     void clear() {
         input = 0;
         output = 0;
-        _inSum = 0;
+        inSum = 0;
         _outSum = 0;
         delay.clear();
     }
@@ -51,7 +51,7 @@ public:
 
 private:
     T gain;
-    T _inSum;
+    T inSum;
     T _outSum;
 };
 
@@ -77,11 +77,11 @@ public:
     }
 
     T inline process() {
-        _inSum1 = input + delay1.output * gain1;
-        _inSum2 = _inSum1 + delay2.output * gain2;
-        delay2.input = _inSum2;
-        delay1.input = delay2.output * decay2 + _inSum2 * -gain2;
-        output = delay1.output * decay1 + _inSum1 * -gain1;
+        inSum1 = input + delay1.output * gain1;
+        inSum2 = inSum1 + delay2.output * gain2;
+        delay2.input = inSum2;
+        delay1.input = delay2.output * decay2 + inSum2 * -gain2;
+        output = delay1.output * decay1 + inSum1 * -gain1;
         delay1.process();
         delay2.process();
         return output;
@@ -90,8 +90,8 @@ public:
     void clear() {
         input = 0;
         output = 0;
-        _inSum1 = 0;
-        _inSum2 = 0;
+        inSum1 = 0;
+        inSum2 = 0;
         delay1.clear();
         delay2.clear();
     }
@@ -102,5 +102,5 @@ public:
     T decay1, decay2;
     InterpDelay<T> delay1, delay2;
 private:
-    T _inSum1, _inSum2;
+    T inSum1, inSum2;
 };

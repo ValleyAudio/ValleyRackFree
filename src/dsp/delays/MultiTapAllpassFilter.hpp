@@ -30,9 +30,9 @@ public:
 
     /** Single tick process. The all-pass filtering uses only the 0th or first tap only.*/
     T inline process() {
-        _inSum = input + delay.output[0] * gain;
-        output = delay.output[0] + _inSum * gain * T(-1);
-        delay.input = _inSum;
+        inSum = input + delay.output[0] * gain;
+        output = delay.output[0] + inSum * gain * T(-1);
+        delay.input = inSum;
         delay.process();
         return output;
     }
@@ -41,8 +41,8 @@ public:
     void clear() {
         input = 0;
         output = 0;
-        _inSum = 0;
-        _outSum = 0;
+        inSum = 0;
+        outSum = 0;
         delay.clear();
     }
 
@@ -53,7 +53,7 @@ public:
     MultiTapInterpDelay<T, numTaps> delay;
 
 private:
-    T _inSum = T(0);
-    T _outSum = T(0);
+    T inSum = T(0);
+    T outSum = T(0);
 };
 
