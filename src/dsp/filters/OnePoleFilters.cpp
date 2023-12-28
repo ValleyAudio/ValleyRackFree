@@ -36,7 +36,7 @@ void OnePoleLPFilter::setCutoffFreq(double newCutoffFreq) {
     assert(cutoffFreq <= maxCutoffFreq);
 
     cutoffFreq = newCutoffFreq;
-    b = expf(-_2M_PI * cutoffFreq * sampleTime);
+    b = expf(-VALLEY_2M_PI * cutoffFreq * sampleTime);
     a = 1.0 - b;
 }
 
@@ -79,7 +79,7 @@ void OnePoleHPFilter::setCutoffFreq(double newCutoffFreq) {
     assert(newCutoffFreq <= maxCutoffFreq);
 
     cutoffFreq = newCutoffFreq;
-    b1 = expf(-_2M_PI * cutoffFreq * sampleTime);
+    b1 = expf(-VALLEY_2M_PI * cutoffFreq * sampleTime);
     a0 = (1.0 + b1) / 2.0;
     a1 = -a0;
 }
