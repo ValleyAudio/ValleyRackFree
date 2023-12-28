@@ -7,41 +7,41 @@ OnePoleLPFilter::OnePoleLPFilter(double cutoffFreq, double initSampleRate) {
 }
 
 double OnePoleLPFilter::process() {
-    _z =  _a * input + _z * _b;
-    output = _z;
+    z =  a * input + z * b;
+    output = z;
     return output;
 }
 
 void OnePoleLPFilter::clear() {
     input = 0.0;
-    _z = 0.0;
+    z = 0.0;
     output = 0.0;
 }
 
-void OnePoleLPFilter::setSampleRate(double sampleRate) {
+void OnePoleLPFilter::setSampleRate(double newSampleRate) {
     assert(sampleRate > 0.0);
 
-    _sampleRate = sampleRate;
-    _1_sampleRate = 1.0 / sampleRate;
-    _maxCutoffFreq = sampleRate / 2.0 - 1.0;
-    setCutoffFreq(_cutoffFreq);
+    sampleRate = newSampleRate;
+    sampleTime = 1.0 / sampleRate;
+    maxCutoffFreq = sampleRate / 2.0 - 1.0;
+    setCutoffFreq(cutoffFreq);
 }
 
-void OnePoleLPFilter::setCutoffFreq(double cutoffFreq) {
-    if (cutoffFreq == _cutoffFreq) {
+void OnePoleLPFilter::setCutoffFreq(double newCutoffFreq) {
+    if (cutoffFreq == newCutoffFreq) {
         return;
     }
 
     assert(cutoffFreq > 0.0);
-    assert(cutoffFreq <= _maxCutoffFreq);
+    assert(cutoffFreq <= maxCutoffFreq);
 
-    _cutoffFreq = cutoffFreq;
-    _b = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
-    _a = 1.0 - _b;
+    cutoffFreq = newCutoffFreq;
+    b = expf(-_2M_PI * cutoffFreq * sampleTime);
+    a = 1.0 - b;
 }
 
 double OnePoleLPFilter::getMaxCutoffFreq() const {
-    return _maxCutoffFreq;
+    return maxCutoffFreq;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,42 +53,42 @@ OnePoleHPFilter::OnePoleHPFilter(double initCutoffFreq, double initSampleRate) {
 }
 
 double OnePoleHPFilter::process() {
-    _x0 = input;
-    _y0 = _a0 * _x0 + _a1 * _x1 + _b1 * _y1;
-    _y1 = _y0;
-    _x1 = _x0;
-    output = _y0;
-    return _y0;
+    x0 = input;
+    y0 = a0 * x0 + a1 * x1 + b1 * y1;
+    y1 = y0;
+    x1 = x0;
+    output = y0;
+    return y0;
 }
 
 void OnePoleHPFilter::clear() {
     input = 0.0;
     output = 0.0;
-    _x0 = 0.0;
-    _x1 = 0.0;
-    _y0 = 0.0;
-    _y1 = 0.0;
+    x0 = 0.0;
+    x1 = 0.0;
+    y0 = 0.0;
+    y1 = 0.0;
 }
 
-void OnePoleHPFilter::setCutoffFreq(double cutoffFreq) {
-    if (cutoffFreq == _cutoffFreq) {
+void OnePoleHPFilter::setCutoffFreq(double newCutoffFreq) {
+    if (cutoffFreq == newCutoffFreq) {
         return;
     }
 
-    assert(cutoffFreq > 0.0);
-    assert(cutoffFreq <= _maxCutoffFreq);
+    assert(newCutoffFreq > 0.0);
+    assert(newCutoffFreq <= maxCutoffFreq);
 
-    _cutoffFreq = cutoffFreq;
-    _b1 = expf(-_2M_PI * _cutoffFreq * _1_sampleRate);
-    _a0 = (1.0 + _b1) / 2.0;
-    _a1 = -_a0;
+    cutoffFreq = newCutoffFreq;
+    b1 = expf(-_2M_PI * cutoffFreq * sampleTime);
+    a0 = (1.0 + b1) / 2.0;
+    a1 = -a0;
 }
 
-void OnePoleHPFilter::setSampleRate(double sampleRate) {
-    _sampleRate = sampleRate;
-    _1_sampleRate = 1.0 / _sampleRate;
-    _maxCutoffFreq = sampleRate / 2.0 - 1.0;
-    setCutoffFreq(_cutoffFreq);
+void OnePoleHPFilter::setSampleRate(double newSampleRate) {
+    sampleRate = newSampleRate;
+    sampleTime = 1.0 / sampleRate;
+    maxCutoffFreq = sampleRate / 2.0 - 1.0;
+    setCutoffFreq(cutoffFreq);
     clear();
 }
 
@@ -105,27 +105,27 @@ DCBlocker::DCBlocker(double cutoffFreq) {
 }
 
 double DCBlocker::process(double input) {
-    output = input - _z + _b * output;
-    _z = input;
+    output = input - z + b * output;
+    z = input;
     return output;
 }
 
 void DCBlocker::clear() {
-    _z = 0.0;
+    z = 0.0;
     output = 0.0;
 }
 
-void DCBlocker::setSampleRate(double sampleRate) {
-    _sampleRate = sampleRate;
-    _maxCutoffFreq = sampleRate / 2.0;
-    setCutoffFreq(_cutoffFreq);
+void DCBlocker::setSampleRate(double newSampleRate) {
+    sampleRate = newSampleRate;
+    maxCutoffFreq = sampleRate / 2.0;
+    setCutoffFreq(cutoffFreq);
 }
 
-void DCBlocker::setCutoffFreq(double cutoffFreq) {
-    _cutoffFreq = cutoffFreq;
-    _b = 0.999;
+void DCBlocker::setCutoffFreq(double newCutoffFreq) {
+    cutoffFreq = newCutoffFreq;
+    b = 0.999;
 }
 
 double DCBlocker::getMaxCutoffFreq() const {
-    return _maxCutoffFreq;
+    return maxCutoffFreq;
 }
