@@ -15,7 +15,7 @@ void calcGTable(float sampleRate) {
     float wa = 0.f;
     float g = 0.f;
 
-    for(auto i = 0; i < G_TABLE_SIZE; ++i) {
+    for(auto i = 0; i < G_TABLESIZE; ++i) {
         f = 440.f * powf(2.f, ((i - 500000.f) / 100000.f));
         wd = 2.f * M_PI * f;
         wa = (2.f / T) * tanf(wd * T_2);
@@ -25,87 +25,87 @@ void calcGTable(float sampleRate) {
 }
 
 TPTOnePoleStage::TPTOnePoleStage() {
-    _G = 0.f;
-    _s = 0.f;
-    _z = 0.f;
-    _v = 0.f;
-    _out = 0.f;
+    G = 0.f;
+    s = 0.f;
+    z = 0.f;
+    v = 0.f;
+    out = 0.f;
     setSampleRate(44100.f);
-    _1_tanhf = 1.f / tanhDriveSignal(1.f, 1.f);
-    _nlp = false;
+    tanhf_recip = 1.f / tanhDriveSignal(1.f, 1.f);
+    doNlp = false;
 }
 
-void TPTOnePoleStage::setSampleRate(float sampleRate) {
-    _sampleRate = sampleRate;
+void TPTOnePoleStage::setSampleRate(float newSampleRate) {
+    sampleRate = newSampleRate;
 }
 
 float TPTOnePoleStage::getSampleRate() const {
-    return _sampleRate;
+    return sampleRate;
 }
 
-void TPTOnePoleStage::setNLP(bool nlp) {
-    _nlp = nlp;
+void TPTOnePoleStage::enableNLP(bool enable) {
+    doNlp = enable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 OTAFilter::OTAFilter() {
-    _G = 0.f;
-    _sigma = 0.f;
-    _gamma = 0.f;
-    _k = 0.f;
-    _u = 0.f;
-    _h = 1.f;
-    _S1 = 0.f;
-    _S2 = 0.f;
-    _S3 = 0.f;
-    _S4 = 0.f;
-    _lp1 = 0.f;
-    _lp2 = 0.f;
-    _lp3 = 0.f;
-    _1_tanhf = 1.f / tanhDriveSignal(1.f, 1.f);
-    _nlp = false;
-    _pitch = 0.f;
-    _prevPitch = -1.f;
+    G = 0.f;
+    sigma = 0.f;
+    gamma = 0.f;
+    k = 0.f;
+    u = 0.f;
+    h = 1.f;
+    S1 = 0.f;
+    S2 = 0.f;
+    S3 = 0.f;
+    S4 = 0.f;
+    lp1 = 0.f;
+    lp2 = 0.f;
+    lp3 = 0.f;
+    tanhf_recip = 1.f / tanhDriveSignal(1.f, 1.f);
+    doNlp = false;
+    pitch = 0.f;
+    prevPitch = -1.f;
 }
 
 void OTAFilter::setSampleRate(float sampleRate) {
-    _stage1.setSampleRate(sampleRate);
-    _stage2.setSampleRate(sampleRate);
-    _stage3.setSampleRate(sampleRate);
-    _stage4.setSampleRate(sampleRate);
-    setCutoff(_pitch);
+    stage1.setSampleRate(sampleRate);
+    stage2.setSampleRate(sampleRate);
+    stage3.setSampleRate(sampleRate);
+    stage4.setSampleRate(sampleRate);
+    setCutoff(pitch);
 }
 
-void OTAFilter::setCutoff(float pitch) {
-    _pitch = clip(pitch, 0.f, 10.0f);
-    if(_pitch == _prevPitch) {
+void OTAFilter::setCutoff(float newPitch) {
+    pitch = clip(newPitch, 0.f, 10.0f);
+    if(pitch == prevPitch) {
         return;
     }
-    _prevPitch = _pitch;
-    _cutoff = _pitch * 100000.f;
-    long pos = (long)_cutoff;
-    float frac = _cutoff - (float)pos;
+    prevPitch = pitch;
+    cutoff = pitch * 100000.f;
+    long pos = (long)cutoff;
+    float frac = cutoff - (float)pos;
 
-    _g = linterp(kGTable[pos], kGTable[pos + 1], frac);
-    _h = 1.f + _g;
-    _1_h = 1.f / _h;
-    _G = _g * _1_h;
-    _stage1._G = _G;
-    _stage2._G = _G;
-    _stage3._G = _G;
-    _stage4._G = _G;
-    _gamma = _G * _G * _G * _G;
+    g = linterp(kGTable[pos], kGTable[pos + 1], frac);
+    h = 1.f + g;
+    h_recip = 1.f / h;
+    G = g * h_recip;
+    stage1.G = G;
+    stage2.G = G;
+    stage3.G = G;
+    stage4.G = G;
+    gamma = G * G * G * G;
 }
 
 void OTAFilter::setQ(float Q) {
-  _k = 4.f * clip(Q, 0.f, 10.f) / 10.f;
+  k = 4.f * clip(Q, 0.f, 10.f) / 10.f;
 }
 
-void OTAFilter::setNLP(bool nlp) {
-    _nlp = nlp;
-    _stage1.setNLP(nlp);
-    _stage2.setNLP(nlp);
-    _stage3.setNLP(nlp);
-    _stage4.setNLP(nlp);
+void OTAFilter::enableNLP(bool enable) {
+    doNlp = enable;
+    stage1.enableNLP(doNlp);
+    stage2.enableNLP(doNlp);
+    stage3.enableNLP(doNlp);
+    stage4.enableNLP(doNlp);
 }
