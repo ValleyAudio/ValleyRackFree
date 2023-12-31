@@ -14,12 +14,12 @@
 */
 class VecLPG {
 public:
-    __m128 __env;
-    __m128 __attack, __decay;
-    __m128 __cutoff, __maxCutoff;
-    __m128 __filterSwitch;
-    __m128 __vca, __filter, __output;
-    VecOnePoleLPFilter _lpf1, _lpf2;
+    __m128 env;
+    __m128 attack, decay;
+    __m128 cutoff, maxCutoff;
+    __m128 filterSwitch;
+    __m128 vca, filter, output;
+    VecOnePoleLPFilter lpf1, lpf2;
 
     enum Modes {
         BYPASS_MODE = 0,
@@ -30,82 +30,82 @@ public:
     Modes mode;
 
     VecLPG() {
-        __zeros = _mm_set1_ps(0.f);
-        __ones = _mm_set1_ps(1.f);
-        __halfs = _mm_set1_ps(0.5f);
-        __quarters = _mm_set1_ps(0.25f);
-        __scale = _mm_set1_ps(0.75f);
-        __longOffset = _mm_set1_ps(0.25f);
-        __offset = __zeros;
-        __env = __zeros;
-        __maxCutoff = _mm_set1_ps(22050.f);
-        __cutoff = __maxCutoff;
-        setDecay(__ones, false);
+        zeros = _mm_set1_ps(0.f);
+        ones = _mm_set1_ps(1.f);
+        halfs = _mm_set1_ps(0.5f);
+        quarters = _mm_set1_ps(0.25f);
+        scale = _mm_set1_ps(0.75f);
+        longOffset = _mm_set1_ps(0.25f);
+        offset = zeros;
+        env = zeros;
+        maxCutoff = _mm_set1_ps(22050.f);
+        cutoff = maxCutoff;
+        setDecay(ones, false);
         mode = BYPASS_MODE;
     }
 
     __m128 process(const __m128& x, const __m128& trigger) {
-        __env = __envelope.process(trigger);
-        __vca = _mm_mul_ps(x, __env);
-        __cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(__env, __env), __env), __maxCutoff);
-        _lpf1.setCutoffFreqAlt(_mm_mul_ps(__cutoff, _mm_set1_ps(0.5f)));
-        _lpf2._a = _lpf1._a;
-        _lpf2._b = _lpf1._b;
-        __filter = _lpf2.process(_lpf1.process(x));
+        env = envelope.process(trigger);
+        vca = _mm_mul_ps(x, env);
+        cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(env, env), env), maxCutoff);
+        lpf1.setCutoffFreqAlt(_mm_mul_ps(cutoff, _mm_set1_ps(0.5f)));
+        lpf2._a = lpf1._a;
+        lpf2._b = lpf1._b;
+        filter = lpf2.process(lpf1.process(x));
 
-        __output = x;
+        output = x;
         switch (mode) {
             case BYPASS_MODE : break;
-            case VCA_MODE : __output = __vca; break;
-            case FILTER_MODE : __output = __filter; break;
-            case BOTH_MODE : __output = _mm_mul_ps(__env, __filter); break;
+            case VCA_MODE : output = vca; break;
+            case FILTER_MODE : output = filter; break;
+            case BOTH_MODE : output = _mm_mul_ps(env, filter); break;
         }
 
-        return __output;
+        return output;
     }
 
     void clear() {
-        __env = __zeros;
+        env = zeros;
     }
 
-    void setAttack(const __m128& attack, bool longScale) {
-        __offset = longScale ? __longOffset : __zeros;
-        __m128 x = _mm_mul_ps(_mm_clamp_ps(attack, __zeros, __ones), _mm_add_ps(__scale, __offset));
+    void setAttack(const __m128& newAttack, bool longScale) {
+        offset = longScale ? longOffset : zeros;
+        __m128 x = _mm_mul_ps(_mm_clamp_ps(newAttack, zeros, ones), _mm_add_ps(scale, offset));
         x = _mm_sub_ps(_mm_set1_ps(0.62f), _mm_mul_ps(_mm_set1_ps(0.62f), x));
-        __attack = _mm_mul_ps(x, x);
-        __attack = _mm_mul_ps(__attack, x);
-        __attack = _mm_mul_ps(__attack, x);
-        __attack = _mm_mul_ps(__attack, x);
-        __attack = _mm_mul_ps(__attack, x);
-        __attack = _mm_sub_ps(_mm_set1_ps(0.99999f), __attack);
-        __envelope.riseRate = __attack;
+        attack = _mm_mul_ps(x, x);
+        attack = _mm_mul_ps(attack, x);
+        attack = _mm_mul_ps(attack, x);
+        attack = _mm_mul_ps(attack, x);
+        attack = _mm_mul_ps(attack, x);
+        attack = _mm_sub_ps(_mm_set1_ps(0.99999f), attack);
+        envelope.riseRate = attack;
     }
 
-    void setDecay(const __m128& decay, bool longScale) {
-        __offset = longScale ? __longOffset : __zeros;
-        __m128 x = _mm_mul_ps(_mm_clamp_ps(decay, __zeros, __ones), _mm_add_ps(__scale, __offset));
+    void setDecay(const __m128& newDecay, bool longScale) {
+        offset = longScale ? longOffset : zeros;
+        __m128 x = _mm_mul_ps(_mm_clamp_ps(newDecay, zeros, ones), _mm_add_ps(scale, offset));
         x = _mm_sub_ps(_mm_set1_ps(0.4f), _mm_mul_ps(_mm_set1_ps(0.4f), x));
-        __decay = _mm_mul_ps(x, x);
-        __decay = _mm_mul_ps(__decay, x);
-        __decay = _mm_mul_ps(__decay, x);
-        __decay = _mm_mul_ps(__decay, x);
-        __decay = _mm_mul_ps(__decay, x);
-        __decay = _mm_sub_ps(_mm_set1_ps(0.999995f), __decay);
-        __envelope.fallRate = __decay;
+        decay = _mm_mul_ps(x, x);
+        decay = _mm_mul_ps(decay, x);
+        decay = _mm_mul_ps(decay, x);
+        decay = _mm_mul_ps(decay, x);
+        decay = _mm_mul_ps(decay, x);
+        decay = _mm_sub_ps(_mm_set1_ps(0.999995f), decay);
+        envelope.fallRate = decay;
     }
 
     void setSampleRate(float newSampleRate) {
-        _lpf1.setSampleRate(newSampleRate);
-        _lpf2.setSampleRate(newSampleRate);
-        __envelope.setTimeScale(_mm_div_ps(_mm_set1_ps(newSampleRate), _mm_set1_ps(44100.f)));
+        lpf1.setSampleRate(newSampleRate);
+        lpf2.setSampleRate(newSampleRate);
+        envelope.setTimeScale(_mm_div_ps(_mm_set1_ps(newSampleRate), _mm_set1_ps(44100.f)));
     }
 
     void setTriggerMode(bool triggerMode) {
-        __envelope.inOneShotMode = triggerMode;
+        envelope.inOneShotMode = triggerMode;
     }
 
 private:
-    __m128 __zeros, __ones, __halfs, __quarters;
-    __m128 __scale, __offset, __longOffset;
-    VecAREnvelope __envelope;
+    __m128 zeros, ones, halfs, quarters;
+    __m128 scale, offset, longOffset;
+    VecAREnvelope envelope;
 };

@@ -573,7 +573,7 @@ void Terrorform::process(const ProcessArgs &args) {
         _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), enhancerOutDCBlock[c].process(_mm_mul_ps(enhancer[c].output, __fives)));
         _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(__subOscOut, __fives));
         _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), mainOutDCBlock[c].process(__mainOutput[c]));
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].__env, __tens));
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].env, __tens));
     }
 
     outputs[PHASOR_OUTPUT].setChannels(numActiveChannels);
