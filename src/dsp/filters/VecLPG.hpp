@@ -49,8 +49,8 @@ public:
         vca = _mm_mul_ps(x, env);
         cutoff = _mm_mul_ps(_mm_mul_ps(_mm_mul_ps(env, env), env), maxCutoff);
         lpf1.setCutoffFreqAlt(_mm_mul_ps(cutoff, _mm_set1_ps(0.5f)));
-        lpf2._a = lpf1._a;
-        lpf2._b = lpf1._b;
+        lpf2.a = lpf1.a;
+        lpf2.b = lpf1.b;
         filter = lpf2.process(lpf1.process(x));
 
         output = x;

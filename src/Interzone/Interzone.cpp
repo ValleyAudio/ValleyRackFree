@@ -229,7 +229,7 @@ void Interzone::getCV() {
 
         vEnv[i].process(vGate, vTrigger);
         vVCACVInput = inputs[VCA_LEVEL_CV_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
-        vOutputLevel[i] = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? vGateSlew[i]._z : vEnv[i].env.v;
+        vOutputLevel[i] = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? vGateSlew[i].z : vEnv[i].env.v;
         vOutputLevel[i] = _mm_add_ps(vOutputLevel[i], _mm_mul_ps(vVCACVInput, vVCACVParam));
         vOutputLevel[i] = _mm_clamp_ps(vOutputLevel[i], __zero, __one);
         outputs[ENV_POSITIVE_OUTPUT].setVoltageSimd(vEnv[i].env * 10.f, startChan);
