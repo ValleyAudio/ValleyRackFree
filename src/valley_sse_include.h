@@ -1,7 +1,10 @@
 #ifndef VALLEY_SSE_INCLUDE
 #define VALLEY_SSE_INCLUDE
 
-#if defined(__SSE2__) || defined(_M_AMD64) || defined(_M_X64) ||                                   \
+#if defined(USING_CARDINAL_NOT_RACK)
+# include "simd/common.hpp"
+
+#elif defined(__SSE2__) || defined(_M_AMD64) || defined(_M_X64) ||                                   \
     (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #include <emmintrin.h>
 #include <pmmintrin.h>
