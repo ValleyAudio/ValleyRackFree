@@ -357,13 +357,23 @@ InterzoneWidget::InterzoneWidget(Interzone* module) {
 
     darkPanel = new SvgPanel;
     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/InterzonePanelDark.svg")));
-    if(module) {
+#ifndef USING_CARDINAL_NOT_RACK
+    if(module)
+#endif
+    {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/InterzonePanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
     setPanel(darkPanel);
+#ifdef USING_CARDINAL_NOT_RACK
+    if (!settings::preferDarkPanels)
+    {
+        darkPanel->visible = false;
+        lightPanel->visible = true;
+    }
+#endif
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -482,17 +492,23 @@ void InterzoneWidget::appendContextMenu(Menu *menu) {
     Interzone *module = dynamic_cast<Interzone*>(this->module);
     assert(module);
 
+#ifndef USING_CARDINAL_NOT_RACK
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
     menu->addChild(construct<InterzonePanelStyleItem>(&MenuItem::text, "Dark", &InterzonePanelStyleItem::module,
                                                     module, &InterzonePanelStyleItem::panelStyle, 0));
     menu->addChild(construct<InterzonePanelStyleItem>(&MenuItem::text, "Light", &InterzonePanelStyleItem::module,
                                                       module, &InterzonePanelStyleItem::panelStyle, 1));
+#endif
 }
 
 void InterzoneWidget::step() {
     if(module) {
+#ifdef USING_CARDINAL_NOT_RACK
+        if(!settings::preferDarkPanels) {
+#else
         if(dynamic_cast<Interzone*>(module)->panelStyle == 1) {
+#endif
             darkPanel->visible = false;
             lightPanel->visible = true;
         }
@@ -500,6 +516,11 @@ void InterzoneWidget::step() {
             darkPanel->visible = true;
             lightPanel->visible = false;
         }
+    } else {
+#ifdef USING_CARDINAL_NOT_RACK
+        darkPanel->visible = settings::preferDarkPanels;
+        lightPanel->visible = !settings::preferDarkPanels;
+#endif
     }
     Widget::step();
 }

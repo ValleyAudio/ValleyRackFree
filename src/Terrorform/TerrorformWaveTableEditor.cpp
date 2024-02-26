@@ -33,7 +33,7 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
             };
 
 #ifdef USING_CARDINAL_NOT_RACK
-            async_dialog_filebrowser(false, dir.c_str(), "Load sample", [=](char* path) {
+            async_dialog_filebrowser(false, NULL, dir.c_str(), "Load sample", [=](char* path) {
                 wavPathSelected(path);
             });
 #else
@@ -41,12 +41,10 @@ TFormEditorBankEditMenu::TFormEditorBankEditMenu() {
             std::string filename;
 
             osdialog_filters* filters = osdialog_filters_parse(FILE_FILTERS);
-            DEFER({
-                osdialog_filters_free(filters);
-            });
 
             char* path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), filters);
             wavPathSelected(path);
+            osdialog_filters_free(filters);
 #endif
         }
     };

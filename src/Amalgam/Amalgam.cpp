@@ -233,13 +233,23 @@ AmalgamWidget::AmalgamWidget(Amalgam* module) {
 
     darkPanel = new SvgPanel;
     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelDark.svg")));
-    if(module) {
+#ifndef USING_CARDINAL_NOT_RACK
+    if(module)
+#endif
+    {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AmalgamPanelLight.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
     setPanel(darkPanel);
+#ifdef USING_CARDINAL_NOT_RACK
+    if (!settings::preferDarkPanels)
+    {
+        darkPanel->visible = false;
+        lightPanel->visible = true;
+    }
+#endif
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -319,17 +329,24 @@ void AmalgamWidget::appendContextMenu(Menu *menu) {
     Amalgam *module = dynamic_cast<Amalgam*>(this->module);
     assert(module);
 
+#ifndef USING_CARDINAL_NOT_RACK
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
     menu->addChild(construct<AmalgamPanelStyleItem>(&MenuItem::text, "Dark", &AmalgamPanelStyleItem::module,
                                                     module, &AmalgamPanelStyleItem::panelStyle, 0));
     menu->addChild(construct<AmalgamPanelStyleItem>(&MenuItem::text, "Light", &AmalgamPanelStyleItem::module,
                                                       module, &AmalgamPanelStyleItem::panelStyle, 1));
+#endif
 }
 
 void AmalgamWidget::step() {
     if(!module) {
+#ifdef USING_CARDINAL_NOT_RACK
+        darkPanel->visible = settings::preferDarkPanels;
+        lightPanel->visible = !settings::preferDarkPanels;
+#else
         darkPanel->visible = true;
+#endif
         return;
     }
     Amalgam* m = reinterpret_cast<Amalgam*>(module);
@@ -337,7 +354,11 @@ void AmalgamWidget::step() {
     paramADisplay->text = paramANames[m->iAmalgamType];
     paramBDisplay->text = paramBNames[m->iAmalgamType];
 
+#ifdef USING_CARDINAL_NOT_RACK
+    if(!settings::preferDarkPanels) {
+#else
     if (m->panelStyle) {
+#endif
         darkPanel->visible = false;
         lightPanel->visible = true;
     }
