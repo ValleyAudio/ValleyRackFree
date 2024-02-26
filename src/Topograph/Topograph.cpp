@@ -348,12 +348,22 @@ TopographWidget::TopographWidget(Topograph *module) {
     darkPanel = new SvgPanel;
     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
     setPanel(darkPanel);
-    if(module) {
+#ifndef USING_CARDINAL_NOT_RACK
+    if(module)
+#endif
+    {
         lightPanel = new SvgPanel;
         lightPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TopographPanelWhite.svg")));
         lightPanel->visible = false;
         addChild(lightPanel);
     }
+#ifdef USING_CARDINAL_NOT_RACK
+    if (!settings::preferDarkPanels)
+    {
+        darkPanel->visible = false;
+        lightPanel->visible = true;
+    }
+#endif
 
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -532,6 +542,7 @@ void TopographWidget::appendContextMenu(Menu *menu) {
     Topograph *module = dynamic_cast<Topograph*>(this->module);
     assert(module);
 
+#ifndef USING_CARDINAL_NOT_RACK
     // Panel style
     menu->addChild(construct<MenuLabel>());
     menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel style"));
@@ -547,6 +558,7 @@ void TopographWidget::appendContextMenu(Menu *menu) {
     lightPanelStyleItem->module = module;
     lightPanelStyleItem->panelStyle = 1;
     menu->addChild(lightPanelStyleItem);
+#endif
 
     // Sequencer Modes
     menu->addChild(construct<MenuLabel>());
@@ -600,6 +612,10 @@ void TopographWidget::appendContextMenu(Menu *menu) {
 
 void TopographWidget::step() {
     if (!module) {
+#ifdef USING_CARDINAL_NOT_RACK
+        darkPanel->visible = settings::preferDarkPanels;
+        lightPanel->visible = !settings::preferDarkPanels;
+#endif
         Widget::step();
         return;
     }
@@ -627,7 +643,11 @@ void TopographWidget::step() {
 
     tempoText->text = floatToTempoText(tgraph->tempo);
 
+#ifdef USING_CARDINAL_NOT_RACK
+    if(!settings::preferDarkPanels) {
+#else
     if (tgraph->panelStyle == 1) {
+#endif
         darkPanel->visible = false;
         lightPanel->visible = true;
         tempoText->color = lightPanelTextColour;
