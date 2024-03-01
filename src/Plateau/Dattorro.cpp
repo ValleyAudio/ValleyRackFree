@@ -159,8 +159,8 @@ void Dattorro1997Tank::setLowCutFrequency(const double frequency) {
 void Dattorro1997Tank::setDiffusion(const double diffusion) {
     assert(diffusion >= 0.0 && diffusion <= 10.0);
 
-    double diffusion1 = scale(diffusion, 0.0, 10.0, 0.0, maxDiffusion1);
-    double diffusion2 = scale(diffusion, 0.0, 10.0, 0.0, maxDiffusion2);
+    double diffusion1 = scale<double>(diffusion, 0.0, 10.0, 0.0, maxDiffusion1);
+    double diffusion2 = scale<double>(diffusion, 0.0, 10.0, 0.0, maxDiffusion2);
 
     leftApf1.setGain(-diffusion1);
     leftApf2.setGain(diffusion2);
