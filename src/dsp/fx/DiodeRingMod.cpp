@@ -9,10 +9,10 @@ Diode::Diode() {
     float xMax = 0.999999f;
     float xMin = 0.999998f;
 
-    for (auto i = 0; i < diodeTableSize; ++i) {
+    for (std::size_t i = 0; i < diodeTableSize; ++i) {
         float setupVB = (float)i / (float)(diodeTableSize - 1) * 0.75f;
 
-        for (auto j = 0; j < diodeTableSize; ++j) {
+        for (std::size_t j = 0; j < diodeTableSize; ++j) {
             float hB = 4.f;
             precision = initPrecision;
             direction = -1.f;
@@ -64,16 +64,16 @@ void Diode::setV(float newVB, float newVL) {
     calcMakeupGain();
 }
 
-float Diode::calcNLP(float x, float vB, float vL) {
-    float num = x - vB;
+float Diode::calcNLP(float x, float a, float b) {
+    float num = x - a;
     num *= num;
-    return num / (2 * (vL - vB));
+    return num / (2.f * (b - a));
 }
 
-float Diode::calcLin(float x, float vB, float vL) {
-    float num = vL - vB;
+float Diode::calcLin(float x, float a, float b) {
+    float num = b - a;
     num *= num;
-    return x - vL + num / (2 * (vL - vB));
+    return x - b + num / (2.f * (b - a));
 }
 
 void Diode::calcMakeupGain() {
