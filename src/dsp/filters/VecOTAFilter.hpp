@@ -21,9 +21,9 @@ class VecTPTOnePoleStage {
 public:
   VecTPTOnePoleStage();
   inline __m128 process(const __m128& in) {
-    _v = _mm_mul_ps(_mm_sub_ps(vecDriveSignal(in, ones), z), G);
-    __m128 out = vecDriveSignal(_mm_add_ps(_v, z), ones);
-    z = _mm_add_ps(out, _v);
+    __m128 v = _mm_mul_ps(_mm_sub_ps(vecDriveSignal(in, ones), z), G);
+    __m128 out = vecDriveSignal(_mm_add_ps(v, z), ones);
+    z = _mm_add_ps(out, v);
     return out;
   }
 
@@ -35,17 +35,16 @@ public:
       G = g;
   }
 
-  void setSampleRate(float sampleRate);
+  void setSampleRate(float newSampleRate);
   float getSampleRate() const;
   float getZ() const;
   __m128 G;
   __m128 z;
 
 protected:
-  float _sampleRate = 44100.f;
+  float sampleRate = 44100.f;
 
   __m128 ones, zeros;
-  __m128 _v;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,18 +54,18 @@ public:
   VecOTAFilter();
 
   inline __m128 process(const __m128& in) {
-      sigma = _mm_mul_ps(G3, _stage1._z);
-      sigma = _mm_add_ps(sigma, _mm_mul_ps(G2, _stage2._z));
-      sigma = _mm_add_ps(sigma, _mm_mul_ps(G, _stage3._z));
-      sigma = _mm_mul_ps(_mm_add_ps(sigma, _stage4._z), hRecip);
+      sigma = _mm_mul_ps(G3, stage1.z);
+      sigma = _mm_add_ps(sigma, _mm_mul_ps(G2, stage2.z));
+      sigma = _mm_add_ps(sigma, _mm_mul_ps(G, stage3.z));
+      sigma = _mm_mul_ps(_mm_add_ps(sigma, stage4.z), hRecip);
 
       u = _mm_mul_ps(in, _mm_set1_ps(0.5f));
-      u = _mm_sub_ps(u, _mm_mul_ps(_mm_mul_ps(k, vecDriveSignal(sigma, ones)), _mm_set1_ps(_1_tanhf)));
+      u = _mm_sub_ps(u, _mm_mul_ps(_mm_mul_ps(k, vecDriveSignal(sigma, ones)), _mm_set1_ps(tanhRecip)));
       u = _mm_div_ps(u, _mm_add_ps(ones, _mm_mul_ps(k, gamma)));
-      lp1Result = _stage1.process(u);
-      lp2Result = _stage2.process(lp1Result);
-      lp3Result = _stage3.process(lp2Result);
-      lp4Result = _stage4.process(lp3Result);
+      lp1Result = stage1.process(u);
+      lp2Result = stage2.process(lp1Result);
+      lp3Result = stage3.process(lp2Result);
+      lp4Result = stage4.process(lp3Result);
       out = _mm_mul_ps(lp1Result, pole1Coeff);
       out = _mm_add_ps(out, _mm_mul_ps(lp2Result, pole2Coeff));
       out = _mm_add_ps(out, _mm_mul_ps(lp3Result, pole3Coeff));
@@ -122,10 +121,10 @@ public:
     };
 
 protected:
-    VecTPTOnePoleStage _stage1;
-    VecTPTOnePoleStage _stage2;
-    VecTPTOnePoleStage _stage3;
-    VecTPTOnePoleStage _stage4;
+    VecTPTOnePoleStage stage1;
+    VecTPTOnePoleStage stage2;
+    VecTPTOnePoleStage stage3;
+    VecTPTOnePoleStage stage4;
     __m128 k;
 
     __m128 ones, zeros;
@@ -137,14 +136,13 @@ protected:
     int _mode = -1;
     __m128 pole0Coeff, pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
 
-    int32_t _pos[4] = {0, 0, 0, 0};
+    int32_t pos[4] = {0, 0, 0, 0};
 
-    float _1_tanhf = 1.f;
-    float _fourPole = 1.f;
+    float tanhRecip = 1.f;
 
-    float _kGTable[G_TABLE_SIZE];
-    float _kHTable[G_TABLE_SIZE];
-    float _sampleRate = 44100.f;
+    float kGTable[G_TABLE_SIZE];
+    float kHTable[G_TABLE_SIZE];
+    float sampleRate = 44100.f;
 
     void calcInternalGTable();
 };
