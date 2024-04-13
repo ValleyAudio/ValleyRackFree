@@ -21,31 +21,30 @@ class VecTPTOnePoleStage {
 public:
   VecTPTOnePoleStage();
   inline __m128 process(const __m128& in) {
-    _v = _mm_mul_ps(_mm_sub_ps(vecDriveSignal(in, _ones), _z), _G);
-    _out = vecDriveSignal(_mm_add_ps(_v, _z), _ones);
-    _z = _mm_add_ps(_out, _v);
-    return _out;
+    _v = _mm_mul_ps(_mm_sub_ps(vecDriveSignal(in, ones), z), G);
+    __m128 out = vecDriveSignal(_mm_add_ps(_v, z), ones);
+    z = _mm_add_ps(out, _v);
+    return out;
   }
 
   inline void calcG(const __m128& g) {
-      _G = _mm_div_ps(g, _mm_add_ps(_ones, g));
+      G = _mm_div_ps(g, _mm_add_ps(ones, g));
   }
 
   inline void setG(const __m128& g) {
-      _G = g;
+      G = g;
   }
 
   void setSampleRate(float sampleRate);
   float getSampleRate() const;
   float getZ() const;
-  __m128 _G;
-  __m128 _z;
+  __m128 G;
+  __m128 z;
 
 protected:
   float _sampleRate = 44100.f;
 
-  __m128 _ones, _zeros;
-  __m128 _out;
+  __m128 ones, zeros;
   __m128 _v;
 };
 
