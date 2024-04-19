@@ -1,13 +1,7 @@
 #include "VecDiodeRingMod.hpp"
 
 VecDiode::VecDiode() {
-    __zeros = _mm_set1_ps(0.f);
-    __den = __zeros;
-
-    _num = 0.f;
-    _den = 1.f;
-    _hA = 0.f;
-    _hB = 0.f;
+    den = _mm_set1_ps(1.f);
 
     float initPrecision = 0.01f;
     float precision = initPrecision;
@@ -17,19 +11,19 @@ VecDiode::VecDiode() {
     float xMax = 0.999999f;
     float xMin = 0.999998f;
     for(auto i = 0; i < DSJ_VEC_DIODE_TABLE_N; ++i) {
-        _vB = (float)i / (float)(DSJ_VEC_DIODE_TABLE_N - 1) * 0.75f;
+        float setupVB = (float)i / (float)(DSJ_VEC_DIODE_TABLE_N - 1) * 0.75f;
         for(auto j = 0; j < DSJ_VEC_DIODE_TABLE_N; ++j) {
-            _hB = 4.f;
+            float hB = 4.f;
             precision = initPrecision;
             direction = -1.f;
-            _vL = rescale((float)j, 0.f, (float)(DSJ_VEC_DIODE_TABLE_N - 1), _vB, 1.f);
-            _vL = clamp(_vL, _vB + 0.0001f, 1.f);
+            float setupVL = rescale((float)j, 0.f, (float)(DSJ_VEC_DIODE_TABLE_N - 1), setupVB, 1.f);
+            setupVL = clamp(setupVL, setupVB + 0.0001f, 1.f);
             while(true) {
-                x = _hB * calcLin(1.f, _vB, _vL);
+                x = hB * calcLin(1.f, setupVB, setupVL);
                 if(x >= xMin && x <= xMax) {
                     break;
                 }
-                _hB += direction * precision;
+                hB += direction * precision;
                 if(x < xMin && direction == -1.f) {
                     direction = 1.f;
                     precision *= 0.1f;
@@ -39,23 +33,23 @@ VecDiode::VecDiode() {
                     precision *= 0.1f;
                 }
             }
-            _makeupGain[i][j] = _hB;
+            makeupGainTable[i][j] = hB;
         }
     }
 }
 
 __m128 VecDiode::process(__m128 x) {
-    __out = _mm_and_ps(vecCalcNLP(x, _vB, _vLScaled),_mm_cmpgt_ps(x, _mm_set1_ps(_vB)));
-    __out = _mm_switch_ps(__out, vecCalcLin(x, _vB, _vLScaled), _mm_cmpgt_ps(x, _mm_set1_ps(_vLScaled)));
-    return _mm_mul_ps(__out, _mm_set1_ps(_hB));
+    __m128 out = _mm_and_ps(vecCalcNLP(x, vB, vLScaled),_mm_cmpgt_ps(x, _mm_set1_ps(vB)));
+    out = _mm_switch_ps(out, vecCalcLin(x, vB, vLScaled), _mm_cmpgt_ps(x, _mm_set1_ps(vLScaled)));
+    return _mm_mul_ps(out, _mm_set1_ps(makeupGain));
 }
 
-void VecDiode::setV(float vB, float vL) {
-    _vB = 0.75f * vB;
-    _vL = clamp(vL, 0.0f, 1.f);
-    _vLScaled = rescale(_vL, 0.0f, 1.f, _vB, 1.f);
-    _vLScaled = clamp(_vLScaled, _vB + 0.001f, 1.f);
-    __den = _mm_set1_ps(1.f / (2.f * (_vLScaled - _vB)));
+void VecDiode::setV(float newVB, float newVL) {
+    vB = 0.75f * newVB;
+    vL = clamp(newVL, 0.0f, 1.f);
+    vLScaled = rescale(vL, 0.0f, 1.f, vB, 1.f);
+    vLScaled = clamp(vLScaled, vB + 0.001f, 1.f);
+    den = _mm_set1_ps(1.f / (2.f * (vLScaled - vB)));
     calcMakeupGain();
 }
 
@@ -74,13 +68,13 @@ float VecDiode::calcLin(float x, float vB, float vL) {
 __m128 VecDiode::vecCalcNLP(__m128 x, float vB, float vL) {
     __m128 num = _mm_sub_ps(x, _mm_set1_ps(vB));
     num = _mm_mul_ps(num, num);
-    return _mm_mul_ps(num, __den);
+    return _mm_mul_ps(num, den);
 }
 
 __m128 VecDiode::vecCalcLin(__m128 x, float vB, float vL) {
     float num = vL - vB;
     num *= num;
-    return _mm_add_ps(_mm_sub_ps(x, _mm_set1_ps(vL)), _mm_mul_ps(_mm_set1_ps(num), __den));
+    return _mm_add_ps(_mm_sub_ps(x, _mm_set1_ps(vL)), _mm_mul_ps(_mm_set1_ps(num), den));
 }
 
 float VecDiode::subCalcLin(float vB, float vL) {
@@ -90,32 +84,32 @@ float VecDiode::subCalcLin(float vB, float vL) {
 }
 
 void VecDiode::calcMakeupGain() {
-    _vBF = rescale(_vB, 0.001f, 0.75f, 0.f, (float)DSJ_VEC_DIODE_TABLE_N - 1);
-    _vLF = rescale(_vLScaled, _vB, 1.f, 0.f, (float)DSJ_VEC_DIODE_TABLE_N - 1);
-    _vBI_1 = clamp((long)_vBF, 0, DSJ_VEC_DIODE_TABLE_N - 1);
-    _vLI_1 = clamp((long)_vLF, 0, DSJ_VEC_DIODE_TABLE_N - 1);
-    _vBI_2 = clamp(_vBI_1 + 1, 0, DSJ_VEC_DIODE_TABLE_N - 1);
-    _vLI_2 = clamp(_vLI_1 + 1, 0, DSJ_VEC_DIODE_TABLE_N - 1);
+    float vBF = rescale(vB, 0.001f, 0.75f, 0.f, (float)DSJ_VEC_DIODE_TABLE_N - 1);
+    float vLF = rescale(vLScaled, vB, 1.f, 0.f, (float)DSJ_VEC_DIODE_TABLE_N - 1);
+    int vBI_1 = clamp((int)vBF, 0, DSJ_VEC_DIODE_TABLE_N - 1);
+    int vLI_1 = clamp((int)vLF, 0, DSJ_VEC_DIODE_TABLE_N - 1);
+    int vBI_2 = clamp(vBI_1 + 1, 0, DSJ_VEC_DIODE_TABLE_N - 1);
+    int vLI_2 = clamp(vLI_1 + 1, 0, DSJ_VEC_DIODE_TABLE_N - 1);
 
-    _vBF -= (float)_vBI_1;
-    _vLF -= (float)_vLI_1;
+    vBF -= (float)vBI_1;
+    vLF -= (float)vLI_1;
 
-    _lutA = _makeupGain[_vBI_1][_vLI_1];
-    _lutB = _makeupGain[_vBI_1][_vLI_2];
-    _lutC = _makeupGain[_vBI_2][_vLI_1];
-    _lutD = _makeupGain[_vBI_2][_vLI_2];
+    float lutA = makeupGainTable[vBI_1][vLI_1];
+    float lutB = makeupGainTable[vBI_1][vLI_2];
+    float lutC = makeupGainTable[vBI_2][vLI_1];
+    float lutD = makeupGainTable[vBI_2][vLI_2];
 
-    _hB = linterp(linterp(_lutA, _lutB, _vBF),
-                  linterp(_lutC, _lutD, _vBF), _vLF);
+    makeupGain = linterp(linterp(lutA, lutB, vBF),
+                         linterp(lutC, lutD, vBF), vLF);
 }
 
 __m128 VecDiodeRingMod::process(__m128 x, __m128 y, float vB, float vL) {
     d.setV(vB, vL);
-    __b = _mm_mul_ps(x, _mm_set1_ps(0.5f));
-    __a = _mm_add_ps(y, __b);
-    __b = _mm_sub_ps(y, __b);
-    __negA = _mm_mul_ps(_mm_set1_ps(-1.f), __a);
-    __negB = _mm_mul_ps(_mm_set1_ps(-1.f), __b);
-    return _mm_sub_ps(_mm_add_ps(d.process(__a), d.process(__negA)),
-                      _mm_add_ps(d.process(__b), d.process(__negB)));
+    __m128 b = _mm_mul_ps(x, _mm_set1_ps(0.5f));
+    __m128 a = _mm_add_ps(y, b);
+    b = _mm_sub_ps(y, b);
+    __m128 negA = _mm_mul_ps(_mm_set1_ps(-1.f), a);
+    __m128 negB = _mm_mul_ps(_mm_set1_ps(-1.f), b);
+    return _mm_sub_ps(_mm_add_ps(d.process(a), d.process(negA)),
+                      _mm_add_ps(d.process(b), d.process(negB)));
 }
