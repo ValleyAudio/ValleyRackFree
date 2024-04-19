@@ -73,8 +73,8 @@ public:
         _calcStepSize();
     }
 
-    void setSampleRate(float sampleRate) {
-        sampleRate = sampleRate;
+    void setSampleRate(float newSampleRate) {
+        sampleRate = newSampleRate;
         _calcStepSize();
         sawHPF.setSampleRate(sampleRate);
         pulseHPF.setSampleRate(sampleRate);
