@@ -21,7 +21,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
     __minus = _mm_set1_ps(-1.f);
     __fours = _mm_set1_ps(4.f);
     __quarter = _mm_set1_ps(0.25f);
-    __inputPhase = __zeros;
+    inputPhase = __zeros;
     __eoc = __zeros;
     __syncOut = __zeros;
     __syncing = __zeros;
@@ -69,7 +69,7 @@ void ScanningQuadOsc::tick() {
         __readPhase = _mm_clamp_ps(__readPhase, __zeros, __ones);
 
         // Phase Mod
-        __readPhase = _mm_add_ps(__readPhase, __inputPhase);
+        __readPhase = _mm_add_ps(__readPhase, inputPhase);
 
         __negMask = _mm_cmplt_ps(__readPhase, __zeros);
         __shifts = __readPhase;
@@ -84,7 +84,7 @@ void ScanningQuadOsc::tick() {
     }
     else {
         // Phase Mod
-        __readPhase = _mm_add_ps(__a, __inputPhase);
+        __readPhase = _mm_add_ps(__a, inputPhase);
 
         __negMask = _mm_cmplt_ps(__readPhase, __zeros);
         __shifts = __readPhase;

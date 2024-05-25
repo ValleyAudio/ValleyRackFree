@@ -19,7 +19,7 @@
 
 class ScanningQuadOsc {
 public:
-    __m128 __inputPhase;
+    __m128 inputPhase;
 
     enum SyncModes {
         HARD_SYNC = 0,
@@ -73,11 +73,11 @@ public:
 
     void setSampleRate(float sampleRate);
 
-    // void setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize);
     void setWavebank(float* wavebank, int32_t numWaves, int32_t tableSize);
     void setScanPosition(float position);
     void mm_setScanPosition(const __m128& position);
     int32_t getNumwaves() const;
+
 private:
     float* _wavebank;
     int32_t _numWaves;
