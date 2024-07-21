@@ -217,13 +217,6 @@ const __m128& ScanningQuadOsc::getDirection() const {
     return vPhasorDirection;
 }
 
-void ScanningQuadOsc::setWavetable(float* wavetable, long size) {
-    _wavetable = wavetable;
-    vTableSize = _mm_set1_ps((float)size);
-    vTableSize_1 = _mm_set1_ps((float)size - 1.f);
-    calcStepSize();
-}
-
 void ScanningQuadOsc::setFrequency(float newFrequency) {
     vFrequency = _mm_set1_ps(newFrequency);
     vFrequency = _mm_switch_ps(vFrequency, vNyquist, _mm_cmpgt_ps(vFrequency, vNyquist));

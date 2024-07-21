@@ -524,8 +524,8 @@ void Terrorform::process(const ProcessArgs &args) {
         __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
         __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
 
-        osc[c].__inputPhase = trueFMEnabled ? __zeros : __fmSum;
-        osc[c].__inputPhase = _mm_add_ps(osc[c].__inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_load_ps(skew + g)));
+        osc[c].inputPhase = trueFMEnabled ? __zeros : __fmSum;
+        osc[c].inputPhase = _mm_add_ps(osc[c].inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_load_ps(skew + g)));
 
         __wave = _mm_load_ps(waves + g);
         __shape = _mm_load_ps(shapes + g);

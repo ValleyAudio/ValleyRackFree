@@ -57,7 +57,6 @@ public:
     const __m128& getEOCPulse() const;
     const __m128& getDirection() const;
 
-    void setWavetable(float* wavetable, long size);
     void setFrequency(float newFrequency);
     void setFrequency(float f0, float f1, float f2, float f3);
     void setFrequency(const __m128& newFrequency);
@@ -91,7 +90,6 @@ private:
     float highSample2[4] = {0.f, 0.f, 0.f, 0.f};
     __m128 vFade, vResult1, vResult2;
     __m128i vLowBank, vHighBank;
-    float* _wavetable;
 
     float lowSample[4] = {0.f, 0.f, 0.f, 0.f};
     float highSample[4] = {0.f, 0.f, 0.f, 0.f};
