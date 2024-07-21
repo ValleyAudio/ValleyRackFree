@@ -21,8 +21,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
     vSyncState = _mm_set1_ps(0.f);
     vOutputLevel = _mm_set1_ps(1.f);
     doPhaseModPostPhasorShaping = false;
-    _weakSync = false;
-    _sync = false;
+    syncIsEnabled = false;
 
     vNegMask = _mm_set1_ps(0.f);
     vShifts = _mm_set1_ps(0.f);
@@ -38,7 +37,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
     vB = _mm_set1_ps(0.f);
     vReadPhase = _mm_set1_ps(0.f);
     vPhasorDirection = _mm_set1_ps(1.f);
-    _syncMode = 0;
+    syncMode = 0;
     setFrequency(1.f);
     setShapeMode(0);
     shaper.setShapeMode(0);
@@ -144,12 +143,12 @@ void ScanningQuadOsc::sync(const __m128& syncSource) {
     vSyncState = _mm_cmpgt_ps(syncSource, _mm_set1_ps(0.f));
     vSyncSource = _mm_and_ps(vSyncState, _mm_andnot_ps(vSyncing, vSyncState));
 
-    if(!_sync) {
+    if(!syncIsEnabled) {
         vPhasorDirection = _mm_set1_ps(1.f);
         vOutputLevel = _mm_set1_ps(1.f);
     }
     else {
-        switch((SyncModes) _syncMode) {
+        switch((SyncModes) syncMode) {
             case HARD_SYNC: hardSync(vSyncSource);
                 break;
             case FIFTH_SYNC: fifthSync(vSyncSource);
@@ -252,20 +251,16 @@ void ScanningQuadOsc::setPhaseModPostPhasorShaping(bool phaseModShouldBePostPhas
     doPhaseModPostPhasorShaping = phaseModShouldBePostPhasorShaping;
 }
 
-void ScanningQuadOsc::setSyncMode(int syncMode) {
-    if(_syncMode != syncMode) {
-        _syncMode = syncMode;
+void ScanningQuadOsc::setSyncMode(int newSyncMode) {
+    if(syncMode != newSyncMode) {
+        syncMode = newSyncMode;
         vOutputLevel = _mm_set1_ps(1.f);
         onChangeSyncMode();
     }
 }
 
 void ScanningQuadOsc::enableSync(bool enableSync) {
-    _sync = enableSync;
-}
-
-void ScanningQuadOsc::enableWeakSync(bool weakSync) {
-    _weakSync = weakSync;
+    syncIsEnabled = enableSync;
 }
 
 void ScanningQuadOsc::setSampleRate(float sampleRate) {

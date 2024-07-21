@@ -66,9 +66,8 @@ public:
     void setShapeMode(int shapeMode);
     void setPhaseModPostPhasorShaping(bool phaseModShouldBePostPhasorShaping);
 
-    void setSyncMode(int syncMode);
+    void setSyncMode(int newSyncMode);
     void enableSync(bool enableSync);
-    void enableWeakSync(bool weakSync);
 
     void setSampleRate(float sampleRate);
 
@@ -96,8 +95,8 @@ private:
     int32_t tableSize;
     float shape;
     bool doPhaseModPostPhasorShaping;
-    int32_t _syncMode;
-    bool _sync, _weakSync;
+    int32_t syncMode;
+    bool syncIsEnabled;
 
     __m128 vFrequency, vSamplerate, vNyquist;
 
