@@ -64,7 +64,7 @@ public:
     void enableIntSync(size_t opNum, bool enableIntSync);
     void enableWeakSync(size_t opNum, bool weakEnable);
     void setShapeMode(size_t opNum, int shapeMode);
-    void setPMPostShape(size_t opNum, bool PMPostShape);
+    void setPhaseModPostPhasorShaping(size_t opNum, bool PMPostShape);
     void setSampleRate(float sampleRate);
 
 private:

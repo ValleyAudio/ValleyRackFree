@@ -63,8 +63,8 @@ public:
 
     void setShape(float newShape);
     void setShape(const __m128& vNewShape);
-    void setShapeMethod(int shapeMethod);
-    void setPMPostShape(bool PMPostShape);
+    void setShapeMode(int shapeMode);
+    void setPhaseModPostPhasorShaping(bool phaseModShouldBePostPhasorShaping);
 
     void setSyncMode(int syncMode);
     void enableSync(bool enableSync);
@@ -95,7 +95,7 @@ private:
     float highSample[4] = {0.f, 0.f, 0.f, 0.f};
     int32_t tableSize;
     float shape;
-    bool _PMPostShape;
+    bool doPhaseModPostPhasorShaping;
     int32_t _syncMode;
     bool _sync, _weakSync;
 
@@ -116,7 +116,6 @@ private:
     __m128 vLowerValue, vUpperValue, vInterpFraction, vOutput, vOutputLevel;
     Shaper shaper;
     void calcStepSize();
-    __m128 (*shapeMethod)(const __m128&, const __m128&);
     void onChangeSyncMode();
     void hardSync(const __m128& syncSource);
     void softSync(const __m128& syncSource);

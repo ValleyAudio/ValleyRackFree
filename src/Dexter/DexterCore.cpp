@@ -280,11 +280,11 @@ void DexterCore::enableWeakSync(size_t opNum, bool weakEnable) {
 }
 
 void DexterCore::setShapeMode(size_t opNum, int shapeMode) {
-    op[opNum].setShapeMethod(shapeMode);
+    op[opNum].setShapeMode(shapeMode);
 }
 
-void DexterCore::setPMPostShape(size_t opNum, bool PMPostShape) {
-    op[opNum].setPMPostShape(PMPostShape);
+void DexterCore::setPhaseModPostPhasorShaping(size_t opNum, bool PMPostShape) {
+    op[opNum].setPhaseModPostPhasorShaping(PMPostShape);
 }
 
 void DexterCore::setSampleRate(float sampleRate) {

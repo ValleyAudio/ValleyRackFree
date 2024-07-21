@@ -91,7 +91,7 @@ Terrorform::Terrorform() {
         osc[i].setScanPosition(0.f);
         osc[i].setSampleRate(APP->engine->getSampleRate());
         osc[i].setShape(0.0);
-        osc[i].setShapeMethod(0);
+        osc[i].setShapeMode(0);
         osc[i].enableSync(true);
         mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
         mainOutDCBlock[i].setSampleRate(APP->engine->getSampleRate());
@@ -263,10 +263,10 @@ void Terrorform::process(const ProcessArgs &args) {
                                    wavetable_lengths[bankI]);
             }
 
-            osc[c].setShapeMethod(shapeTypeI);
+            osc[c].setShapeMode(shapeTypeI);
             enhancer[c].setMode(enhanceTypeI);
             osc[c].setSyncMode(syncChoice);
-            osc[c].setPMPostShape(postPMShapeEnabled);
+            osc[c].setPhaseModPostPhasorShaping(postPMShapeEnabled);
             mainOutDCBlock[c].setCutoffFreq(lfoModeEnabled ? 0.f : 2.f);
             rawOutDCBlock[c].setCutoffFreq(lfoModeEnabled ? 0.f : 2.f);
         }

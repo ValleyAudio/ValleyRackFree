@@ -54,6 +54,7 @@ public:
     Shaper();
     __m128 process(const __m128& a, const __m128& f);
     void setShapeMode(int mode);
+
 private:
     Modes _shapeMode = Modes::BEND_MODE;
 

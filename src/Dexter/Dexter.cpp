@@ -346,8 +346,8 @@ void Dexter::step() {
         coreB.setShapeMode(op, opShapeMode[op]);
         coreA.setShape(op, opShape[op]);
         coreB.setShape(op, opShape[op]);
-        coreA.setPMPostShape(op, opPostShape[op]);
-        coreB.setPMPostShape(op, opPostShape[op]);
+        coreA.setPhaseModPostPhasorShaping(op, opPostShape[op]);
+        coreB.setPhaseModPostPhasorShaping(op, opPostShape[op]);
 
         if (opButtonPostShape[op] + modMatrix[op].getDestinationValue(DexterRoutingMatrix::Destination::POST_SHAPE_DEST) > 0.5f) {
             opPostShape[op] = true;

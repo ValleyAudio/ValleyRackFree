@@ -20,7 +20,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
     vSyncSource = _mm_set1_ps(0.f);
     vSyncState = _mm_set1_ps(0.f);
     vOutputLevel = _mm_set1_ps(1.f);
-    _PMPostShape = false;
+    doPhaseModPostPhasorShaping = false;
     _weakSync = false;
     _sync = false;
 
@@ -40,7 +40,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
     vPhasorDirection = _mm_set1_ps(1.f);
     _syncMode = 0;
     setFrequency(1.f);
-    setShapeMethod(0);
+    setShapeMode(0);
     shaper.setShapeMode(0);
 
     vFade = _mm_set1_ps(0.f);
@@ -55,7 +55,7 @@ ScanningQuadOsc::ScanningQuadOsc() {
 void ScanningQuadOsc::tick() {
     // Phase modulate
     __m128 vReadPhaseMask = _mm_set1_ps(0.f);
-    if(_PMPostShape) {
+    if(doPhaseModPostPhasorShaping) {
         // Shape
         vReadPhase = shaper.process(vA, vShape);
         vReadPhase = _mm_clamp_ps(vReadPhase, _mm_set1_ps(0.f), _mm_set1_ps(1.f));
@@ -244,12 +244,12 @@ void ScanningQuadOsc::setShape(const __m128& vNewShape) {
     vShape = vNewShape;
 }
 
-void ScanningQuadOsc::setShapeMethod(int shapeMethod) {
-    shaper.setShapeMode(shapeMethod);
+void ScanningQuadOsc::setShapeMode(int shapeMode) {
+    shaper.setShapeMode(shapeMode);
 }
 
-void ScanningQuadOsc::setPMPostShape(bool PMPostShape) {
-    _PMPostShape = PMPostShape;
+void ScanningQuadOsc::setPhaseModPostPhasorShaping(bool phaseModShouldBePostPhasorShaping) {
+    doPhaseModPostPhasorShaping = phaseModShouldBePostPhasorShaping;
 }
 
 void ScanningQuadOsc::setSyncMode(int syncMode) {
