@@ -27,29 +27,6 @@ public:
         setSampleRate(44100.f);
     }
     void process(float gate, float trig) {
-        /*if(gate >= 0.5f) {
-            if(trig >= 0.5f && _prevTrigState < 0.5f && !_triggered) {
-                _triggered = true;
-            }
-            _prevTrigState = trig;
-            if(_idling || _releasing || _triggered) {
-                _triggered = false;
-                _attacking = true;
-                _idling = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = false;
-            }
-        }
-        else if(gate < 0.5f) {
-            if(!_idling) {
-                _attacking = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = true;
-            }
-        }*/
-
         if(trig >= 0.1f && _prevTrigState < 0.1f && !_triggered) {
             _triggered = true;
         }
