@@ -34,7 +34,7 @@ public:
         input = 0;
         output = 0;
         inSum = 0;
-        _outSum = 0;
+        outSum = 0;
         delay.clear();
     }
 
@@ -52,7 +52,7 @@ public:
 private:
     T gain;
     T inSum;
-    T _outSum;
+    T outSum;
 };
 
 template<class T>
