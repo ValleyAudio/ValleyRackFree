@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 
 class DEnv {
 public:
@@ -82,7 +83,7 @@ public:
             value = 0.f;
         }
         if(_attacking) {
-            value += powf(base, 1 - attackTime) / maxTime * (1.01f - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - attackTime) / maxTime * (1.01f - value) * _sampleTime * timeScale;
             if(value > (1.f - 1e-4)) {
                 value = 1.f;
                 _attacking = false;
@@ -95,7 +96,7 @@ public:
             }
         }
         if(_decaying) {
-            value += powf(base, 1 - decayTime) / maxTime * (sustain - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - decayTime) / maxTime * (sustain - value) * _sampleTime * timeScale;
             if(value < sustain + 1e-4) {
                 value = sustain;
                 _decaying = false;
@@ -115,7 +116,7 @@ public:
             value = sustain;
         }
         if(_releasing) {
-            value += powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * _sampleTime * timeScale;
             if(value < 1e-4) {
                 value = 0.f;
                 _releasing = false;
