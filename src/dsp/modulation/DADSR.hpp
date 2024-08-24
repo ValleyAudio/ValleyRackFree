@@ -25,17 +25,17 @@ public:
         base = 20000.f;
         maxTime = 10.f;
         timeScale = 1.f;
-        _prevGateState = false;
-        _prevTrigState = 0.f;
+        prevGateState = false;
+        prevTrigState = 0.f;
         setSampleRate(44100.f);
     }
     void process(float gate, float trig) {
-        if(trig >= 0.1f && _prevTrigState < 0.1f && !isTriggered) {
+        if(trig >= 0.1f && prevTrigState < 0.1f && !isTriggered) {
             isTriggered = true;
         }
-        _prevTrigState = trig;
+        prevTrigState = trig;
 
-        _prevGateState = gated;
+        prevGateState = gated;
         gated = gate >= 0.1f ? true : false;
 
         if(gated || isTriggered) {
@@ -46,7 +46,7 @@ public:
             }
         }
 
-        if(!gated && _prevGateState) {
+        if(!gated && prevGateState) {
             if(state != State::Idling) {
                 state = State::Releasing;
             }
@@ -58,7 +58,7 @@ public:
         }
 
         if(state == State::Attacking) {
-            value += std::powf(base, 1 - attackTime) / maxTime * (1.01f - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - attackTime) / maxTime * (1.01f - value) * sampleTime * timeScale;
             if(value > (1.f - 1e-4)) {
                 value = 1.f;
                 if(gated) {
@@ -71,7 +71,7 @@ public:
         }
 
         if(state == State::Decaying) {
-            value += std::powf(base, 1 - decayTime) / maxTime * (sustain - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - decayTime) / maxTime * (sustain - value) * sampleTime * timeScale;
             if(value < sustain + 1e-4) {
                 value = sustain;
                 state = State::Sustaining;
@@ -91,7 +91,7 @@ public:
         }
 
         if(state == State::Releasing) {
-            value += std::powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * _sampleTime * timeScale;
+            value += std::powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * sampleTime * timeScale;
             if(value < 1e-4) {
                 value = 0.f;
                 state = State::Idling;
@@ -99,9 +99,9 @@ public:
         }
     }
 
-    void setSampleRate(float sampleRate) {
-        _sampleRate = sampleRate;
-        _sampleTime = 1.f / _sampleRate;
+    void setSampleRate(float newSampleRate) {
+        sampleRate = newSampleRate;
+        sampleTime = 1.f / sampleRate;
     }
 
     float attackTime;
@@ -112,12 +112,11 @@ public:
     float timeScale;
     bool loop;
 private:
-    float _sampleRate, _sampleTime;
+    float sampleRate, sampleTime;
     float base, maxTime;
-    bool _prevGateState;
-    float _prevTrigState;
+    bool prevGateState;
+    float prevTrigState;
     State state = State::Idling;
-    bool _idling, _attacking, _decaying, _sustaining, _releasing;
     bool gated, isTriggered;
 
 };
