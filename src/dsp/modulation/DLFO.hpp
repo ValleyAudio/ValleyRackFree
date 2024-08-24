@@ -18,8 +18,6 @@ public:
 
     DLFO() {
         _step = 0.f;
-        _a = 1.27323954;
-        _b = 0.405284735;
         setSampleRate(44100.f);
         setFrequency(0.75f);
         _syncHigh = false;
@@ -36,10 +34,10 @@ public:
         _x = out[TRI_WAVE] * 0.5f * M_PI;
         _xx = _x * _x;
         if(_x < 0) {
-            out[SINE_WAVE] = _a * _x + _b * _xx;
+            out[SINE_WAVE] = a * _x + b * _xx;
         }
         else {
-            out[SINE_WAVE] = _a * _x - _b * _xx;
+            out[SINE_WAVE] = a * _x - b * _xx;
         }
 
         out[SAW_UP_WAVE] = _step - 0.25f;
@@ -66,14 +64,14 @@ public:
     }
 
     inline void setFrequency(float freq) {
-        _freq = freq;
-        _calcStepSize();
+        frequency = freq;
+        calcStepSize();
     }
 
-    inline void setSampleRate(float sampleRate) {
-        _sampleRate = sampleRate;
-        _1_sampleRate = 1.f / sampleRate;
-        _calcStepSize();
+    inline void setSampleRate(float newSampleRate) {
+        sampleRate = newSampleRate;
+        sampleTime = 1.f / sampleRate;
+        calcStepSize();
     }
 
     inline void sync(float syncSignal) {
@@ -96,14 +94,16 @@ public:
         }
     }
 private:
-    float _freq, _sampleRate, _1_sampleRate;
+    static constexpr float a = 1.27323954f;
+    static constexpr float b = 0.405284735;
+    float frequency, sampleRate, sampleTime;
     float _step, _stepSize;
     bool _syncHigh, _triggerHigh;
-    float _x, _xx, _a, _b;
+    float _x, _xx;
     WhiteNoise _noise;
     bool _shTriggered;
 
-    void _calcStepSize() {
-        _stepSize = _freq * _1_sampleRate;
+    void calcStepSize() {
+        _stepSize = frequency * sampleTime;
     }
 };
