@@ -264,7 +264,7 @@ void Interzone::getCV() {
         vPwm = _mm_switch_ps(vPwm, vEnvPwm, _mm_cmpeq_ps(vPwmSource, _mm_set1_ps(ENVELOPE_PWM)));
         vPwm = _mm_mul_ps(vPwm, vPwmDepth);
         vPwm = _mm_add_ps(vPwm, vPulseWidth);
-        vOsc[i].__pwm = _mm_clamp_ps(vPwm, __zero, __half);
+        vOsc[i].pwm = _mm_clamp_ps(vPwm, __zero, __half);
         vOsc[i].setSubWidth(vSubWidth);
 
         vFilter[i].setCutoff(vFilterCutoff);
@@ -280,10 +280,10 @@ void Interzone::tickSynth() {
     for (int i = 0; i < numActiveVoiceGroups; ++i) {
         startChan = i * kNumVoicesPerGroup;
         vOsc[i].process();
-        vSubWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? vOsc[i].__subSaw : vOsc[i].__subPulse;
+        vSubWave = params[SUB_WAVE_PARAM].getValue() > 1.f ? vOsc[i].subSaw : vOsc[i].subPulse;
         vExtInput = inputs[EXT_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
-        vMix = _mm_mul_ps(vOsc[i].__saw, vSawLevel);
-        vMix = _mm_add_ps(vMix, _mm_mul_ps(vOsc[i].__pulse, vPulseLevel));
+        vMix = _mm_mul_ps(vOsc[i].saw, vSawLevel);
+        vMix = _mm_add_ps(vMix, _mm_mul_ps(vOsc[i].pulse, vPulseLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vSubWave, vSubLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vNoise, vNoiseLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vExtInput, vExtInLevel));
@@ -294,8 +294,8 @@ void Interzone::tickSynth() {
         vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
         vOutput = _mm_clamp_ps(vOutput, __negTen, __ten);
 
-        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].__saw, __five));
-        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].__pulse, __five));
+        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].saw, __five));
+        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].pulse, __five));
         _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(startChan), _mm_mul_ps(vSubWave, __five));
         _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(startChan), vMix);
         _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(startChan), vFilterOutput);

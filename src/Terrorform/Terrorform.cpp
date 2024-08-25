@@ -99,7 +99,7 @@ Terrorform::Terrorform() {
         rawOutDCBlock[i].setCutoffFreq(2.f);
         rawOutDCBlock[i].setCutoffFreq(2.f);
         enhancerOutDCBlock[i].setCutoffFreq(2.f);
-        unisonDrifters[i].__phaseOffset = _mm_loadu_ps(drifterPhases + i * 4);
+        unisonDrifters[i].phaseOffset = _mm_loadu_ps(drifterPhases + i * 4);
         unisonDrifters[i].setFrequency(_mm_loadu_ps(drifterFreqs + i * 4));
     }
     bank = 0;
