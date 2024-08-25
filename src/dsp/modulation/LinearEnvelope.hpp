@@ -17,16 +17,17 @@ public:
     void setTime(float time);
     void setSampleRate(float sampleRate);
 
-    float _value;
-    bool _justFinished;
+    float currentValue;
+    bool justFinished;
 private:
     void calculateDeltaV();
 
-    float _t;
-    float _time;
-    float _m;
-    float _deltaT;
-    float _start, _end;
-    float _sampleRate;
-    bool _running;
+    float t = 0.f;
+    float time = 1.f;
+    float gradient = 0.f;
+    float deltaT = 0.f;
+    float startValue = 0.f;
+    float endValue = 0.f;
+    float sampleRate = 44100.f;
+    bool isRunning = false;
 };
