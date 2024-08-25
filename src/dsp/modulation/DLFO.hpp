@@ -15,15 +15,11 @@ public:
         NUM_WAVES
     };
 
-    float out[NUM_WAVES];
+    float out[NUM_WAVES] = {0.f};
 
     DLFO() {
-        step = 0.f;
         setSampleRate(44100.f);
         setFrequency(0.75f);
-        isSyncing = false;
-        isTriggered = false;
-        shIsTriggered = false;
         out[SH_WAVE] = whiteNoiseGenerator.getValue();
     }
 
@@ -97,12 +93,20 @@ public:
 private:
     static constexpr float a = 1.27323954f;
     static constexpr float b = 0.405284735;
-    float frequency, sampleRate, sampleTime;
-    float step, stepSize;
-    bool isSyncing, isTriggered;
-    float x;
-    WhiteNoise whiteNoiseGenerator;
+
+    float frequency = 0.f;
+    float sampleRate = 44100.f;
+    float sampleTime = 1.f / sampleRate;
+
+    float x = 0.f;
+    float step = 0.f;
+    float stepSize = 0.f;
+
     bool shIsTriggered;
+    bool isSyncing = false;
+    bool isTriggered = false;
+
+    WhiteNoise whiteNoiseGenerator;
 
     void calcStepSize() {
         stepSize = frequency * sampleTime;
