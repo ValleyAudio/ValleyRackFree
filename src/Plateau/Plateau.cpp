@@ -85,7 +85,7 @@
     reverb.setSampleRate(APP->engine->getSampleRate());
     envelope.setSampleRate(APP->engine->getSampleRate());
     envelope.setTime(0.004f);
-    envelope._value = 1.f;
+    envelope.currentValue = 1.f;
 }
 
 void Plateau::process(const ProcessArgs &args) {
@@ -108,13 +108,13 @@ void Plateau::process(const ProcessArgs &args) {
     reverb.setTankModDepth(modDepth);
     reverb.setTankModShape(modShape);
 
-    reverb.process(leftInput * minus20dBGain * inputSensitivity * envelope._value,
-                   rightInput * minus20dBGain * inputSensitivity * envelope._value);
+    reverb.process(leftInput * minus20dBGain * inputSensitivity * envelope.currentValue,
+                   rightInput * minus20dBGain * inputSensitivity * envelope.currentValue);
 
     leftOutput = leftInput * dry + reverb.getLeftOutput() * wet *
-                 envelope._value;
+                 envelope.currentValue;
     rightOutput = rightInput * dry + reverb.getRightOutput() * wet *
-                  envelope._value;
+                  envelope.currentValue;
 
     if (softDriveOutput) {
         leftOutput = tanhDriveSignal(leftOutput * saturatorPreGain,
@@ -174,17 +174,17 @@ void Plateau::getParameters() {
             envelope.setStartEndPoints(1.f, 0.f);
             envelope.trigger();
         }
-        if(fadeOut && envelope._justFinished) {
+        if(fadeOut && envelope.justFinished) {
             reverb.clear();
             fadeOut = false;
             fadeIn = true;
             envelope.setStartEndPoints(0.f, 1.f);
             envelope.trigger();
         }
-        if(fadeIn && envelope._justFinished) {
+        if(fadeIn && envelope.justFinished) {
             fadeIn = false;
             cleared = true;
-            envelope._value = 1.f;
+            envelope.currentValue = 1.f;
         }
     }
     envelope.process();
