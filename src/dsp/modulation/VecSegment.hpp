@@ -10,21 +10,19 @@
 
 struct VecSegment {
     __m128 seg, rate, output;
-    __m128 ones, zeros, epsilon;
+    __m128 epsilon;
 
     VecSegment() {
-        zeros = _mm_set1_ps(0.f);
-        ones = _mm_set1_ps(1.f);
         epsilon = _mm_set1_ps(0.000031f);
-        seg = zeros;
-        output = zeros;
-        rate = ones;
-        __1_timeScale = ones;
+        seg = _mm_set1_ps(0.f);
+        output = _mm_set1_ps(0.f);
+        rate = _mm_set1_ps(1.f);
+        reciprocalTimeScale = _mm_set1_ps(1.f);
     }
 
     __m128 process() {
         output = seg;
-        seg = _mm_mul_ps(seg, valley::_mm_power_ps(rate, __1_timeScale));
+        seg = _mm_mul_ps(seg, valley::_mm_power_ps(rate, reciprocalTimeScale));
         return output;
     }
 
@@ -32,13 +30,13 @@ struct VecSegment {
         seg = x;
     }
 
-    void setTimeScale(const __m128& __tScale) {
-        __1_timeScale = _mm_div_ps(ones, __tScale);
+    void setTimeScale(const __m128& newTimeScale) {
+        reciprocalTimeScale = _mm_div_ps(_mm_set1_ps(1.f), newTimeScale);
     }
 
     __m128 hasFinished() {
         return _mm_cmplt_ps(seg, epsilon);
     }
 private:
-    __m128 __1_timeScale;
+    __m128 reciprocalTimeScale;
 };
