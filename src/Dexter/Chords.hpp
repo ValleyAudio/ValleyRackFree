@@ -18,16 +18,16 @@ using Notes = std::vector<float>;
 
 class Chord {
 public:
-    Chord(const std::string& name = "", const Notes& notes = {});
+    Chord(const std::string& chordName = "", const Notes& chordNotes = {});
 
     std::size_t size() const;
     Notes getNotes() const;
     std::string getName() const;
 
 private:
-    std::string name_;
-    std::vector<float> notes_;
-    float detuneAmount_ = 0.f;
+    std::string name;
+    std::vector<float> notes;
+    float detuneAmount = 0.f;
 };
 
 enum Chords {

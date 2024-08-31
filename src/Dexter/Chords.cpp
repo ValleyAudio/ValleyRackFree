@@ -1,15 +1,15 @@
 #include "Chords.hpp"
 #include <cmath>
 
-Chord::Chord(const std::string& name, const Notes& notes)
-    : name_(name), notes_(notes)
+Chord::Chord(const std::string& chordName, const Notes& chordNotes)
+    : name(chordName), notes(chordNotes)
 { }
 
-std::size_t Chord::size() const { return notes_.size(); }
+std::size_t Chord::size() const { return notes.size(); }
 
-Notes Chord::getNotes() const { return notes_; }
+Notes Chord::getNotes() const { return notes; }
 
-std::string Chord::getName() const { return name_; }
+std::string Chord::getName() const { return name; }
 
 void invertNotes(Notes& notes,
                  int inversions,
