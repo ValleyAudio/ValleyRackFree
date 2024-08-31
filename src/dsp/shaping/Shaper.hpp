@@ -53,25 +53,19 @@ public:
 
     Shaper();
     __m128 process(const __m128& a, const __m128& f);
-    void setShapeMode(int mode);
+    void setShapeMode(int newShapeMode);
 
 private:
-    Modes _shapeMode = Modes::BEND_MODE;
+    Modes shapeMode = Modes::BEND_MODE;
 
-    // Common vars
-    __m128 z, __xx, __ff, __k;
-    __m128 __output;
+    __m128 output;
 
-    // Numbers
-    __m128 __third, __twoThird, __half, __minusHalf, __fourth, __eighth, __sixteenth, __hundredth;
-    __m128 __minus, __zeros, __ones, __twos, __threes, __fours, __eights, __nines, __sixteens;
-
-    uint32_t _z[4] = {0, 0, 0, 0};
-    uint32_t _w[4] = {0, 0, 0, 0};
+    uint32_t z[4] = {0, 0, 0, 0};
+    uint32_t w[4] = {0, 0, 0, 0};
     float random[4] = {0.f, 0.f, 0.f, 0.f};
 
-    __m128 __noise;
-    VecOnePoleLPFilter __filter1, __filter2;
+    __m128 noise;
+    VecOnePoleLPFilter filter1, filter2;
 
     // Shaping functions
     void bend(const __m128& a, const __m128& f);
