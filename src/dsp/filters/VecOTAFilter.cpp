@@ -78,8 +78,9 @@ void VecOTAFilter::setSampleRate(float newSampleRate) {
 }
 
 void VecOTAFilter::setCutoff(const __m128& newPitch) {
-    pitch = _mm_clamp_ps(pitch, zeros, _mm_set1_ps(10.f));
+    pitch = _mm_clamp_ps(newPitch, zeros, _mm_set1_ps(10.f));
     cutoff = _mm_mul_ps(pitch, _mm_set1_ps(100000.f));
+
     __m128i cutoffI = _mm_cvttps_epi32(cutoff);
     _mm_storeu_si128((__m128i*)pos, cutoffI);
     __m128 frac = _mm_sub_ps(cutoff, _mm_cvtepi32_ps(cutoffI));

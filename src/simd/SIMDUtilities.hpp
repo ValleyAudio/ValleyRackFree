@@ -49,6 +49,16 @@
     }
 #endif
 
+inline void printM128(const __m128& vecNum) {
+    float scalNum[4];
+    _mm_storeu_ps(scalNum, vecNum);
+
+    std::cout << scalNum[0] << ", ";
+    std::cout << scalNum[1] << ", ";
+    std::cout << scalNum[2] << ", ";
+    std::cout << scalNum[3] << std::endl;
+}
+
 inline __m128 _mm_high_ps() {
     return _mm_castsi128_ps(_mm_set1_epi32(0xFFFFFFFF));
 }
