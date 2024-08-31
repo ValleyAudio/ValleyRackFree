@@ -11,23 +11,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Shaper::Shaper() {
-    __aScale = _mm_set1_ps(0.f);
     __xx = _mm_set1_ps(0.f);
     __ff = _mm_set1_ps(0.f);
     __k = _mm_set1_ps(0.f);
-    __mask = _mm_set1_ps(0.f);
-    __midMask = _mm_set1_ps(0.f);
-    __highMask = _mm_set1_ps(0.f);
-    __m = _mm_set1_ps(0.f);
-    __c = _mm_set1_ps(0.f);
-    __denom = _mm_set1_ps(1.f);
     __output = _mm_set1_ps(0.f);
-    __aInt = _mm_set1_epi32(0);
-    __xInt = _mm_set1_epi32(0);
-    __yInt = _mm_set1_epi32(0);
-    __aIntF = _mm_set1_ps(0.f);
-    __xIntF = _mm_set1_ps(0.f);
-    __yIntF = _mm_set1_ps(0.f);
 
     __third = _mm_set1_ps(0.333333f);
     __twoThird = _mm_set1_ps(0.666666f);
@@ -102,11 +89,11 @@ void Shaper::setShapeMode(int mode) {
 
 void Shaper::bend(const __m128& a, const __m128& f) {
     auto x = _mm_mul_ps(_mm_sub_ps(__ones, f), __half);
-    __mask = _mm_cmplt_ps(a, x);
-    __denom = _mm_add_ps(_mm_and_ps(__mask, x),
+    auto __mask = _mm_cmplt_ps(a, x);
+    auto __denom = _mm_add_ps(_mm_and_ps(__mask, x),
               _mm_andnot_ps(__mask, _mm_sub_ps(__ones, x)));
-    __m = _mm_div_ps(__half, __denom);
-    __c = _mm_sub_ps(__half, _mm_mul_ps(__m, x));
+    auto __m = _mm_div_ps(__half, __denom);
+    auto __c = _mm_sub_ps(__half, _mm_mul_ps(__m, x));
     __output = _mm_add_ps(_mm_mul_ps(__m, a), _mm_andnot_ps(__mask, __c));
 }
 
@@ -115,7 +102,7 @@ void Shaper::tilt(const __m128& a, const __m128& f) {
     x = _mm_abs_ps(x);
     x = _mm_add_ps(x, __ones);
     x = _mm_mul_ps(a, x);
-    __mask = _mm_cmplt_ps(f, __zeros);
+    auto __mask = _mm_cmplt_ps(f, __zeros);
     __output = _mm_add_ps(x, _mm_and_ps(__mask, _mm_mul_ps(f, __threes)));
 }
 
@@ -135,8 +122,8 @@ void Shaper::lean2(const __m128& a, const __m128& f) {
 
 void Shaper::twist(const __m128& a, const __m128& f) {
     auto fScaled = _mm_add_ps(_mm_mul_ps(f, _mm_set1_ps(1.98f)), __ones);
-    __midMask = _mm_and_ps(_mm_cmpgt_ps(a , __third), _mm_cmple_ps(a , __twoThird));
-    __highMask = _mm_cmpgt_ps(a, __twoThird);
+    auto __midMask = _mm_and_ps(_mm_cmpgt_ps(a , __third), _mm_cmple_ps(a , __twoThird));
+    auto __highMask = _mm_cmpgt_ps(a, __twoThird);
 
     __k = _mm_add_ps(_mm_mul_ps(fScaled, __minusHalf), _mm_set1_ps(1.5f));
     __m128 x1 = _mm_mul_ps(a, __k);
@@ -148,8 +135,8 @@ void Shaper::twist(const __m128& a, const __m128& f) {
 
 void Shaper::wrap(const __m128& a, const __m128& f) {
     auto x = _mm_mul_ps(a, _mm_add_ps(_mm_mul_ps(_mm_abs_ps(f), __eights), __ones));
-    __xInt = _mm_cvttps_epi32(x);
-    __xIntF = _mm_cvtepi32_ps(__xInt);
+    __m128i __xInt = _mm_cvttps_epi32(x);
+    __m128 __xIntF = _mm_cvtepi32_ps(__xInt);
     __output = _mm_sub_ps(x, __xIntF);
 }
 
@@ -160,16 +147,16 @@ void Shaper::mirror(const __m128& a, const __m128& f) {
     x = _mm_mul_ps(_mm_add_ps(x, __ones), __half);
     x = _mm_abs_ps(x);
     x = _mm_mul_ps(x, __half);
-    __xInt = _mm_cvttps_epi32(x);
-    __xIntF = _mm_cvtepi32_ps(__xInt);
+    __m128i __xInt = _mm_cvttps_epi32(x);
+    __m128 __xIntF = _mm_cvtepi32_ps(__xInt);
     x = _mm_sub_ps(x, __xIntF);
 
     auto y = _mm_sub_ps(_mm_mul_ps(a, __twos), __ones);
     y = _mm_mul_ps(y, _mm_add_ps(_mm_mul_ps(_mm_abs_ps(f), __nines), __ones));
     y = _mm_mul_ps(_mm_add_ps(y, __ones), __half);
     y = _mm_abs_ps(y);
-    __yInt = _mm_cvttps_epi32(y);
-    __yIntF = _mm_cvtepi32_ps(__yInt);
+    __m128i __yInt = _mm_cvttps_epi32(y);
+    __m128 __yIntF = _mm_cvtepi32_ps(__yInt);
     z = _mm_sub_ps(y, __yIntF);
 
     __output = _mm_switch_ps(z, _mm_sub_ps(__ones, z), _mm_cmpgt_ps(x, __half));
@@ -182,32 +169,32 @@ void Shaper::reflect(const __m128& a, const __m128& f) {
 void Shaper::pulse(const __m128& a, const __m128& f) {
     auto x = _mm_mul_ps(a, __half);
     x = _mm_mul_ps(x, _mm_add_ps(_mm_mul_ps(_mm_abs_ps(f), __eights), __ones));
-    __xInt = _mm_cvttps_epi32(x);
-    __xIntF = _mm_cvtepi32_ps(__xInt);
+    __m128i __xInt = _mm_cvttps_epi32(x);
+    __m128 __xIntF = _mm_cvtepi32_ps(__xInt);
     x = _mm_sub_ps(x, __xIntF);
     __output = _mm_switch_ps(a, __ones, _mm_cmpgt_ps(x, __half));
 }
 
 void Shaper::step4(const __m128& a, const __m128& f) {
-    __aScale = _mm_mul_ps(a, __fours);
-    __aInt = _mm_cvttps_epi32(__aScale);
-    __aIntF = _mm_cvtepi32_ps(__aInt);
+    auto __aScale = _mm_mul_ps(a, __fours);
+    __m128i __aInt = _mm_cvttps_epi32(__aScale);
+    __m128 __aIntF = _mm_cvtepi32_ps(__aInt);
     __aIntF = _mm_mul_ps(__aIntF, __fourth);
     __output = _mm_linterp_ps(a, __aIntF, _mm_abs_ps(f));
 }
 
 void Shaper::step8(const __m128& a, const __m128& f) {
-    __aScale = _mm_mul_ps(a, __eights);
-    __aInt = _mm_cvttps_epi32(__aScale);
-    __aIntF = _mm_cvtepi32_ps(__aInt);
+    auto __aScale = _mm_mul_ps(a, __eights);
+    __m128i __aInt = _mm_cvttps_epi32(__aScale);
+    __m128 __aIntF = _mm_cvtepi32_ps(__aInt);
     __aIntF = _mm_mul_ps(__aIntF, __eighth);
     __output = _mm_linterp_ps(a, __aIntF, _mm_abs_ps(f));
 }
 
 void Shaper::step16(const __m128& a, const __m128& f) {
-    __aScale = _mm_mul_ps(a, __sixteens);
-    __aInt = _mm_cvttps_epi32(__aScale);
-    __aIntF = _mm_cvtepi32_ps(__aInt);
+    auto __aScale = _mm_mul_ps(a, __sixteens);
+    __m128i __aInt = _mm_cvttps_epi32(__aScale);
+    __m128 __aIntF = _mm_cvtepi32_ps(__aInt);
     __aIntF = _mm_mul_ps(__aIntF, __sixteenth);
     __output = _mm_linterp_ps(a, __aIntF, _mm_abs_ps(f));
 }
@@ -215,9 +202,9 @@ void Shaper::step16(const __m128& a, const __m128& f) {
 void Shaper::varStep(const __m128& a, const __m128& f) {
     __m128 absF = _mm_abs_ps(f);
     __ff = _mm_sub_ps(_mm_set1_ps(128.f), _mm_mul_ps(absF, _mm_set1_ps(128.f)));
-    __aScale = _mm_mul_ps(a, __ff);
-    __aInt = _mm_cvttps_epi32(__aScale);
-    __aIntF = _mm_cvtepi32_ps(__aInt);
+    auto __aScale = _mm_mul_ps(a, __ff);
+    __m128i __aInt = _mm_cvttps_epi32(__aScale);
+    __m128 __aIntF = _mm_cvtepi32_ps(__aInt);
     __aIntF = _mm_div_ps(__aIntF, __ff);
     __ff = _mm_mul_ps(absF, _mm_set1_ps(100.f));
     __ff = _mm_clamp_ps(__ff, __zeros, __ones);
@@ -251,22 +238,22 @@ void Shaper::warble(const __m128& a, const __m128& f) {
 void Shaper::harmonics(const __m128& a, const __m128& f) {
     __ff = _mm_sub_ps(_mm_max_ps(f, _mm_set1_ps(0.0625f)), _mm_set1_ps(0.0625f));
     __ff = _mm_mul_ps(__ff, _mm_set1_ps(6.4f));
-    __m = _mm_min_ps(_mm_mul_ps(f, __sixteens), __ones);
+    auto __m = _mm_min_ps(_mm_mul_ps(f, __sixteens), __ones);
 
-    __aInt = _mm_cvttps_epi32(_mm_add_ps(__ff, __ones));
-    __aIntF = _mm_cvtepi32_ps(__aInt);
+    __m128i __aInt = _mm_cvttps_epi32(_mm_add_ps(__ff, __ones));
+    __m128 __aIntF = _mm_cvtepi32_ps(__aInt);
 
     // First
     auto x = _mm_mul_ps(a, __aIntF);
     auto y = _mm_sub_ps(_mm_mul_ps(x, __twos), __ones);
     y = _mm_circle_ps(y);
-    __b = valley::_mm_sine_ps(_mm_mul_ps(y, _mm_set1_ps(M_PI)));
+    auto __b = valley::_mm_sine_ps(_mm_mul_ps(y, _mm_set1_ps(M_PI)));
 
     // Next
     x = _mm_mul_ps(a, _mm_add_ps(__aIntF, __ones));
     y = _mm_sub_ps(_mm_mul_ps(x, __twos), __ones);
     y = _mm_circle_ps(y);
-    __c = valley::_mm_sine_ps(_mm_mul_ps(y, _mm_set1_ps(M_PI)));
+    auto __c = valley::_mm_sine_ps(_mm_mul_ps(y, _mm_set1_ps(M_PI)));
 
     __output = _mm_linterp_ps(__b, __c, _mm_wrap_1_ps(__ff));
     __output = _mm_add_ps(_mm_mul_ps(__output, __half), __half);

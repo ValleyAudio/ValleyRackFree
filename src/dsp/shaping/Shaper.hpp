@@ -59,11 +59,8 @@ private:
     Modes _shapeMode = Modes::BEND_MODE;
 
     // Common vars
-    __m128 __aScale, z, __xx, __ff, __k, __mask, __midMask, __highMask;
-    __m128 __m, __b, __c, __denom;
+    __m128 z, __xx, __ff, __k;
     __m128 __output;
-    __m128i __aInt, __xInt, __yInt;
-    __m128 __aIntF, __xIntF, __yIntF;
 
     // Numbers
     __m128 __third, __twoThird, __half, __minusHalf, __fourth, __eighth, __sixteenth, __hundredth;
