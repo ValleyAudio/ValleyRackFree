@@ -52,9 +52,7 @@ public:
             sampleVec = highVec;
         }
 
-        xVec = x;
-        yVec = y;
-        return (this->*p[_mode])(xVec, yVec, paramA, paramB);
+        return (this->*p[_mode])(x, y, paramA, paramB);
     }
 
     void setMode(int mode);
@@ -62,16 +60,12 @@ public:
 
 private:
     int _mode;
-    __m128 xVec, yVec, zVec;
+    __m128 zVec;
     __m128 zerosVec, onesVec, negOnesVec, halfsVec, highVec;
-
-    // Ring Mod
-    __m128 xFoldedVec, yFoldedVec, xLogicVec, yLogicVec, zLogicVec;
 
     // Flip Flop
     __m128 ffTargetVec;
     __m128 xPrevVec, yPrevVec, xREdgeVec, yREdgeVec;
-    __m128 chanceXVec, chanceYVec;
     uint32_t z_[4];
     uint32_t w_[4];
     float k_[4];
@@ -81,7 +75,6 @@ private:
     // 32 bit mode vars
     int k32_[4];
     __m128 chance32Vec;
-    __m128i a32Vec, b32Vec, c32Vec;
 
     // Sample reduction
     float step_, stepSize_, engineSampleRate_, internalSampleRate_;

@@ -16,11 +16,7 @@ VecAmalgam::VecAmalgam() {
     ffTargetVec = zerosVec;
     highVec = _mm_castsi128_ps(_mm_set1_epi32(0xFFFFFFFF));
 
-    xVec = zerosVec;
-    yVec = zerosVec;
     zVec = zerosVec;
-    xFoldedVec = zerosVec;
-    yFoldedVec = zerosVec;
 
     step_ = 1.f;
     xDSVec = zerosVec;
@@ -85,8 +81,8 @@ __m128 VecAmalgam::ringMod1(const __m128& x, const __m128& y, float paramA, floa
 }
 
 __m128 VecAmalgam::ringMod2(const __m128& x, const __m128& y, float paramA, float paramB) {
-    xFoldedVec = _mm_add_ps(_mm_mul_ps(x, halfsVec), halfsVec);
-    yFoldedVec = _mm_add_ps(_mm_mul_ps(y, halfsVec), halfsVec);
+    auto xFoldedVec = _mm_add_ps(_mm_mul_ps(x, halfsVec), halfsVec);
+    auto yFoldedVec = _mm_add_ps(_mm_mul_ps(y, halfsVec), halfsVec);
     xFoldedVec = _mm_mirror_ps(xFoldedVec, _mm_set1_ps(paramA + 0.00001f));
     yFoldedVec = _mm_mirror_ps(yFoldedVec, _mm_set1_ps(paramB + 0.00001f));
     xFoldedVec = _mm_mul_ps(_mm_add_ps(xFoldedVec, _mm_set1_ps(-0.5f)),_mm_set1_ps(2.f));
@@ -96,16 +92,16 @@ __m128 VecAmalgam::ringMod2(const __m128& x, const __m128& y, float paramA, floa
 }
 
 __m128 VecAmalgam::ringMod3(const __m128& x, const __m128& y, float paramA, float paramB) {
-    xFoldedVec = _mm_add_ps(_mm_mul_ps(x, halfsVec), halfsVec);
-    yFoldedVec = _mm_add_ps(_mm_mul_ps(y, halfsVec), halfsVec);
+    auto xFoldedVec = _mm_add_ps(_mm_mul_ps(x, halfsVec), halfsVec);
+    auto yFoldedVec = _mm_add_ps(_mm_mul_ps(y, halfsVec), halfsVec);
     xFoldedVec = _mm_mirror_ps(xFoldedVec, _mm_set1_ps(paramA + 0.00001f));
     yFoldedVec = _mm_mirror_ps(yFoldedVec, _mm_set1_ps(paramA + 0.00001f));
     xFoldedVec = _mm_mul_ps(_mm_add_ps(xFoldedVec, _mm_set1_ps(-0.5f)),_mm_set1_ps(2.f));
     yFoldedVec = _mm_mul_ps(_mm_add_ps(yFoldedVec, _mm_set1_ps(-0.5f)),_mm_set1_ps(-2.f));
 
-    xLogicVec = _mm_cmpgt_ps(xFoldedVec, zerosVec);
-    yLogicVec = _mm_cmpgt_ps(yFoldedVec, zerosVec);
-    zLogicVec = _mm_xor_ps(xLogicVec, yLogicVec);
+    auto xLogicVec = _mm_cmpgt_ps(xFoldedVec, zerosVec);
+    auto yLogicVec = _mm_cmpgt_ps(yFoldedVec, zerosVec);
+    auto zLogicVec = _mm_xor_ps(xLogicVec, yLogicVec);
     zVec = _mm_and_ps(zLogicVec, onesVec);
     zVec = _mm_add_ps(_mm_mul_ps(zVec, _mm_set1_ps(-2.f)), onesVec);
 
@@ -150,13 +146,13 @@ __m128 VecAmalgam::flipFlop(const __m128& x, const __m128& y, float paramA, floa
     for(auto i = 0; i < 4; ++i) {
         k_[i] = (float)mwcRand(z_[i], w_[i]) / (float)UINT32_MAX;
     }
-    chanceXVec = _mm_loadu_ps(k_);
+    auto chanceXVec = _mm_loadu_ps(k_);
     chanceXVec = _mm_and_ps(_mm_cmpgt_ps(chanceXVec, _mm_set1_ps(paramA)), highVec);
 
     for(auto i = 0; i < 4; ++i) {
         k_[i] = (float)mwcRand(z_[i], w_[i]) / (float)UINT32_MAX;
     }
-    chanceYVec = _mm_loadu_ps(k_);
+    auto chanceYVec = _mm_loadu_ps(k_);
     chanceYVec = _mm_and_ps(_mm_cmpgt_ps(chanceYVec, _mm_set1_ps(1.f - paramA)), highVec);
 
     xREdgeVec = _mm_and_ps(_mm_cmpgt_ps(x, thresh), _mm_cmple_ps(xPrevVec, thresh));
@@ -184,9 +180,9 @@ __m128 VecAmalgam::bitAND(const __m128& x, const __m128& y, float paramA, float 
     paramA = 1.f - paramA * 0.8f;
     paramA *= paramA;
     downSample(_mm_varStep_ps(x, _mm_set1_ps(1.f - paramA)),_mm_varStep_ps(y, _mm_set1_ps(1.f - paramA)));
-    a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    c32Vec = _mm_and_si128(a32Vec, b32Vec);
+    __m128i a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i c32Vec = _mm_and_si128(a32Vec, b32Vec);
     return _mm_div_ps(_mm_cvtepi32_ps(c32Vec), _mm_set1_ps(0x7FFFFFFF));
 }
 
@@ -194,9 +190,9 @@ __m128 VecAmalgam::bitXOR(const __m128& x, const __m128& y, float paramA, float 
     paramA = 1.f - paramA * 0.8f;
     paramA *= paramA;
     downSample(_mm_varStep_ps(x, _mm_set1_ps(1.f - paramA)),_mm_varStep_ps(y, _mm_set1_ps(1.f - paramA)));
-    a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    c32Vec = _mm_xor_si128(a32Vec, b32Vec);
+    __m128i a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i c32Vec = _mm_xor_si128(a32Vec, b32Vec);
     return _mm_div_ps(_mm_cvtepi32_ps(c32Vec), _mm_set1_ps(0x7FFFFFFF));
 }
 
@@ -204,9 +200,9 @@ __m128 VecAmalgam::bitInterleave(const __m128& x, const __m128& y, float paramA,
     paramA = 1.f - paramA * 0.8f;
     paramA *= paramA;
     downSample(_mm_varStep_ps(x, _mm_set1_ps(1.f - paramA)),_mm_varStep_ps(y, _mm_set1_ps(1.f - paramA)));
-    a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    c32Vec = _mm_xor_si128(a32Vec, b32Vec);
+    __m128i a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i c32Vec = _mm_xor_si128(a32Vec, b32Vec);
     c32Vec = _mm_or_si128(_mm_and_si128(a32Vec, _mm_set1_epi32(0x55555555)), _mm_and_si128(b32Vec, _mm_set1_epi32(0xAAAAAAAA)));
     return _mm_div_ps(_mm_cvtepi32_ps(c32Vec), _mm_set1_ps(0x7FFFFFFF));
 }
@@ -221,9 +217,9 @@ __m128 VecAmalgam::bitHack(const __m128& x, const __m128& y, float paramA, float
     chance32Vec = _mm_castsi128_ps(_mm_set_epi32(k32_[3], k32_[2], k32_[1], k32_[0]));
 
     downSample(x,y);
-    a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
-    c32Vec = _mm_and_si128(_mm_or_si128(c32Vec, _mm_and_si128(a32Vec, b32Vec)), _mm_castps_si128(chance32Vec)); // Make 1 if a == 1 AND b == 1
+    __m128i a32Vec = _mm_cvttps_epi32(_mm_mul_ps(xDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i b32Vec = _mm_cvttps_epi32(_mm_mul_ps(yDSVec, _mm_set1_ps(0x7FFFFFFF)));
+    __m128i c32Vec = _mm_and_si128(_mm_or_si128(c32Vec, _mm_and_si128(a32Vec, b32Vec)), _mm_castps_si128(chance32Vec)); // Make 1 if a == 1 AND b == 1
     c32Vec = _mm_and_si128(c32Vec, ~_mm_and_si128(_mm_and_si128(~a32Vec, ~b32Vec), _mm_castps_si128(chance32Vec))); // Make 0 if a == 0 AND b == 0
     zVec = _mm_div_ps(_mm_cvtepi32_ps(c32Vec), _mm_set1_ps(0x7FFFFFFF));
     zDSVec = _mm_switch_ps(zDSVec, zVec, sampleVec);
