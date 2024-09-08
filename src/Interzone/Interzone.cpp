@@ -99,18 +99,8 @@ Interzone::Interzone() {
         vGlide[i].setSampleRate(initSampleRate);
     }
 
-    __zero = _mm_set1_ps(0.f);
-    __one = _mm_set1_ps(1.f);
-    __two = _mm_set1_ps(2.f);
-    __negTwo = _mm_set1_ps(-2.f);
-    __five = _mm_set1_ps(5.f);
-    __ten = _mm_set1_ps(10.f);
-    __negTen = _mm_set1_ps(-10.f);
-    __half = _mm_set1_ps(0.5f);
-    __quarter = _mm_set1_ps(0.25f);
-
-    vFilterCutoff = __zero;
-    vFilterCutoffParam = __zero;
+    vFilterCutoff = _mm_set1_ps(0.f);
+    vFilterCutoffParam = _mm_set1_ps(0.f);
 
     cvDivider.setDivision(16);
 }
@@ -151,7 +141,7 @@ void Interzone::getParams() {
 
         vPulseWidth = _mm_set1_ps(params[PW_PARAM].getValue());
         vPwmDepth = _mm_set1_ps(params[PW_MOD_PARAM].getValue());
-        vPwmEnvPol = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(params[PW_MOD_ENV_POL_PARAM].getValue()), __negTwo), __one);
+        vPwmEnvPol = _mm_add_ps(_mm_mul_ps(_mm_set1_ps(params[PW_MOD_ENV_POL_PARAM].getValue()), _mm_set1_ps(-2.f)), _mm_set1_ps(1.f));
         vPwmSource = _mm_set1_ps(params[PW_MOD_SOURCE_PARAM].getValue());
         subOctave = static_cast<int>(params[SUB_OCTAVE_PARAM].getValue());
 
@@ -164,9 +154,9 @@ void Interzone::getParams() {
         vFilterCV1Depth = _mm_set1_ps(params[FILTER_CV_1_PARAM].getValue());
         vFilterCV2Depth = _mm_set1_ps(params[FILTER_CV_2_PARAM].getValue());
         vFilterLFODepth = _mm_set1_ps(params[FILTER_MOD_PARAM].getValue());
-        vFilterLFODepth = _mm_mul_ps(_mm_mul_ps(vFilterLFODepth, vFilterLFODepth), __five);
+        vFilterLFODepth = _mm_mul_ps(_mm_mul_ps(vFilterLFODepth, vFilterLFODepth), _mm_set1_ps(5.f));
         vFilterEnvParam = _mm_set1_ps(params[FILTER_ENV_PARAM].getValue() * 10.f);
-        vFilterEnvPol = _mm_sub_ps(_mm_mul_ps(_mm_set1_ps(params[FILTER_ENV_POL_PARAM].getValue()), __two), __one);
+        vFilterEnvPol = _mm_sub_ps(_mm_mul_ps(_mm_set1_ps(params[FILTER_ENV_POL_PARAM].getValue()), _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
         vFilterCutoffParam = _mm_set1_ps(params[FILTER_CUTOFF_PARAM].getValue());
         vFilterQParam = _mm_set1_ps(params[FILTER_Q_PARAM].getValue());
         filterMode = static_cast<int>(params[FILTER_POLES_PARAM].getValue());
@@ -210,7 +200,7 @@ void Interzone::getCV() {
     lights[ENV_LIGHT].value = clamp(gateLevel, 0.f, 1.f);
 
     vPitchModEnvPol = _mm_set1_ps(params[PITCH_MOD_ENV_POL_PARAM].getValue() * 2.f - 1.f);
-    vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? __zero : _mm_high_ps();
+    vPitchModSource = params[PITCH_MOD_SOURCE_PARAM].getValue() > 0.5f ? _mm_set1_ps(0.f) : _mm_high_ps();
     vPitchModParam = _mm_set1_ps(params[PITCH_MOD_PARAM].getValue());
     vPitchModParam = _mm_mul_ps(vPitchModParam, vPitchModParam);
     vSubWidth = _mm_set1_ps(params[SUB_WAVE_PARAM].getValue() < 1.f ? 0.75f : 0.5f);
@@ -231,7 +221,7 @@ void Interzone::getCV() {
         vVCACVInput = inputs[VCA_LEVEL_CV_INPUT].getPolyVoltageSimd<float_4>(startChan).v;
         vOutputLevel[i] = params[VCA_SOURCE_PARAM].getValue() > 0.5f ? vGateSlew[i].z : vEnv[i].env.v;
         vOutputLevel[i] = _mm_add_ps(vOutputLevel[i], _mm_mul_ps(vVCACVInput, vVCACVParam));
-        vOutputLevel[i] = _mm_clamp_ps(vOutputLevel[i], __zero, __one);
+        vOutputLevel[i] = _mm_clamp_ps(vOutputLevel[i], _mm_set1_ps(0.f), _mm_set1_ps(1.f));
         outputs[ENV_POSITIVE_OUTPUT].setVoltageSimd(vEnv[i].env * 10.f, startChan);
         outputs[ENV_NEGATIVE_OUTPUT].setVoltageSimd(vEnv[i].env * -10.f, startChan);
 
@@ -264,7 +254,7 @@ void Interzone::getCV() {
         vPwm = _mm_switch_ps(vPwm, vEnvPwm, _mm_cmpeq_ps(vPwmSource, _mm_set1_ps(ENVELOPE_PWM)));
         vPwm = _mm_mul_ps(vPwm, vPwmDepth);
         vPwm = _mm_add_ps(vPwm, vPulseWidth);
-        vOsc[i].pwm = _mm_clamp_ps(vPwm, __zero, __half);
+        vOsc[i].pwm = _mm_clamp_ps(vPwm, _mm_set1_ps(0.f), _mm_set1_ps(0.5f));
         vOsc[i].setSubWidth(vSubWidth);
 
         vFilter[i].setCutoff(vFilterCutoff);
@@ -287,16 +277,16 @@ void Interzone::tickSynth() {
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vSubWave, vSubLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vNoise, vNoiseLevel));
         vMix = _mm_add_ps(vMix, _mm_mul_ps(vExtInput, vExtInLevel));
-        vFilterInput = _mm_mul_ps(vMix, __two);
+        vFilterInput = _mm_mul_ps(vMix, _mm_set1_ps(2.f));
 
         vFilter[i].process(_mm_add_ps(vFilterInput, _mm_mul_ps(vNoise, _mm_set1_ps(8e-5f))));
-        vFilterOutput = vHighpass[i].process(_mm_mul_ps(vFilter[i].out, __five));
+        vFilterOutput = vHighpass[i].process(_mm_mul_ps(vFilter[i].out, _mm_set1_ps(5.f)));
         vOutput = _mm_mul_ps(vFilterOutput, vOutputLevel[i]);
-        vOutput = _mm_clamp_ps(vOutput, __negTen, __ten);
+        vOutput = _mm_clamp_ps(vOutput, _mm_set1_ps(-10.f), _mm_set1_ps(10.f));
 
-        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].saw, __five));
-        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].pulse, __five));
-        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(startChan), _mm_mul_ps(vSubWave, __five));
+        _mm_store_ps(outputs[SAW_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].saw, _mm_set1_ps(5.f)));
+        _mm_store_ps(outputs[PULSE_OUTPUT].getVoltages(startChan), _mm_mul_ps(vOsc[i].pulse, _mm_set1_ps(5.f)));
+        _mm_store_ps(outputs[SUB_OUTPUT].getVoltages(startChan), _mm_mul_ps(vSubWave, _mm_set1_ps(5.f)));
         _mm_store_ps(outputs[MIX_OUTPUT].getVoltages(startChan), vMix);
         _mm_store_ps(outputs[FILTER_OUTPUT].getVoltages(startChan), vFilterOutput);
         _mm_store_ps(outputs[VCA_OUTPUT].getVoltages(startChan), vOutput);

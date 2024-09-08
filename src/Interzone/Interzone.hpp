@@ -157,11 +157,6 @@ struct Interzone : Module {
     json_t *dataToJson() override;
     void dataFromJson(json_t *rootJ) override;
 
-    // Vector constants
-    __m128 __zero, __one, __two, __five, __ten;
-    __m128 __negTwo, __negTen;
-    __m128 __half, __quarter;
-
     // Param Variables
     dsp::ClockDivider cvDivider;
     float pitchParam = 0.f;
