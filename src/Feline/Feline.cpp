@@ -84,10 +84,10 @@ void Feline::step() {
 
     input[0] *= drive;
     input[1] *= drive;
-    __input = _mm_set_ps(0.f, 0.f, input[1], input[0]);
+    auto vInput = _mm_set_ps(0.f, 0.f, input[1], input[0]);
 
-    __output = filter.process(_mm_mul_ps(__input, _mm_set1_ps(0.5f)));
-    _mm_storeu_ps(output, __output);
+    auto vOutput = filter.process(_mm_mul_ps(vInput, _mm_set1_ps(0.5f)));
+    _mm_storeu_ps(output, vOutput);
     outputs[LEFT_OUTPUT].setVoltage(output[0] * 5.f);
     outputs[RIGHT_OUTPUT].setVoltage(output[1] * 5.f);
     outputs[SUM_OUTPUT].setVoltage((output[0] + output[1]) * 2.5f);
