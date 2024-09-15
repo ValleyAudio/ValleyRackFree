@@ -112,29 +112,14 @@ Terrorform::Terrorform() {
 
     spread = 0.0f;
 
-    __zeros = _mm_set1_ps(0.f);
-    __ones = _mm_set1_ps(1.f);
-    __negOnes = _mm_set1_ps(-1.f);
-    __twos = _mm_set1_ps(2.f);
-    __negTwos = _mm_set1_ps(-2.f);
-    __fives = _mm_set1_ps(5.f);
-    __negFives = _mm_set1_ps(-5.f);
-    __tens = _mm_set1_ps(10.f);
-    __negTens = _mm_set1_ps(-10.f);
-    __tenths = _mm_set1_ps(0.1f);
-    __hundredths = _mm_set1_ps(0.01f);
-    __quarters = _mm_set1_ps(0.25f);
-    __halfLevel = _mm_set1_ps(1.25f);
-    __fullLevel = __fives;
-
-    __sync1 = __zeros;
-    __sync2 = __zeros;
-    __sync1Pls = __zeros;
-    __sync2Pls = __zeros;
-    __weakSync1Flag = __zeros;
-    __weakSync2Flag = __zeros;
-    __lpgVCAMode = __zeros;
-    __lpgFilterMode = __zeros;
+    vecSync1 = _mm_set1_ps(0.f);
+    vecSync2 = _mm_set1_ps(0.f);
+    vecSync1Pls = _mm_set1_ps(0.f);
+    vecSync2Pls = _mm_set1_ps(0.f);
+    vecWeakSync1Flag = _mm_set1_ps(0.f);
+    vecWeakSync2Flag = _mm_set1_ps(0.f);
+    vecLpgVCAMode = _mm_set1_ps(0.f);
+    vecLpgFilterMode = _mm_set1_ps(0.f);
 
     freqs = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
     waves = (float*)aligned_alloc_16(sizeof(float) * kMaxNumGroups * 4);
@@ -237,8 +222,8 @@ void Terrorform::process(const ProcessArgs &args) {
         // Sync button logic
         weakSync1Enable = params[WEAK_SYNC_1_SWITCH_PARAM].getValue() > 0.5f;
         weakSync2Enable = params[WEAK_SYNC_2_SWITCH_PARAM].getValue() > 0.5f;
-        __weakSync1Flag = weakSync1Enable ? _mm_high_ps() : __zeros;
-        __weakSync2Flag = weakSync2Enable ? _mm_high_ps() : __zeros;
+        vecWeakSync1Flag = weakSync1Enable ? _mm_high_ps() : _mm_set1_ps(0.f);
+        vecWeakSync2Flag = weakSync2Enable ? _mm_high_ps() : _mm_set1_ps(0.f);
 
         if (!zeroFreqEnabled && (params[ZERO_SWITCH_PARAM].getValue() > 0.f)) {
             for (int i = 0; i < kMaxNumGroups; ++i) {
@@ -272,7 +257,7 @@ void Terrorform::process(const ProcessArgs &args) {
         }
 
         numWavesInTable = osc[0].getNumwaves() - 1.f;
-        __numWavesInTable = _mm_set1_ps(numWavesInTable);
+        vecNumWavesInTable = _mm_set1_ps(numWavesInTable);
 
         // LPG
         switch ((VecLPG::Modes) lpgMode) {
@@ -306,7 +291,7 @@ void Terrorform::process(const ProcessArgs &args) {
         lights[LPG_VELOCITY_LIGHT].value = (lpgVelocitySensitive ? 1.f : 0.f) * (lpgMode == 0 ? 0.5f : 1.f);
         lights[LPG_TRIGGER_LIGHT].value = (lpgTriggerMode ? 1.f : 0.f) * (lpgMode == 0 ? 0.5f : 1.f);
 
-        __lpgVelocitySensitiveFlag = lpgVelocitySensitive ? _mm_high_ps() : __zeros;
+        vecLpgVelocitySensitivityFlag = lpgVelocitySensitive ? _mm_high_ps() : _mm_set1_ps(0.f);
 
         // Other button lights
         lights[TRUE_FM_LIGHT].value = trueFMEnabled;
@@ -460,12 +445,12 @@ void Terrorform::process(const ProcessArgs &args) {
     fmB2Level = params[FM_B2_ATTEN_PARAM].getValue() * 0.2f;
     fmAVCACV = params[FM_A_VCA_ATTEN_PARAM].getValue() * 0.1f;
     fmBVCACV = params[FM_B_VCA_ATTEN_PARAM].getValue() * 0.1f;
-    __fmA1Level = _mm_set1_ps(fmA1Level);
-    __fmA2Level = _mm_set1_ps(fmA2Level);
-    __fmB1Level = _mm_set1_ps(fmB1Level);
-    __fmB2Level = _mm_set1_ps(fmB2Level);
-    __fmAVCACV = _mm_set1_ps(fmAVCACV);
-    __fmBVCACV = _mm_set1_ps(fmBVCACV);
+    vecFmA1Level = _mm_set1_ps(fmA1Level);
+    vecFmA2Level = _mm_set1_ps(fmA2Level);
+    vecFmB1Level = _mm_set1_ps(fmB1Level);
+    vecFmB2Level = _mm_set1_ps(fmB2Level);
+    vecFmAVCACV = _mm_set1_ps(fmAVCACV);
+    vecFmBVCACV = _mm_set1_ps(fmBVCACV);
 
     // Tick the oscillator
     int g = 0;
@@ -473,107 +458,107 @@ void Terrorform::process(const ProcessArgs &args) {
         g = c * 4;
 
         // Sync
-        __sync1 = sync1IsMono ? _mm_set1_ps(sync1[0]) : _mm_load_ps(sync1 + g);
-        __sync2 = sync2IsMono ? _mm_set1_ps(sync2[0]) : _mm_load_ps(sync2 + g);
-        __sync1Pls = _mm_and_ps(_mm_cmple_ps(__prevSync1, __zeros), _mm_cmpgt_ps(__sync1, __zeros));
-        __sync1Pls = _mm_and_ps(__ones, __sync1Pls);
-        __sync2Pls = _mm_and_ps(_mm_cmple_ps(__prevSync2, __zeros), _mm_cmpgt_ps(__sync2, __zeros));
-        __sync2Pls = _mm_and_ps(__ones, __sync2Pls);
-        __quarterPhase = _mm_cmplt_ps(osc[c].getPhasor(), __quarters);
-        __sync1Pls = _mm_switch_ps(__sync1Pls, _mm_and_ps(__sync1Pls, __quarterPhase), __weakSync1Flag);
-        __sync2Pls = _mm_switch_ps(__sync2Pls, _mm_and_ps(__sync2Pls, __quarterPhase), __weakSync2Flag);
-        __prevSync1 = __sync1;
-        __prevSync2 = __sync2;
-        osc[c].sync(_mm_add_ps(__sync1Pls, __sync2Pls));
+        vecSync1 = sync1IsMono ? _mm_set1_ps(sync1[0]) : _mm_load_ps(sync1 + g);
+        vecSync2 = sync2IsMono ? _mm_set1_ps(sync2[0]) : _mm_load_ps(sync2 + g);
+        vecSync1Pls = _mm_and_ps(_mm_cmple_ps(vecPrevSync1, _mm_set1_ps(0.f)), _mm_cmpgt_ps(vecSync1, _mm_set1_ps(0.f)));
+        vecSync1Pls = _mm_and_ps(_mm_set1_ps(1.f), vecSync1Pls);
+        vecSync2Pls = _mm_and_ps(_mm_cmple_ps(vecPrevSync2, _mm_set1_ps(0.f)), _mm_cmpgt_ps(vecSync2, _mm_set1_ps(0.f)));
+        vecSync2Pls = _mm_and_ps(_mm_set1_ps(1.f), vecSync2Pls);
+        vecQuarterPhase = _mm_cmplt_ps(osc[c].getPhasor(), _mm_set1_ps(0.25f));
+        vecSync1Pls = _mm_switch_ps(vecSync1Pls, _mm_and_ps(vecSync1Pls, vecQuarterPhase), vecWeakSync1Flag);
+        vecSync2Pls = _mm_switch_ps(vecSync2Pls, _mm_and_ps(vecSync2Pls, vecQuarterPhase), vecWeakSync2Flag);
+        vecPrevSync1 = vecSync1;
+        vecPrevSync2 = vecSync2;
+        osc[c].sync(_mm_add_ps(vecSync1Pls, vecSync2Pls));
 
         // LPG
-        __trigger1 = gateInput1IsMono ? _mm_set1_ps(trigger1[0]) : _mm_load_ps(trigger1 + g);
-        __trigger2 = gateInput2IsMono ? _mm_set1_ps(trigger2[0]) : _mm_load_ps(trigger2 + g);
-        __trigger1 = _mm_mul_ps(__trigger1, __tenths);
-        __trigger2 = _mm_mul_ps(__trigger2, __tenths);
+        vecTrigger1 = gateInput1IsMono ? _mm_set1_ps(trigger1[0]) : _mm_load_ps(trigger1 + g);
+        vecTrigger2 = gateInput2IsMono ? _mm_set1_ps(trigger2[0]) : _mm_load_ps(trigger2 + g);
+        vecTrigger1 = _mm_mul_ps(vecTrigger1, _mm_set1_ps(0.1f));
+        vecTrigger2 = _mm_mul_ps(vecTrigger2, _mm_set1_ps(0.1f));
 
-        __trigger1 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger1, __zeros)),
-                                    __trigger1, __lpgVelocitySensitiveFlag);
-        __trigger2 = _mm_switch_ps(_mm_and_ps(__ones, _mm_cmpgt_ps(__trigger2, __zeros)),
-                                    __trigger2, __lpgVelocitySensitiveFlag);
+        vecTrigger1 = _mm_switch_ps(_mm_and_ps(_mm_set1_ps(1.f), _mm_cmpgt_ps(vecTrigger1, _mm_set1_ps(0.f))),
+                                    vecTrigger1, vecLpgVelocitySensitivityFlag);
+        vecTrigger2 = _mm_switch_ps(_mm_and_ps(_mm_set1_ps(1.f), _mm_cmpgt_ps(vecTrigger2, _mm_set1_ps(0.f))),
+                                    vecTrigger2, vecLpgVelocitySensitivityFlag);
 
         lpg[c].setAttack(_mm_load_ps(attacks + g), lpgLongTime);
         lpg[c].setDecay(_mm_load_ps(decays + g), lpgLongTime);
         lpg[c].setTriggerMode(lpgTriggerMode);
 
         // FM
-        __fmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
-        __fmA = _mm_mul_ps(__fmA, __fmA1Level);
-        __fmA = _mm_add_ps(__fmA, _mm_mul_ps(fmA2IsMono ? _mm_set1_ps(fmA2[0]) : _mm_load_ps(fmA2 + g), __fmA2Level));
-        __fmAVCA = fmAVCAIsMono ? _mm_set1_ps(fmAVCA[0]) : _mm_load_ps(fmAVCA + g);
-        __fmAVCA = _mm_mul_ps(__fmAVCA, __fmAVCACV);
-        __fmAVCA = fmAVCAIsConnected ? __fmAVCA : __ones;
-        __fmA = _mm_mul_ps(__fmA, __fmAVCA);
+        vecFmA = fmA1IsMono ? _mm_set1_ps(fmA1[0]) : _mm_load_ps(fmA1 + g);
+        vecFmA = _mm_mul_ps(vecFmA, vecFmA1Level);
+        vecFmA = _mm_add_ps(vecFmA, _mm_mul_ps(fmA2IsMono ? _mm_set1_ps(fmA2[0]) : _mm_load_ps(fmA2 + g), vecFmA2Level));
+        vecFmAVCA = fmAVCAIsMono ? _mm_set1_ps(fmAVCA[0]) : _mm_load_ps(fmAVCA + g);
+        vecFmAVCA = _mm_mul_ps(vecFmAVCA, vecFmAVCACV);
+        vecFmAVCA = fmAVCAIsConnected ? vecFmAVCA : _mm_set1_ps(1.f);
+        vecFmA = _mm_mul_ps(vecFmA, vecFmAVCA);
 
-        __fmB = fmB1IsMono ? _mm_set1_ps(fmB1[0]) : _mm_load_ps(fmB1 + g);
-        __fmB = _mm_mul_ps(__fmB, __fmB1Level);
-        __fmB = _mm_add_ps(__fmB, _mm_mul_ps(fmB2IsMono ? _mm_set1_ps(fmB2[0]) : _mm_load_ps(fmB2 + g), __fmB2Level));
-        __fmBVCA = fmBVCAIsMono ? _mm_set1_ps(fmBVCA[0]) : _mm_load_ps(fmBVCA + g);
-        __fmBVCA = _mm_mul_ps(__fmBVCA, __fmBVCACV);
-        __fmBVCA = fmBVCAIsConnected ? __fmBVCA : __ones;
-        __fmB = _mm_mul_ps(__fmB, __fmBVCA);
+        vecFmB = fmB1IsMono ? _mm_set1_ps(fmB1[0]) : _mm_load_ps(fmB1 + g);
+        vecFmB = _mm_mul_ps(vecFmB, vecFmB1Level);
+        vecFmB = _mm_add_ps(vecFmB, _mm_mul_ps(fmB2IsMono ? _mm_set1_ps(fmB2[0]) : _mm_load_ps(fmB2 + g), vecFmB2Level));
+        vecFmBVCA = fmBVCAIsMono ? _mm_set1_ps(fmBVCA[0]) : _mm_load_ps(fmBVCA + g);
+        vecFmBVCA = _mm_mul_ps(vecFmBVCA, vecFmBVCACV);
+        vecFmBVCA = fmBVCAIsConnected ? vecFmBVCA : _mm_set1_ps(1.f);
+        vecFmB = _mm_mul_ps(vecFmB, vecFmBVCA);
 
-        __fmSum = _mm_add_ps(__fmA, __fmB);
-        __freq = _mm_load_ps(freqs + g);
-        __freq = _mm_mul_ps(__freq, (lfoModeEnabled ? __hundredths : __ones));
-        __freq = _mm_mul_ps(__freq, (zeroFreqEnabled ? __zeros : __ones));
-        __freq = _mm_add_ps(__freq, (trueFMEnabled ? _mm_mul_ps(__fmSum, _mm_set1_ps(1000.f)) : __zeros));
+        vecFmSum = _mm_add_ps(vecFmA, vecFmB);
+        vecFreq = _mm_load_ps(freqs + g);
+        vecFreq = _mm_mul_ps(vecFreq, (lfoModeEnabled ? _mm_set1_ps(0.01f) : _mm_set1_ps(1.f)));
+        vecFreq = _mm_mul_ps(vecFreq, (zeroFreqEnabled ? _mm_set1_ps(0.f) : _mm_set1_ps(1.f)));
+        vecFreq = _mm_add_ps(vecFreq, (trueFMEnabled ? _mm_mul_ps(vecFmSum, _mm_set1_ps(1000.f)) : _mm_set1_ps(0.f)));
 
-        osc[c].inputPhase = trueFMEnabled ? __zeros : __fmSum;
+        osc[c].inputPhase = trueFMEnabled ? _mm_set1_ps(0.f) : vecFmSum;
         osc[c].inputPhase = _mm_add_ps(osc[c].inputPhase, _mm_mul_ps(osc[c].getOutput(), _mm_load_ps(skew + g)));
 
-        __wave = _mm_load_ps(waves + g);
-        __shape = _mm_load_ps(shapes + g);
-        __enhance = _mm_load_ps(enhances + g);
+        vecWave = _mm_load_ps(waves + g);
+        vecShape = _mm_load_ps(shapes + g);
+        vecEnhance = _mm_load_ps(enhances + g);
 
-        __wave = _mm_clamp_ps(__wave, __zeros, __numWavesInTable);
-        __shape = _mm_clamp_ps(__shape, __zeros, __ones);
-        __enhance = _mm_clamp_ps(__enhance, __zeros, __ones);
+        vecWave = _mm_clamp_ps(vecWave, _mm_set1_ps(0.f), vecNumWavesInTable);
+        vecShape = _mm_clamp_ps(vecShape, _mm_set1_ps(0.f), _mm_set1_ps(1.f));
+        vecEnhance = _mm_clamp_ps(vecEnhance, _mm_set1_ps(0.f), _mm_set1_ps(1.f));
 
-        osc[c].setFrequency(__freq);
-        osc[c].mm_setScanPosition(__wave);
-        osc[c].setShape(__shape);
+        osc[c].setFrequency(vecFreq);
+        osc[c].mm_setScanPosition(vecWave);
+        osc[c].setShape(vecShape);
 
         osc[c].tick();
 
         subOsc[c].setWave(_mm_set1_ps(params[SUB_OSC_WAVE_PARAM].getValue()));
-        __subOscOut = subOsc[c].process(osc[c].getOutput(), osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
-        __phasorOutput[c] = osc[c].getPhasor();
-        __phasorOutput[c] = _mm_add_ps(_mm_mul_ps(__phasorOutput[c], __negTwos), __ones);
-        __shapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), __twos), __ones);
+        vecSubOscOut = subOsc[c].process(osc[c].getOutput(), osc[c].getPhasor(), osc[c].getEOCPulse(), osc[c].getStepSize(), osc[c].getDirection());
+        vecPhasorOutput[c] = osc[c].getPhasor();
+        vecPhasorOutput[c] = _mm_add_ps(_mm_mul_ps(vecPhasorOutput[c], _mm_set1_ps(-2.f)), _mm_set1_ps(1.f));
+        vecShapedPhasorOutput[c] = _mm_sub_ps(_mm_mul_ps(osc[c].getShapedPhasor(), _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
         enhancer[c].insertAuxSignals(osc[c].getPhasor(), osc[c].getStepSize(), osc[c].getEOCPulse(), osc[c].getDirection());
-        __phasorOutput[c] = _mm_mul_ps(__phasorOutput[c], __negFives);
-        __preEnhanceOutput[c] = osc[c].getOutput();
+        vecPhasorOutput[c] = _mm_mul_ps(vecPhasorOutput[c], _mm_set1_ps(-5.f));
+        vecPreEnhancerOutput[c] = osc[c].getOutput();
 
         if (swapEnhancerAndLPG) {
-            __lpgInput = _mm_add_ps(__preEnhanceOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
-            __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
-            __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-            __mainOutput[c] = enhancer[c].process(__mainOutput[c], __enhance);
+            vecLpgInput = _mm_add_ps(vecPreEnhancerOutput[c], _mm_mul_ps(vecSubOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
+            vecMainOutput[c] = lpg[c].process(vecLpgInput, _mm_clamp_ps(_mm_add_ps(vecTrigger1, vecTrigger2), _mm_set1_ps(0.f), _mm_set1_ps(1.f)));
+            vecPreEnhancerOutput[c] = _mm_mul_ps(vecPreEnhancerOutput[c], _mm_set1_ps(5.f));
+            vecMainOutput[c] = enhancer[c].process(vecMainOutput[c], vecEnhance);
         }
         else {
-            __mainOutput[c] = enhancer[c].process(__preEnhanceOutput[c], __enhance);
-            __preEnhanceOutput[c] = _mm_mul_ps(__preEnhanceOutput[c], __fives);
-            __lpgInput = _mm_add_ps(__mainOutput[c], _mm_mul_ps(__subOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
-            __mainOutput[c] = lpg[c].process(__lpgInput, _mm_clamp_ps(_mm_add_ps(__trigger1, __trigger2), __zeros, __ones));
+            vecMainOutput[c] = enhancer[c].process(vecPreEnhancerOutput[c], vecEnhance);
+            vecPreEnhancerOutput[c] = _mm_mul_ps(vecPreEnhancerOutput[c], _mm_set1_ps(5.f));
+            vecLpgInput = _mm_add_ps(vecMainOutput[c], _mm_mul_ps(vecSubOscOut, _mm_set1_ps(params[SUB_OSC_LEVEL_PARAM].getValue())));
+            vecMainOutput[c] = lpg[c].process(vecLpgInput, _mm_clamp_ps(_mm_add_ps(vecTrigger1, vecTrigger2), _mm_set1_ps(0.f), _mm_set1_ps(1.f)));
         }
 
-        __mainOutput[c] = _mm_mul_ps(__mainOutput[c], minus12dB ? __halfLevel : __fullLevel);
-        __mainOutput[c] = _mm_min_ps(_mm_max_ps(__mainOutput[c], __negTens), __tens);
+        vecMainOutput[c] = _mm_mul_ps(vecMainOutput[c], minus12dB ? _mm_set1_ps(1.25f) : _mm_set1_ps(5.f));
+        vecMainOutput[c] = _mm_min_ps(_mm_max_ps(vecMainOutput[c], _mm_set1_ps(-10.f)), _mm_set1_ps(10.f));
 
-        _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), __phasorOutput[c]);
-        _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), __fives));
-        _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(__shapedPhasorOutput[c], __fives));
-        _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), rawOutDCBlock[c].process(__preEnhanceOutput[c]));
-        _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), enhancerOutDCBlock[c].process(_mm_mul_ps(enhancer[c].output, __fives)));
-        _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(__subOscOut, __fives));
-        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), mainOutDCBlock[c].process(__mainOutput[c]));
-        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].env, __tens));
+        _mm_store_ps(outputs[PHASOR_OUTPUT].getVoltages(g), vecPhasorOutput[c]);
+        _mm_store_ps(outputs[END_OF_CYCLE_OUTPUT].getVoltages(g), _mm_mul_ps(osc[c].getEOCPulse(), _mm_set1_ps(5.f)));
+        _mm_store_ps(outputs[SHAPED_PHASOR_OUTPUT].getVoltages(g), _mm_mul_ps(vecShapedPhasorOutput[c], _mm_set1_ps(5.f)));
+        _mm_store_ps(outputs[RAW_OUTPUT].getVoltages(g), rawOutDCBlock[c].process(vecPreEnhancerOutput[c]));
+        _mm_store_ps(outputs[ENHANCER_OUTPUT].getVoltages(g), enhancerOutDCBlock[c].process(_mm_mul_ps(enhancer[c].output, _mm_set1_ps(5.f))));
+        _mm_store_ps(outputs[SUB_OSC_OUTPUT].getVoltages(g), _mm_mul_ps(vecSubOscOut, _mm_set1_ps(5.f)));
+        _mm_store_ps(outputs[MAIN_OUTPUT].getVoltages(g), mainOutDCBlock[c].process(vecMainOutput[c]));
+        _mm_store_ps(outputs[ENVELOPE_OUTPUT].getVoltages(g), _mm_mul_ps(lpg[c].env, _mm_set1_ps(10.f)));
     }
 
     outputs[PHASOR_OUTPUT].setChannels(numActiveChannels);

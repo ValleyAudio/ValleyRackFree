@@ -209,13 +209,12 @@ struct Terrorform : Module {
     bool readFromUserWaves;
 
     // Outputs
-    __m128 __mainOutput[kMaxNumGroups];
-    __m128 __preEnhanceOutput[kMaxNumGroups];
-    __m128 __phasorOutput[kMaxNumGroups];
-    __m128 __shapedPhasorOutput[kMaxNumGroups];
-    __m128 __eocOutput[kMaxNumGroups];
-    __m128 __subOscOut;
-    __m128 __lpgInput;
+    __m128 vecMainOutput[kMaxNumGroups];
+    __m128 vecPreEnhancerOutput[kMaxNumGroups];
+    __m128 vecPhasorOutput[kMaxNumGroups];
+    __m128 vecShapedPhasorOutput[kMaxNumGroups];
+    __m128 vecSubOscOut;
+    __m128 vecLpgInput;
 
     float rootBank;
     float rootShapeType;
@@ -241,7 +240,7 @@ struct Terrorform : Module {
 
     float rootPitch;
     float* freqs;
-    __m128 __freq;
+    __m128 vecFreq;
     float pitchCV1;
     float pitchCV2;
 
@@ -249,8 +248,8 @@ struct Terrorform : Module {
     float* wavesCV;
     float* waves;
     float numWavesInTable;
-    __m128 __wave;
-    __m128 __numWavesInTable;
+    __m128 vecWave;
+    __m128 vecNumWavesInTable;
     float bankCV1, bankCV2;
     float waveCV1, waveCV2;
 
@@ -295,14 +294,14 @@ struct Terrorform : Module {
     float rootShapeDepth;
     float* shapes;
     float* shapesCV;
-    __m128 __shape;
+    __m128 vecShape;
     float shapeDepthCV1;
     float shapeDepthCV2;
 
     float rootEnhanceDepth;
     float* enhances;
     float* enhancesCV;
-    __m128 __enhance;
+    __m128 vecEnhance;
     float enhanceDepthCV1;
     float enhanceDepthCV2;
 
@@ -312,8 +311,8 @@ struct Terrorform : Module {
     bool sync1IsMono, sync2IsMono;
     float* sync1;
     float* sync2;
-    __m128 __sync1, __sync2, __prevSync1, __prevSync2, __quarterPhase;
-    __m128 __sync1Pls, __sync2Pls, __weakSync1Flag, __weakSync2Flag;
+    __m128 vecSync1, vecSync2, vecPrevSync1, vecPrevSync2, vecQuarterPhase;
+    __m128 vecSync1Pls, vecSync2Pls, vecWeakSync1Flag, vecWeakSync2Flag;
     unsigned long syncChoice = 0;
     int weakSync1Enable = 0;
     int weakSync2Enable = 0;
@@ -331,21 +330,19 @@ struct Terrorform : Module {
     bool lpgButtonHeldDown = false;
     bool lpgButtonPrevState = false;
     bool swapEnhancerAndLPG = false;
-    __m128 __lpgVCAMode;
-    __m128 __lpgFilterMode;
+    __m128 vecLpgVCAMode;
+    __m128 vecLpgFilterMode;
 
     bool lpgLongTime = false;
     bool lpgVelocitySensitive = false;
     bool lpgTriggerMode = false;
 
-    __m128 __lpgVelocitySensitiveFlag;
+    __m128 vecLpgVelocitySensitivityFlag;
 
     float* attacks;
     float* decays;
     float attackParam, decayParam;
     float attackCV1Depth, attackCV2Depth, decayCV1Depth, decayCV2Depth;
-    __m128 __attackParam, __attackSum;
-    __m128 __decayParam, __decaySum;
 
     // FM
     int fmMode = 0;
@@ -371,15 +368,11 @@ struct Terrorform : Module {
     float* velocity1;
     float* velocity2;
     float* skew;
-    __m128 __fmA, __fmB, __fmSum;
-    __m128 __fmAVCA, __fmBVCA;
-    __m128 __fmA1Level, __fmA2Level, __fmB1Level, __fmB2Level;
-    __m128 __fmAVCACV, __fmBVCACV;
-    __m128 __trigger1 , __trigger2;
-
-    __m128 __zeros, __ones, __negOnes, __twos, __negTwos, __fives, __negFives, __tens, __negTens;
-    __m128 __quarters, __tenths, __hundredths;
-    __m128 __fullLevel, __halfLevel;
+    __m128 vecFmA, vecFmB, vecFmSum;
+    __m128 vecFmAVCA, vecFmBVCA;
+    __m128 vecFmA1Level, vecFmA2Level, vecFmB1Level, vecFmB2Level;
+    __m128 vecFmAVCACV, vecFmBVCACV;
+    __m128 vecTrigger1 , vecTrigger2;
 
     int counter = 512;
 
