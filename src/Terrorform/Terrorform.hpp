@@ -43,8 +43,6 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-
 struct Terrorform : Module {
 
     enum InputIds {
