@@ -36,82 +36,76 @@
 #include "Metronome.hpp"
 
 Metronome::Metronome() {
-    _sampleRate = 44100.0;
-    _tempo = 120.0;
-    _division = 4.0;
-    _elapsedTickTime = 1.0;
-    _ticked = false;
     calcTickIncrement();
 }
 
-Metronome::Metronome(float initTempo, float sampleRate, float division, float phase) {
-    _sampleRate = sampleRate;
-    _tempo = initTempo;
-    _division = division;
-    _elapsedTickTime = 0.0;
-    _ticked = false;
-    _phase = phase;
-    _phasedElapsedTickTime = _phase;
-    _prevPhasedElapsedTickTime = _phasedElapsedTickTime;
+Metronome::Metronome(float initTempo,
+                     float initSampleRate,
+                     float initDivision,
+                     float initPhase)
+    : tempo(initTempo),
+      sampleRate(initSampleRate),
+      division(initDivision),
+      phase(initPhase)
+{
+    phasedElapsedTickTime = phase;
+    prevPhasedElapsedTickTime = phasedElapsedTickTime;
     calcTickIncrement();
 }
 
 void Metronome::process() {
-    _prevPhasedElapsedTickTime = _phasedElapsedTickTime;
-    _phasedElapsedTickTime = _elapsedTickTime + _phase;
+    prevPhasedElapsedTickTime = phasedElapsedTickTime;
+    phasedElapsedTickTime = elapsedTickTime + phase;
 
-    if(_phasedElapsedTickTime >= 1.0) {
-        _phasedElapsedTickTime -= 1.0;
+    if (phasedElapsedTickTime >= 1.0) {
+        phasedElapsedTickTime -= 1.0;
     }
-    if(_prevPhasedElapsedTickTime > _phasedElapsedTickTime) {
-        _ticked = true;
-    }
-    else {
-        _ticked = false;
-    }
+
+    ticked = prevPhasedElapsedTickTime > phasedElapsedTickTime;
 
     // Wrap real timer
-    _elapsedTickTime += _tickIncrement;
-    if(_elapsedTickTime >= 1.0) {
-        _elapsedTickTime -= 1.0;
+    elapsedTickTime += tickIncrement;
+    if(elapsedTickTime >= 1.0) {
+        elapsedTickTime -= 1.0;
     }
 }
 
 void Metronome::reset() {
-    _phasedElapsedTickTime = _phase;
-    _prevPhasedElapsedTickTime = _phasedElapsedTickTime;
-    _elapsedTickTime = 1.0;
-    _ticked = true;
+    phasedElapsedTickTime = phase;
+    prevPhasedElapsedTickTime = phasedElapsedTickTime;
+    elapsedTickTime = 1.f;
+    ticked = true;
 }
 
-void Metronome::setSampleRate(float sampleRate) {
-    _sampleRate = sampleRate;
+void Metronome::setSampleRate(float newSampleRate) {
+    sampleRate = newSampleRate;
     calcTickIncrement();
 }
 
-void Metronome::setTempo(float tempo) {
-    _tempo = tempo;
+void Metronome::setTempo(float newTempo) {
+    tempo = newTempo;
     calcTickIncrement();
 }
 
-void Metronome::setDivision(float division) {
-    _division = division;
+void Metronome::setDivision(float newDivision) {
+    division = newDivision;
     calcTickIncrement();
 }
 
-void Metronome::setPhase(float phase) {
-    _phase = phase;
+void Metronome::setPhase(float newPhase) {
+    phase = newPhase;
 }
 
 bool Metronome::hasTicked() const {
-    return _ticked;
+    return ticked;
 }
 
 float Metronome::getElapsedTickTime() const {
-    return _elapsedTickTime;
+    return elapsedTickTime;
 }
 
 void Metronome::calcTickIncrement() {
-    _beatInterval = 60.0 / (_tempo * _division);
-    _tickIncrement = 1.0 / (_beatInterval * _sampleRate);
+    beatInterval = 60.f / (tempo * division);
+    tickIncrement = 1.f / (beatInterval * sampleRate);
 }
+
