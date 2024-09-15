@@ -1,11 +1,11 @@
 #include "TFormEditorChoice.hpp"
 
-TFormEditorChoiceItem::TFormEditorChoiceItem(unsigned long itemNumber) {
-    _itemNumber = itemNumber;
+TFormEditorChoiceItem::TFormEditorChoiceItem(unsigned long initialItemNumber) {
+    itemNumber = initialItemNumber;
 }
 
 void TFormEditorChoiceItem::onAction(const event::Action &e) {
-    *choice = _itemNumber;
+    *choice = itemNumber;
 }
 
 void TFormEditorChoiceItem::onDragEnd(const event::DragEnd &e) {
@@ -39,7 +39,7 @@ void TFormEditorChoice::onAction(const event::Action &e) {
 
     for(size_t i = 0; i < maxItems; ++i) {
         TFormEditorChoiceItem *item = new TFormEditorChoiceItem(i);
-        item->_itemNumber = i;
+        item->itemNumber = i;
         item->choice = choice;
         item->rightText = (*choice == i) ? "✔" : "";
         item->text = items[i];
