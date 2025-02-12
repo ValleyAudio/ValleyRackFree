@@ -8,10 +8,23 @@
 #include "VecOTAFilter.hpp"
 
 VecTPTOnePoleStage::VecTPTOnePoleStage() {
-    zeros = _mm_set1_ps(0.f);
-    ones = _mm_set1_ps(1.f);
-    G = zeros;
-    z = zeros;
+    G = _mm_set1_ps(0.f);
+    z = _mm_set1_ps(0.f);
+}
+
+__m128 VecTPTOnePoleStage::process(const __m128& x) {
+    __m128 v = _mm_mul_ps(_mm_sub_ps(vecDriveSignal(x, _mm_set1_ps(1.f)), z), G);
+    __m128 out = vecDriveSignal(_mm_add_ps(v, z), _mm_set1_ps(1.f));
+    z = _mm_add_ps(out, v);
+    return out;
+}
+
+void VecTPTOnePoleStage::calcG(const __m128& g) {
+    G = _mm_div_ps(g, _mm_add_ps(_mm_set1_ps(1.f), g));
+}
+
+void VecTPTOnePoleStage::setG(const __m128& g) {
+    G = g;
 }
 
 void VecTPTOnePoleStage::setSampleRate(float newSampleRate) {
@@ -25,51 +38,62 @@ float VecTPTOnePoleStage::getSampleRate() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VecOTAFilter::VecOTAFilter() {
-    ones = _mm_set1_ps(1.f);
-    zeros = _mm_set1_ps(0.f);
-    k = zeros;
+    k = _mm_set1_ps(0.f);
 
-    pitch = zeros;
-    cutoff = zeros;
+    pitch = _mm_set1_ps(0.f);
+    cutoff = _mm_set1_ps(0.f);
 
-    g = zeros;
-    h = ones;
-    hRecip = ones;
+    g = _mm_set1_ps(0.f);
+    h = _mm_set1_ps(1.f);
+    hRecip = _mm_set1_ps(1.f);
 
-    G = zeros;
-    G2 = zeros;
-    G3 = zeros;
-    sigma = zeros;
-    gamma = zeros;
-    u = zeros;
+    G = _mm_set1_ps(0.f);
+    G2 = _mm_set1_ps(0.f);
+    G3 = _mm_set1_ps(0.f);
+    sigma = _mm_set1_ps(0.f);
+    gamma = _mm_set1_ps(0.f);
+    u = _mm_set1_ps(0.f);
 
-    lp1Result = zeros;
-    lp2Result = zeros;
-    lp3Result = zeros;
-    lp4Result = zeros;
+    lp1Result = _mm_set1_ps(0.f);
+    lp2Result = _mm_set1_ps(0.f);
+    lp3Result = _mm_set1_ps(0.f);
+    lp4Result = _mm_set1_ps(0.f);
 
-    pole0Coeff = zeros;
-    pole1Coeff = zeros;
-    pole2Coeff = zeros;
-    pole3Coeff = zeros;
-    pole4Coeff = zeros;
+    pole0Coeff = _mm_set1_ps(0.f);
+    pole1Coeff = _mm_set1_ps(0.f);
+    pole2Coeff = _mm_set1_ps(0.f);
+    pole3Coeff = _mm_set1_ps(0.f);
+    pole4Coeff = _mm_set1_ps(0.f);
 
     tanhRecip = 1.f / tanhDriveSignal(1.f, 1.f);
-
-    for (auto& x : kGTable)
-        x = 0.f;
-
-    for (auto& x : kHTable)
-        x = 0.f;
 
     setSampleRate(44100.f);
     _mode = -1;
     setMode(LP4_MODE);
 }
 
+__m128 VecOTAFilter::process(const __m128& in) {
+    sigma = _mm_mul_ps(G3, stage1.z);
+    sigma = _mm_add_ps(sigma, _mm_mul_ps(G2, stage2.z));
+    sigma = _mm_add_ps(sigma, _mm_mul_ps(G, stage3.z));
+    sigma = _mm_mul_ps(_mm_add_ps(sigma, stage4.z), hRecip);
+
+    u = _mm_mul_ps(in, _mm_set1_ps(0.5f));
+    u = _mm_sub_ps(u, _mm_mul_ps(_mm_mul_ps(k, vecDriveSignal(sigma, _mm_set1_ps(1.f))), _mm_set1_ps(tanhRecip)));
+    u = _mm_div_ps(u, _mm_add_ps(_mm_set1_ps(1.f), _mm_mul_ps(k, gamma)));
+    lp1Result = stage1.process(u);
+    lp2Result = stage2.process(lp1Result);
+    lp3Result = stage3.process(lp2Result);
+    lp4Result = stage4.process(lp3Result);
+    out = _mm_mul_ps(lp1Result, pole1Coeff);
+    out = _mm_add_ps(out, _mm_mul_ps(lp2Result, pole2Coeff));
+    out = _mm_add_ps(out, _mm_mul_ps(lp3Result, pole3Coeff));
+    out = _mm_add_ps(out, _mm_mul_ps(lp4Result, pole4Coeff));
+    return out;
+}
+
 void VecOTAFilter::setSampleRate(float newSampleRate) {
     sampleRate = newSampleRate;
-    calcInternalGTable();
     stage1.setSampleRate(sampleRate);
     stage2.setSampleRate(sampleRate);
     stage3.setSampleRate(sampleRate);
@@ -78,42 +102,12 @@ void VecOTAFilter::setSampleRate(float newSampleRate) {
 }
 
 void VecOTAFilter::setCutoff(const __m128& newPitch) {
-    pitch = _mm_clamp_ps(newPitch, zeros, _mm_set1_ps(10.f));
-    cutoff = _mm_mul_ps(pitch, _mm_set1_ps(100000.f));
+    pitch = _mm_clamp_ps(newPitch, _mm_set1_ps(0.f), _mm_set1_ps(10.f));
+    pitch = _mm_add_ps(pitch, _mm_set1_ps(-4.9166666667f));
+    g = _mm_mul_ps(_mm_set1_ps(0.0314f), valley::_mm_exp_ps(_mm_mul_ps(_mm_set1_ps(0.6937f), pitch)));
+    g = _mm_add_ps(g, _mm_mul_ps(_mm_set1_ps(0.0000024f), valley::_mm_exp_ps(_mm_mul_ps(_mm_set1_ps(2.4544f), pitch))));
 
-    __m128i cutoffI = _mm_cvttps_epi32(cutoff);
-    _mm_storeu_si128((__m128i*)pos, cutoffI);
-    __m128 frac = _mm_sub_ps(cutoff, _mm_cvtepi32_ps(cutoffI));
-
-    for (auto& p : pos)
-        p = (p < 0 ? 0 : p) > (G_TABLE_SIZE - 2) ? (G_TABLE_SIZE - 2) : p;
-
-    float lowG[4] = {0.f, 0.f, 0.f, 0.f};
-    float highG[4] = {0.f, 0.f, 0.f, 0.f};
-    float lowH[4] = {1.f, 1.f, 1.f, 1.f};
-    float highH[4] = {1.f, 1.f, 1.f, 1.f};
-
-    for(auto i = 0; i < 4; ++i) {
-        lowG[i] = kGTable[pos[i]];
-        highG[i] = kGTable[pos[i] + 1];
-        lowH[i] = kHTable[pos[i]];
-        highH[i] = kHTable[pos[i] + 1];
-    }
-
-    __m128 vLowG = _mm_loadu_ps(lowG);
-    __m128 vHighG = _mm_loadu_ps(highG);
-    g = _mm_linterp_ps(vLowG, vHighG, frac);
-
-    __m128 vLowH = _mm_loadu_ps(lowH);
-    __m128 vHighH = _mm_loadu_ps(highH);
-    hRecip = _mm_linterp_ps(vLowH, vHighH, frac);
-
-    /*long pos = (long)_cutoff;
-    float frac = _cutoff - (float)pos;
-    _g = linterp(kGTable[pos], kGTable[pos + 1], frac);*/
-
-    /*h = _mm_add_ps(ones, g);
-    hRecip = _mm_div_ps(ones, h);*/
+    hRecip = _mm_div_ps(_mm_set1_ps(1.f), _mm_add_ps(g, _mm_set1_ps(1.f)));
     G = _mm_mul_ps(g, hRecip);
 
     stage1.G = G;
@@ -130,23 +124,38 @@ void VecOTAFilter::setQ(const __m128& Q) {
   k = _mm_mul_ps(_mm_set1_ps(0.4f), _mm_clamp_ps(Q, _mm_set1_ps(0.f), _mm_set1_ps(10.f)));
 }
 
-void VecOTAFilter::calcInternalGTable() {
-    float f = 0.f;
-    float wd = 0.f;
-    float T = 1.f / sampleRate;
-    float T_2 = T / 2.f;
-    float wa = 0.f;
-    float g = 0.f;
-    float h = 0.f;
+void VecOTAFilter::setMode(int mode) {
+    if(_mode == mode) {
+        return;
+    }
 
-    for(auto i = 0; i < G_TABLE_SIZE; ++i) {
-        f = 440.f * powf(2.f, ((i - 500000.f) / 100000.f));
-        wd = 2.f * M_PI * f;
-        wa = (2.f / T) * tanf(wd * T_2);
-        g = wa * T_2;
-        kGTable[i] = g;
-        h = g + 1.f;
-        h = 1.f / h;
-        kHTable[i] = h;
+    _mode = mode;
+    pole0Coeff = _mm_set1_ps(0.f);
+    pole1Coeff = _mm_set1_ps(0.f);
+    pole2Coeff = _mm_set1_ps(0.f);
+    pole3Coeff = _mm_set1_ps(0.f);
+    pole4Coeff = _mm_set1_ps(0.f);
+
+    if (mode == LP2_MODE) {
+        pole2Coeff = _mm_set1_ps(1.f);
+
+    }
+    else if (mode == LP4_MODE) {
+        pole4Coeff = _mm_set1_ps(1.f);
+
+    }
+    else if (mode == BP2_MODE) {
+        pole1Coeff = _mm_set1_ps(2.f);
+        pole2Coeff = _mm_set1_ps(-2.f);
+
+    }
+    else if (mode == BP4_MODE) {
+        pole2Coeff = _mm_set1_ps(4.f);
+        pole3Coeff = _mm_set1_ps(-8.f);
+        pole4Coeff = _mm_set1_ps(4.f);
+    }
+    else {
+        pole4Coeff = _mm_set1_ps(1.f);
     }
 }
+
