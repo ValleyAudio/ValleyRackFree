@@ -103,7 +103,7 @@ void VecOTAFilter::setSampleRate(float newSampleRate) {
 
 void VecOTAFilter::setCutoff(const __m128& newPitch) {
     pitch = _mm_clamp_ps(newPitch, _mm_set1_ps(0.f), _mm_set1_ps(10.f));
-    pitch = _mm_add_ps(pitch, _mm_set1_ps(-4.9166666667f));
+    pitch = _mm_add_ps(pitch, _mm_set1_ps(-(5.f + (2.f / 12.f))));
     g = _mm_mul_ps(_mm_set1_ps(0.0314f), valley::_mm_exp_ps(_mm_mul_ps(_mm_set1_ps(0.6937f), pitch)));
     g = _mm_add_ps(g, _mm_mul_ps(_mm_set1_ps(0.0000024f), valley::_mm_exp_ps(_mm_mul_ps(_mm_set1_ps(2.4544f), pitch))));
 
