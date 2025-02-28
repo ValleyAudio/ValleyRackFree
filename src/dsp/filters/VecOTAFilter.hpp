@@ -65,15 +65,16 @@ protected:
     VecTPTOnePoleStage stage2;
     VecTPTOnePoleStage stage3;
     VecTPTOnePoleStage stage4;
+
     __m128 k;
 
     __m128 pitch, cutoff, g , h, hRecip;
     __m128 G, G2, G3;
     __m128 sigma, gamma, u;
+    __m128 pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
     __m128 lp1Result, lp2Result, lp3Result, lp4Result;
 
     int _mode = -1;
-    __m128 pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
 
     float tanhRecip = 1.f;
     float sampleRate = 44100.f;
