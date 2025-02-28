@@ -59,7 +59,6 @@ VecOTAFilter::VecOTAFilter() {
     lp3Result = _mm_set1_ps(0.f);
     lp4Result = _mm_set1_ps(0.f);
 
-    pole0Coeff = _mm_set1_ps(0.f);
     pole1Coeff = _mm_set1_ps(0.f);
     pole2Coeff = _mm_set1_ps(0.f);
     pole3Coeff = _mm_set1_ps(0.f);
@@ -68,7 +67,6 @@ VecOTAFilter::VecOTAFilter() {
     tanhRecip = 1.f / tanhDriveSignal(1.f, 1.f);
 
     setSampleRate(44100.f);
-    _mode = -1;
     setMode(LP4_MODE);
 }
 
@@ -130,7 +128,6 @@ void VecOTAFilter::setMode(int mode) {
     }
 
     _mode = mode;
-    pole0Coeff = _mm_set1_ps(0.f);
     pole1Coeff = _mm_set1_ps(0.f);
     pole2Coeff = _mm_set1_ps(0.f);
     pole3Coeff = _mm_set1_ps(0.f);

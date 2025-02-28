@@ -73,9 +73,7 @@ protected:
     __m128 lp1Result, lp2Result, lp3Result, lp4Result;
 
     int _mode = -1;
-    __m128 pole0Coeff, pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
-
-    int32_t pos[4] = {0, 0, 0, 0};
+    __m128 pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
 
     float tanhRecip = 1.f;
     float sampleRate = 44100.f;
