@@ -5,8 +5,8 @@ Feline::Feline() {
     configParam(Feline::CUTOFF_PARAM, 0.f, 10.f, 10.f, "Cutoff Frequency");
     configParam(Feline::RESONANCE_PARAM, 0.f, 10.f, 0.f, "Resonance");
     configParam(Feline::SPACING_PARAM, -1.f, 1.f, 0.f, "Cutoff Spacing");
-    configParam(Feline::POLES_PARAM, 0.f, 1.f, 0.f, "Poles");
-    configParam(Feline::TYPE_PARAM, 0.f, 1.f, 0.f, "Type");
+    configSwitch(Feline::POLES_PARAM, 0.f, 1.f, 0.f, "Poles", {"2p", "4p"});
+    configSwitch(Feline::TYPE_PARAM, 0.f, 1.f, 0.f, "Type", {"LPF", "BPF"});
     configParam(Feline::SPACING_POLARITY_PARAM, 0.f, 1.f, 0.f, "Spacing Target");
     configParam(Feline::DRIVE_PARAM, 0.f, 1.f, 0.f, "Input Drive");
 
