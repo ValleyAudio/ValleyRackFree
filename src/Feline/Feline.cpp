@@ -56,7 +56,8 @@ void Feline::step() {
     leftCutoff += cutoff;
     rightCutoff = cutoff + spacing;
 
-    filter.setMode(params[POLES_PARAM].getValue() + params[TYPE_PARAM].getValue() * 2);
+    VecOTAFilter::Mode filterMode = (VecOTAFilter::Mode)(params[POLES_PARAM].getValue() + params[TYPE_PARAM].getValue() * 2);
+    filter.setMode(filterMode);
 
     if(leftCutoff != prevLeftCutoff || rightCutoff != prevRightCutoff) {
         prevLeftCutoff = leftCutoff;

@@ -259,7 +259,7 @@ void Interzone::getCV() {
 
         vFilter[i].setCutoff(vFilterCutoff);
         vFilter[i].setQ(vFilterQ);
-        vFilter[i].setMode(filterMode);
+        vFilter[i].setMode((VecOTAFilter::Mode)filterMode);
     }
 }
 
