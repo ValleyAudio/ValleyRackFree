@@ -40,6 +40,18 @@ protected:
 
 class VecOTAFilter {
 public:
+    enum Mode {
+        INVALID_MODE = 0,
+        LP2_MODE,
+        LP4_MODE,
+        BP2_MODE,
+        BP4_MODE,
+        HP2_MODE,
+        HP4_MODE
+    };
+
+    __m128 out;
+
     VecOTAFilter();
 
     __m128 process(const __m128& in);
@@ -47,18 +59,7 @@ public:
     void setSampleRate(float sampleRate);
     void setCutoff(const __m128& pitch);
     void setQ(const __m128& Q);
-    void setMode(int mode);
-
-    __m128 out;
-
-    enum Modes {
-        LP2_MODE = 0,
-        LP4_MODE,
-        BP2_MODE,
-        BP4_MODE,
-        HP2_MODE,
-        HP4_MODE
-    };
+    void setMode(Mode mode);
 
 protected:
     VecTPTOnePoleStage stage1;
@@ -74,7 +75,7 @@ protected:
     __m128 pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
     __m128 lp1Result, lp2Result, lp3Result, lp4Result;
 
-    int _mode = -1;
+    Mode mode = INVALID_MODE;
 
     float tanhRecip = 1.f;
     float sampleRate = 44100.f;

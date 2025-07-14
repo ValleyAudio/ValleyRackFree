@@ -122,31 +122,31 @@ void VecOTAFilter::setQ(const __m128& Q) {
   k = _mm_mul_ps(_mm_set1_ps(0.4f), _mm_clamp_ps(Q, _mm_set1_ps(0.f), _mm_set1_ps(10.f)));
 }
 
-void VecOTAFilter::setMode(int mode) {
-    if(_mode == mode) {
+void VecOTAFilter::setMode(VecOTAFilter::Mode newMode) {
+    if(newMode == mode) {
         return;
     }
+    mode = newMode;
 
-    _mode = mode;
     pole1Coeff = _mm_set1_ps(0.f);
     pole2Coeff = _mm_set1_ps(0.f);
     pole3Coeff = _mm_set1_ps(0.f);
     pole4Coeff = _mm_set1_ps(0.f);
 
-    if (mode == LP2_MODE) {
+    if (mode == VecOTAFilter::LP2_MODE) {
         pole2Coeff = _mm_set1_ps(1.f);
 
     }
-    else if (mode == LP4_MODE) {
+    else if (mode == VecOTAFilter::LP4_MODE) {
         pole4Coeff = _mm_set1_ps(1.f);
 
     }
-    else if (mode == BP2_MODE) {
+    else if (mode == VecOTAFilter::BP2_MODE) {
         pole1Coeff = _mm_set1_ps(2.f);
         pole2Coeff = _mm_set1_ps(-2.f);
 
     }
-    else if (mode == BP4_MODE) {
+    else if (mode == VecOTAFilter::BP4_MODE) {
         pole2Coeff = _mm_set1_ps(4.f);
         pole3Coeff = _mm_set1_ps(-8.f);
         pole4Coeff = _mm_set1_ps(4.f);
