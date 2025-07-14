@@ -14,9 +14,9 @@
 class WhiteNoise {
 public:
 #ifdef ARCH_WIN
-    WhiteNoise() :_rand(time(0)),
+    WhiteNoise() :rand(time(0)),
                   uniform(-1.0, 1.0) {
-        _value = 0.f;
+        value = 0.f;
     }
 #else
     WhiteNoise() : rand(seed()),

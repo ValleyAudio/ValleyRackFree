@@ -1051,7 +1051,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(waveText);
 
     // Shape Text
-    shapeTypeStr = make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
+    shapeTypeStr = std::make_shared<std::string>(inBrowser ? "GONNA" : shapeNames[0]);
     shapeText = new DigitalDisplay(10);
     shapeText->box.pos = shapeTextPos;
     shapeText->box.size = Vec(82, 14);
@@ -1070,7 +1070,7 @@ TerrorformWidget::TerrorformWidget(Terrorform* module) {
     addChild(shapeDepthText);
 
     // Enhance Text
-    enhanceTypeStr = make_shared<std::string>(inBrowser ? "LET!YOU" : shapeNames[0]);
+    enhanceTypeStr = std::make_shared<std::string>(inBrowser ? "LET!YOU" : shapeNames[0]);
     enhanceText = new DigitalDisplay(10);
     enhanceText->box.pos = enhanceTextPos;
     enhanceText->box.size = Vec(82, 14);
