@@ -33,25 +33,24 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef VALLEY_ONESHOT_HPP
-#define VALLEY_ONESHOT_HPP
+#pragma once
 
 class Oneshot {
 public:
-    Oneshot();
-    Oneshot(float duration, float _sampleRate);
+    Oneshot() = default;
+    Oneshot(float initDuration, float initSampleRate);
     void trigger();
     void process();
 
-    void setSampleRate(float sampleRate);
-    void setDuration(float duration);
+    void setSampleRate(float newSampleRate);
+    void setDuration(float newDuration);
     int getState() const;
+
 private:
-    int _state;
-    float _sampleRate;
-    float _duration;
-    float _elapsedTime;
-    float _deltaTime;
+    int state = 0;
+    float sampleRate = 44100.f;
+    float duration = 0.1f;
+    float elapsedTime = 0.f;
+    float deltaTime = 1.f / sampleRate;
 };
 
-#endif // VALLEY_ONESHOT_HPP

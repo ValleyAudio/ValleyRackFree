@@ -4,12 +4,12 @@
 #include "../../gui/ValleyComponents.hpp"
 
 struct TFormEditorChoiceItem : MenuItem {
-    unsigned long _itemNumber;
+    unsigned long itemNumber;
     std::shared_ptr<unsigned long> choice;
 
     std::function<void()> onChangeCallback;
 
-    TFormEditorChoiceItem(unsigned long itemNumber);
+    TFormEditorChoiceItem(unsigned long initialItemNumber);
     void onAction(const event::Action &e) override;
     void onDragEnd(const event::DragEnd &e) override;
     void addOnChangeCallback(const std::function<void()>& onChangeCallback);

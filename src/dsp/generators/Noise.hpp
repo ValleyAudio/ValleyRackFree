@@ -15,82 +15,82 @@ class WhiteNoise {
 public:
 #ifdef ARCH_WIN
     WhiteNoise() :_rand(time(0)),
-                  _uniform(-1.0, 1.0) {
+                  uniform(-1.0, 1.0) {
         _value = 0.f;
     }
 #else
-    WhiteNoise() :_rand(_seed()),
-              _uniform(-1.0, 1.0) {
-        _value = 0.f;
+    WhiteNoise() : rand(seed()),
+              uniform(-1.0, 1.0) {
+        value = 0.f;
     }
 #endif
 
     inline float process() {
-        _value = _uniform(_rand);
-        return _value;
+        value = uniform(rand);
+        return value;
     }
 
     float getValue() const {
-        return _value;
+        return value;
     }
 private:
-    std::random_device _seed;
-    std::minstd_rand _rand;
-    std::uniform_real_distribution<float> _uniform;
-    float _value;
+    std::random_device seed;
+    std::minstd_rand rand;
+    std::uniform_real_distribution<float> uniform;
+    float value;
 };
 
 class PinkNoise {
 public:
     PinkNoise() {
         setSampleRate(44100.f);
-        _white = 0.0;
-        _pink = 0.0;
     }
 
     inline double process() {
-        _white = _whiteGen.process();
-        _b[0] = _b[0] + (_a[0] * ((_white * 48.69991228070175) - _b[0]));
-        _b[1] = _b[1] + (_a[1] * ((_white * 11.23890718562874) - _b[1]));
-        _b[2] = _b[2] + (_a[2] * ((_white * 4.96296774193548) - _b[2]));
-        _b[3] = _b[3] + (_a[3] * ((_white * 2.32573483146067) - _b[3]));
-        _b[4] = _b[4] + (_a[4] * ((_white * 1.18433822222222) - _b[4]));
-        _b[5] = -0.7616 * _b[5] - _white * 0.0168980;
-        _pink = (_b[0] + _b[1] + _b[2] + _b[3] + _b[4] + _b[5] + _b[6] + _white * 0.5362);
-        _b[6] = _white * 0.115926;
-        _pink *= 0.15;
-        return _pink;
+        white = whiteGen.process();
+        b[0] = b[0] + (a[0] * ((white * 48.69991228070175) - b[0]));
+        b[1] = b[1] + (a[1] * ((white * 11.23890718562874) - b[1]));
+        b[2] = b[2] + (a[2] * ((white * 4.96296774193548) - b[2]));
+        b[3] = b[3] + (a[3] * ((white * 2.32573483146067) - b[3]));
+        b[4] = b[4] + (a[4] * ((white * 1.18433822222222) - b[4]));
+        b[5] = -0.7616 * b[5] - white * 0.0168980;
+        pink = (b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362);
+        b[6] = white * 0.115926;
+        pink *= 0.15;
+        return pink;
     }
 
-    void setSampleRate(double sampleRate) {
-        _sampleRate = sampleRate;
-        for(auto i = 0; i < 7; ++i) {
-            _b[i] = 0.0;
+    void setSampleRate(double newSampleRate) {
+        sampleRate = newSampleRate;
+        for(auto& i : b) {
+            i = 0.0;
         }
-        _white = 0.0;
-        _pink = 0.0;
+        white = 0.0;
+        pink = 0.0;
         calcAValues();
     }
 
-    double getValue() {
-        return _pink;
+    double getValue() const {
+        return pink;
     }
 
 private:
-    WhiteNoise _whiteGen;
+    WhiteNoise whiteGen;
 
-    double _b[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    double _a[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double _alpha[5] = {M_PI * 2.0 * 8.00135734209627,
-                        M_PI * 2.0 * 46.88548507044182,
-                        M_PI * 2.0 * 217.61558695916962,
-                        M_PI * 2.0 * 939.80665948455472,
-                        M_PI * 2.0 * 3276.10128392439381};
-    double _sampleRate, _white, _pink;
+    double b[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double a[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double alpha[5] = {M_PI * 2.0 * 8.00135734209627,
+                       M_PI * 2.0 * 46.88548507044182,
+                       M_PI * 2.0 * 217.61558695916962,
+                       M_PI * 2.0 * 939.80665948455472,
+                       M_PI * 2.0 * 3276.10128392439381};
+    double sampleRate = 0.0;
+    double white = 0.0;
+    double pink = 0.0;
 
     void calcAValues() {
         for(auto i = 0; i < 5; ++i) {
-            _a[i] = sin(_alpha[i] / _sampleRate);
+            a[i] = sin(alpha[i] / sampleRate);
         }
     }
 };

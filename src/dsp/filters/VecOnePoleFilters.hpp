@@ -8,22 +8,22 @@ struct VecOnePoleLPFilter {
     VecOnePoleLPFilter(float cutoffFreq);
     __m128 process(const __m128& input);
     void clear();
-    void setCutoff(const __m128& cutoff);
-    void setCutoffFreq(float cutoffFreq);
-    void setCutoffFreq(const __m128& cutoffFreq);
-    void setCutoffFreqAlt(float cutoffFreq);
-    void setCutoffFreqAlt(const __m128& cutoffFreq);
-    void setSampleRate(float sampleRate);
+    void setCutoff(const __m128& newCutoff);
+    void setCutoffFreq(float newCutoffFreq);
+    void setCutoffFreq(const __m128& newCutoffFreq);
+    void setCutoffFreqAlt(float newCutoffFreq);
+    void setCutoffFreqAlt(const __m128& newCutoffFreq);
+    void setSampleRate(float newSampleRate);
     float getMaxCutoffFreq() const;
 
-    float _sampleRate;
-    float _1_sampleRate;
-    float _cutoffFreq;
-    float _maxCutoffFreq;
-    __m128 _fc;
-    __m128 _a;
-    __m128 _b;
-    __m128 _z;
+    float sampleRate;
+    float sampleTime;
+    float cutoffFreq;
+    float maxCutoffFreq;
+    __m128 fc;
+    __m128 a;
+    __m128 b;
+    __m128 z;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,19 +33,19 @@ struct VecOnePoleHPFilter {
     VecOnePoleHPFilter(float cutoffFreq);
     __m128 process(const __m128& input);
     void clear();
-    void setCutoffFreq(float cutoffFreq);
-    void setCutoffFreq(const __m128& cutoffFreq);
-    void setSampleRate(float sampleRate);
+    void setCutoffFreq(float newCutoffFreq);
+    void setCutoffFreq(const __m128& newCutoffFreq);
+    void setSampleRate(float newSampleRate);
     float getMaxCutoffFreq() const;
     void setBypass(bool bypass);
 
-    float _sampleRate;
-    float _1_sampleRate;
-    float _cutoffFreq;
-    float _maxCutoffFreq;
+    float sampleRate;
+    float sampleTime;
+    float cutoffFreq;
+    float maxCutoffFreq;
     bool _bypassed;
-    __m128 _fc;
-    __m128 _a;
-    __m128 _b;
-    __m128 _z;
+    __m128 fc;
+    __m128 a;
+    __m128 b;
+    __m128 z;
 };

@@ -44,15 +44,15 @@ Amalgam::Amalgam() {
     configOutput(Amalgam::Z_RIGHT_PULSE_2_OUTPUT, "Z right pulse x2");
 
     amalgamType = 0;
-    __zeros = _mm_set1_ps(0.f);
-    __fives = _mm_set1_ps(5.f);
-    __halfs = _mm_set1_ps(0.5f);
+    zerosVec = _mm_set1_ps(0.f);
+    fivesVec = _mm_set1_ps(5.f);
+    halfsVec = _mm_set1_ps(0.5f);
 
-    __x = __zeros;
-    __y = __zeros;
-    __z = __zeros;
-    __xyAnd = __zeros;
-    __xyXor = __zeros;
+    xVec = zerosVec;
+    yVec = zerosVec;
+    zVec = zerosVec;
+    xyAndVec = zerosVec;
+    xyXorVec = zerosVec;
 
     xGain = 0.f;
     yGain = 0.f;
@@ -135,34 +135,34 @@ void Amalgam::process(const ProcessArgs &args) {
     yGain += params[Y_GAIN].getValue();
     yGain = clamp(yGain, 0.f, 4.f);
 
-    __x = _mm_set_ps(xIn[0], xIn[0], xIn[1], xIn[1]);
-    __y = _mm_set_ps(yIn[0], yIn[0], yIn[1], yIn[1]);
-    __x = _mm_mul_ps(__x, _mm_set1_ps(0.15f));
-    __y = _mm_mul_ps(__y, _mm_set1_ps(0.15f));
-    __x = _mm_mul_ps(vecDriveSignal(__x, _mm_set1_ps(xGain)), _mm_set1_ps(1.333333f));
-    __y = _mm_mul_ps(vecDriveSignal(__y, _mm_set1_ps(yGain)), _mm_set1_ps(1.333333f));
+    xVec = _mm_set_ps(xIn[0], xIn[0], xIn[1], xIn[1]);
+    yVec = _mm_set_ps(yIn[0], yIn[0], yIn[1], yIn[1]);
+    xVec = _mm_mul_ps(xVec, _mm_set1_ps(0.15f));
+    yVec = _mm_mul_ps(yVec, _mm_set1_ps(0.15f));
+    xVec = _mm_mul_ps(vecDriveSignal(xVec, _mm_set1_ps(xGain)), _mm_set1_ps(1.333333f));
+    yVec = _mm_mul_ps(vecDriveSignal(yVec, _mm_set1_ps(yGain)), _mm_set1_ps(1.333333f));
 
     // AND and XOR
-    __xyAnd = _mm_switch_ps(__zeros, __fives, _mm_and_ps(_mm_cmpgt_ps(__x, __zeros), _mm_cmpgt_ps(__y, __zeros)));
-    __xyXor = _mm_switch_ps(__zeros, __fives, _mm_xor_ps(_mm_cmpgt_ps(__x, __zeros), _mm_cmpgt_ps(__y, __zeros)));
-    __xyAnd = xyAndDCFilter.process(__xyAnd);
-    __xyXor = xyXorDCFilter.process(__xyXor);
+    xyAndVec = _mm_switch_ps(zerosVec, fivesVec, _mm_and_ps(_mm_cmpgt_ps(xVec, zerosVec), _mm_cmpgt_ps(yVec, zerosVec)));
+    xyXorVec = _mm_switch_ps(zerosVec, fivesVec, _mm_xor_ps(_mm_cmpgt_ps(xVec, zerosVec), _mm_cmpgt_ps(yVec, zerosVec)));
+    xyAndVec = xyAndDCFilter.process(xyAndVec);
+    xyXorVec = xyXorDCFilter.process(xyXorVec);
 
-    __z = vecAmalgam.process(__x, __y, paramA, paramB);
+    zVec = vecAmalgam.process(xVec, yVec, paramA, paramB);
 
-    __zPls1Mask = _mm_cmpgt_ps(__z, __zeros);
-    __zPls1 = _mm_and_ps(__fives, _mm_and_ps(_mm_cmpgt_ps(__z, __zeros), _mm_cmple_ps(__z, __halfs)));
-    __zPls2 = _mm_and_ps(__fives, _mm_or_ps(_mm_and_ps(_mm_cmpgt_ps(__z, __zeros), _mm_cmple_ps(__z, _mm_set1_ps(0.25f))),
-                                            _mm_and_ps(_mm_cmpgt_ps(__z, __halfs), _mm_cmple_ps(__z, _mm_set1_ps(0.99f)))));
+    zPls1MaskVec = _mm_cmpgt_ps(zVec, zerosVec);
+    zPls1Vec = _mm_and_ps(fivesVec, _mm_and_ps(_mm_cmpgt_ps(zVec, zerosVec), _mm_cmple_ps(zVec, halfsVec)));
+    zPls2Vec = _mm_and_ps(fivesVec, _mm_or_ps(_mm_and_ps(_mm_cmpgt_ps(zVec, zerosVec), _mm_cmple_ps(zVec, _mm_set1_ps(0.25f))),
+                                            _mm_and_ps(_mm_cmpgt_ps(zVec, halfsVec), _mm_cmple_ps(zVec, _mm_set1_ps(0.99f)))));
 
-    __zPls1 = zPls1DCFilter.process(__zPls1);
-    __zPls2 = zPls2DCFilter.process(__zPls2);
+    zPls1Vec = zPls1DCFilter.process(zPls1Vec);
+    zPls2Vec = zPls2DCFilter.process(zPls2Vec);
 
-    _mm_storeu_ps(zOut, __z);
-    _mm_storeu_ps(zPls1, __zPls1);
-    _mm_storeu_ps(zPls2, __zPls2);
-    _mm_storeu_ps(andOut, __xyAnd);
-    _mm_storeu_ps(xorOut, __xyXor);
+    _mm_storeu_ps(zOut, zVec);
+    _mm_storeu_ps(zPls1, zPls1Vec);
+    _mm_storeu_ps(zPls2, zPls2Vec);
+    _mm_storeu_ps(andOut, xyAndVec);
+    _mm_storeu_ps(xorOut, xyXorVec);
 
     zAnd = ((zOut[0] > 0.f) & (zOut[2] > 0.f)) ? 5.f : 0.f;
     zXor = ((zOut[0] > 0.f) ^ (zOut[2] > 0.f)) ? 5.f : 0.f;
@@ -173,8 +173,8 @@ void Amalgam::process(const ProcessArgs &args) {
     zAnd = dcCoupled ? zAnd : zAndDCFilter.output;
     zXor = dcCoupled ? zXor : zXorDCFilter.output;
 
-    __z = zOutDCFilter.process(__z);
-    _mm_storeu_ps(zOut, __z);
+    zVec = zOutDCFilter.process(zVec);
+    _mm_storeu_ps(zOut, zVec);
 
     outputs[X_Y_LEFT_AND_OUTPUT].setVoltage(andOut[2]);
     outputs[X_Y_RIGHT_AND_OUTPUT].setVoltage(andOut[0]);

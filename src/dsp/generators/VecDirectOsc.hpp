@@ -4,34 +4,27 @@
 
 struct VecDirectOsc {
     VecDirectOsc() {
-        __zeros = _mm_set1_ps(0.f);
-        __ones = _mm_set1_ps(1.f);
-        __twos = _mm_set1_ps(2.f);
-        __halfs = _mm_set1_ps(0.5f);
-        __threeQuarters = _mm_set1_ps(0.75f);
+        a = _mm_set1_ps(0.f);
+        saw = _mm_set1_ps(0.f);
+        frequency = _mm_set1_ps(440.f);
+        phasor = _mm_set1_ps(0.f);
+        prevPhasor = _mm_set1_ps(0.f);
+        phaseShift = _mm_set1_ps(0.f);
 
-        __a = __zeros;
-        __saw = __zeros;
-        __frequency = _mm_set1_ps(440.f);
-        __phasor = __zeros;
-        __prevPhasor = __zeros;
-        __revPhasor = __zeros;
-        __phaseShift = __zeros;
+        flyBack = _mm_set1_ps(0.f);
+        flyForward = _mm_set1_ps(0.f);
+        offset = _mm_set1_ps(0.f);
 
-        __flyBack = __zeros;
-        __flyForward = __zeros;
-        __offset = __zeros;
+        subScale = _mm_set1_ps(1.f);
+        subLimit = _mm_set1_ps(1);
+        subOffsetDegree = _mm_set1_ps(0.f);
+        subPulseWidth = _mm_set1_ps(0.5f);
+        subWidthOffset = _mm_mul_ps(_mm_sub_ps(subPulseWidth, _mm_set1_ps(0.5f)), _mm_set1_ps(2.f));
 
-        __subScale = _mm_set1_ps(1.f);
-        __subLimit = _mm_set1_ps(1);
-        __subOffsetDegree = _mm_set1_ps(0.f);
-        __subWidth = __halfs;
-        __subWidthOffset = _mm_mul_ps(_mm_sub_ps(__subWidth, __halfs), __twos);
-
-        __sawHPF.setCutoffFreq(20.f);
-        __pulseHPF.setCutoffFreq(20.f);
-        __subSawHPF.setCutoffFreq(20.f);
-        __subPulseHPF.setCutoffFreq(20.f);
+        sawHpf.setCutoffFreq(20.f);
+        pulseHpf.setCutoffFreq(20.f);
+        subSawHpf.setCutoffFreq(20.f);
+        subPulseHpf.setCutoffFreq(20.f);
 
         setSampleRate(44100.f);
         setSubOctave(0);
@@ -39,75 +32,75 @@ struct VecDirectOsc {
 
     void process() {
         // Wrap the phasor
-        __a = _mm_sub_ps(__a, _mm_and_ps(__ones, _mm_cmpge_ps(__a, __ones)));
-        __a = _mm_add_ps(__a, _mm_and_ps(__ones, _mm_cmplt_ps(__a, __zeros)));
-        __phasor = _mm_add_ps(__a, __phaseShift);
-        __phasor = _mm_sub_ps(__phasor, _mm_and_ps(__ones, _mm_cmpge_ps(__phasor, __ones)));
-        __phasor = _mm_add_ps(__phasor, _mm_and_ps(__ones, _mm_cmplt_ps(__phasor, __zeros)));
+        a = _mm_sub_ps(a, _mm_and_ps(_mm_set1_ps(1.f), _mm_cmpge_ps(a, _mm_set1_ps(1.f))));
+        a = _mm_add_ps(a, _mm_and_ps(_mm_set1_ps(1.f), _mm_cmplt_ps(a, _mm_set1_ps(0.f))));
+        phasor = _mm_add_ps(a, phaseShift);
+        phasor = _mm_sub_ps(phasor, _mm_and_ps(_mm_set1_ps(1.f), _mm_cmpge_ps(phasor, _mm_set1_ps(1.f))));
+        phasor = _mm_add_ps(phasor, _mm_and_ps(_mm_set1_ps(1.f), _mm_cmplt_ps(phasor, _mm_set1_ps(0.f))));
 
-        __flyBack = _mm_cmpge_ps(_mm_sub_ps(__prevPhasor, __phasor), __halfs);
-        __flyForward = _mm_cmpgt_ps(_mm_sub_ps(__phasor, __prevPhasor), __halfs);
+        flyBack = _mm_cmpge_ps(_mm_sub_ps(prevPhasor, phasor), _mm_set1_ps(0.5f));
+        flyForward = _mm_cmpgt_ps(_mm_sub_ps(phasor, prevPhasor), _mm_set1_ps(0.5f));
 
-        __saw = _mm_sub_ps(_mm_mul_ps(__phasor, __twos), __ones);
-        __saw = _mm_sub_ps(__saw, _mm_polyblep_ps(__phasor, _mm_abs_ps(__stepSize)));
+        saw = _mm_sub_ps(_mm_mul_ps(phasor, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
+        saw = _mm_sub_ps(saw, _mm_polyblep_ps(phasor, _mm_abs_ps(stepSize)));
 
         // Calculate pulse wave
-        __revPhasor = _mm_add_ps(__phasor, __pwm);
-        __revPhasor = _mm_sub_ps(__revPhasor, _mm_and_ps(__ones, _mm_cmpge_ps(__revPhasor, __ones)));
-        __revPhasor = _mm_sub_ps(__ones, __revPhasor);
-        __pulse = _mm_sub_ps(_mm_mul_ps(__revPhasor, __twos), __ones);
-        __pulse = _mm_add_ps(__saw, _mm_sub_ps(__pulse, _mm_polyblep_ps(__revPhasor, _mm_abs_ps(__stepSize))));
-        __pulse = _mm_add_ps(__pulse, _mm_mul_ps(_mm_sub_ps(__pwm, __halfs), __twos));
+        __m128 revPhasor = _mm_add_ps(phasor, pwm);
+        revPhasor = _mm_sub_ps(revPhasor, _mm_and_ps(_mm_set1_ps(1.f), _mm_cmpge_ps(revPhasor, _mm_set1_ps(1.f))));
+        revPhasor = _mm_sub_ps(_mm_set1_ps(1.f), revPhasor);
+        pulse = _mm_sub_ps(_mm_mul_ps(revPhasor, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
+        pulse = _mm_add_ps(saw, _mm_sub_ps(pulse, _mm_polyblep_ps(revPhasor, _mm_abs_ps(stepSize))));
+        pulse = _mm_add_ps(pulse, _mm_mul_ps(_mm_sub_ps(pwm, _mm_set1_ps(0.5f)), _mm_set1_ps(2.f)));
 
         // Derive sub wave
-        __offset = _mm_add_ps(__offset, _mm_and_ps(__ones, __flyBack));
-        __offset = _mm_sub_ps(__offset, _mm_and_ps(__ones, __flyForward));
-        __offset = _mm_sub_ps(__offset, _mm_and_ps(__subLimit, _mm_cmpeq_ps(__offset, __subLimit)));
-        __offset = _mm_add_ps(__offset, _mm_and_ps(__subLimit, _mm_cmplt_ps(__offset, __zeros)));
+        offset = _mm_add_ps(offset, _mm_and_ps(_mm_set1_ps(1.f), flyBack));
+        offset = _mm_sub_ps(offset, _mm_and_ps(_mm_set1_ps(1.f), flyForward));
+        offset = _mm_sub_ps(offset, _mm_and_ps(subLimit, _mm_cmpeq_ps(offset, subLimit)));
+        offset = _mm_add_ps(offset, _mm_and_ps(subLimit, _mm_cmplt_ps(offset, _mm_set1_ps(0.f))));
 
-        __subPhasor = _mm_add_ps(_mm_mul_ps(__phasor, __subScale), _mm_mul_ps(__offset, __subOffsetDegree));
-        __xInt = _mm_cvttps_epi32(__subPhasor);
-        __subPhasor = _mm_sub_ps(__subPhasor, _mm_cvtepi32_ps(__xInt));
-        __subSaw = _mm_sub_ps(_mm_mul_ps(__subPhasor, __twos), __ones);
-        __subSaw = _mm_sub_ps(__subSaw, _mm_polyblep_ps(__subPhasor, __subStepSize));
+        __m128 subPhasor = _mm_add_ps(_mm_mul_ps(phasor, subScale), _mm_mul_ps(offset, subOffsetDegree));
+        __m128i xInt = _mm_cvttps_epi32(subPhasor);
+        subPhasor = _mm_sub_ps(subPhasor, _mm_cvtepi32_ps(xInt));
+        subSaw = _mm_sub_ps(_mm_mul_ps(subPhasor, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
+        subSaw = _mm_sub_ps(subSaw, _mm_polyblep_ps(subPhasor, subStepSize));
 
-        __subPhasor = _mm_add_ps(__subPhasor, __subWidth);
-        __xInt = _mm_cvttps_epi32(__subPhasor);
-        __subPhasor = _mm_sub_ps(__subPhasor, _mm_cvtepi32_ps(__xInt));
-        __subPhasor = _mm_sub_ps(__ones, __subPhasor);
-        __subPulse = _mm_sub_ps(_mm_mul_ps(__subPhasor, __twos), __ones);
-        __subPulse = _mm_sub_ps(__subPulse, _mm_polyblep_ps(__subPhasor, __subStepSize));
-        __subPulse = _mm_add_ps(__subPulse, __subSaw);
-        __subPulse = _mm_add_ps(__subPulse, __subWidthOffset);
+        subPhasor = _mm_add_ps(subPhasor, subPulseWidth);
+        xInt = _mm_cvttps_epi32(subPhasor);
+        subPhasor = _mm_sub_ps(subPhasor, _mm_cvtepi32_ps(xInt));
+        subPhasor = _mm_sub_ps(_mm_set1_ps(1.f), subPhasor);
+        subPulse = _mm_sub_ps(_mm_mul_ps(subPhasor, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
+        subPulse = _mm_sub_ps(subPulse, _mm_polyblep_ps(subPhasor, subStepSize));
+        subPulse = _mm_add_ps(subPulse, subSaw);
+        subPulse = _mm_add_ps(subPulse, subWidthOffset);
 
-        __prevPhasor = __phasor;
-        __a = _mm_add_ps(__a, __stepSize);
+        prevPhasor = phasor;
+        a = _mm_add_ps(a, stepSize);
 
-        __saw = __sawHPF.process(__saw);
-        __pulse = __pulseHPF.process(__pulse);
-        __subSaw = __subSawHPF.process(__subSaw);
-        __subPulse = __subPulseHPF.process(__subPulse);
+        saw = sawHpf.process(saw);
+        pulse = pulseHpf.process(pulse);
+        subSaw = subSawHpf.process(subSaw);
+        subPulse = subPulseHpf.process(subPulse);
     }
 
-    void setFrequency(const __m128& frequency) {
-        __frequency = frequency;
-        __stepSize = _mm_mul_ps(__frequency, __1_sampleRate);
-        __subStepSize = _mm_mul_ps(_mm_abs_ps(__stepSize), __subScale);
+    void setFrequency(const __m128& newFrequency) {
+        frequency = newFrequency;
+        stepSize = _mm_mul_ps(frequency, sampleTime);
+        subStepSize = _mm_mul_ps(_mm_abs_ps(stepSize), subScale);
     }
 
-    void setSampleRate(float sampleRate) {
-        __1_sampleRate = _mm_set1_ps(1.f / sampleRate);
-        setFrequency(__frequency);
-        __sawHPF.setSampleRate(sampleRate);
-        __pulseHPF.setSampleRate(sampleRate);
-        __subSawHPF.setSampleRate(sampleRate);
-        __subPulseHPF.setSampleRate(sampleRate);
+    void setSampleRate(float newSampleRate) {
+        sampleTime = _mm_set1_ps(1.f / newSampleRate);
+        setFrequency(frequency);
+        sawHpf.setSampleRate(newSampleRate);
+        pulseHpf.setSampleRate(newSampleRate);
+        subSawHpf.setSampleRate(newSampleRate);
+        subPulseHpf.setSampleRate(newSampleRate);
     }
 
     /** Sets the pulse width of the sub pulse wave. */
-    void setSubWidth(const __m128& subWidth) {
-        __subWidth = subWidth;
-        __subWidthOffset = _mm_mul_ps(_mm_sub_ps(__subWidth, __halfs), __twos);
+    void setSubWidth(const __m128& newSubPulseWidth) {
+        subPulseWidth = newSubPulseWidth;
+        subWidthOffset = _mm_mul_ps(_mm_sub_ps(subPulseWidth, _mm_set1_ps(0.5f)), _mm_set1_ps(2.f));
     }
 
     /**
@@ -117,46 +110,46 @@ struct VecDirectOsc {
     void setSubOctave(int octave) {
         switch(octave) {
             case SUB_2_OCTAVE_HARMONIC:
-                __subScale = _mm_set1_ps(0.25f);
-                __subLimit = _mm_set1_ps(4);
-                __subOffsetDegree = _mm_set1_ps(0.25f);
+                subScale = _mm_set1_ps(0.25f);
+                subLimit = _mm_set1_ps(4);
+                subOffsetDegree = _mm_set1_ps(0.25f);
                 break;
             case SUB_OCTAVE_HARMONIC:
-                __subScale = _mm_set1_ps(0.5f);
-                __subLimit = _mm_set1_ps(2);
-                __subOffsetDegree = _mm_set1_ps(0.5f);
+                subScale = _mm_set1_ps(0.5f);
+                subLimit = _mm_set1_ps(2);
+                subOffsetDegree = _mm_set1_ps(0.5f);
                 break;
             case SUB_FIFTH_HARMONIC:
-                __subScale = _mm_set1_ps(0.75f);
-                __subLimit = _mm_set1_ps(4);
-                __subOffsetDegree = _mm_set1_ps(0.75);
+                subScale = _mm_set1_ps(0.75f);
+                subLimit = _mm_set1_ps(4);
+                subOffsetDegree = _mm_set1_ps(0.75);
                 break;
             case ZEROETH_HARMONIC:
-                __subScale = _mm_set1_ps(1.f);
-                __subLimit = _mm_set1_ps(1);
-                __subOffsetDegree = _mm_set1_ps(0.f);
+                subScale = _mm_set1_ps(1.f);
+                subLimit = _mm_set1_ps(1);
+                subOffsetDegree = _mm_set1_ps(0.f);
                 break;
             case FIFTH_HARMONIC:
-                __subScale = _mm_set1_ps(1.5f);
-                __subLimit = _mm_set1_ps(2);
-                __subOffsetDegree = _mm_set1_ps(0.5f);
+                subScale = _mm_set1_ps(1.5f);
+                subLimit = _mm_set1_ps(2);
+                subOffsetDegree = _mm_set1_ps(0.5f);
                 break;
             case OCTAVE_HARMONIC:
-                __subScale = _mm_set1_ps(2.f);
-                __subLimit = _mm_set1_ps(1);
-                __subOffsetDegree = _mm_set1_ps(0.f);
+                subScale = _mm_set1_ps(2.f);
+                subLimit = _mm_set1_ps(1);
+                subOffsetDegree = _mm_set1_ps(0.f);
                 break;
             case DOUBLE_OCTAVE_HARMONIC:
-                __subScale = _mm_set1_ps(4.f);
-                __subLimit = _mm_set1_ps(1);
-                __subOffsetDegree = _mm_set1_ps(0.f);
+                subScale = _mm_set1_ps(4.f);
+                subLimit = _mm_set1_ps(1);
+                subOffsetDegree = _mm_set1_ps(0.f);
                 break;
             default:
-                __subScale = _mm_set1_ps(1.f);
-                __subLimit = _mm_set1_ps(1);
-                __subOffsetDegree = _mm_set1_ps(0.f);
+                subScale = _mm_set1_ps(1.f);
+                subLimit = _mm_set1_ps(1);
+                subOffsetDegree = _mm_set1_ps(0.f);
         }
-        __subStepSize = _mm_mul_ps(__stepSize, __subScale);
+        subStepSize = _mm_mul_ps(stepSize, subScale);
     }
 
     enum Harmonic {
@@ -170,19 +163,12 @@ struct VecDirectOsc {
         NUM_HARMONICS
     };
 
-    __m128 __phasor, __a, __revPhasor, __prevPhasor, __phaseShift;
-    __m128 __subPhasor;
-    __m128 __frequency, __1_sampleRate, __stepSize, __subStepSize;
-    __m128 __pwm;
-    __m128 __saw, __pulse;
-    __m128 __subSaw, __subPulse;
-    VecOnePoleHPFilter __sawHPF, __pulseHPF, __subSawHPF, __subPulseHPF;
-    __m128 __flyBack, __flyForward, __offset, __subLimit, __subScale, __subOffsetDegree;
-    __m128 __subWidth, __subWidthOffset;
-
-    __m128 __zeros, __ones, __twos, __halfs, __threeQuarters;
-    __m128i __xInt;
-    float delta[4];
-    float gamma[4];
-    float chi[4];
+    __m128 phasor, a, prevPhasor, phaseShift;
+    __m128 frequency, sampleTime, stepSize, subStepSize;
+    __m128 pwm;
+    __m128 saw, pulse;
+    __m128 subSaw, subPulse;
+    VecOnePoleHPFilter sawHpf, pulseHpf, subSawHpf, subPulseHpf;
+    __m128 flyBack, flyForward, offset, subLimit, subScale, subOffsetDegree;
+    __m128 subPulseWidth, subWidthOffset;
 };

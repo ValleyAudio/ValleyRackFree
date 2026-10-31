@@ -30,46 +30,47 @@ uint8_t U8Mix(uint8_t a, uint8_t b, uint8_t balance) {
     return (a * (255 - balance) + b * balance) / 255;
 }
 
-PatternGenerator::PatternGenerator() {
-    _pulse = 0;
-    _beat = 0;
-    _firstBeat = 0;
-    _step = 0;
-    for(int i = 0; i < 3; ++i) {
-        _euclideanStep[i] = 0;
+PatternGeneratorOptions::PatternGeneratorOptions() {
+    x = 0;
+    y = 0;
+    randomness = 0;
+    for(int i = 0; i < kNumParts; ++i) {
+        euclidean_length[i] = 255;
+        density[i] = 0;
     }
-    _state = 0;
-    _accentBits = 0;
+    patternMode = PATTERN_HENRI;
+    swing = false;
+    accAlt = false;
 }
 
 void PatternGenerator::tick(uint8_t numPulses) {
     evaluate();
-    _beat = (_step & 0x7) == 0;
-    _firstBeat = _step == 0;
-    _pulse += numPulses;
+    beat = (step & 0x7) == 0;
+    firstBeat = step == 0;
+    pulse += numPulses;
 
     // Wrap into ppqn steps.
-    while (_pulse >= kPulsesPerStep) {
-        _pulse -= kPulsesPerStep;
-        if (!(_step & 1)) {
+    while (pulse >= kPulsesPerStep) {
+        pulse -= kPulsesPerStep;
+        if (!(step & 1)) {
             for (uint8_t i = 0; i < kNumParts; ++i) {
-                ++_euclideanStep[i];
+                ++euclideanStep[i];
             }
         }
-        ++_step;
+        ++step;
     }
 
     // Wrap into step sequence steps.
-    if (_step >= kStepsPerPattern) {
-        _step -= kStepsPerPattern;
+    if (step >= kStepsPerPattern) {
+        step -= kStepsPerPattern;
     }
 }
 
 void PatternGenerator::reset() {
-    _step = 0;
-    _pulse = 0;
+    step = 0;
+    pulse = 0;
     for(long i = 0; i < 3; ++i) {
-        _euclideanStep[i] = 0;
+        euclideanStep[i] = 0;
     }
 }
 
@@ -110,12 +111,12 @@ void PatternGenerator::setPatternMode(PatternGeneratorMode mode) {
 }
 
 uint8_t PatternGenerator::getAllStates() const {
-    return _state;
+    return state;
 }
 
 uint8_t PatternGenerator::getDrumState(uint8_t channel) const {
     uint8_t mask[6] = {1,2,4,8,16,32};
-    return (_state & mask[channel]) >> channel;
+    return (state & mask[channel]) >> channel;
 }
 
 PatternGeneratorMode PatternGenerator::getPatternMode() const {
@@ -123,7 +124,7 @@ PatternGeneratorMode PatternGenerator::getPatternMode() const {
 }
 
 uint8_t PatternGenerator::getBeat() const {
-    return _beat;
+    return beat;
 }
 
 uint8_t PatternGenerator::getEuclideanLength(uint8_t channel) {
@@ -167,15 +168,15 @@ uint8_t PatternGenerator::readDrumMap(uint8_t step, uint8_t instrument, uint8_t 
 }
 
 void PatternGenerator::evaluate() {
-    _state = 0;
-    _state |= 0x40;
+    state = 0;
+    state |= 0x40;
 
     if (_settings.accAlt) {
-        _state |= OUTPUT_BIT_CLOCK;
+        state |= OUTPUT_BIT_CLOCK;
     }
 
     // Refresh only at step changes.
-    if (_pulse != 0) {
+    if (pulse != 0) {
         return;
     }
 
@@ -188,7 +189,7 @@ void PatternGenerator::evaluate() {
 
 void PatternGenerator::evaluateEuclidean() {
     // Refresh only on sixteenth notes.
-    if (_step & 1) {
+    if (step & 1) {
         return;
     }
 
@@ -199,46 +200,46 @@ void PatternGenerator::evaluateEuclidean() {
         uint8_t length = (_settings.euclidean_length[i] >> 3) + 1;
         uint8_t density = _settings.density[i] >> 3;
         uint16_t address = (length - 1) * 32 + density;
-        while (_euclideanStep[i] >= length) {
-            _euclideanStep[i] -= length;
+        while (euclideanStep[i] >= length) {
+            euclideanStep[i] -= length;
         }
-        uint32_t step_mask = 1L << static_cast<uint32_t>(_euclideanStep[i]);
+        uint32_t step_mask = 1L << static_cast<uint32_t>(euclideanStep[i]);
         uint32_t pattern_bits = *(lut_res_euclidean + address);
         if (pattern_bits & step_mask) {
-            _state |= instrument_mask;
+            state |= instrument_mask;
         }
-        if (_euclideanStep[i] == 0) {
+        if (euclideanStep[i] == 0) {
             reset_bits |= instrument_mask;
         }
         instrument_mask <<= 1;
     }
 
     if (_settings.accAlt) {
-        _state |= reset_bits ? OUTPUT_BIT_COMMON : 0;
-        _state |= (reset_bits == 0x07) ? OUTPUT_BIT_RESET : 0;
+        state |= reset_bits ? OUTPUT_BIT_COMMON : 0;
+        state |= (reset_bits == 0x07) ? OUTPUT_BIT_RESET : 0;
     } else {
-        _state |= reset_bits << 3;
+        state |= reset_bits << 3;
     }
 }
 
 void PatternGenerator::evaluateDrums() {
     // At the beginning of a pattern, decide on perturbation levels.
-    if (_step == 0) {
+    if (step == 0) {
         for (uint8_t i = 0; i < kNumParts; ++i) {
             uint8_t randomNum = (uint8_t)rand() % 256;
             uint8_t randomness = _settings.swing ? 0 : _settings.randomness >> 2;
-            _partPerturbation_[i] = U8U8MulShift8(randomNum, randomness);
+            partPerturbation[i] = U8U8MulShift8(randomNum, randomness);
         }
     }
 
     uint8_t instrument_mask = 1;
     uint8_t x = _settings.x;
     uint8_t y = _settings.y;
-    _accentBits = 0;
+    accentBits = 0;
     for (uint8_t i = 0; i < kNumParts; ++i) {
-        uint8_t level = readDrumMap(_step, i, x, y);
-        if (level < 255 - _partPerturbation_[i]) {
-            level += _partPerturbation_[i];
+        uint8_t level = readDrumMap(step, i, x, y);
+        if (level < 255 - partPerturbation[i]) {
+            level += partPerturbation[i];
         }
         else {
             // The sequencer from Anushri uses a weird clipping rule here. Comment
@@ -248,18 +249,18 @@ void PatternGenerator::evaluateDrums() {
         uint8_t threshold = ~_settings.density[i];
         if (level > threshold) {
             if (level > 192) {
-                _accentBits |= instrument_mask;
+                accentBits |= instrument_mask;
             }
-            _state |= instrument_mask;
+            state |= instrument_mask;
         }
         instrument_mask <<= 1;
     }
     if (_settings.accAlt) {
-        _state |= _accentBits ? OUTPUT_BIT_COMMON : 0;
-        _state |= _step == 0 ? OUTPUT_BIT_RESET : 0;
+        state |= accentBits ? OUTPUT_BIT_COMMON : 0;
+        state |= step == 0 ? OUTPUT_BIT_RESET : 0;
     }
     else {
-        _state |= _accentBits << 3;
+        state |= accentBits << 3;
     }
 
 }

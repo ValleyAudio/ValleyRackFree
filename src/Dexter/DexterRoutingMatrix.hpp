@@ -40,13 +40,13 @@ public:
 private:
     struct DexterRoutingMatrixRow {
         DexterRoutingMatrixRow();
-        float _sourceValue;
-        float _depth;
-        Destination _destination;
+        float sourceValue;
+        float depth;
+        Destination destination;
     };
 
     static const int kNumMatrixRows = 4;
-    DexterRoutingMatrixRow _rows[kNumMatrixRows];
-    float _destValues[NUM_DESTS];
+    DexterRoutingMatrixRow rows[kNumMatrixRows];
+    float destValues[NUM_DESTS];
     float kMatrixDestScaling[NUM_DESTS];
 };

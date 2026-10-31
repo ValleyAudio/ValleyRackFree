@@ -14,35 +14,30 @@ public:
         NOISE_WAVE,
         NUM_WAVES
     };
-    float out[7];
+
+    float out[NUM_WAVES] = {0.f};
 
     DLFO() {
-        _step = 0.f;
-        _a = 1.27323954;
-        _b = 0.405284735;
         setSampleRate(44100.f);
         setFrequency(0.75f);
-        _syncHigh = false;
-        _triggerHigh = false;
-        _shTriggered = false;
-        out[SH_WAVE] = _noise.getValue();
+        out[SH_WAVE] = whiteNoiseGenerator.getValue();
     }
 
     inline void process() {
-        out[TRI_WAVE] = (_step < 0.5f) ? _step : (1.f - _step);
+        out[TRI_WAVE] = (step < 0.5f) ? step : (1.f - step);
         out[TRI_WAVE] = -(out[TRI_WAVE] * 4.f - 1.f);
 
-        //_x = out[SAW_UP_WAVE] * M_PI;
-        _x = out[TRI_WAVE] * 0.5f * M_PI;
-        _xx = _x * _x;
-        if(_x < 0) {
-            out[SINE_WAVE] = _a * _x + _b * _xx;
+        //x = out[SAW_UP_WAVE] * M_PI;
+        x = out[TRI_WAVE] * 0.5f * M_PI;
+        auto xx = x * x;
+        if(x < 0) {
+            out[SINE_WAVE] = a * x + b * xx;
         }
         else {
-            out[SINE_WAVE] = _a * _x - _b * _xx;
+            out[SINE_WAVE] = a * x - b * xx;
         }
 
-        out[SAW_UP_WAVE] = _step - 0.25f;
+        out[SAW_UP_WAVE] = step - 0.25f;
         if(out[SAW_UP_WAVE] < 0.f) {
             out[SAW_UP_WAVE] += 1.f;
         }
@@ -51,59 +46,69 @@ public:
         out[SAW_DOWN_WAVE] = 1.f - out[SAW_UP_WAVE] - 1.f;
 
         out[SQUARE_WAVE] = (out[SAW_UP_WAVE] > 0.f) ? 1.f : -1.f;
-        out[NOISE_WAVE] = _noise.process();
-        if(out[SQUARE_WAVE] > 0.5f && _shTriggered == false) {
-            _shTriggered = true;
-            out[SH_WAVE] = _noise.getValue();
+        out[NOISE_WAVE] = whiteNoiseGenerator.process();
+        if(out[SQUARE_WAVE] > 0.5f && shIsTriggered == false) {
+            shIsTriggered = true;
+            out[SH_WAVE] = whiteNoiseGenerator.getValue();
         }
         else if(out[SQUARE_WAVE] < 0.5f) {
-            _shTriggered = false;
+            shIsTriggered = false;
         }
 
 
-        _step += _stepSize;
-        _step -= (_step > 1.f) ? 1.f : 0.f;
+        step += stepSize;
+        step -= (step > 1.f) ? 1.f : 0.f;
     }
 
     inline void setFrequency(float freq) {
-        _freq = freq;
-        _calcStepSize();
+        frequency = freq;
+        calcStepSize();
     }
 
-    inline void setSampleRate(float sampleRate) {
-        _sampleRate = sampleRate;
-        _1_sampleRate = 1.f / sampleRate;
-        _calcStepSize();
+    inline void setSampleRate(float newSampleRate) {
+        sampleRate = newSampleRate;
+        sampleTime = 1.f / sampleRate;
+        calcStepSize();
     }
 
     inline void sync(float syncSignal) {
-        if(syncSignal > 0.1f && !_syncHigh) {
-            _syncHigh = true;
-            _step = 0.f;
+        if(syncSignal > 0.1f && !isSyncing) {
+            isSyncing = true;
+            step = 0.f;
         }
-        if(syncSignal <= 0.1f && _syncHigh) {
-            _syncHigh = false;
+        if(syncSignal <= 0.1f && isSyncing) {
+            isSyncing = false;
         }
     }
 
     inline void trigger(float triggerSignal) {
-        if(triggerSignal > 0.1f && !_triggerHigh) {
-            _triggerHigh = true;
-            out[SH_WAVE] = _noise.getValue();
+        if(triggerSignal > 0.1f && !isTriggered) {
+            isTriggered = true;
+            out[SH_WAVE] = whiteNoiseGenerator.getValue();
         }
-        if(triggerSignal <= 0.1f && _triggerHigh) {
-            _triggerHigh = false;
+        if(triggerSignal <= 0.1f && isTriggered) {
+            isTriggered = false;
         }
     }
 private:
-    float _freq, _sampleRate, _1_sampleRate;
-    float _step, _stepSize;
-    bool _syncHigh, _triggerHigh;
-    float _x, _xx, _a, _b;
-    WhiteNoise _noise;
-    bool _shTriggered;
+    static constexpr float a = 1.27323954f;
+    static constexpr float b = 0.405284735;
 
-    void _calcStepSize() {
-        _stepSize = _freq * _1_sampleRate;
+    float frequency = 0.f;
+    float sampleRate = 44100.f;
+    float sampleTime = 1.f / sampleRate;
+
+    float x = 0.f;
+    float step = 0.f;
+    float stepSize = 0.f;
+
+    bool shIsTriggered;
+    bool isSyncing = false;
+    bool isTriggered = false;
+
+    WhiteNoise whiteNoiseGenerator;
+
+    void calcStepSize() {
+        stepSize = frequency * sampleTime;
     }
 };

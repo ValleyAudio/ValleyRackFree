@@ -19,7 +19,7 @@
 
 class ScanningQuadOsc {
 public:
-    __m128 __inputPhase;
+    __m128 inputPhase;
 
     enum SyncModes {
         HARD_SYNC = 0,
@@ -57,71 +57,64 @@ public:
     const __m128& getEOCPulse() const;
     const __m128& getDirection() const;
 
-    void setWavetable(float* wavetable, long size);
-    void setFrequency(float frequency);
+    void setFrequency(float newFrequency);
     void setFrequency(float f0, float f1, float f2, float f3);
-    void setFrequency(const __m128& frequency);
+    void setFrequency(const __m128& newFrequency);
 
-    void setShape(float shape);
-    void setShape(const __m128& shape);
-    void setShapeMethod(int shapeMethod);
-    void setPMPostShape(bool PMPostShape);
+    void setShape(float newShape);
+    void setShape(const __m128& vNewShape);
+    void setShapeMode(int shapeMode);
+    void setPhaseModPostPhasorShaping(bool phaseModShouldBePostPhasorShaping);
 
-    void setSyncMode(int syncMode);
+    void setSyncMode(int newSyncMode);
     void enableSync(bool enableSync);
-    void enableWeakSync(bool weakSync);
 
     void setSampleRate(float sampleRate);
 
-    // void setWavebank(float** wavebank, int32_t numWaves, int32_t tableSize);
-    void setWavebank(float* wavebank, int32_t numWaves, int32_t tableSize);
+    void setWavebank(float* newWavebank,
+                     int32_t newWavebankNumWaves,
+                     int32_t tableSize);
     void setScanPosition(float position);
     void mm_setScanPosition(const __m128& position);
     int32_t getNumwaves() const;
+
 private:
-    float* _wavebank;
-    int32_t _numWaves;
-    __m128i __numWaves, __numWaves_1;
+    float* wavebank;
+    int32_t numWaves;
+    __m128i vNumWaves, vNumWaves_1;
 
-    int32_t _lowBank[4] = {0, 0, 0, 0};
-    int32_t _highBank[4] = {0, 0, 0, 0};
-    float _lowSample2[4] = {0.f, 0.f, 0.f, 0.f};
-    float _highSample2[4] = {0.f, 0.f, 0.f, 0.f};
-    __m128 __fade, __result1, __result2;
-    __m128i __lowBank, __highBank;
-    float* _wavetable;
-    float _frequency;
+    int32_t lowBank[4] = {0, 0, 0, 0};
+    int32_t highBank[4] = {0, 0, 0, 0};
+    float lowSample2[4] = {0.f, 0.f, 0.f, 0.f};
+    float highSample2[4] = {0.f, 0.f, 0.f, 0.f};
+    __m128 vFade, vResult1, vResult2;
+    __m128i vLowBank, vHighBank;
 
-    int32_t _aPos[4] = {0, 0, 0, 0};
-    int32_t _bPos[4] = {0, 0, 0, 0};
-    float _lowSample[4] = {0.f, 0.f, 0.f, 0.f};
-    float _highSample[4] = {0.f, 0.f, 0.f, 0.f};
-    float _output[4] = {0.f, 0.f, 0.f, 0.f};
-    int32_t _tabSize;
-    float _shape;
-    bool _PMPostShape;
-    int32_t _syncMode;
-    bool _sync, _weakSync;
+    float lowSample[4] = {0.f, 0.f, 0.f, 0.f};
+    float highSample[4] = {0.f, 0.f, 0.f, 0.f};
+    int32_t tableSize;
+    float shape;
+    bool doPhaseModPostPhasorShaping;
+    int32_t syncMode;
+    bool syncIsEnabled;
 
-    __m128 __frequency, __samplerate, __nyquist;
+    __m128 vFrequency, vSamplerate, vNyquist;
 
-    __m128 __readPhase, __negMask, __syncSource, __syncState, __syncing;
-    __m128 __shifts;
-    __m128i __shiftsI;
+    __m128 vReadPhase, vNegMask, vSyncSource, vSyncState, vSyncing;
+    __m128 vShifts;
+    __m128i vShiftsI;
 
-    __m128 __shape;
-    __m128 __a, __aPrev, __b, __stepSize, __tabSize, __tabSize_1;
-    __m128 __ones, __zeros, __twos, __fours, __minus, __1_5, __half, __quarter;
-    __m128 __dir;
-    __m128 __mtMask, __ltMask;
-    __m128 __mask, __sub, __eoc, __syncOut;
-    __m128i __aInt;
-    __m128i __bInt;
+    __m128 vShape;
+    __m128 vA, vB, vStepSize, vTableSize, vTableSize_1;
+    __m128 vPhasorDirection;
+    __m128 vMoreThanMask, vLessThanMask;
+    __m128 vMask, vSub, vEndOfCycle, vSyncOut;
+    __m128i vAInt;
+    __m128i vBInt;
 
-    __m128 __lowSamp, __highSamp, __frac, __output, __outputLevel;
-    Shaper _shaper;
+    __m128 vLowerValue, vUpperValue, vInterpFraction, vOutput, vOutputLevel;
+    Shaper shaper;
     void calcStepSize();
-    __m128 (*shapeMethod)(const __m128&, const __m128&);
     void onChangeSyncMode();
     void hardSync(const __m128& syncSource);
     void softSync(const __m128& syncSource);

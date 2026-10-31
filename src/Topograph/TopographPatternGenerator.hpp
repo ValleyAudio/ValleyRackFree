@@ -29,8 +29,7 @@
 // EUCLIDEAN    FALSE          RND   CLK  RST3  RST2  RST1  EUC3  EUC2  EUC1
 // EUCLIDEAN    TRUE           RND   CLK   CLK  STEP   RST  EUC3  EUC2  EUC1
 
-#ifndef TopographPatternGenerator_hpp
-#define TopographPatternGenerator_hpp
+#pragma once
 
 #include <cstdlib>
 #include <cmath>
@@ -73,18 +72,8 @@ enum ClockResolution {
 const uint8_t ticks_granularity[] = { 6, 3, 1 };
 
 struct PatternGeneratorOptions {
-    PatternGeneratorOptions() {
-        x = 0;
-        y = 0;
-        randomness = 0;
-        for(int i = 0; i < kNumParts; ++i) {
-            euclidean_length[i] = 255;
-            density[i] = 0;
-        }
-        patternMode = PATTERN_HENRI;
-        swing = false;
-        accAlt = false;
-    }
+    PatternGeneratorOptions();
+
     uint8_t x;
     uint8_t y;
     uint8_t randomness;
@@ -97,7 +86,8 @@ struct PatternGeneratorOptions {
 
 class PatternGenerator {
 public:
-    PatternGenerator();
+    PatternGenerator() = default;
+
     void tick(uint8_t numPulses);
     void reset();
 
@@ -119,19 +109,18 @@ public:
 
 private:
     PatternGeneratorOptions _settings;
-    uint8_t _pulse;
-    uint8_t _beat;
-    uint8_t _firstBeat;
-    uint8_t _step;
-    uint8_t _euclideanStep[3];
-    uint8_t _state;
-    uint8_t _accentBits;
+    uint8_t pulse = 0;
+    uint8_t beat = 0;
+    uint8_t firstBeat = 0;
+    uint8_t step = 0;
+    uint8_t euclideanStep[3] = {0, 0, 0};
+    uint8_t state = 0;
+    uint8_t accentBits = 0;
 
-    uint8_t _partPerturbation_[kNumParts];
+    uint8_t partPerturbation[kNumParts];
     uint8_t readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y);
     void evaluate();
     void evaluateEuclidean();
     void evaluateDrums();
 };
 
-#endif /* TopographPatternGenerator_hpp */

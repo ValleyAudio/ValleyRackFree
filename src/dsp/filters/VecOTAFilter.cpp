@@ -8,69 +8,58 @@
 #include "VecOTAFilter.hpp"
 
 VecTPTOnePoleStage::VecTPTOnePoleStage() {
-    _zeros = _mm_set1_ps(0.f);
-    _ones = _mm_set1_ps(1.f);
-    _G = _zeros;
-    _z = _zeros;
-    _v = _zeros;
-    _out = _zeros;
+    zeros = _mm_set1_ps(0.f);
+    ones = _mm_set1_ps(1.f);
+    G = zeros;
+    z = zeros;
 }
 
-void VecTPTOnePoleStage::setSampleRate(float sampleRate) {
-    _sampleRate = sampleRate;
+void VecTPTOnePoleStage::setSampleRate(float newSampleRate) {
+    sampleRate = newSampleRate;
 }
 
 float VecTPTOnePoleStage::getSampleRate() const {
-    return _sampleRate;
+    return sampleRate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VecOTAFilter::VecOTAFilter() {
-    __ones = _mm_set1_ps(1.f);
-    __zeros = _mm_set1_ps(0.f);
-    __k = __zeros;
+    ones = _mm_set1_ps(1.f);
+    zeros = _mm_set1_ps(0.f);
+    k = zeros;
 
-    __pitch = __zeros;
+    pitch = zeros;
+    cutoff = zeros;
 
-    __cutoff = __zeros;
-    __cutoffI = _mm_set1_epi32(0);
+    g = zeros;
+    h = ones;
+    hRecip = ones;
 
-    __g = __zeros;
-    __h = __ones;
-    __1_h = __ones;
+    G = zeros;
+    G2 = zeros;
+    G3 = zeros;
+    sigma = zeros;
+    gamma = zeros;
+    u = zeros;
 
-    __G = __zeros;
-    __G2 = __zeros;
-    __G3 = __zeros;
-    __sigma = __zeros;
-    __gamma = __zeros;
-    __u = __zeros;
+    lp1Result = zeros;
+    lp2Result = zeros;
+    lp3Result = zeros;
+    lp4Result = zeros;
 
-    __lp1 = __zeros;
-    __lp2 = __zeros;
-    __lp3 = __zeros;
-    __lp4 = __zeros;
+    pole0Coeff = zeros;
+    pole1Coeff = zeros;
+    pole2Coeff = zeros;
+    pole3Coeff = zeros;
+    pole4Coeff = zeros;
 
-    __0p = __zeros;
-    __1p = __zeros;
-    __2p = __zeros;
-    __3p = __zeros;
-    __4p = __zeros;
+    tanhRecip = 1.f / tanhDriveSignal(1.f, 1.f);
 
-    __frac = __zeros;
-
-    _1_tanhf = 1.f / tanhDriveSignal(1.f, 1.f);
-
-    __lowG = __zeros;
-    __highG = __zeros;
-    __lowH = __zeros;
-    __highH = __zeros;
-
-    for (auto& x : _kGTable)
+    for (auto& x : kGTable)
         x = 0.f;
 
-    for (auto& x : _kHTable)
+    for (auto& x : kHTable)
         x = 0.f;
 
     setSampleRate(44100.f);
@@ -78,67 +67,73 @@ VecOTAFilter::VecOTAFilter() {
     setMode(LP4_MODE);
 }
 
-void VecOTAFilter::setSampleRate(float sampleRate) {
-    _sampleRate = sampleRate;
+void VecOTAFilter::setSampleRate(float newSampleRate) {
+    sampleRate = newSampleRate;
     calcInternalGTable();
-    _stage1.setSampleRate(sampleRate);
-    _stage2.setSampleRate(sampleRate);
-    _stage3.setSampleRate(sampleRate);
-    _stage4.setSampleRate(sampleRate);
-    setCutoff(__pitch);
+    stage1.setSampleRate(sampleRate);
+    stage2.setSampleRate(sampleRate);
+    stage3.setSampleRate(sampleRate);
+    stage4.setSampleRate(sampleRate);
+    setCutoff(pitch);
 }
 
-void VecOTAFilter::setCutoff(const __m128& pitch) {
-    __pitch = _mm_clamp_ps(pitch, __zeros, _mm_set1_ps(10.f));
-    __cutoff = _mm_mul_ps(__pitch, _mm_set1_ps(100000.f));
-    __cutoffI = _mm_cvttps_epi32(__cutoff);
-    _mm_storeu_si128((__m128i*)_pos, __cutoffI);
-    __frac = _mm_sub_ps(__cutoff, _mm_cvtepi32_ps(__cutoffI));
+void VecOTAFilter::setCutoff(const __m128& newPitch) {
+    pitch = _mm_clamp_ps(newPitch, zeros, _mm_set1_ps(10.f));
+    cutoff = _mm_mul_ps(pitch, _mm_set1_ps(100000.f));
 
-    for (auto& p : _pos)
-        p = (p < 0 ? 0 : p) > G_TABLE_SIZE ? G_TABLE_SIZE : p;
+    __m128i cutoffI = _mm_cvttps_epi32(cutoff);
+    _mm_storeu_si128((__m128i*)pos, cutoffI);
+    __m128 frac = _mm_sub_ps(cutoff, _mm_cvtepi32_ps(cutoffI));
+
+    for (auto& p : pos)
+        p = (p < 0 ? 0 : p) > (G_TABLE_SIZE - 2) ? (G_TABLE_SIZE - 2) : p;
+
+    float lowG[4] = {0.f, 0.f, 0.f, 0.f};
+    float highG[4] = {0.f, 0.f, 0.f, 0.f};
+    float lowH[4] = {1.f, 1.f, 1.f, 1.f};
+    float highH[4] = {1.f, 1.f, 1.f, 1.f};
 
     for(auto i = 0; i < 4; ++i) {
-        _lowG[i] = _kGTable[_pos[i]];
-        _highG[i] = _kGTable[_pos[i] + 1];
-        _lowH[i] = _kHTable[_pos[i]];
-        _highH[i] = _kHTable[_pos[i] + 1];
+        lowG[i] = kGTable[pos[i]];
+        highG[i] = kGTable[pos[i] + 1];
+        lowH[i] = kHTable[pos[i]];
+        highH[i] = kHTable[pos[i] + 1];
     }
 
-    __lowG = _mm_loadu_ps(_lowG);
-    __highG = _mm_loadu_ps(_highG);
-    __g = _mm_linterp_ps(__lowG, __highG, __frac);
+    __m128 vLowG = _mm_loadu_ps(lowG);
+    __m128 vHighG = _mm_loadu_ps(highG);
+    g = _mm_linterp_ps(vLowG, vHighG, frac);
 
-    __lowH = _mm_loadu_ps(_lowH);
-    __highH = _mm_loadu_ps(_highH);
-    __1_h = _mm_linterp_ps(__lowH, __highH, __frac);
+    __m128 vLowH = _mm_loadu_ps(lowH);
+    __m128 vHighH = _mm_loadu_ps(highH);
+    hRecip = _mm_linterp_ps(vLowH, vHighH, frac);
 
     /*long pos = (long)_cutoff;
     float frac = _cutoff - (float)pos;
     _g = linterp(kGTable[pos], kGTable[pos + 1], frac);*/
 
-    /*__h = _mm_add_ps(__ones, __g);
-    __1_h = _mm_div_ps(__ones, __h);*/
-    __G = _mm_mul_ps(__g, __1_h);
+    /*h = _mm_add_ps(ones, g);
+    hRecip = _mm_div_ps(ones, h);*/
+    G = _mm_mul_ps(g, hRecip);
 
-    _stage1._G = __G;
-    _stage2._G = __G;
-    _stage3._G = __G;
-    _stage4._G = __G;
-    __G2 = _mm_mul_ps(__G, __G);
-    __G3 = _mm_mul_ps(__G2, __G);
-    __gamma = _mm_mul_ps(__G3, __G);
+    stage1.G = G;
+    stage2.G = G;
+    stage3.G = G;
+    stage4.G = G;
+    G2 = _mm_mul_ps(G, G);
+    G3 = _mm_mul_ps(G2, G);
+    gamma = _mm_mul_ps(G3, G);
 }
 
 void VecOTAFilter::setQ(const __m128& Q) {
   //_k = 4.f * clip(Q, 0.f, 10.f) / 10.f;
-  __k = _mm_mul_ps(_mm_set1_ps(0.4f), _mm_clamp_ps(Q, _mm_set1_ps(0.f), _mm_set1_ps(10.f)));
+  k = _mm_mul_ps(_mm_set1_ps(0.4f), _mm_clamp_ps(Q, _mm_set1_ps(0.f), _mm_set1_ps(10.f)));
 }
 
 void VecOTAFilter::calcInternalGTable() {
     float f = 0.f;
     float wd = 0.f;
-    float T = 1.f / _sampleRate;
+    float T = 1.f / sampleRate;
     float T_2 = T / 2.f;
     float wa = 0.f;
     float g = 0.f;
@@ -149,9 +144,9 @@ void VecOTAFilter::calcInternalGTable() {
         wd = 2.f * M_PI * f;
         wa = (2.f / T) * tanf(wd * T_2);
         g = wa * T_2;
-        _kGTable[i] = g;
+        kGTable[i] = g;
         h = g + 1.f;
         h = 1.f / h;
-        _kHTable[i] = h;
+        kHTable[i] = h;
     }
 }

@@ -249,8 +249,8 @@ struct Dexter : Module {
     DexterRoutingMatrix modMatrix[DexterCore::kNumOperators];
 
     float results[4] = {0.f, 0.f, 0.f, 0.f};
-    __m128 __leftOut, __rightOut;
-    __m128 __zeros;
+    __m128 leftOutVec, rightOutVec;
+    __m128 zerosVec;
     float* pLeftOut;
     float* pRightOut;
     float* pOP1;
@@ -272,14 +272,14 @@ struct Dexter : Module {
                            9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f,
                            17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f, 24.f};
 
-    __m128 __bOutMask;
-    __m128 __0000, __0001, __0011, __0111, __1111, __0010, __0110, __1110;
-    __m128 __lowLeftGain, __lowRightGain;
-    __m128 __highLeftGain, __highRightGain;
-    __m128 __lowLeftGainTable[7];
-    __m128 __lowRightGainTable[7];
-    __m128 __highLeftGainTable[7];
-    __m128 __highRightGainTable[7];
+    __m128 bOutMaskVec;
+    __m128 v0000, v0001, v0011, v0111, v1111, v0010, v0110, v1110;
+    __m128 lowLeftGainVec, lowRightGainVec;
+    __m128 highLeftGainVec, highRightGainVec;
+    __m128 lowLeftGainTableVec[7];
+    __m128 lowRightGainTableVec[7];
+    __m128 highLeftGainTableVec[7];
+    __m128 highRightGainTableVec[7];
 
     std::vector<float> chordNotes;
     int currentChord;
@@ -295,9 +295,9 @@ struct Dexter : Module {
     int invDepthParam;
     int invertKnob;
 
-    __m128 __lowChordMaskTable[7];
-    __m128 __highChordMaskTable[7];
-    __m128 __lowChordMask, __highChordMask;
+    __m128 lowChordMaskTableVec[7];
+    __m128 highChordMaskTableVec[7];
+    __m128 lowChordMaskVec, highChordMaskVec;
     float _outputLevels[7] = {1.f, 0.5f, 0.333333f, 0.25f, 0.2f, 0.166666f, 0.143f};
     std::string syncRoutingText[2] = {"Parent", "Neighbour"};
     unsigned long syncRouting = 0;
@@ -313,10 +313,10 @@ struct Dexter : Module {
     float pOpFreqs[8] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
     float pOpMutiples[8] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
 
-    __m128 __opLowPitch[DexterCore::kNumOperators];
-    __m128 __opHighPitch[DexterCore::kNumOperators];
-    __m128 __opLowFreq[DexterCore::kNumOperators];
-    __m128 __opHighFreq[DexterCore::kNumOperators];
+    __m128 opLowPitchVec[DexterCore::kNumOperators];
+    __m128 opHighPitchVec[DexterCore::kNumOperators];
+    __m128 opLowFreqVec[DexterCore::kNumOperators];
+    __m128 opHighFreqVec[DexterCore::kNumOperators];
 
     float opLevel[DexterCore::kNumOperators];
     float opWave[DexterCore::kNumOperators];

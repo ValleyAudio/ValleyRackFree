@@ -65,9 +65,6 @@ struct Feline : Module {
         NUM_LIGHTS
     };
 
-    __m128 __input;
-    __m128 __output;
-
     float input[2];
     float output[4];
     float hpfFreq;
@@ -78,8 +75,6 @@ struct Feline : Module {
 
     int panelStyle;
     VecOTAFilter filter;
-    __m128 __filterOut;
-    __m128 __state[4];
 
     Feline();
     void step() override;

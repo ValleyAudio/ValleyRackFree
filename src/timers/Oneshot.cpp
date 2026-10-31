@@ -35,48 +35,39 @@
 
 #include "Oneshot.hpp"
 
-Oneshot::Oneshot() {
-    _state = 0;
-    _sampleRate = 44100.0;
-    setDuration(0.100);
-    _elapsedTime = 0.0;
-}
-
-Oneshot::Oneshot(float duration, float sampleRate) {
-    _state = 0;
-    _sampleRate = sampleRate;
-    setDuration(duration);
-    _elapsedTime = 0.0;
+Oneshot::Oneshot(float initDuration, float initSampleRate) {
+    sampleRate = initSampleRate;
+    setDuration(initDuration);
 }
 
 void Oneshot::trigger() {
-    _state = 1;
-    _elapsedTime = 0.0;
+    state = 1;
+    elapsedTime = 0.f;
 }
 
 void Oneshot::process() {
-    if(_elapsedTime >= _duration) {
-        _state = 0;
-        _elapsedTime = 0.0;
+    if(elapsedTime >= duration) {
+        state = 0;
+        elapsedTime = 0.f;
     }
-    if(_state == 1) {
-        _elapsedTime += _deltaTime;
+    if(state == 1) {
+        elapsedTime += deltaTime;
     }
 }
 
-void Oneshot::setSampleRate(float sampleRate) {
-    _sampleRate = sampleRate;
-    _deltaTime = 1.0 / _sampleRate;
+void Oneshot::setSampleRate(float newSampleRate) {
+    sampleRate = newSampleRate;
+    deltaTime = 1.f / sampleRate;
 }
 
-void Oneshot::setDuration(float duration) {
-    _duration = duration;
-    if(_duration < 0.0) {
-        _duration = 0.0;
+void Oneshot::setDuration(float newDuration) {
+    duration = newDuration;
+    if(duration < 0.f) {
+        duration = 0.f;
     }
-    _deltaTime = 1.0 / _sampleRate;
+    deltaTime = 1.f / sampleRate;
 }
 
 int Oneshot::getState() const {
-    return _state;
+    return state;
 }

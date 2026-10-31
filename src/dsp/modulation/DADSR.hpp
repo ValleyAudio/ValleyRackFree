@@ -1,15 +1,19 @@
 #pragma once
+#include <cmath>
 
 class DEnv {
 public:
+    enum class State {
+        Idling,
+        Attacking,
+        Decaying,
+        Sustaining,
+        Releasing
+    };
+
     DEnv() {
-        _gated = false;
-        _triggered = false;
-        _idling = true;
-        _attacking = false;
-        _decaying = false;
-        _sustaining = false;
-        _releasing = false;
+        gated = false;
+        isTriggered = false;
         loop = false;
         value = 0.f;
 
@@ -21,112 +25,83 @@ public:
         base = 20000.f;
         maxTime = 10.f;
         timeScale = 1.f;
-        _prevGateState = false;
-        _prevTrigState = 0.f;
+        prevGateState = false;
+        prevTrigState = 0.f;
         setSampleRate(44100.f);
     }
     void process(float gate, float trig) {
-        /*if(gate >= 0.5f) {
-            if(trig >= 0.5f && _prevTrigState < 0.5f && !_triggered) {
-                _triggered = true;
-            }
-            _prevTrigState = trig;
-            if(_idling || _releasing || _triggered) {
-                _triggered = false;
-                _attacking = true;
-                _idling = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = false;
-            }
+        if(trig >= 0.1f && prevTrigState < 0.1f && !isTriggered) {
+            isTriggered = true;
         }
-        else if(gate < 0.5f) {
-            if(!_idling) {
-                _attacking = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = true;
-            }
-        }*/
+        prevTrigState = trig;
 
-        if(trig >= 0.1f && _prevTrigState < 0.1f && !_triggered) {
-            _triggered = true;
-        }
-        _prevTrigState = trig;
+        prevGateState = gated;
+        gated = gate >= 0.1f ? true : false;
 
-        _prevGateState = _gated;
-        _gated = gate >= 0.1f ? true : false;
-
-        if(_gated || _triggered) {
-            if(_idling || _releasing) {
-                _triggered = false;
-                _attacking = true;
-                _idling = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = false;
+        if(gated || isTriggered) {
+            if(state == State::Idling ||
+               state == State::Releasing) {
+                isTriggered = false;
+                state = State::Attacking;
             }
         }
 
-        if(!_gated && _prevGateState) {
-            if(!_idling) {
-                _attacking = false;
-                _decaying = false;
-                _sustaining = false;
-                _releasing = true;
+        if(!gated && prevGateState) {
+            if(state != State::Idling) {
+                state = State::Releasing;
             }
         }
 
         // The envelope
-        if(_idling) {
+        if(state == State::Idling) {
             value = 0.f;
         }
-        if(_attacking) {
-            value += powf(base, 1 - attackTime) / maxTime * (1.01f - value) * _sampleTime * timeScale;
+
+        if(state == State::Attacking) {
+            value += std::powf(base, 1 - attackTime) / maxTime * (1.01f - value) * sampleTime * timeScale;
             if(value > (1.f - 1e-4)) {
                 value = 1.f;
-                _attacking = false;
-                if(_gated) {
-                    _decaying = true;
+                if(gated) {
+                    state = State::Decaying;
                 }
                 else {
-                    _releasing = true;
+                    state = State::Releasing;
                 }
-            }
-        }
-        if(_decaying) {
-            value += powf(base, 1 - decayTime) / maxTime * (sustain - value) * _sampleTime * timeScale;
-            if(value < sustain + 1e-4) {
-                value = sustain;
-                _decaying = false;
-                _sustaining = true;
-            }
-        }
-        if(loop) {
-            if(_sustaining || _releasing) {
-                value = 0.f;
-                _attacking = true;
-                _sustaining = false;
-                _releasing = false;
             }
         }
 
-        if(_sustaining) {
+        if(state == State::Decaying) {
+            value += std::powf(base, 1 - decayTime) / maxTime * (sustain - value) * sampleTime * timeScale;
+            if(value < sustain + 1e-4) {
+                value = sustain;
+                state = State::Sustaining;
+            }
+        }
+
+        if(loop) {
+            if(state == State::Sustaining ||
+               state == State::Releasing) {
+                value = 0.f;
+                state = State::Attacking;
+            }
+        }
+
+        if(state == State::Sustaining) {
             value = sustain;
         }
-        if(_releasing) {
-            value += powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * _sampleTime * timeScale;
+
+        if(state == State::Releasing) {
+            value += std::powf(base, 1 - releaseTime) / maxTime * (0.0f - value) * sampleTime * timeScale;
             if(value < 1e-4) {
                 value = 0.f;
-                _releasing = false;
-                _idling = true;
+                state = State::Idling;
             }
         }
     }
 
-    void setSampleRate(float sampleRate) {
-        _sampleRate = sampleRate;
-        _sampleTime = 1.f / _sampleRate;
+    void setSampleRate(float newSampleRate) {
+        sampleRate = newSampleRate;
+        sampleTime = 1.f / sampleRate;
     }
 
     float attackTime;
@@ -137,11 +112,11 @@ public:
     float timeScale;
     bool loop;
 private:
-    float _sampleRate, _sampleTime;
+    float sampleRate, sampleTime;
     float base, maxTime;
-    bool _prevGateState;
-    float _prevTrigState;
-    bool _idling, _attacking, _decaying, _sustaining, _releasing;
-    bool _gated, _triggered;
+    bool prevGateState;
+    float prevTrigState;
+    State state = State::Idling;
+    bool gated, isTriggered;
 
 };
