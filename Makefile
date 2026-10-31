@@ -21,7 +21,7 @@ LDFLAGS +=
 SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c src/*/*/*.cpp src/*/*/*/c)
 
 # Must include the VCV plugin Makefile framework
-RACK_DIR ?= ../..
+RACK_DIR ?= $(HOME)/Dev/Rack-SDK
 
 BINARIES += src/ADD_BANK1.bin
 BINARIES += src/ADD_BANK2.bin
