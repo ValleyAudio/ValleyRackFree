@@ -1,7 +1,7 @@
 #pragma once
 #include <cmath>
 #include "../../simd/SIMDUtilities.hpp"
-#define _2M_PI 2.0 * M_PI
+#define VALLEY_2M_PI 2.0 * M_PI
 
 struct VecOnePoleLPFilter {
     VecOnePoleLPFilter();
@@ -43,7 +43,7 @@ struct VecOnePoleHPFilter {
     float sampleTime;
     float cutoffFreq;
     float maxCutoffFreq;
-    bool _bypassed;
+    bool bypassed;
     __m128 fc;
     __m128 a;
     __m128 b;

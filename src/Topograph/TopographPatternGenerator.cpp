@@ -75,39 +75,39 @@ void PatternGenerator::reset() {
 }
 
 void PatternGenerator::setMapX(float x) {
-    _settings.x = static_cast<uint8_t>(x * 255.0);
+    settings.x = static_cast<uint8_t>(x * 255.0);
 }
 
 void PatternGenerator::setMapY(float y) {
-    _settings.y = static_cast<uint8_t>(y * 255.0);
+    settings.y = static_cast<uint8_t>(y * 255.0);
 }
 
 void PatternGenerator::setBDDensity(float density) {
-    _settings.density[0] = static_cast<uint8_t>(density * 255.0);
+    settings.density[0] = static_cast<uint8_t>(density * 255.0);
 }
 
 void PatternGenerator::setSDDensity(float density) {
-    _settings.density[1] = static_cast<uint8_t>(density * 255.0);
+    settings.density[1] = static_cast<uint8_t>(density * 255.0);
 }
 
 void PatternGenerator::setHHDensity(float density) {
-    _settings.density[2] = static_cast<uint8_t>(density * 255.0);
+    settings.density[2] = static_cast<uint8_t>(density * 255.0);
 }
 
 void PatternGenerator::setEuclideanLength(unsigned int channel, float length){
-    _settings.euclidean_length[channel] = static_cast<uint8_t>(length * 255.0);
+    settings.euclidean_length[channel] = static_cast<uint8_t>(length * 255.0);
 }
 
 void PatternGenerator::setRandomness(float randomness) {
-    _settings.randomness = static_cast<uint8_t>(randomness * 255.0);
+    settings.randomness = static_cast<uint8_t>(randomness * 255.0);
 }
 
 void PatternGenerator::setAccentAltMode(bool accAlt){
-    _settings.accAlt = accAlt;
+    settings.accAlt = accAlt;
 }
 
 void PatternGenerator::setPatternMode(PatternGeneratorMode mode) {
-    _settings.patternMode = mode;
+    settings.patternMode = mode;
 }
 
 uint8_t PatternGenerator::getAllStates() const {
@@ -120,7 +120,7 @@ uint8_t PatternGenerator::getDrumState(uint8_t channel) const {
 }
 
 PatternGeneratorMode PatternGenerator::getPatternMode() const {
-    return _settings.patternMode;
+    return settings.patternMode;
 }
 
 uint8_t PatternGenerator::getBeat() const {
@@ -128,12 +128,12 @@ uint8_t PatternGenerator::getBeat() const {
 }
 
 uint8_t PatternGenerator::getEuclideanLength(uint8_t channel) {
-    return _settings.euclidean_length[channel];
+    return settings.euclidean_length[channel];
 }
 
 uint8_t PatternGenerator::readDrumMap(uint8_t step, uint8_t instrument, uint8_t x, uint8_t y) {
     uint8_t r = 0;
-    if(_settings.patternMode == PATTERN_HENRI) {
+    if(settings.patternMode == PATTERN_HENRI) {
         uint8_t i = (int)floor(x * 3.0 / 255.0);
         uint8_t j = (int)floor(y * 3.0 / 255.0);
         const uint8_t* a_map = drum_map[i][j];
@@ -171,7 +171,7 @@ void PatternGenerator::evaluate() {
     state = 0;
     state |= 0x40;
 
-    if (_settings.accAlt) {
+    if (settings.accAlt) {
         state |= OUTPUT_BIT_CLOCK;
     }
 
@@ -180,7 +180,7 @@ void PatternGenerator::evaluate() {
         return;
     }
 
-    if (_settings.patternMode == PATTERN_EUCLIDEAN) {
+    if (settings.patternMode == PATTERN_EUCLIDEAN) {
         evaluateEuclidean();
     } else {
         evaluateDrums();
@@ -197,8 +197,8 @@ void PatternGenerator::evaluateEuclidean() {
     uint8_t instrument_mask = 1;
     uint8_t reset_bits = 0;
     for (uint8_t i = 0; i < kNumParts; ++i) {
-        uint8_t length = (_settings.euclidean_length[i] >> 3) + 1;
-        uint8_t density = _settings.density[i] >> 3;
+        uint8_t length = (settings.euclidean_length[i] >> 3) + 1;
+        uint8_t density = settings.density[i] >> 3;
         uint16_t address = (length - 1) * 32 + density;
         while (euclideanStep[i] >= length) {
             euclideanStep[i] -= length;
@@ -214,7 +214,7 @@ void PatternGenerator::evaluateEuclidean() {
         instrument_mask <<= 1;
     }
 
-    if (_settings.accAlt) {
+    if (settings.accAlt) {
         state |= reset_bits ? OUTPUT_BIT_COMMON : 0;
         state |= (reset_bits == 0x07) ? OUTPUT_BIT_RESET : 0;
     } else {
@@ -227,14 +227,14 @@ void PatternGenerator::evaluateDrums() {
     if (step == 0) {
         for (uint8_t i = 0; i < kNumParts; ++i) {
             uint8_t randomNum = (uint8_t)rand() % 256;
-            uint8_t randomness = _settings.swing ? 0 : _settings.randomness >> 2;
+            uint8_t randomness = settings.swing ? 0 : settings.randomness >> 2;
             partPerturbation[i] = U8U8MulShift8(randomNum, randomness);
         }
     }
 
     uint8_t instrument_mask = 1;
-    uint8_t x = _settings.x;
-    uint8_t y = _settings.y;
+    uint8_t x = settings.x;
+    uint8_t y = settings.y;
     accentBits = 0;
     for (uint8_t i = 0; i < kNumParts; ++i) {
         uint8_t level = readDrumMap(step, i, x, y);
@@ -246,7 +246,7 @@ void PatternGenerator::evaluateDrums() {
             // this line to reproduce its behavior.
             level = 255;
         }
-        uint8_t threshold = ~_settings.density[i];
+        uint8_t threshold = ~settings.density[i];
         if (level > threshold) {
             if (level > 192) {
                 accentBits |= instrument_mask;
@@ -255,7 +255,7 @@ void PatternGenerator::evaluateDrums() {
         }
         instrument_mask <<= 1;
     }
-    if (_settings.accAlt) {
+    if (settings.accAlt) {
         state |= accentBits ? OUTPUT_BIT_COMMON : 0;
         state |= step == 0 ? OUTPUT_BIT_RESET : 0;
     }

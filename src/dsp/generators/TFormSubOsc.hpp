@@ -50,11 +50,11 @@ public:
                                    _mm_and_ps(_mm_cmpgt_ps(x, posEpsilon),
                                               _mm_cmple_ps(prev, negEpsilon)));
         prev = x;
-        __m128 __glitch = _mm_sub_ps(_mm_mul_ps(trig, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
+        __m128 vGlitch = _mm_sub_ps(_mm_mul_ps(trig, _mm_set1_ps(2.f)), _mm_set1_ps(1.f));
 
         output = _mm_linterp_ps(sine, saw, wave1);
         output = _mm_linterp_ps(output, square, wave2);
-        output = _mm_linterp_ps(output, __glitch, wave3);
+        output = _mm_linterp_ps(output, vGlitch, wave3);
         return output;
     }
 

@@ -480,12 +480,12 @@ void Dexter::step() {
         outputs[OP_4_OUTPUT].value += pOP4[i];
     }
 
-    outputs[A_LEFT_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
-    outputs[A_RIGHT_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
-    outputs[OP_1_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
-    outputs[OP_2_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
-    outputs[OP_3_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
-    outputs[OP_4_OUTPUT].value *= _outputLevels[chordNotes.size() - 1];
+    outputs[A_LEFT_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
+    outputs[A_RIGHT_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
+    outputs[OP_1_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
+    outputs[OP_2_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
+    outputs[OP_3_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
+    outputs[OP_4_OUTPUT].value *= outputLevels[chordNotes.size() - 1];
 }
 
 void Dexter::getParameters() {

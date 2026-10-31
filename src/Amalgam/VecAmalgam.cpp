@@ -41,7 +41,7 @@ VecAmalgam::VecAmalgam() {
     p[BIT_INTERLEAVE_FLOAT_MODE] = &VecAmalgam::bitInterleaveFloat;
     p[BIT_HACK_FLOAT_MODE] = &VecAmalgam::bitHackFloat;
 
-    _mode = RING_MOD_1_MODE;
+    mode_ = RING_MOD_1_MODE;
 
     std::srand(std::time(NULL));
     for(auto i = 0; i < 4; ++i) {
@@ -53,12 +53,12 @@ VecAmalgam::VecAmalgam() {
 }
 
 void VecAmalgam::setMode(int mode) {
-    _mode = mode;
-    if(_mode < 0) {
-        _mode = 0;
+    mode_ = mode;
+    if(mode_ < 0) {
+        mode_ = 0;
     }
-    else if(_mode >= NUM_MODES) {
-        _mode = NUM_MODES - 1;
+    else if(mode_ >= NUM_MODES) {
+        mode_ = NUM_MODES - 1;
     }
 }
 

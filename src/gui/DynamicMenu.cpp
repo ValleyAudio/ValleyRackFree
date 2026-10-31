@@ -1,17 +1,17 @@
 #include "ValleyWidgets.hpp"
 
-DynamicMenuItem::DynamicMenuItem(int itemNumber) : _itemNumber(itemNumber) {}
+DynamicMenuItem::DynamicMenuItem(int itemNumber) : itemNumber(itemNumber) {}
 
 void DynamicMenuItem::onAction(const event::Action &e) {
     if(setChoice) {
-        *_choice = _itemNumber;
-        setChoice(_itemNumber);
+        *choice = itemNumber;
+        setChoice(itemNumber);
     }
 }
 
 void DynamicMenuItem::step() {
-    if(_showTick) {
-        rightText = (*_choice == _itemNumber) ? "✔" : "";
+    if(showTick) {
+        rightText = (*choice == itemNumber) ? "✔" : "";
     }
     MenuItem::step();
 }
@@ -20,11 +20,11 @@ Menu* DynamicSubMenu::createChildMenu() {
     Menu* menu = new Menu;
     for(size_t i = 0; i < items.size(); ++i){
         DynamicMenuItem *item = new DynamicMenuItem(i);
-        item->_choice = choice;
-        item->_itemNumber = i + itemOffset;
+        item->choice = choice;
+        item->itemNumber = i + itemOffset;
         item->text = items[i];
         item->setChoice = setChoice;
-        item->_showTick = showTick;
+        item->showTick = showTick;
         menu->addChild(item);
     }
 
@@ -32,7 +32,7 @@ Menu* DynamicSubMenu::createChildMenu() {
 }
 
 DynamicMenu::DynamicMenu() {
-    _text = std::make_shared<std::string>("");
+    menuText = std::make_shared<std::string>("");
 }
 
 void DynamicMenu::onAction(const event::Action &e) {
@@ -40,8 +40,8 @@ void DynamicMenu::onAction(const event::Action &e) {
     menu->box.pos = getAbsoluteOffset(Vec(0, box.size.y)).round();
 	menu->box.size.x = box.size.x;
 
-    if (_subMenuGroupSize > 0) {
-        size_t numGroups = std::ceil((float)_items.size() / (float)_subMenuGroupSize);
+    if (subMenuGroupSize > 0) {
+        size_t numGroups = std::ceil((float)items.size() / (float)subMenuGroupSize);
         size_t itemNumber = 0;
         size_t startItem = 0;
         size_t endItem = 0;
@@ -54,19 +54,19 @@ void DynamicMenu::onAction(const event::Action &e) {
             DynamicSubMenu* subMenu = new DynamicSubMenu;
 
             startItem = itemNumber;
-            for (size_t j = 0; j < _subMenuGroupSize; ++j) {
-                if (itemNumber == _items.size()) {
+            for (size_t j = 0; j < subMenuGroupSize; ++j) {
+                if (itemNumber == items.size()) {
                     break;
                 }
 
-                subMenu->items.push_back(_items[itemNumber]);
+                subMenu->items.push_back(items[itemNumber]);
                 ++itemNumber;
             }
             endItem = itemNumber;
 
             subMenu->itemOffset = startItem;
-            subMenu->choice = &_choice;
-            subMenu->showTick = _showTick;
+            subMenu->choice = &choice;
+            subMenu->showTick = showTick;
             subMenu->setChoice = setChoice;
             subMenu->text = std::to_string(startItem + 1) + " - " + std::to_string(endItem);
             subMenu->rightText = RIGHT_ARROW;
@@ -74,13 +74,13 @@ void DynamicMenu::onAction(const event::Action &e) {
         }
     }
     else {
-        for(unsigned long i = 0; i < _items.size(); ++i){
+        for(unsigned long i = 0; i < items.size(); ++i){
             DynamicMenuItem *item = new DynamicMenuItem(i);
-            item->_choice = &_choice;
-            item->_itemNumber = i;
-            item->text = _items[i];
+            item->choice = &choice;
+            item->itemNumber = i;
+            item->text = items[i];
             item->setChoice = setChoice;
-            item->_showTick = _showTick;
+            item->showTick = showTick;
             menu->addChild(item);
         }
     }
@@ -103,24 +103,24 @@ void DynamicMenu::onLeave(const event::Leave &e) {
 }
 
 void DynamicMenu::step() {
-    *_text = _items[_choice];
+    *menuText = items[choice];
 }
 
 void DynamicMenu::draw(const DrawArgs &args) {
-    if(_isTransparent) {
+    if(isTransparent) {
         return;
     }
 
     std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
     if (font) {
-        nvgFontSize(args.vg, _textSize);
+        nvgFontSize(args.vg, textSize);
         nvgFontFaceId(args.vg, font->handle);
         nvgTextLetterSpacing(args.vg, 0.f);
         Vec textPos = Vec(this->box.size.x / 2.f, this->box.size.y / 2.f - 2.f);
         NVGcolor textColor = nvgRGB(0xFF,0xFF,0xFF);
         nvgFillColor(args.vg, textColor);
         nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-        nvgText(args.vg, textPos.x, textPos.y, _text->c_str(), NULL);
+        nvgText(args.vg, textPos.x, textPos.y, menuText->c_str(), NULL);
     }
 }
 
@@ -130,9 +130,9 @@ DynamicMenu* createDynamicMenu(const Vec& pos, const Vec& size,
     DynamicMenu* newMenu = new DynamicMenu;
     newMenu->box.pos = pos;
     newMenu->box.size = size;
-    newMenu->_subMenuGroupSize = subMenuGroupSize;
-    newMenu->_items = items;
-    newMenu->_isTransparent = isTransparent;
-    newMenu->_showTick = showTick;
+    newMenu->subMenuGroupSize = subMenuGroupSize;
+    newMenu->items = items;
+    newMenu->isTransparent = isTransparent;
+    newMenu->showTick = showTick;
     return newMenu;
 }

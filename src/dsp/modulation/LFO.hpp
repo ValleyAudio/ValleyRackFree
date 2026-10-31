@@ -10,58 +10,58 @@ public:
     double phase = 0.0;
 
     LFO() {
-        _frequency = 1.0;
-        _sampleRate = 44100.0;
-        _stepSize = _frequency * (double)kTableLength / _sampleRate;
+        frequency = 1.0;
+        sampleRate = 44100.0;
+        stepSize = frequency * (double)kTableLength / sampleRate;
         for(auto i = 0; i < kTableLength; ++i) {
-            _sine.push_back(sin(2.0 * M_PI * (double)i / (double)kTableLength));
+            sineTable.push_back(sin(2.0 * M_PI * (double)i / (double)kTableLength));
         }
-        _phasor = 0.0;
+        phasor = 0.0;
     }
 
     double process() {
-        _plusPhase = _phasor + phase * kTableLength;
-        if(_plusPhase < 0.0) {
-            _plusPhase += kTableLength;
+        plusPhase = phasor + phase * kTableLength;
+        if(plusPhase < 0.0) {
+            plusPhase += kTableLength;
         }
-        else if(_plusPhase >= kTableLength) {
-            _plusPhase -= kTableLength;
+        else if(plusPhase >= kTableLength) {
+            plusPhase -= kTableLength;
         }
 
-        _a = (long)_plusPhase;
-        _frac = _plusPhase - _a;
-        _b = _a + 1.0;
-        _b %= kTableLength;
-        output = _sine[_a] * (1.0 - _frac) + _sine[_b] * _frac;
+        a = (long)plusPhase;
+        frac = plusPhase - a;
+        b = a + 1.0;
+        b %= kTableLength;
+        output = sineTable[a] * (1.0 - frac) + sineTable[b] * frac;
 
-        _phasor += _stepSize;
-        if(_phasor >= kTableLength) {
-            _phasor -= kTableLength;
+        phasor += stepSize;
+        if(phasor >= kTableLength) {
+            phasor -= kTableLength;
         }
         return output;
     }
 
-    void setFrequency(double frequency) {
-        _frequency = frequency;
+    void setFrequency(double newFrequency) {
+        frequency = newFrequency;
         calcStepSize();
     }
-    void setSamplerate(double sampleRate) {
-        _sampleRate = sampleRate;
+    void setSamplerate(double newSampleRate) {
+        sampleRate = newSampleRate;
         calcStepSize();
     }
 private:
-    double _frequency;
-    double _sampleRate;
-    double _stepSize;
-    double _phasor;
-    double _plusPhase;
-    long _a, _b;
-    double _frac;
+    double frequency;
+    double sampleRate;
+    double stepSize;
+    double phasor;
+    double plusPhase;
+    long a, b;
+    double frac;
     const long kTableLength = 4096;
-    std::vector<double> _sine;
+    std::vector<double> sineTable;
 
     void calcStepSize() {
-        _stepSize = _frequency * (double)kTableLength / _sampleRate;
+        stepSize = frequency * (double)kTableLength / sampleRate;
     }
 };
 
@@ -69,82 +69,82 @@ class TriSawLFO {
 public:
     TriSawLFO(double sampleRate = 44100.0, double frequency = 1.0) {
         phase = 0.0;
-        _output = 0.0;
-        _sampleRate = sampleRate;
-        _step = 0.0;
-        _rising = true;
+        output = 0.0;
+        this->sampleRate = sampleRate;
+        step = 0.0;
+        rising = true;
         setFrequency(frequency);
         setRevPoint(0.5);
     }
 
     double process() {
-        if(_step > 1.0) {
-            _step -= 1.0;
-            _rising = true;
+        if(step > 1.0) {
+            step -= 1.0;
+            rising = true;
         }
 
-        if(_step >= _revPoint) {
-            _rising = false;
+        if(step >= revPoint) {
+            rising = false;
         }
 
-        if(_rising) {
-            _output = _step * _riseRate;
+        if(rising) {
+            output = step * riseRate;
         }
         else {
-            _output = _step * _fallRate - _fallRate;
+            output = step * fallRate - fallRate;
         }
 
-        _step += _stepSize;
-        _output *= 2.0;
-        _output -= 1.0;
-        return _output;
+        step += stepSize;
+        output *= 2.0;
+        output -= 1.0;
+        return output;
     }
 
-    void setFrequency(double frequency) {
-        if (frequency == _frequency) {
+    void setFrequency(double newFrequency) {
+        if (newFrequency == frequency) {
             return;
         }
-        _frequency = frequency;
+        frequency = newFrequency;
         calcStepSize();
     }
 
-    void setRevPoint(double revPoint) {
-        _revPoint = revPoint;
-        if(_revPoint < 0.0001) {
-            _revPoint = 0.0001;
+    void setRevPoint(double newRevPoint) {
+        revPoint = newRevPoint;
+        if(revPoint < 0.0001) {
+            revPoint = 0.0001;
         }
-        if(_revPoint > 0.999) {
-            _revPoint = 0.999;
+        if(revPoint > 0.999) {
+            revPoint = 0.999;
         }
 
-        _riseRate = 1.0 / _revPoint;
-        _fallRate = -1.0 / (1.0 - _revPoint);
+        riseRate = 1.0 / revPoint;
+        fallRate = -1.0 / (1.0 - revPoint);
     }
 
-    void setSamplerate(double sampleRate) {
-        _sampleRate = sampleRate;
+    void setSamplerate(double newSampleRate) {
+        sampleRate = newSampleRate;
         calcStepSize();
     }
 
     double getOutput() const {
-        return _output;
+        return output;
     }
 
     double phase;
 
 private:
-    double _output;
-    double _sampleRate;
-    double _frequency = 0.0;
-    double _revPoint;
-    double _riseRate;
-    double _fallRate;
-    double _step;
-    double _stepSize;
-    bool _rising;
+    double output;
+    double sampleRate;
+    double frequency = 0.0;
+    double revPoint;
+    double riseRate;
+    double fallRate;
+    double step;
+    double stepSize;
+    bool rising;
 
     void calcStepSize() {
-        _stepSize = _frequency / _sampleRate;
+        stepSize = frequency / sampleRate;
     }
 };
 

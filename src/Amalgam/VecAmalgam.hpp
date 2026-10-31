@@ -52,14 +52,14 @@ public:
             sampleVec = highVec;
         }
 
-        return (this->*p[_mode])(x, y, paramA, paramB);
+        return (this->*p[mode_])(x, y, paramA, paramB);
     }
 
     void setMode(int mode);
     void setSampleRate(float sampleRate);
 
 private:
-    int _mode;
+    int mode_;
     __m128 zVec;
     __m128 zerosVec, onesVec, negOnesVec, halfsVec, highVec;
 

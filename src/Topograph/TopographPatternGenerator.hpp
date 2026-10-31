@@ -108,7 +108,7 @@ public:
     uint8_t getEuclideanLength(uint8_t channel);
 
 private:
-    PatternGeneratorOptions _settings;
+    PatternGeneratorOptions settings;
     uint8_t pulse = 0;
     uint8_t beat = 0;
     uint8_t firstBeat = 0;

@@ -38,8 +38,6 @@
 #include <cstdint>
 #include <vector>
 #include <cmath>
-
-#define _1_INT32_MAX 1 / INT32_MAX
 using namespace std;
 
 struct Amalgam : Module {

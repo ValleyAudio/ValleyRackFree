@@ -298,7 +298,7 @@ struct Dexter : Module {
     __m128 lowChordMaskTableVec[7];
     __m128 highChordMaskTableVec[7];
     __m128 lowChordMaskVec, highChordMaskVec;
-    float _outputLevels[7] = {1.f, 0.5f, 0.333333f, 0.25f, 0.2f, 0.166666f, 0.143f};
+    float outputLevels[7] = {1.f, 0.5f, 0.333333f, 0.25f, 0.2f, 0.166666f, 0.143f};
     std::string syncRoutingText[2] = {"Parent", "Neighbour"};
     unsigned long syncRouting = 0;
     unsigned long indivBOutputs = 0;

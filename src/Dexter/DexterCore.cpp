@@ -295,10 +295,10 @@ void DexterCore::setSampleRate(float sampleRate) {
 }
 
 void DexterCore::calcOpLevels() {
-    int _opMask = 1;
+    int opMask = 1;
     for (size_t i = 0; i < kNumOperators; ++i) {
         opLevels[i] = inLevels[i];
-        if (_opMask & brightnessMask) {
+        if (opMask & brightnessMask) {
             opLevels[i] += brightness;
         }
         if (opLevels[i] < 0.f) {
@@ -308,7 +308,7 @@ void DexterCore::calcOpLevels() {
             opLevels[i] = 1.f;
         }
         opLevelVec[i] = _mm_set1_ps(opLevels[i]);
-        _opMask <<= 1;
+        opMask <<= 1;
     }
 }
 

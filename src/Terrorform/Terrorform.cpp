@@ -1667,15 +1667,15 @@ void TerrorformWidget::step() {
     if (updateBankNames) {
         updateBankNames = false;
         if(tform->readFromUserWaves) {
-            bankMenu->_items = tform->userWaveTableNames;
+            bankMenu->items = tform->userWaveTableNames;
         }
         else if (!dynamic_cast<Terrorform*>(module)->readFromUserWaves) {
-            bankMenu->_items = bankMenuItems;
+            bankMenu->items = bankMenuItems;
         }
     }
 
     bankKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::BANK_PARAM));
-    bankKnobTooltipText = std::to_string(bankKnobStep) + " " + bankMenu->_items[bankKnobStep];
+    bankKnobTooltipText = std::to_string(bankKnobStep) + " " + bankMenu->items[bankKnobStep];
     bankKnob->setModeText(bankKnobTooltipText);
 
     float waveValue = (float)(tform->waveAmountDisplay);
@@ -1686,7 +1686,7 @@ void TerrorformWidget::step() {
     // Shape Knob and Display
     shapeTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::SHAPE_TYPE_PARAM));
     shapeTypeKnobTooltipText = std::to_string(shapeTypeKnobStep) + " " +
-                               shapeMenu->_items[shapeTypeKnobStep];
+                               shapeMenu->items[shapeTypeKnobStep];
     shapeTypeKnob->setModeText(shapeTypeKnobTooltipText);
 
     int nameIndex = (int)(tform->shapeDisplay);
@@ -1706,7 +1706,7 @@ void TerrorformWidget::step() {
     // Enhance Knob and Display
     enhanceTypeKnobStep = static_cast<int>(APP->engine->getParamValue(module, Terrorform::ENHANCE_TYPE_PARAM));
     enhanceTypeKnobTooltipText = std::to_string(enhanceTypeKnobStep) + " " +
-                                 enhanceMenu->_items[enhanceTypeKnobStep];
+                                 enhanceMenu->items[enhanceTypeKnobStep];
     enhanceTypeKnob->setModeText(enhanceTypeKnobTooltipText);
 
     nameIndex = (int)(tform->enhanceDisplay);
@@ -1721,8 +1721,8 @@ void TerrorformWidget::step() {
 
     size_t syncChoice = static_cast<size_t>(tform->syncChoice);
     syncText->setText(syncNames[syncChoice]);
-    if (syncMenu->_choice != syncChoice) {
-        syncMenu->_choice = syncChoice;
+    if (syncMenu->choice != syncChoice) {
+        syncMenu->choice = syncChoice;
     }
 
     // Report slots filled to editor

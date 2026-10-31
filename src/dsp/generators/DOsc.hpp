@@ -70,12 +70,12 @@ public:
 
     inline void setFrequency(float f) {
         freq = f;
-        _calcStepSize();
+        calcStepSize();
     }
 
     void setSampleRate(float newSampleRate) {
         sampleRate = newSampleRate;
-        _calcStepSize();
+        calcStepSize();
         sawHPF.setSampleRate(sampleRate);
         pulseHPF.setSampleRate(sampleRate);
         subHPF.setSampleRate(sampleRate);
@@ -157,7 +157,7 @@ private:
     int subOffsetLevel, subLimit;
     int xInt;
     DCBlocker sawHPF, pulseHPF, subHPF;
-    void _calcStepSize() {
+    void calcStepSize() {
         stepSize = freq / sampleRate;
         stepSize = stepSize > 0.5f ? 0.5f : stepSize;
         subStepSize = stepSize * subScale;

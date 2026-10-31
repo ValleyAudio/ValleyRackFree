@@ -78,18 +78,18 @@ public:
   void setQ(const __m128& Q);
 
     inline void setMode(int mode) {
-        if(_mode == mode) {
+        if(this->mode == mode) {
             return;
         }
 
-        _mode = mode;
+        this->mode = mode;
         pole0Coeff = zeros;
         pole1Coeff = zeros;
         pole2Coeff = zeros;
         pole3Coeff = zeros;
         pole4Coeff = zeros;
 
-        switch(_mode) {
+        switch(this->mode) {
             case LP2_MODE:
                 pole2Coeff = ones;
                 break;
@@ -133,7 +133,7 @@ protected:
     __m128 sigma, gamma, u;
     __m128 lp1Result, lp2Result, lp3Result, lp4Result;
 
-    int _mode = -1;
+    int mode = -1;
     __m128 pole0Coeff, pole1Coeff, pole2Coeff, pole3Coeff, pole4Coeff;
 
     int32_t pos[4] = {0, 0, 0, 0};

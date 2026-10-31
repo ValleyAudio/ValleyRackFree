@@ -35,9 +35,9 @@ struct PlainText : TransparentWidget {
 struct DynamicMenuItem : MenuItem {
     DynamicMenuItem(int itemNumber);
     void onAction(const event::Action &e) override;
-    size_t* _choice = nullptr;
-    size_t _itemNumber = 0;
-    bool _showTick = true;
+    size_t* choice = nullptr;
+    size_t itemNumber = 0;
+    bool showTick = true;
     void step() override;
     std::function<void(int)> setChoice = nullptr;
 };
@@ -59,13 +59,13 @@ struct DynamicMenu : ChoiceButton {
     void onLeave(const event::Leave &e) override;
     void draw(const DrawArgs &args) override;
 
-    size_t _choice = 0;
-	size_t _subMenuGroupSize = 0;
-    std::vector<std::string> _items;
-    std::shared_ptr<std::string> _text;
-    bool _isTransparent = false;
-    bool _showTick = true;
-    int _textSize = 14;
+    size_t choice = 0;
+	size_t subMenuGroupSize = 0;
+    std::vector<std::string> items;
+    std::shared_ptr<std::string> menuText;
+    bool isTransparent = false;
+    bool showTick = true;
+    int textSize = 14;
 
     std::function<void()> onMouseEnter;
     std::function<void()> onMouseLeave;

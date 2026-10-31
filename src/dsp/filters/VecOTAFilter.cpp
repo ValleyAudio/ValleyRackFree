@@ -63,7 +63,7 @@ VecOTAFilter::VecOTAFilter() {
         x = 0.f;
 
     setSampleRate(44100.f);
-    _mode = -1;
+    mode = -1;
     setMode(LP4_MODE);
 }
 
@@ -108,10 +108,6 @@ void VecOTAFilter::setCutoff(const __m128& newPitch) {
     __m128 vHighH = _mm_loadu_ps(highH);
     hRecip = _mm_linterp_ps(vLowH, vHighH, frac);
 
-    /*long pos = (long)_cutoff;
-    float frac = _cutoff - (float)pos;
-    _g = linterp(kGTable[pos], kGTable[pos + 1], frac);*/
-
     /*h = _mm_add_ps(ones, g);
     hRecip = _mm_div_ps(ones, h);*/
     G = _mm_mul_ps(g, hRecip);
@@ -126,7 +122,6 @@ void VecOTAFilter::setCutoff(const __m128& newPitch) {
 }
 
 void VecOTAFilter::setQ(const __m128& Q) {
-  //_k = 4.f * clip(Q, 0.f, 10.f) / 10.f;
   k = _mm_mul_ps(_mm_set1_ps(0.4f), _mm_clamp_ps(Q, _mm_set1_ps(0.f), _mm_set1_ps(10.f)));
 }
 
